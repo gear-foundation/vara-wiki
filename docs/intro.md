@@ -1,12 +1,12 @@
 ---
-title: About Vara Network
+title: Vara Network
 sidebar_position: 1
-sidebar_label: About Vara Network
+sidebar_label: Intro
 ---
 
 **Vara** is advansed smart contract L1 network based on Substrate and Gear Protocol.
 
-**Vara Network** can be considered mostly as a test-bed for optimizations and experiments. It will have the utility of a single-chain, high-performance, lowest latency network. Once it is live, it will live forever and will never lose any user data. It will have very little governance. Gaming, payments and experimental use cases will likely be best suited for Vara.
+**Vara Network** can be considered mostly as a test bed for optimizations and experiments. It will have the utility of a single-chain, high-performance, lowest-latency network. Once it is life, it will live forever and will never lose any user data. It will have very little governance. Gaming, payments, and experimental use cases will likely be best suited for Vara.
 
 The main features of Vara network are:
 

@@ -6,4 +6,4 @@ RUN npm run build
 
 FROM nginx:alpine
 RUN rm -vf /usr/share/nginx/html/*
-COPY --from=builder /whitepaper/build /usr/share/nginx/html
+COPY --from=builder /vara-wiki/build /usr/share/nginx/html

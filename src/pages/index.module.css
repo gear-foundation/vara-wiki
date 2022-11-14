@@ -1,13 +1,16 @@
-/**
- * CSS files with the .module.css suffix will be treated as CSS modules
- * and scoped locally.
- */
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@800&display=swap');
 
 .heroBanner {
   padding: 4rem 0;
   text-align: center;
   position: relative;
   overflow: hidden;
+  background: radial-gradient(
+      42.35% 52.35% at 50.87% 70.86%,
+      rgba(0, 255, 196, 0.2) 0,
+      rgba(0, 255, 196, 0) 100%
+    ),
+    #242625;
 }
 
 @media screen and (max-width: 996px) {
@@ -20,4 +23,58 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.btn {
+  background-color: #00a87a;
+  border-radius: 9999px;
+  width: auto;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 700;
+  padding: 0.7rem 2rem;
+  text-align: center;
+  transition-property: color, background-color, border-color,
+    text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.15s;
+  margin-top: 2.5rem;
+}
+
+.btn:hover {
+  text-decoration: none;
+  color: #ffffff;
+  background: rgba(15, 153, 119, 1);
+}
+
+.title {
+  color: #e5e7eb;
+  font-family: Raleway, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans,
+    sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
+    Noto Color Emoji;
+  font-weight: 800;
+  font-size: 72px;
+}
+
+.gradient {
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+  --tw-gradient-from: #b3b3b3;
+  --tw-gradient-to: hsla(0, 0%, 70%, 0);
+  --tw-gradient-stops: #b3b3b3, #00a87a;
+  --tw-gradient-to: #00a87a;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.subtitle {
+  color: #e5e7eb;
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 2rem;
 }

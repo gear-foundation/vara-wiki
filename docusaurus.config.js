@@ -6,7 +6,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Vara Documentation Portal',
+  title: 'Vara Network Documentation Portal',
   tagline: 'All documentation related to Vara Network',
   url: 'https://wiki.vara-network.io/',
   baseUrl: '/',

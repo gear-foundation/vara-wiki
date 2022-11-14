@@ -1,4 +1,4 @@
-name: Build and Deploy whitepaper to k8s
+name: Build and Deploy Vara Wiki to k8s
 
 on:
   push:

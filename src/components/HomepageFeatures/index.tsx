@@ -1,55 +1,63 @@
 import React from 'react';
 import clsx from 'clsx';
+import Link from '@docusaurus/Link';
 import styles from './styles.module.css';
 
 type FeatureItem = {
   title: string;
-  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
+  img: string;
   description: JSX.Element;
+  url: string
 };
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    title: 'Become a Validator',
+    img: 'img/validate.png',
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Produce blocks, maintain consensus, and run dApps. It is not only respected but also well rewarded.
       </>
     ),
+    url: '/docs/validate/validator'
   },
   {
-    title: 'Focus on What Matters',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    title: 'Become a Nominator',
+    img: 'img/nominate.png',
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Help maintain the network by participating as a nominator. Stake your VARA and get reward!
       </>
     ),
+    url: '/docs/nominate/'
   },
   {
-    title: 'Powered by React',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    title: 'Start to develop',
+    img: 'img/develop.png',
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Are you developer? <br />Start building a new generation of web3 applications right now.
       </>
     ),
+    url: '/'
   },
 ];
 
-function Feature({title, Svg, description}: FeatureItem) {
+function Feature({ title, img, description, url }: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
       <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
+        <img src={img} className={styles.featureSvg} role="img" />
       </div>
-      <div className="text--center padding-horiz--md">
+      <div className="text--center padding-horiz--md padding-vert--md">
         <h3>{title}</h3>
         <p>{description}</p>
+
+        <Link
+          className={styles.btn}
+          to={url}>
+          Learn more
+        </Link>
       </div>
     </div>
   );

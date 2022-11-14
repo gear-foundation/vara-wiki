@@ -1,47 +1,18 @@
 ---
+title: Vara Network
 sidebar_position: 1
+sidebar_label: Intro
 ---
 
-# Tutorial Intro
+**Vara** is advansed smart contract L1 network based on Substrate and Gear Protocol.
 
-Let's discover **Docusaurus in less than 5 minutes**.
+**Vara Network** can be considered mostly as a test bed for optimizations and experiments. It will have the utility of a single-chain, high-performance, lowest-latency network. Once it is life, it will live forever and will never lose any user data. It will have very little governance. Gaming, payments, and experimental use cases will likely be best suited for Vara.
 
-## Getting Started
+The main features of Vara network are:
 
-Get started by **creating a new site**.
+- Fastest truly decentralized L1 ever
+- Testbed for new features and optimizations
+- Stable and upgradable network thanks to Substrate
+- Little to no governance
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
-
-### What you'll need
-
-- [Node.js](https://nodejs.org/en/download/) version 16.14 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
-
-## Generate a new site
-
-Generate a new Docusaurus site using the **classic template**.
-
-The classic template will automatically be added to your project after you run the command:
-
-```bash
-npm init docusaurus@latest my-website classic
-```
-
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
-
-The command also installs all necessary dependencies you need to run Docusaurus.
-
-## Start your site
-
-Run the development server:
-
-```bash
-cd my-website
-npm run start
-```
-
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
-
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+Many next-generation apps, like gaming and payments, require low latency execution. The Vara standalone network will provide the fastest on-ramp for these applications and will unlock new potential applications.

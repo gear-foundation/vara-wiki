@@ -50,8 +50,8 @@ function Feature({ title, img, description, url }: FeatureItem) {
         <img src={img} className={styles.featureSvg} role="img" />
       </div>
       <div className="text--center padding-horiz--md padding-vert--md">
-        <h3>{title}</h3>
-        <p>{description}</p>
+        <h3 className={styles.title}>{title}</h3>
+        <p className={styles.text}>{description}</p>
 
         <Link
           className={styles.btn}

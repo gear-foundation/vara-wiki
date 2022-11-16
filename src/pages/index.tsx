@@ -10,7 +10,10 @@ function HomepageHeader() {
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
-        <h1 className={styles.title}><span className={styles.gradient}> Vara Network</span> <br /> Documentation portal</h1>
+        <h1 className={styles.title}>
+          <span className={styles.gradient}>Vara Network</span>
+          <br />documentation portal
+        </h1>
         <p className={styles.subtitle}>All documentation related to Vara Network</p>
         <div className={styles.buttons}>
           <Link

@@ -27,3 +27,11 @@
   transition-duration: 0.15s;
   margin-top: 1rem;
 }
+
+.title {
+  color: #111111;
+}
+
+.text {
+  color: #111111;
+}

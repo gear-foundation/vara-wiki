@@ -48,7 +48,8 @@ const config = {
       navbar: {
         logo: {
           alt: 'Vara Network',
-          src: 'img/logo-vara.svg',
+          src: 'img/logo-vara-green.svg',
+          srcDark: "img/logo-vara.svg"
         },
         items: [
           {

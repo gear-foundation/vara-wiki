@@ -1,4 +1,9 @@
 /* You can override the default Infima variables here. */
+
+html {
+  font-size: 15px;
+}
+
 :root {
   --ifm-color-primary: #00a87a;
   --ifm-color-primary-dark: #29784c;
@@ -27,6 +32,10 @@
   background: #242526;
 }
 
+[data-theme='light'] .navbar__toggle {
+  color: #ffffff;
+}
+
 [data-theme='light'] .navbar__link {
   color: #00a87a;
 }
@@ -43,10 +52,10 @@
 
 [data-theme='light']
   .toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module {
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 [data-theme='light']
   .toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module:hover {
-  background: #444950;
+  background: #444950 !important;
 }

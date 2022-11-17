@@ -73,11 +73,6 @@ const config = {
             label: 'Contribute',
             position: 'right',
           },
-          {
-            href: 'https://github.com/gear-tech/vara-wiki',
-            label: 'GitHub',
-            position: 'right',
-          },
         ],
       },
       prism: {

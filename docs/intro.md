@@ -14,8 +14,6 @@ Vara Network is fast and scalable non-fork upgradable network that allows it to 
 
 Many next-generation apps, like gaming and payments, require low latency execution. The Vara standalone network will provide the fastest on-ramp for these applications and will unlock new potential applications.
 
-Right after its start, Vara transitions though BETA stage. It means that as soon as it is live, there is no guarantee it is free of bugs. But thanks to fork-less upgrade, it will live forever and will never lose any user data.
-
 The main features of Vara network are:
 
 - Fastest truly decentralized L1 ever
@@ -23,24 +21,6 @@ The main features of Vara network are:
 - Stable and upgradable network thanks to Substrate
 - Little to no governance
 
-
-Vara benefits from Gear’s unique tech stack that includes the Actor Model, Persistent Memory and the WebAssembly virtual machine (Wasm).
-
-### Actor Model
-
-Anyone can instantiate a program that becomes a part of the network. In the Actor Model for communications these programs as well as users are known as “actors”. Actors do not share their state and communicate via messages, this way adding an extra layer of security to the network. All communications are asynchronous, but logically guaranteed to be handled, which increases the achievable network  speed and allows building of more sophisticated dApps.
-
-For more info, read in [Gear wiki](https://wiki.gear-tech.io/docs/gear/technology/actor-model).
-
-### Persistent Memory
-
-The Persistent Memory concept implies that programs don't use shared storage, but rather their full state is persisted in individual memory space. Clever and effective memory virtualization techniques allow tracking memory access and ensuring that only required pages are persisted and loaded when needed. It removes many complexities smoothing the development process, while also mapping running programs and their states to more closely resemble real-life operating system primitives.
-
-For more info, read in [Gear wiki](https://wiki.gear-tech.io/docs/gear/technology/persist-memory).
-
-### Wasm
-
-WebAssembly allows the running of any bytecode in a sandboxed environment. Smart contracts in Vara are run as Wasm programs (Actors), and since Wasm can be compiled from a variety of common programming languages, it considerably lowers the barrier to entry for developers arriving from the Web2 space. 
-Enabling native speed for deterministic cross-platforms computations, Wasm is Web3 development unlocked.
-
-For more info, read in [Gear wiki](https://wiki.gear-tech.io/docs/gear/technology/WASM).
+:::note
+Right after its start, Vara transitions though BETA stage. It means that as soon as it is live, there is no guarantee it is free of bugs. But thanks to fork-less upgrade, it will live forever and will never lose any user data.
+:::

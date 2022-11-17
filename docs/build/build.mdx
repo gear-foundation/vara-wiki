@@ -1,0 +1,48 @@
+---
+title: Build Smart Contracts
+sidebar_position: 1
+sidebar_label: Build Smart Contracts
+---
+
+To get started with basics about how to write your smart contact on Gear Protocol and upload to the network, what prerequisites are required and how to set them up, Gear Team provides a single point of knowledge - the **[Gear Wiki](https://wiki.gear-tech.io/)**.
+
+[This guide](https://wiki.gear-tech.io/docs/getting-started-in-5-minutes) provides a general overview of running smart contracts on the network powered by Gear. It guides you through how to write a smart contract, compile it to Wasm and deploy it to the Vara network in 5 minutes.
+
+## Gear Protocol's library
+
+Messages are the main interface for communications between Actors (users and programs). Every Gear program contains code for processing an incoming message. During message processing, programs can send messages to other programs and users including replying to the initial message.
+
+The Gear Protocol's library `gstd` provides necessary and sufficient custom functions and methods including arbitrary async/await syntax for developing smart-contracts.
+
+Check [these articles](https://wiki.gear-tech.io/docs/developing-contracts/executable-functions) to start developing dApps on Gear Protocol. There you will find detailed information about Gear library, executable and state functions, data decoding/encoding, asynchronous programming, programs testing and more. 
+
+## Gear Node
+
+Gear Node provides runtime that helps smart contract developers in implementation and testing (personal node) as well as become a part of a Vara Network as validators.
+
+Anyone can compile a Gear node on their own or download the prebuilt binary (nightly build). From a functional standpoint it doesn't matter if it was downloaded or built manually.
+Node can be built, installed and run under Linux, Mac and Windows operating systems.
+
+[Here](https://wiki.gear-tech.io/docs/node/setting-up) you can find detailed information on how to install and run the Gear Node, keep it up and running, backup, restore and troubleshoot.
+
+## Gear-JS API
+
+The Gear-JS API provides a set of utilities, libraries and tools that enable JavaScript applications to interact with smart contracts running in the Vara network via queries to a Gear Node.
+
+The basic API is implemented on the Substrate layer and is the same for all Substrate-based networks. It enables connection to a local or remote node, and get node info, subscribe to events etc. The main capabilities of Gear-JS API are - working with the program's metadata, calculating gas required for network operations, uploading programs in the network, sending a message or a reply to a program, reading program's state, getting messages from the user's mailbox and more.
+
+[Learn more](https://wiki.gear-tech.io/docs/api/getting-started) about how to implement your web application that interacts with the smart-contracts in the Vara Network.
+
+## Gear Idea
+
+**[Gear Idea](https://idea.gear-tech.io/)** is a convenient tool that provides smart-contract developers the easiest and fastest way to upload smart-contracts to a Vara Network directly in their browser without additional configuration.
+
+For development and testing purposes, the Gear Idea can be connected to any supported Gear-based networks such as Test-Networks (public or private) or even a localhost Gear Node.
+
+This application implements all possibilities of interaction with smart-contracts in Gear Networks - upload a new smart contract, send a message to a contract and get a response. The Idea also allows managing accounts and balances, observing transaction events, working with various wallets and more.
+
+## Smart Contract Examples
+
+Gear Team implemented a vast number of examples for various use cases that can be used for familiarization with writing programs on Gear Protocol or become the basis for your own dApp. They can be used as is or modified to suit your own scenarios.
+
+More details are in [Smart Contract Examples](https://wiki.gear-tech.io/docs/examples/prerequisites), the source code is available on [GitHub](https://github.com/gear-dapps).

@@ -1,12 +1,16 @@
 ---
 title: Vara Network
 sidebar_position: 1
-sidebar_label: Intro
+sidebar_label: Getting Started
 ---
 
-**Vara** is advansed smart contract L1 network based on Substrate and Gear Protocol.
+The **Vara Network** is a stand-alone layer-1 decentralized network built and running on top of **[Gear Protocol](https://www.gear-tech.io/)**. 
 
-**Vara Network** can be considered mostly as a test bed for optimizations and experiments. It will have the utility of a single-chain, high-performance, lowest-latency network. Once it is life, it will live forever and will never lose any user data. It will have very little governance. Gaming, payments, and experimental use cases will likely be best suited for Vara.
+Gear Protocol is a Substrate-based smart-contract platform that enables anyone to develop and run a dApp in Vara Network as well as other networks powered by the Gear Protocol’s runtime and technology.
+
+Vara Network is a fast and scalable non-fork upgradable network that allows it to be the best playground for next-gen Gaming, Financial-based applications, experimental features but not only. Any other modern use cases are perfectly suited for running on Vara. Building on Vara Network is ideal for both developers already in Web3 as well as those migrating from Web2 seeking the most secure, efficient, scalable environment for deploying their decentralized applications.
+
+Many next-generation apps, like gaming and payments, require low latency execution. The Vara standalone network will provide the fastest on-ramp for these applications and will unlock new potential applications.
 
 The main features of Vara network are:
 
@@ -15,4 +19,6 @@ The main features of Vara network are:
 - Stable and upgradable network thanks to Substrate
 - Little to no governance
 
-Many next-generation apps, like gaming and payments, require low latency execution. The Vara standalone network will provide the fastest on-ramp for these applications and will unlock new potential applications.
+:::note
+Right after its launch, Vara goes through the BETA stage. It means that as soon as it is live, there is no guarantee it is free of bugs. But thanks to the fork-less upgrade, it will live forever and will never lose any user data.
+:::

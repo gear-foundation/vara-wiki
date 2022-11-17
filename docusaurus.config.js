@@ -59,8 +59,18 @@ const config = {
             label: 'Docs',
           },
           {
+            href: 'https://www.vara-network.io/',
+            label: 'Vara-network.io',
+            position: 'right',
+          },
+          {
+            href: 'https://www.gear-tech.io/',
+            label: 'Gear-tech.io',
+            position: 'right',
+          },
+          {
             href: 'https://github.com/gear-tech/vara-wiki',
-            label: 'GitHub',
+            label: 'Contribute',
             position: 'right',
           },
         ],

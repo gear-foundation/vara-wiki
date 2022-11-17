@@ -12,34 +12,34 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
+    title: 'Start developing',
+    img: 'img/develop.png',
+    description: (
+      <>
+        Are you developer? <br/>Start building a new generation of Web3 applications right now.
+      </>
+    ),
+    url: '/docs/build'
+  },
+  {
     title: 'Become a Validator',
     img: 'img/validate.png',
     description: (
       <>
-        Produce blocks, maintain consensus, and run dApps. It is not only respected but also well rewarded.
+        Provide computing resources to keep the Vara Network secure, performant and censorship-resistant. It is not only a responsibility, but also a good reward. 
       </>
     ),
-    url: '/docs/validate/validator'
+    url: '/docs/validate'
   },
   {
     title: 'Become a Nominator',
     img: 'img/nominate.png',
     description: (
       <>
-        Help maintain the network by participating as a nominator. Stake your VARA and get reward!
+        Help maintain the network security by participating as a nominator. <br/> Stake your VARA and get reward!
       </>
     ),
     url: '/docs/nominate/'
-  },
-  {
-    title: 'Start to develop',
-    img: 'img/develop.png',
-    description: (
-      <>
-        Are you developer? <br />Start building a new generation of web3 applications right now.
-      </>
-    ),
-    url: '/'
   },
 ];
 

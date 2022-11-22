@@ -35,12 +35,12 @@ Download `gear-node` from the nightly builds repo and unpack (choose the binary 
 Terminal:
 
 ```bash
-curl -O https://github.com/gear-tech/builds/releases/download/vara/vara-nightly-windows-x86_64.zip
+curl -O https://get.gear.rs/vara-nightly-windows-x86_64.zip
 ```
 
 or
 
-**Windows x64**: [vara-nightly-windows-x86_64.zip](https://github.com/gear-tech/builds/releases/download/vara/vara-nightly-windows-x86_64.zip)
+**Windows x64**: [vara-nightly-windows-x86_64.zip](https://get.gear.rs/vara-nightly-windows-x86_64.zip)
 
 Unzip the downloaded package then you can try to run the node:
 
@@ -55,15 +55,15 @@ gear-node 0.1.0-hashcode-x86_64-windows
 Terminal:
 
 ```bash
-wget https://github.com/gear-tech/builds/releases/download/vara/vara-nightly-macos-m1.tar.gz && \
-tar xvf vara-nightly-macos-m1.tar.gz && \
-rm vara-nightly-macos-m1.tar.gz && \
+wget https://get.gear.rs/vara-nightly-macos-m.tar.gz && \
+tar xvf vara-nightly-macos-m.tar.gz && \
+rm vara-nightly-macos-m.tar.gz && \
 chmod +x gear-node
 ```
 
 or
 
-**macOS M1/M2**: [vara-nightly-macos-m1.tar.gz](https://github.com/gear-tech/builds/releases/download/vara/vara-nightly-macos-m1.tar.gz)
+**macOS M1/M2**: [vara-nightly-macos-m1.tar.gz](https://get.gear.rs/vara-nightly-macos-m.tar.gz)
 
 You can try to run the node:
 
@@ -78,15 +78,15 @@ gear-node 0.1.0-hashcode-aarch64-macos
 Terminal:
 
 ```bash
-wget https://github.com/gear-tech/builds/releases/download/vara/vara-nightly-macos-x86_64.tar.gz && \
+wget https://get.gear.rs/vara-nightly-macos-x86_64.tar.gz && \
 tar xvf vara-nightly-macos-x86_64.tar.gz && \
 rm vara-nightly-macos-x86_64.tar.gz && \
-chmod +x gear-node
+chmod +x gear
 ```
 
 or
 
-**macOS Intel x64**: [vara-nightly-macos-x86_64.tar.gz](https://github.com/gear-tech/builds/releases/download/vara/vara-nightly-macos-x86_64.tar.gz)
+**macOS Intel x64**: [vara-nightly-macos-x86_64.tar.gz](https://get.gear.rs/vara-nightly-macos-x86_64.tar.gz)
 
 You can try to run the node:
 
@@ -102,20 +102,20 @@ gear-node 0.1.0-hashcode-x86_64-macos
 Terminal:
 
 ```bash
-wget https://github.com/gear-tech/builds/releases/download/vara/vara-nightly-linux-x86_64.tar.xz && \
+wget https://get.gear.rs/vara-nightly-linux-x86_64.tar.xz && \
 tar xvf vara-nightly-linux-x86_64.tar.xz && \
 rm vara-nightly-linux-x86_64.tar.xz && \
-chmod +x gear-node
+chmod +x gear
 ```
 
 or
 
-**Linux x64**: [vara-nightly-linux-x86_64.tar.xz](https://github.com/gear-tech/builds/releases/download/vara/vara-nightly-linux-x86_64.tar.xz)
+**Linux x64**: [vara-nightly-linux-x86_64.tar.xz](https://get.gear.rs/vara-nightly-linux-x86_64.tar.xz)
 
 You can try to run the node:
 
 ```
-❯ ./gear-node --version
+❯ ./gear --version
 gear-node 0.1.0-hashcode-x86_64-linux
 ```
 
@@ -163,10 +163,10 @@ sudo apt install ansible
 sudo apt install sshpass
 ```
 
-Next, download this [Ansible playbook](https://github.com/gear-tech/builds/blob/master/ansible/vara/install-validator.yml):
+Next, download this [Ansible playbook](https://get.gear.rs/ansible/vara/install-validator.yml):
 
 ```sh
-wget https://raw.githubusercontent.com/gear-tech/builds/master/ansible/vara/install-validator.yml
+wget https://get.gear.rs/ansible/vara/install-validator.yml
 ```
 
 Run the Ansible playbook then enter the node name and the seed phrase generated above when prompted (this node name will be visible on the telemetry site, see below):

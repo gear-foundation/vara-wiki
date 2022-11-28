@@ -1,0 +1,18 @@
+{
+  "item.label.Docs": {
+    "message": "Docs",
+    "description": "Navbar item with label Docs"
+  },
+  "item.label.Vara-network.io": {
+    "message": "Vara-network.io",
+    "description": "Navbar item with label Vara-network.io"
+  },
+  "item.label.Gear-tech.io": {
+    "message": "Gear-tech.io",
+    "description": "Navbar item with label Gear-tech.io"
+  },
+  "item.label.Contribute": {
+    "message": "Contribute",
+    "description": "Navbar item with label Contribute"
+  }
+}

@@ -4,12 +4,21 @@ sidebar_position: 1
 sidebar_label: Create account
 ---
 
-The Vara Network is substrate-based, which means that any keypair compatible with the sr25519 standard will also work on Vara.
+A Substrate account enables connection to applications across Polkadot, Kusama and their Parachains. There are several ways to generate a Substrate account described in this article, depending on whether you are using a desktop or a mobile device.
+
+The Vara Network is Substrate-based, which means that any keypair compatible with the standards of the [`subkey`](https://docs.substrate.io/reference/command-line-tools/subkey/) module will also work on Vara.
+
+## Key information and security
 
 For most users, the use of popular and reliable wallets will be enough.
-If you need to create a cold wallet for storing funds, then you should pay attention to Parity Signer (in the future we will also add Ledger support)
+If you need to create a cold wallet for storing funds, then you should pay attention to [Parity Signer](parity-signer.mdx) (in the future we will also add Lager support)
 
-:::info
+There are two key features that make up an account - an address and a key (keypair):
+
+- An address is the public aspect of the account. This is essentially a location that you can send transactions to and from.
+- A key is the private part of the account. This is what enables you to access the address.
+
+The only way to access your account is via your private key (using the seed (or mnemonic) phrase or your account's JSON file and a password).
 
 ### Storing your key safely
 
@@ -18,18 +27,14 @@ Your seed phrase is the key to your account. If you lose access to your account,
 We recommend that you store your seed in secure places like encrypted hard drives, non-digital devices or ideally, paper. We also recommend that you take other safety precautions to prevent this copy from physical damage, for example fire and water, and make multiple copies stored in different locations.
 
 You should never store your seed on a device that is, or ever will be, connected to the internet.
-:::
-
-:::info
 
 ### Storing your accounts JSON file
 
-Your account’s JSON file is encrypted with a password. This means that while you can import into any wallet, you will need to use the password to do so successfully. As there is this additional layer of security - a password - you don’t have to be as cautious about securing it. However, it’s worth using highly secure passwords that are not used for anything else. It would be best if you made a note of this password offline.
-:::
+Your account's JSON file is encrypted with a password. This means that while you can import into any wallet, you will need to use the password to do so successfully. As there is this additional layer of security - a password - you don't have to be as cautious about securing it. However, it's worth using highly secure passwords that are not used for anything else. It would be best if you made a note of this password offline.
 
 ## Via Talisman
 
-`Talisman` is a popular and user-friendly wallet for creating and managing Substrate accounts. Being connected to web3 applications across various networks, Talisman browser extension allows to store, send and receive assets.
+`Talisman` is a popular non-custodial wallet for creating and managing Substrate accounts. Being connected to Web3 applications across various networks, Talisman browser extension allows to store, send and receive assets. The Talisman browser extension is one of the easiest and secure ways of creating a Substrate account.
 
 1. Install Talisman extension for your browser [here](https://talisman.xyz/)
 
@@ -47,6 +52,10 @@ And that's it. Your wallet has been created:
 
 ![img alt](./img/talisman-3.png)
 
+:::warning Note!
+Don't forget to save your seed phrase by clicking the `Backup Now` button. If you will skip this step, you can do it later from Settings.
+:::
+
 ## Via Subwallet
 
 Subwallet is another advanced wallet for managing Substrate as well as EVM accounts.
@@ -55,15 +64,15 @@ Subwallet is another advanced wallet for managing Substrate as well as EVM accou
 
 2. Open Subwallet by clicking on its logo in the browser menu bar.
 
-3. Click "Create new account":
+3. Click the `Create new account` button:
 
 ![img alt](./img/subwallet-1.png)
 
-4. Select the type of account you want to create (Subwallet allows you to create Substrate-like and Ethereum accounts at once). Copy your seed phrase and keep it in the same place:
+4. Select the type of account you want to create - Subwallet allows you to create Substrate-like and Ethereum accounts at once. Copy your seed phrase and keep it in the safe place:
 
 ![img alt](./img/subwallet-2.png)
 
-5. Provide your password in the next step. And click "Add the account with the generated seed"
+5. Provide your password in the next step. And click `Add the account with the generated seed`:
 
 ![img alt](./img/subwallet-3.png)
 
@@ -119,6 +128,19 @@ If you have `Gear` or `Vara` node installed, you can generate a new `seed phrase
 
 And then `import` the generated seed phrase into any convenient wallet.
 
+## How to get your address in the Vara Network format
+
+:::note Skip these steps if you have an account created via Polkadot.js browser extension
+
+1. Install Polkadot browser extension from here: https://polkadot.js.org/extension/ and import your account via Seed prase or JSON file.
+2. Go to https://polkadot.js.org/apps, allow this web application to interact with Polkadot extension in the prompt window.
+   :::
+
+- To see your account in the Vara Network format, just go to https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.vara-network.io#/accounts.
+- The address will be shown in the Vara format (with `kG…` or `kD…` prefix). Copy the address if you want to share it with someone.
+
+![img alt](./img/pdjs-vara-account.png)
+
 ## Frequently Asked Questions
 
 #### Is this account portable?
@@ -135,8 +157,8 @@ And then `import` the generated seed phrase into any convenient wallet.
 
 #### Does vara support hard wallets?
 
-> Yes! At the moment Vara supports Parity Signer. Also in the future we will support Leger.
+> Yes! At the moment Vara supports [Parity Signer](parity-signer.mdx). Also in the future we will support Leger.
 
 #### How to get your address in the Vara Network format?
 
-> The Vara address prefix is 137. To see your account in VARA format, just go to https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.vara-network.io#/accounts
+> The Vara address prefix is 137. To see your account in the Vara Network format, just go to https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.vara-network.io#/accounts

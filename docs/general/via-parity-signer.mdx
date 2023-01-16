@@ -9,7 +9,7 @@ import appleURL from './img/app-store-badge.png';
 
 # Vara cold storage via Parity Signer
 
-Parity Signer allows you to turn any mobile device based on Android or iOS into a real cold walllet. Your private keys are kept secure offline at all times and transactions are signed in an air-gapped way via QR-codes. A huge advantage is the completely open and transparent source code of [the product](https://github.com/paritytech/parity-signer)
+Parity Signer allows you to turn any mobile device based on Android or iOS into a real cold wallet. Your private keys are kept secure offline at all times and transactions are signed in an air-gapped way via QR-codes. A huge advantage is the completely open and transparent source code of [the product](https://github.com/paritytech/parity-signer).
 
 Vara Network completely supports working with Parity Signer.
 
@@ -28,7 +28,7 @@ Download from the application store for your device:
   </a>
 </div>
 
-Download directly from the github:
+Download directly from the GitHub:
 
 https://github.com/paritytech/parity-signer/releases
 
@@ -42,13 +42,17 @@ Go offline, generate and store your private keys. Backup your seed phrase on pap
 
 ## Add Vara Network
 
-To sign messages/transactions, and transfer funds to and from VARA account We need to add Vara Network to app.
+To sign messages/transactions, and transfer funds to and from VARA account we need to add Vara Network into the app.
 
 1. Open your Signer and select tab `scan`
 
-2. Go to [Metadata Portal](https://metadata.vara-network.io/#/vara)
+2. Go to [Metadata Portal](https://metadata.vara-network.io/#/vara) and open chain specs tab
 
 3. Scan with your device `spec QR`
+
+After spec scanning you can select Vara Network for your account:
+
+![add metadata](./img/signer-acc0.png)
 
 ## Add network Metadata
 
@@ -65,7 +69,7 @@ To get the latest blockchain metadata:
 3. Scan with your device video QR with matadata frames
 
 :::info
-Scanning QR with metadata could take some time. Remember to update the Signer to the latest version of metadata, you will need to do the scan again. We generate new QR's with a each runtime upgrade of the network.
+Scanning QR with metadata could take some time. Remember to update the Signer to the latest version of metadata, you will need to do the scan again. We generate new QR's with each runtime upgrade of the network.
 :::
 
 When all metadata is uploaded, signer will be ready to work on the Vara Network.
@@ -78,7 +82,7 @@ The signer allows you to sign transactions using an air-gapped way. You scan a Q
 
 To import your hard wallet account into Polkadot.js:
 
-1. You should go to (account section)[https://polkadot.js.org/apps/#/accounts] and click `from QR` button.
+1. You should go to [account section](https://polkadot.js.org/apps/#/accounts) and click `from QR` button.
 
 ![add metadata](./img/polkadtot-via-qr.png)
 
@@ -96,7 +100,7 @@ Done! Now, when making transactions from this account, we will sign them with yo
 
 ![add metadata](./img/p-ext-1.png)
 
-2. Click + to import new accoutn and choose `Attach external QR-signer account` option:
+2. Click <keyboard>+</keyboard> to import new account and choose `Attach external QR-signer account` option:
 
 ![add metadata](./img/p-ext-2.png)
 

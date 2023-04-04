@@ -12,17 +12,18 @@ Validators are special network participants who, if selected in an active `valid
 
 Running a validator on a live network is a responsible role. The validators are responsible not only for their own stake, but also for the stake of their current nominators. Nevertheless, this is an important role that is also well rewarded.
 
-## Initial Set Up
-
-### Hardware requirements
+## Hardware requirements
 
 :::info
 The most common way for a beginner to run a validator is on a cloud server running Linux. To do this, choose whatever VPS provider corresponds to the characteristics below.
 :::
 
-`Minimum system hardware requirements` : 2vCPUs, 4GB RAM, 100GB SSD storage
+- `OS:` Ubuntu 20.04 or later, Amazon Linux 2 or later
+- `CPU:` 4vCPUs @ 3.4GHz; (it coud be Intel Ice Lake, Xeon or Core series, even AMD Zen3)
+- `Memory:` 16GB RAM
+- `Storage:` minimum 160GB SSD storage. Should be increased as the blockchain grows.
 
-`OS`: Ubuntu 20.04 or later, Amazon Linux 2 or later
+## Initial Set Up
 
 ### Install Vara Node
 
@@ -35,18 +36,18 @@ Download `gear` node from the nightly builds repo and unpack (choose the binary 
 Terminal:
 
 ```bash
-curl -O https://get.gear.rs/vara-nightly-windows-x86_64.zip
+curl -O https://get.gear.rs/gear-nightly-windows-x86_64.zip
 ```
 
 or
 
-**Windows x64**: [vara-nightly-windows-x86_64.zip](https://get.gear.rs/vara-nightly-windows-x86_64.zip)
+**Windows x64**: [gear-nightly-windows-x86_64.zip](https://get.gear.rs/gear-nightly-windows-x86_64.zip)
 
 Unzip the downloaded package then you can try to run the node:
 
 ```
 ❯ gear.exe --version
-gear.exe 0.1.0-a1a44748703
+gear.exe 0.1.3-dda96e01adf
 ```
 
 </TabItem>
@@ -55,21 +56,21 @@ gear.exe 0.1.0-a1a44748703
 Terminal:
 
 ```bash
-wget https://get.gear.rs/vara-nightly-macos-m.tar.gz && \
-tar xvf vara-nightly-macos-m.tar.gz && \
-rm vara-nightly-macos-m.tar.gz && \
+wget https://get.gear.rs/gear-nightly-macos-m.tar.gz && \
+tar xvf gear-nightly-macos-m.tar.gz && \
+rm gear-nightly-macos-m.tar.gz && \
 chmod +x gear
 ```
 
 or
 
-**macOS M1/M2**: [vara-nightly-macos-m1.tar.gz](https://get.gear.rs/vara-nightly-macos-m.tar.gz)
+**macOS M1/M2**: [gear-nightly-macos-m.tar.gz](https://get.gear.rs/gear-nightly-macos-m.tar.gz)
 
 You can try to run the node:
 
 ```
 ❯ ./gear --version
-gear 0.1.0-a1a44748703
+gear 0.1.3-dda96e01adf
 ```
 
 </TabItem>
@@ -78,125 +79,132 @@ gear 0.1.0-a1a44748703
 Terminal:
 
 ```bash
-wget https://get.gear.rs/vara-nightly-macos-x86_64.tar.gz && \
-tar xvf vara-nightly-macos-x86_64.tar.gz && \
-rm vara-nightly-macos-x86_64.tar.gz && \
+wget https://get.gear.rs/gear-nightly-macos-x86_64.tar.gz && \
+tar xvf gear-nightly-macos-x86_64.tar.gz && \
+rm gear-nightly-macos-x86_64.tar.gz && \
 chmod +x gear
 ```
 
 or
 
-**macOS Intel x64**: [vara-nightly-macos-x86_64.tar.gz](https://get.gear.rs/vara-nightly-macos-x86_64.tar.gz)
+**macOS Intel x64**: [gear-nightly-macos-x86_64.tar.gz](https://get.gear.rs/gear-nightly-macos-x86_64.tar.gz)
 
 You can try to run the node:
 
 ```
 ❯ ./gear --version
-gear 0.1.0-a1a44748703
+gear 0.1.3-dda96e01adf
 ```
 
 </TabItem>
 
-<TabItem value="mac-linux" label="Linux x64">
+<TabItem value="linux" label="Linux x64">
 
 Terminal:
 
 ```bash
-wget https://get.gear.rs/vara-nightly-linux-x86_64.tar.xz && \
-tar xvf vara-nightly-linux-x86_64.tar.xz && \
-rm vara-nightly-linux-x86_64.tar.xz && \
+wget https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && \
+tar xvf gear-nightly-linux-x86_64.tar.xz && \
+rm gear-nightly-linux-x86_64.tar.xz && \
 chmod +x gear
 ```
 
 or
 
-**Linux x64**: [vara-nightly-linux-x86_64.tar.xz](https://get.gear.rs/vara-nightly-linux-x86_64.tar.xz)
+**Linux x64**: [gear-nightly-linux-x86_64.tar.xz](https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz)
 
 You can try to run the node:
 
 ```
 ❯ ./gear --version
-gear 0.1.0-a1a44748703
+gear 0.1.3-dda96e01adf
 ```
 
 </TabItem>
 </Tabs>
 ````
 
-### Create Stash and Controller accounts
+### Run Vara node as service
+
+Copy the `gear` executable to the `/usr/bin` directory:
+
+```bash
+sudo cp gear /usr/bin
+```
+
+To run the Gear node as one of the Linux services, you need to configure the systemd file:
+
+```bash
+cd /etc/systemd/system
+sudo nano vara-node.service
+```
+
+Configure and save:
+
+```bash
+Description=Vara Node
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+
+ExecStart=/usr/bin/gear \
+    --chain vara  \
+    --rpc-cors all \
+    --name "VALIDATOR_NAME" \
+    --port 30333 \
+    --rpc-port 9933 \
+    --ws-port 9944 \
+    --telemetry-url "wss://telemetry.rs/submit 0" \
+    --validator
+Restart=always
+RestartSec=3
+LimitNOFILE=10000
+
+[Install]
+WantedBy=multi-user.target
+```
+
+:::note
+Declaration `ExecStart` points to the location of the `gear` binary file. In this case, it is in `/usr/bin` directory.
+The example is configured to run the service from the `root` user.
+:::
+
+Save & Exit.
+That’s it. Now we can start the service.
+
+```sh
+sudo systemctl start vara-node.service
+```
+
+### Syncing the Blockchain
+
+If you do everything correctly, the node will need some time to synchronize with the blockchain.
+To check the service status in realtime use:
+
+```sh
+sudo journalctl --follow -u vara-node.service
+```
+
+You can also see your running node in telemetry portal: https://telemetry.rs
+
+## Create Stash and Controller accounts
 
 For security reasons, we recommend creating two separate accounts: `Stash` and `Controller`. It's important to make sure that each of them has enough funds to pay the transaction fee. Most of the funds should be stored on the stash account since it's meant to store staking funds.
 
 To generate new seed phrase:
 
 ```sh
-./gear key generate | grep phrase
+./gear key generate --network vara
 ```
 
 :::note
 Both seed phrases should be carefully saved in a secure place. If you want to use your own seed phrase, you can skip the previous step. Also you can use [Polkadot.{js}](https://polkadot.js.org/apps/#/accounts) or [Polkadot extension](https://polkadot.js.org/extension/)
 :::
 
-### Run Node
-
-The most convenient and easiest way to run a node in validator mode will be to use the `ansible script` we have prepared.
-
-Install ansible
-
-- macOS:
-
-```
-brew install ansible
-
-# Optional
-# If you access your server using SSH login and password instead of SSH key
-
-brew install esolitos/ipa/sshpass
-
-```
-
-- Ubuntu Linux:
-
-```
-sudo add-apt-repository --yes --update ppa:ansible/ansible
-sudo apt install ansible
-
-# Optional:
-sudo apt install sshpass
-```
-
-Next, download this [Ansible playbook](https://get.gear.rs/ansible/vara/install-validator.yml):
-
-```sh
-wget https://get.gear.rs/ansible/vara/install-validator.yml
-```
-
-Run the Ansible playbook then enter the node name and the seed phrase generated above when prompted (this node name will be visible on the telemetry site, see below):
-
-```sh
-ansible-playbook install-validator.yml -i <my-host>, -u <user> --key-file <path-to-key-file>
-
-# use flad -k instead --key-file if you use sshpass
-```
-
-Wait until the playbook completes and check in Ansible log that vara-node.service has running state:
-
-```
-TASK [Write vara-node status] ************************
-
-ok: [<my-host>] => {
-    "ansible_facts.services[\"vara-node.service\"]": {
-        "name": "vara-node.service",
-        "source": "systemd",
-        "state": "running",
-        "status": "enabled"
-    }
-}
-```
-
-You can also see your node with the name you set when running the playbook in telemetry: https://telemetry.rs
-
-### Get session keys
+## Get session keys
 
 You need to tell the chain your Session keys. If you are on a remote server, it is easier to run this command on the same machine (while the node is running with the default HTTP RPC port configured):
 
@@ -234,3 +242,20 @@ And sign the transaction. Make sure that you have been added to the stash accoun
 When the next Era starts, your validator will be added.
 
 ![setup validator](./img/setup-validator-3.png)
+
+## Update Validator
+
+Updating one’s validator is an important maintenance requirement. You cannot skip it or forget.
+
+The fastest and simplest way to update the validator:
+
+1. Download the latest binary version
+2. Swap binaries
+3. Restart your service
+
+```sh
+sudo systemctl start vara-node.service
+```
+
+👏👏👏 Gongratulations! 👏👏👏
+If you need help — reach out in the [Validators Chat](https://discord.com/channels/891063355526217738/1014177678473035777)!

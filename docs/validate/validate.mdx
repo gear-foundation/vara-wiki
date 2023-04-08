@@ -1,5 +1,5 @@
 ---
-title: Run Vara Validator Node
+title: Run Vara Validator
 sidebar_position: 1
 sidebar_label: Become Validator
 ---
@@ -8,14 +8,14 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import CodeBlock from '@theme/CodeBlock';
 
-Validators are special network participants who, if selected in an active `validator set`, produce blocks for the chain. Validators receive a reward for their bets.
+Validators are essential contributors to a successful blockchain network. When chosen to be part of a `validator set`, they help produce blocks and receive rewards for their investments in the platform.
 
-Running a validator on a live network is a responsible role. The validators are responsible not only for their own stake, but also for the stake of their current nominators. Nevertheless, this is an important role that is also well rewarded.
+Holding such responsibility requires careful commitment from each validator because of personal and nominator stakes that may be at risk; however, working as a network validator is also highly rewarding!
 
 ## Hardware requirements
 
 :::info
-The most common way for a beginner to run a validator is on a cloud server running Linux. To do this, choose whatever VPS provider corresponds to the characteristics below.
+Beginners can start their validator setup on Linux-based cloud servers. Select the VPS provider that best meets the requirements below to maximize performance and run securely.
 :::
 
 - `OS:` Ubuntu 20.04 or later, Amazon Linux 2 or later
@@ -178,8 +178,8 @@ sudo systemctl start vara-node.service
 
 ### Syncing the Blockchain
 
-If you do everything correctly, the node will need some time to synchronize with the blockchain.
-To check the service status in realtime use:
+If you follow all the instructions, the node will require time to synchronize with the blockchain.
+To check the service status in real time use:
 
 ```sh
 sudo journalctl --follow -u vara-node.service
@@ -189,16 +189,16 @@ You can also see your running node in telemetry portal: https://telemetry.rs
 
 ## Create Stash and Controller accounts
 
-For security reasons, we recommend creating two separate accounts: `Stash` and `Controller`. It's important to make sure that each of them has enough funds to pay the transaction fee. Most of the funds should be stored on the stash account since it's meant to store staking funds.
+We recommend creating two accounts: Stash and Controller, for security reasons. Ensure each of them has enough funds to pay the transaction fee. Store most of the funds on the Stash accounts, which are the optimal location for saving staking funds safely and securely.
 
-To generate new seed phrase:
+Use the prompt to generate a new seed phrase:
 
 ```sh
 ./gear key generate --network vara
 ```
 
 :::note
-Both seed phrases should be carefully saved in a secure place. If you want to use your own seed phrase, you can skip the previous step. Also you can use [Polkadot.{js}](https://polkadot.js.org/apps/#/accounts) or [Polkadot extension](https://polkadot.js.org/extension/)
+Save both seed phrases in a secure place. Skip the previous step if you intend to use your seed phrase. If you want to use your seed phrase, skip this step. You can use [Polkadot.{js}](https://polkadot.js.org/apps/#/accounts) or [Polkadot extension](https://polkadot.js.org/extension/)
 :::
 
 ## Get session keys
@@ -219,14 +219,14 @@ The output will have a hex-encoded `result` field. Copy and save it!
 
 ## Setup Validator
 
-If your node is live and synchronized, appears in telemetry, and session keys are prepared it's time to set up the validator.
+Once your node is live, synchronized, and appears in telemetry, and session keys are prepared, it's time to set up the validator.
 
 Go to Polkadot.{js} app and navigate to Network → Staking → [Account actions](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fvara.gear.rs#/staking/actions) section and click `+Validator`:
 
-Select stash and controller account and specify the amount of own stake. It's recommended to use different accounts for stash and controller.
+Choose your stash and controller accounts and specify your stake amount. It's recommended to utilize distinct accounts both stash and controller.
 
 :::info
-How much VARA do I need to become a Validator? Now the minimum amount of own stake to be selected equals **1 VARA**. Anyhow the minimum stake that is necessary to be elected as an active validator is dynamic and can change over time.
+The minimum stake required to become an active Validator is currently 1 VARA, but it is subject to change over time.
 :::
 
 ![setup validator](./img/setup-validator-1.png)
@@ -235,14 +235,13 @@ Set the `session key` and reward commission.
 
 ![setup validator](./img/setup-validator-2.png)
 
-And sign the transaction. Make sure that you have been added to the stash account and wait for the next Era.
-When the next Era starts, your validator will be added.
+Sign the transaction. Ensure you're added to the stash account and wait for the next Era to start. Once it begins, the network will add your validator.
 
 ![setup validator](./img/setup-validator-3.png)
 
 ## Update Validator
 
-Updating one’s validator is an important maintenance requirement. You cannot skip it or forget.
+Regularly updating your validator is critical for keeping up with current maintenance requirements.
 
 The fastest and simplest way to update the validator:
 
@@ -254,5 +253,4 @@ The fastest and simplest way to update the validator:
 sudo systemctl start vara-node.service
 ```
 
-👏👏👏 Gongratulations! 👏👏👏
-If you need help — reach out in the [Validators Chat](https://discord.com/channels/891063355526217738/1014177678473035777)!
+👏👏👏 Congratulations! You’ve successfully set up your validator node. 👏👏👏 If you encounter challenges or need help — reach out in the [Validators Chat](https://discord.com/channels/891063355526217738/1014177678473035777)!

@@ -5,6 +5,7 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
+    "start:zh": "npm run start -- --locale zh-cn",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
@@ -16,6 +17,7 @@
   },
   "dependencies": {
     "@docusaurus/core": "2.2.0",
+    "@docusaurus/plugin-content-docs": "^2.2.0",
     "@docusaurus/preset-classic": "2.2.0",
     "@mdx-js/react": "^1.6.22",
     "clsx": "^1.2.1",

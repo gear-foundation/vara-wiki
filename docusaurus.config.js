@@ -18,9 +18,16 @@ const config = {
 
   i18n: {
     defaultLocale: 'en',
-    locales: ['en'],
+    locales: ['en', 'zh-cn'],
+    localeConfigs: {
+      'en': {
+        label: 'English',
+      },
+      'zh-cn': {
+        label: '简体中文'
+      }
+    }
   },
-
   presets: [
     [
       'classic',
@@ -71,6 +78,10 @@ const config = {
           {
             href: 'https://github.com/gear-tech/vara-wiki',
             label: 'Contribute',
+            position: 'right',
+          },
+          {
+            type: 'localeDropdown',
             position: 'right',
           },
         ],

@@ -3,4 +3,153 @@ title: Governance
 sidebar_position: 6
 ---
 
-`The page is under construction...`
+## Introduction
+
+Vara empowers its community to decide the evolution of the network through its on-chain governance mechanism. In the interests of decentralization, longevity and flexibility, Vara leverages the widely-adopted OpenGov framework as its native governance model. This allows any VARA token holder to participate in Vara’s decentralized governance to help determine any future updates or modifications to the network. 
+
+The goal is to ensure that Vara Network stakeholders are represented, led, and engaged in decision-making processes to collaboratively decide the direction of the network. To accomplish this, Vara establishes a clear mandate and set of values to ensure orderly discussion and execution of decisions. At its most fundamental level, Vara’s governance model ensures that stakeholders controlling at least 50% of all funds staked to the network are able to direct its future — assuming they have enough _conviction_ in their position.
+
+## Glossary Terms
+
+- **Conviction** - The amount of “weight” a vote carries. This is calculated using the number of tokens locked into a vote, plus the user-defined period of time tokens should be locked for. The longer this lock-in period, the greater conviction a vote will carry.
+- **Proposal** - an action or item proposed by a token holder, which is open for voting and discussion by all token holders. This is tied to a specific change to the Vara network, including values for key parameters, code upgrades, or changes to the governance system itself.
+- **Referendum** (plural: referenda) -  a proposal that has met the proposal criteria and entered from the Lead-In period to the Deciding Period. It remains open for token-holder voting for the defined time, before being checked against referendum criteria and entering the Enactment period if successful.
+- **Origin** - a set of permissions that define the source for an operation, which is used to determine the Track that a referendum is posted under.
+- **Track** - an Origin-specific pipeline that outlines the life cycle of proposals. Currently, there are several Tracks available, including Root, Whitelisted, General Admin, Emergency Canceller, and Emergency Killer.
+- **Fellowship** - a group of community members who have special voting rights within the Gear protocol and can add certain proposals to the Whitelisted Track.
+- **Approval** - the minimum "Aye" votes as a percentage of overall Conviction-weighted votes needed for an approval.
+- **Support** - the minimum number of "Aye" votes, not taking into consideration Conviction-weighted votes, needed as a percent of the total supply needed for an approval.
+- **Lead-in Period** - the initial proposal voting and discussion period. At this stage, proposals are in an undecided state until they pass some criteria for the given Track, including the Track having capacity, a minimum Prepare Period having passed, and a decision deposit having been paid.
+- **Decision Deposit** - the minimum deposit amount required for a referendum to progress to the Decision Period after the end of the Lead-in Period. Its goal is to mitigate spam since each Track has a predefined capacity for concurrent referenda. 
+- **Deciding Period** - token holders continue to vote on the referendum. If a referendum does not pass by the end of the period, it will be rejected, and the Decision Deposit will be refunded.
+- **Enactment Period** - a specified time, which is defined at the time the proposal was created, that an approved referendum waits before it can be dispatched. There is a minimum amount of time for each Track.
+
+## How to Participate in Governance
+
+Vara’s governance model is powered by a democratic model that factors in token holders’ votes, and gives them the ability to delegate voting power to community members in several ways. Proposals are submitted by the community, after which they will be discussed and voted upon by the community.
+
+Referenda can be proposed, discussed, and voted towards, using Vara’s governance forum: https://vara.polkassembly.io/gov-2
+
+Referenda are simple and inclusive. Stake-based voting schemes use votes from different organizations to make decisions in the shared ecosystem of a distributed ledger (i.e on-chain governance). Each referendum has a specific proposal that takes the form of a privileged function call, which can switch out the entire code of the runtime in the runtime, which would typically require a "hard fork" in legacy blockchain networks.
+
+Referenda can be initiated by following one of several ways. Publicly submitted proposals, proposals submitted by the fellowship, and proposals submitted as part of the enactment of a prior referendum. Referenda have a fixed time to lunch: 28 days. Proposals submitted as part of the enactment of a prior referendum can be set as desired.
+
+All referenda have an enactment delay associated with them. This delay is the period between the referenda ending and — assuming the proposal was approved — being enacted.
+
+Vara’s network members can start a referendum at any time. Referenda can be started as often as necessary and can last indefinitely. Several features, known as Origins and Tracks, help streamline the referenda flow.
+
+An Origin can be thought of as a rich descriptor for a given privilege level. The proposer of the referenda now selects an appropriate Origin for their request based on the proposal's requirements. Each Origin is associated with a single referendum class, and each type is related to a Track.
+
+The Track outlines the lifecycle of the proposal. It is independent of other proposal tracks, which allows the network to tailor the dynamics of referenda based on their implied privilege level. In the example, a runtime upgrade (set_code call) has different implications for the ecosystem than an approval of a treasury tip (reportAwesome call). Therefore different origins need to be established with separate predetermined turnouts, approvals, deposits, and minimum enactment periods.
+
+### Proposing a Referendum
+
+Vara aims to keep barriers to entry low and allows anyone to start a referendum at any time. Anyone may also vote on these referenda, and there are no limits to the number of referenda that are open and able to be voted on at any one time.
+
+In Gov2, the proposer is given the option to designate the specific Origin for their proposal's execution. Each Origin is linked to a distinct type of referendum class, with some classes having a single corresponding origin, while others consist of multiple Origins. Each class has its own Track, which serves as a pipeline for the proposal to progress through and is entirely separate from the tracks of other classes.
+
+|     Origin Track	    |                                    Description                                   |                               Examples                               |
+|:-------------------:|:--------------------------------------------------------------------------------:|:--------------------------------------------------------------------:|
+| Root                | Highest privilege                                                                | Runtime upgrades, Technical Committee management                     |
+| Whitelisted         | Proposals to be whitelisted by the Technical Committee before getting dispatched | Fast-tracked operations                                              |
+| General Admin	       | For general on-chain decisions                                                   | Changes to XCM fees, Orbiter program, Staking parameters, Registrars |
+| Emergency Canceller | For cancellation of a referendum. Decision Deposit is refunded                   | Wrongly constructed referendum                                       |
+| Emergency Killer    | For killing of bad/malicious referendum. Decision Deposit is slashed             | Malicious referendum                                                 |
+
+The existence of distinct tracks enables proposers to customize the characteristics of their referenda according to their associated privilege levels. Referenda executed from more influential Origins will be subject to stricter safety measures, higher voting thresholds, and longer periods of consideration. The Root Origin is subject to the most stringent safeguards and highest thresholds. Origins that confer relatively limited power, such as the Tip Origin, which has the ability to spend a small amount of VARA tokens from the treasury, will have correspondingly shorter consideration periods and lower approval thresholds.
+
+Upon creation, a referendum becomes immediately votable by any member of the community. However, it does not enter a state in which it can be concluded, have its votes tallied, approved, and subsequently enacted. Before transitioning into the Deciding period, referenda must satisfy certain requirements. Until these conditions are met, they remain unresolved. There are three primary conditions that must be fulfilled. 
+
+Firstly, all referenda have a lead-in period, which is a predetermined duration that must elapse following the proposal before the deciding period can commence. This period serves as an initial notice period, during which votes can be cast, thus mitigating the possibility of "decision sniping." Such sniping could occur if an attacker with a significant proportion of voting power attempted to pass a proposal soon after its submission, thereby not allowing the broader voting population sufficient time to consider and vote.
+
+The second requirement is the availability of space for the referendum within its track, as each track has a maximum limit on the number of referenda that can be in the Deciding period simultaneously. The number of proposals allowed on a track is dependent on the privileges of the associated Origin, with more influential Origins resulting in a lower limit. For instance, the Root-level Origin has a limit of one, indicating that only a single high-risk proposal can be in the Deciding state at any given time. On the other hand, the relatively weak Tipping track has less stringent limits since overpopulation of referenda is less of a threat, and it generally makes more sense to have more tips being decided over at any given time. When there is available space, the eligible referendum with the most votes in favor of approval from its class is elevated to the Deciding state.
+
+The final requirement is the payment of a Decision Deposit, which serves to discourage frivolous proposals and prevent spamming or bloating of the system. Although the cost of creating a referendum is low and only covers the on-chain storage required to track it, having a referendum in the Deciding state poses greater risks and consumes limited system resources. To mitigate these risks and reserve space for more serious proposals, a larger deposit must be paid. By requiring a deposit, Vara aims to ensure that proposers carefully consider the potential impact of their proposals and contribute to a healthy decision-making environment.
+
+### Voting and Voluntary Locking
+
+Voluntary Locking allows token holders to increase their voting power by declaring how long they are willing to lock up their tokens. The number of votes for each token holder will be determined by the following formula:
+
+_votes_ = _tokens_ * _conviction_multiplier_
+
+The conviction multiplier increases the vote by one every time the number of lock periods doubles.
+
+| Lock Periods | Vote Multiplier | Length in Days |
+|:------------:|:---------------:|:--------------:|
+|       0      |       0.1       |        0       |
+|       1      |        1        |        7       |
+|       2      |        2        |       14       |
+|       4      |        3        |       28       |
+|       8      |        4        |       56       |
+|      16      |        5        |       108      |
+|      32      |        6        |       216      |
+
+The maximum number of "doublings" of the lock period is set to 6 (and thus 32 lock periods in total), and one lock period equals 7 days. Only doublings are allowed. You cannot lock for 24 periods and increase your conviction by 5.5.
+
+While a token is locked, you can still use it to vote and stake your tokens. You are only prevented from transferring these tokens to another account.
+
+Votes are always "counted" at the same time, which is at the end of the voting period. This is not impacted by the locking period of the tokens.
+
+Token holders can also delegate their voting power to another voter in the system. When votes are delegated in this way, the delegate votes with their own voting power, plus any delegated to them. This works with conviction voting, allowing VARA holders to lock up their tokens to increase your delegate's voting power on your behalf. Of course, the tokens in question never leave the delegator’s control, and they are free to switch delegates or regain direct control at any time. 
+
+Current updates improve on this with a unique feature called Multirole Delegation. This allows you to specify a different delegate for every class of referendum in the system.
+
+## The Referendum Lifecycle
+
+Referenda are discrete events in the Vara Network with fixed voting periods. When the voting period ends, these votes are counted, tallied, and then chartered. These actions are separated from other init calls by using an identifier for each and can be executed if the vote is approved. With this binary nature comes simple voting options such as: `aye` (yes), `nay` (no), or abstaining entirely.
+
+When a proposal has been submitted, it will have a predetermined **Lead-In Period**, depending on its Track. At this stage, other token holders may vote towards it and lock up additional funds to demonstrate their conviction. Once this period has passed and the required criteria are met, the proposal progresses into the Deciding Period.
+
+![add metadata](./img/vara-governance.png)
+
+_The Proposal/Referendum Process within The Vara Network_
+
+Once a proposal reaches the **Deciding Period**, it has the potential to be approved. However, this eligibility only lasts for 28 days, after which it will be rejected by default. To pass, a referendum must meet two criteria related to _approval_ and _support_ and must continue to meet these criteria for a specific Confirmation Period. Different referendum classes have varying Confirmation Period lengths, with more influential classes requiring a longer Confirmation Period. This serves as an additional safeguard against whale voters attempting to manipulate the voting process by placing a large enough vote to meet approval criteria unexpectedly.
+
+_Approval_ is defined as the share of approval vote-weight (i.e. after adjustment for conviction) against the total number of vote-weight (for both approval and rejection). _Support_ is the total number of votes in approval (i.e. ignoring any adjustment for conviction) compared to the total possible number of votes that could be made in the system. Each referendum class has different requirements for these values, and the requirements can reduce over time on a fixed schedule. This means that as voting progresses over the 28 days, the support and approval thresholds needed for a proposal to pass can decrease gradually. However, the thresholds will always start and end at similar levels, with at least 50% approval required.
+
+If a proposal fails to get approved within 28 days, it is automatically rejected, and the Decision Deposit can be refunded. However, if the proposal successfully meets the passing criteria and continues to do so for the Confirmation Period, it is approved and enters the **Enactment Period**, where it is scheduled to execute from its proposed origin after an Enactment Delay.
+
+The Enactment Delay, which is specified during proposal, has a minimum value based on the track. More powerful tracks require a longer Enactment Delay to give the network enough time to prepare for any potential changes introduced by the proposal.
+
+In addition, there is a unique operation called **Cancelation** for intervening with a proposal already being voted on. The process will immediately reject an ongoing referendum regardless of its status. There is also a provision to ensure the deposit of the proposer is slashed if the proposal is malicious or spam.
+
+Cancellation is a governance operation that must be voted upon by the network to be executed. The cancellation comes with its Origin and Track, which has a low lead-time and Approval/Support curves with slightly sharper reductions in their thresholds for passing, given that it is invoked with a sense of urgency. 
+
+## Vara Fellowship
+
+Root-Origin proposals are necessary for system upgrades, fixes, and rescues, but they also have the potential to cause significant damage to the network and ecosystem. In Gov2, the approval and support required for early-passing are extremely high to ensure the safety of the system, and the lead-in and enactment periods are lengthy to provide adequate notice to all parties and prevent bad proposals from being approved. Although this process may be slow, it ensures maximum safety for everyone in the Vara network.
+
+However, there are times when it is crucial to implement a fix, upgrade, or rescue logic quickly. While there may be widespread agreement on the need for such action, the voting process's safeguards can make executing these changes challenging or impractical due to time constraints alone. In such cases, it can be helpful to oraclize expert opinions to make informed decisions and establish a clear, well-considered action plan on a tight timeline. Gov2 has a governing body called the "Fellowship" to oversee this process.
+
+The Fellowship is a self-governing body with the primary goal of protecting the interests of the Vara community and network participants. A rank is associated with each member so that an organization can determine how well-informed it expects its opinions to be about technical matters and whether those opinions are grounded in sound reasoning and in line with Vara's interests.
+
+The Fellowship is designed to have a broad membership with low barriers to entry. Becoming a candidate member of the Fellowship is as easy as placing a small deposit.
+
+Members of the Fellowship can vote on any given proposal, and the Fellowship considers their collective opinion weighted by their rank.
+
+### Ranking System
+
+To prevent a small group of participants from gaining effective control over the network, we adhere to three principles: firstly, the Fellowship must never have hard power over the network: it cannot change parameters, conduct rescues, or move assets. Concerning governance over the network, the only thing in its power is to reduce the effective timeline on which a referendum takes place.
+
+Secondly, the rank system and weights must be designed so that we would not expect small groups of individuals to be able to capture and control overall decision-making capacity. While the Fellowship weights those with higher rank more in the aggregate opinion, the weight should not be so high as to make a small number of higher members’ ideas impossible compared to a coherent thought from lower-ranked membership.
+
+Thirdly, the Fellowship should be designed to grow and develop its membership and aggregate levels of expertise and ensure that its overall decision-making capacity strengthens over time.
+
+In light of this, the Fellowship will have a constitution that describes in specific terms the requirements and expectations for individuals to attain and retain any given rank. Higher ranks can vote and promote lower ranks based on this constitution. 
+
+To support these conditions, the Fellowship will have a constitution that outlines the requirements and expectations for individuals to attain and retain any given rank. Higher ranks are able to vote and promote lower ranks based on this constitution.
+
+Demotion happens automatically after a period in which a member cannot defend their position to their peers. Suspension can happen only through a general referendum, ensuring that controversy or unpopularity within the Fellowship does not (necessarily) result in expulsion. To guard against the chance of the Fellowship becoming a cabal, entrance into the top-tier ranks also requires a full referendum. It cannot be bestowed merely by one's Fellowship peer.
+
+### Whitelisting
+
+The Whitelist pallet has a singular purpose: to allow one Origin to escalate the privilege level of another Origin for a particular operation.
+
+The Fellowship authorizes an origin known as Whitelisted-Root to be executed with Root-level privileges and will only work with specific specified commands that the Fellowship has assigned. The Whitelist pallet verifies two things:
+1. The origin is the Whitelisted-Root, i.e. that the referendum passed on this track
+2. The Fellowship has indeed whitelisted the proposal.
+
+Only if both conditions are satisfied the operation executes with Root-level privileges. This system enables the ability to have a new parallel Track (Whitelisted-Root Origin), whose parameters allow for a shorter voting turnaround.
+
+In addition, a proposal may be blacklisted by Root origin. The blacklisted proposal and the associated referendum are immediately canceled. Also, the hash of this offer cannot reappear in the offer queue. The blacklist is useful in removing erroneous offers that may have been submitted with the same hash.

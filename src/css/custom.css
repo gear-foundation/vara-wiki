@@ -14,6 +14,7 @@ html {
   --ifm-color-primary-lightest: #3cad6e;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --docusaurus-announcement-bar-height: auto !important;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -58,4 +59,32 @@ html {
 [data-theme='light']
   .toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module:hover {
   background: #444950 !important;
+}
+
+div[class^="announcementBar"][role="banner"]{
+  border-bottom-color: #444950;
+  line-height: 20px;
+  font-size: 19px;
+  font-weight: bold;
+  padding: 7px 0px;
+  color: #00FFC4;
+  background-color:#188269;
+}
+
+div[class^="announcementBar"][role="banner"] a {
+  text-decoration:none;
+  color: #000000;
+  background-color: #03FFC4;
+  padding: 2px 12px;
+  border-radius: 4px;
+  transition-duration: 1s;
+}
+
+div[class^="announcementBar"][role="banner"] a:hover {
+   /*color: var(--ifm-color-primary) !important; */
+    background-color: #00CDAD;
+}
+
+div[class^="announcementBar"][role="banner"] button.close {
+   color: #00FFC4;
 }

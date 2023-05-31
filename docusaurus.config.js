@@ -75,6 +75,13 @@ const config = {
           },
         ],
       },
+      announcementBar: {
+        id: 'varathon',
+        content:
+          'Ready to build on the edge of Web3? Join Vara online hackathon - <a target="_blank" href="https://varathon.io/"> Gear up</a>',
+        backgroundColor: '#188269',
+        isCloseable: false,
+      },
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,

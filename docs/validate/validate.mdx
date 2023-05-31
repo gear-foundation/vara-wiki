@@ -36,12 +36,12 @@ Download `gear` node from the nightly builds repo and unpack (choose the binary 
 Terminal:
 
 ```bash
-curl -O https://get.gear.rs/gear-nightly-windows-x86_64.zip
+curl -O https://get.gear.rs/gear-nightly-x86_64-pc-windows-msvc.zip
 ```
 
 or
 
-**Windows x64**: [gear-nightly-windows-x86_64.zip](https://get.gear.rs/gear-nightly-windows-x86_64.zip)
+**Windows x64**: [gear-nightly-x86_64-pc-windows-msvc.zip](https://get.gear.rs/gear-nightly-x86_64-pc-windows-msvc.zip)
 
 Unzip the downloaded package then you can try to run the node:
 
@@ -56,15 +56,12 @@ gear.exe 0.1.3-dda96e01adf
 Terminal:
 
 ```bash
-wget https://get.gear.rs/gear-nightly-macos-m.tar.gz && \
-tar xvf gear-nightly-macos-m.tar.gz && \
-rm gear-nightly-macos-m.tar.gz && \
-chmod +x gear
+curl https://get.gear.rs/gear-nightly-aarch64-apple-darwin.tar.xz | tar xJ
 ```
 
 or
 
-**macOS M1/M2**: [gear-nightly-macos-m.tar.gz](https://get.gear.rs/gear-nightly-macos-m.tar.gz)
+**macOS M1/M2**: [gear-nightly-aarch64-apple-darwin.tar.xz](https://get.gear.rs/gear-nightly-aarch64-apple-darwin.tar.xz)
 
 You can try to run the node:
 
@@ -79,15 +76,12 @@ gear 0.1.3-dda96e01adf
 Terminal:
 
 ```bash
-wget https://get.gear.rs/gear-nightly-macos-x86_64.tar.gz && \
-tar xvf gear-nightly-macos-x86_64.tar.gz && \
-rm gear-nightly-macos-x86_64.tar.gz && \
-chmod +x gear
+curl https://get.gear.rs/gear-nightly-x86_64-apple-darwin.tar.xz | tar xJ
 ```
 
 or
 
-**macOS Intel x64**: [gear-nightly-macos-x86_64.tar.gz](https://get.gear.rs/gear-nightly-macos-x86_64.tar.gz)
+**macOS Intel x64**: [gear-nightly-x86_64-apple-darwin.tar.xz](https://get.gear.rs/gear-nightly-x86_64-apple-darwin.tar.xz)
 
 You can try to run the node:
 
@@ -103,15 +97,12 @@ gear 0.1.3-dda96e01adf
 Terminal:
 
 ```bash
-wget https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz && \
-tar xvf gear-nightly-linux-x86_64.tar.xz && \
-rm gear-nightly-linux-x86_64.tar.xz && \
-chmod +x gear
+curl https://get.gear.rs/gear-nightly-x86_64-unknown-linux-gnu.tar.xz | tar xJ
 ```
 
 or
 
-**Linux x64**: [gear-nightly-linux-x86_64.tar.xz](https://get.gear.rs/gear-nightly-linux-x86_64.tar.xz)
+**Linux x64**: [gear-nightly-x86_64-unknown-linux-gnu.tar.xz](https://get.gear.rs/gear-nightly-x86_64-unknown-linux-gnu.tar.xz)
 
 You can try to run the node:
 
@@ -221,7 +212,7 @@ The output will have a hex-encoded `result` field. Copy and save it!
 
 Once your node is live, synchronized, and appears in telemetry, and session keys are prepared, it's time to set up the validator.
 
-Go to Polkadot.{js} app and navigate to Network → Staking → [Account actions](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fvara.gear.rs#/staking/actions) section and click `+Validator`:
+Go to Polkadot.{js} app and navigate to Network → Staking → [Account actions](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.vara-network.io#/staking/actions) section and click `+Validator`:
 
 Choose your stash and controller accounts and specify your stake amount. It's recommended to utilize distinct accounts both stash and controller.
 

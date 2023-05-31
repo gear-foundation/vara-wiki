@@ -86,6 +86,9 @@ const config = {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
       },
+      googleTagManager: {
+        containerId: 'GTM-NH2N6VX',
+      },
     }),
 };
 

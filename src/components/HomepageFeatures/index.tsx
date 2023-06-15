@@ -26,10 +26,10 @@ const FeatureList: FeatureItem[] = [
     img: 'img/validate.png',
     description: (
       <>
-        Provide computing resources to keep the Vara Network secure, performant and censorship-resistant. It is not only a responsibility, but also a good reward. 
+        Provide computing resources to keep the Vara Network secure, performant and censorship-resistant. It is not only a responsibility, but also a good reward.
       </>
     ),
-    url: '/docs/validate'
+    url: '/docs/staking/validate'
   },
   {
     title: 'Become a Nominator',
@@ -39,7 +39,7 @@ const FeatureList: FeatureItem[] = [
         Help maintain the network security by participating as a nominator. <br/> Stake your VARA and get reward!
       </>
     ),
-    url: '/docs/nominate/'
+    url: '/docs/staking/nominate'
   },
 ];
 

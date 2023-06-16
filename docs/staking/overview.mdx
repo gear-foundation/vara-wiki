@@ -12,11 +12,13 @@ Start [validating](/docs/staking/validate) or [nominating](/docs/staking/nominat
 
 Vara Network uses an inclusive and reliable Nominated Proof-of-Stake (NPoS) mechanism to select validators for its consensus protocol. It chooses validators based on their own stakes and the funds nominated by other token holders. This approach helps make the process more democratic and decentralized. NPoS reduces the chance of centralization, where only the richest entities can be validators.
 
-## Benefits of NPoS
+## Let's explore the benefits of NPoS in more detail:
 
 - **More People Involved:** NPoS encourages active participation and governance by attracting more users to join the network. As a nominator, you can show your trust in different validators, which results in a diverse and strong group of validators.
 - **Stronger Network Security:** With NPoS, stakes are spread across multiple validators, boosting network security. It's harder for hackers to harm a system with diversified support.
 - **Optimal Stake Allocation:** NPoS improves stakes distribution among validators, ensuring better economic security. The concept of "eras" motivates both nominators and validators to behave well and contribute to a healthy and secure blockchain ecosystem.
+
+In the Vara network, validators can publicly announce their candidacy for validation, and nominators can endorse up to 16 candidates. The validators with the most VARA backing are elected and activated in the next era. Nominators must stake a minimum of 50 VARA to register as a nominator. Both nominators and validators can be slashed in NPoS.
 
 ## Vara Staking Constants
 
@@ -72,7 +74,12 @@ The algorithm used in the system gives validators with a higher stake a greater 
 
 ### Eras and Sessions
 
-An era lasts for 12 hours. Validators are split into two groups: active and inactive. The active validator group produces blocks and performs actions during an era. The composition of the active group can change between eras.
+Let's break down eras and sessions into easily digestible points:
+ 
+- An era lasts for 12 hours.
+- Validators are split into two groups: active and inactive.
+- The active validator group produces blocks and performs actions during an era.
+- The composition of the active group can change between eras.
 
 Each era is further divided into smaller units called epochs or sessions. An epoch/session lasts for 2 hours. During each epoch/session, validators are assigned as block producers for specific time frames or slots.
 
@@ -82,11 +89,11 @@ Having sessions adds a layer of security because it decreases the chance of havi
 
 Era points are crucial for electing validators and distributing rewards in Vara Network. They determine which validators become active and influence their chances of selection. Validators with higher era points have a better chance of being chosen because of their past performance and contributions.
 
-Validators earn era points by performing various tasks such as producing blocks, participating in consensus activities, and handling network-related responsibilities. The more diligently and reliably a validator carries out these duties, the more era points it gains.
+Validators earn era points by performing various tasks such as producing blocks, participating in consensus activities and handling network-related responsibilities. The more diligently and reliably a validator carries out these duties, the more era points it gains.
 
 On the other hand, if a validator fails to fulfill its responsibilities or engages in malicious behavior, it may receive penalties leading to a deduction of era points.
 
-Era points incentivize validators to act in the network's best interest, maintain high uptime, and contribute to its overall security and reliability.
+Era points validator incentives to act in the network's best interest, maintain a high uptime and contribute to its overall security and reliability.
 
 ### Reward Distribution
 
@@ -118,7 +125,7 @@ It is crucial to be aware that if the reward payout is not requested within 84 d
 
 The slashing mechanism on Vara serves to maintain network security and deter bad behavior by penalizing validators who misbehave. It plays a crucial role in the Nominated Proof-of-Stake (NPoS) consensus algorithm in Vara Network.
 
-Validators can face slashing if they go against the network's rules or engage in malicious actions like double signing, equivocation, or other misconduct. Slashing involves reducing or taking away the tokens that a validator has staked as a penalty for their misbehavior.
+Validators can face slashing if they go against the network's rules or engage in malicious actions like double signing, equivocation or other misconduct. Slashing involves reducing or taking away the tokens that a validator has staked as a penalty for their misbehavior.
 
 Here are actions violations subject to punishment:
 

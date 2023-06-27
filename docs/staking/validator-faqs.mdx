@@ -1,0 +1,254 @@
+---
+title: Validator FAQs
+sidebar_position: 4
+sidebar_label: Validator FAQs
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+
+# Vara Validator FAQs
+
+Here is a list of frequently asked questions about running a Vara validator node.
+
+## What is Vara Network?
+
+[Vara Network](https://vara-network.io/) is a fast and scalable Layer-1 decentralized network powered by [Gear Protocol](https://gear-tech.io/).
+
+Links:
+- Official site: https://vara-network.io/
+- Block Explorer: https://explorer.vara-network.io/
+- Vara Wiki: https://wiki.vara-network.io/
+- Node Telemetry: https://telemetry.rs/
+- Tokenomics: https://wiki.vara-network.io/docs/tokenomics/
+- Whitepaper: https://whitepaper.gear-tech.io/
+- Gear Wiki: https://wiki.gear-tech.io/
+- Gear Foundation: https://gear.foundation/
+
+## What are the public RPC endpoints?
+
+- RPC Node:
+  - `wss://rpc.vara-network.io`
+
+- Archive RPC Node:
+  - `wss://archive-rpc.vara-network.io`
+
+
+## What bootnode should I use to connect to the network?
+
+Here are addresses of official Vara bootnodes:
+
+- `/dns4/vara-connect-1.vara-network.io/tcp/30333/ws/p2p/12D3KooWLDpZ5sWtSmZtiHXBstoQVwMAZ5yRWpDUBdjQHV7vBLHy`
+- `/dns4/vara-connect-2.vara-network.io/tcp/30333/ws/p2p/12D3KooWCJas1xGRDUC8nnSvfSiC1RcTXWaAef6oom1vGvqUMZV7`
+
+:::info
+These nodes are already included in the [Vara chain spec](https://raw.githubusercontent.com/gear-tech/gear/master/node/res/vara.json), which will be used by default when you start your node with `--chain vara`
+:::
+
+## What is the block time of the Vara Network?
+
+It is operating at a rate of one block every 3 seconds.
+
+
+## How long does an era last?
+
+12 hours.
+
+An era is a period during which a specific set of active validators exists. Each era has six epochs (or sessions). During the last epoch, the active set of the next era is elected. And after the end of each era, the rewards are calculated and are ready to be distributed to the validators and nominators.
+
+## How long does an epoch / a session last?
+
+2 hours.
+
+## What is the total issuance of $VARA?
+
+10 Billion.
+
+## What is the precision of the $VARA token?
+
+12 decimals.
+
+/* ## What is the annual inflation rate?
+
+The maximum inflation rate for year 1 is 6.5%.
+
+VARA has been designed with a decreasing inflation rate in mind, for this a special Inflation Offsetting Pool is introduced to reduce TTS (Total Token Supply) Inflation to 0% for the first 24-36 months.
+
+For details please refer to [Vara Token Economy](/docs/tokenomics/). */
+
+/* ## Where do the validator rewards come from if the initial inflation is zero?
+
+The [Staking Rewards pallet](https://github.com/gear-tech/gear/tree/master/pallets/staking-rewards) provides a pool to postpone the inflationary impact of the validators rewards until completely depleted after a certain period of time (approx. 2 years). Thereby the nominal base token inflation stays around zero. Instead, the so-called "stakeable tokens" amount is increased by the delta minted due to the inflation. After the pools is depleted the inflation will start affecting the base token total issuance in a usual Substrate fashion. */
+
+## What is a validator in Vara Network?
+
+Validators are essential contributors to a successful blockchain network. When chosen to be part of a validator set, they help produce blocks and receive rewards for their investments in the platform.
+
+A validator node is required to be responsive, perform its expected duties in a timely manner, and avoid any slashable behavior.
+
+## How to run a validator node?
+
+Please follow this guide to get started: [Run Vara Validator](/docs/staking/validate/).
+
+## What are the hardware requirements to run a validator node?
+
+- OS: Ubuntu 20.04 or later, Amazon Linux 2 or later
+- CPU: 4vCPUs @ 3.4GHz; (it coud be Intel Ice Lake, Xeon or Core series, even AMD Zen3)
+- Memory: 16GB RAM
+- Storage: minimum 160GB SSD storage. Should be increased as the blockchain grows.
+
+You can find related information on our wiki page: [Run Vara Validator > Hardware requirements](/docs/staking/validate/#hardware-requirements)
+
+## Where do I download the node binary?
+
+Navigate to https://get.gear.rs/ and download the most recent stable release.
+
+You can also get it from github release page: https://github.com/gear-tech/gear/releases/
+
+## How fast should I upgrade node binary?
+
+All nodes must upgrade to the latest version within 12 hours of its release if it is labeled “critical” or “high” priority and 24 hours if it is labeled “medium” or “low” priority.
+
+## Is there official docker image?
+
+Yes, you can pull the latest image from GitHub Container Registry
+
+```
+docker pull ghcr.io/gear-tech/node:latest
+```
+
+or find more tags here: https://github.com/gear-tech/gear/pkgs/container/node
+
+
+## How do I check if my node is validator or not?
+
+Navigate to https://polkadot.js.org/apps/?rpc=wss://rpc.vara-network.io#/staking, and you will find a list of the active validators
+
+## What is slashing?
+
+Slashing is a mechanism to punish validators who act maliciously or negligently. If a validator tries to corrupt the network or is offline too often, a part of their staked fund (and those of their nominators) can be slashed.
+
+## What can lead to a validator's stake being slashed?
+
+Your validator node can be slashed under the following scenarios:
+
+1. __Equivocation__: This occurs when a validator signs two or more blocks at the same height on the same chain. It's a serious offense because it can lead to the creation of two different versions of the blockchain, a situation known as a fork.
+
+2. __Unresponsiveness__: Validators are expected to be online and participate in the network consensus. If a validator is offline for an extended period and misses a certain number of votes, a portion of their stake can be slashed. This is generally considered a minor offense, and the slashing is less severe than for equivocation or producing invalid blocks.
+
+3. __Invalid Block__: Validators are expected to validate blocks correctly. If a validator produces a block that the network deems invalid, it can result in slashing. Note that it's unlikely to produce an invalid block unless you are running a modified node binary, therefore it's recommended to always download the binary from the [official release page](https://github.com/gear-tech/gear/releases).
+
+## How is the liveness slashing penalty calculated?
+
+If a single validator is offline there’s no obvious reason to suspect malicious intent. The validator is not slashed, which means they also keep all their nominations. They are chilled. In practice, the protocol considers it problematic when 10% of the validator set is offline—that’s when slashing conditions kick in.
+
+![liveness slashing penalty](./img/slashing-penalty-liveness.png)
+
+The penalty starts relatively small, 0.021% slashed if 10% are offline. But penalties increase linearly from there until the maximum penalty of 7% is hit when 44% of the network is offline.
+
+## How is the equivocation / double-sign slashing penalty calculated?
+
+Validators may run their nodes on multiple machines to make sure they can still perform validation work in case one of their nodes goes down, but validator operators should be extremely careful in setting these up. If they do not have good coordination to manage signing machines, equivocation is possible, and equivocation offenses are slashed at much higher rates than equivalent offline offenses.
+
+![equivocation slashing penalty](./img/slashing-penalty-equivocation.png)
+
+GRANDPA equivocation has the harshest slashing penalty of all offenses, and it also exemplifies slashing based on the threat to the network—if 33% or more of the validator set commits a GRANDPA equivocation, the offenders lose 100% of their stake.
+
+
+## How to stop validating?
+
+If you wish to remain a validator or nominator (e.g. you're only stopping for planned downtime or server maintenance), submitting the `chill` extrinsic in the `staking` pallet should suffice. It is only if you wish to unbond funds or reap an account that you should continue with the following.
+
+To ensure a smooth stop to validation, make sure you should do the following actions:
+
+- Chill your validator
+- Purge validator session keys
+- Unbond your tokens
+
+These can all be done with [PolkadotJS Apps](https://polkadot.js.org/apps/#/explorer) interface or with extrinsics.
+
+## How long does it take to unbond tokens?
+
+The unbonding duration is 14 era, i.e. 7 days.
+
+## What is the max number of nominators I can have?
+
+For each validator only the 256 biggest nominators can claim their reward. If you have more than 256 nominators, it is called oversubscription. Nominators should generally avoid nominating oversubscribed validators.
+
+
+## Can I run multiple validators?
+
+Yes, you can run multiple validators in Vara Network. Each validator will need its own separate stash and controller keys, as well as enough staked fund (either self-staked or nominated by others) to be in the active validator set.
+
+Running multiple validators can increase your chances of earning rewards, but it also increases your responsibilities and potential risk of slashing. Remember, each validator node requires maintenance, a stable internet connection, and a secure setup to prevent downtime and malicious attacks.
+
+It's important to note that running multiple validators doesn't mean running multiple nodes on the same server or under the same network conditions. This could lead to simultaneous failures, which could result in multiple nodes being slashed at the same time. Ideally, each validator node should be run on separate servers and potentially in different geographic locations for redundancy and resilience.
+
+## How to achieve high availability for my validator node? 
+
+To maintain high availability for your validator node, it may seem tempting to use redundant validator setups. However, incorrect setups can be risky because validator session keys should be confined to one node. Duplication across nodes may cause equivocation slashes, leading to the loss of all staked funds.
+
+Fortunately, a validator doesn't require constant uptime, as there's some tolerance within eras for offline periods and upgrades, and the slashing penalties due to downtime are much less severe than that caused by equivocation.
+
+Therefore, only attempt a high availability set-up when you know what you're doing.
+
+## How do I monitor my node?
+
+- [Telemetry](https://telemetry.rs) This tracks your node details including the version you are running, block height, CPU & memory usage, block propagation time, etc.
+
+:::info
+Add `--telemetry-url "wss://telemetry.rs/submit 0"` to the node startup parameter, then your node will show up on the telemetry dashboard.
+:::
+
+- [Prometheus](https://prometheus.io)-based monitoring stack, including Grafana for dashboards and log aggregation. It includes alerting, querying, visualization, and monitoring features and works for both cloud and on-premise systems.
+
+:::info
+You need to specify the prometheus port, for example `--prometheus-port 9615`, then the node metrics will be available at `http://127.0.0.1:9615/metrics`.
+:::
+
+## What is the expected uptime from validators?
+
+Ideally, a validator node should strive for 100% uptime to avoid any penalties and to perform its duties on the network effectively. In practice 99.5% uptime is considered safe, i.e. you should keep the daily average downtime within 15 minutes.
+
+## What is the minimum bond requirement for a validator?
+
+
+The minimum self-stake required is 100k VARA.
+
+Note that the actual amount of staked token (self-stake plus nominations) required to become a validator may be significantly higher due to competition from other validators.
+
+
+## What is the least staking amount required for a validator to be elected?
+
+The total amount of token that needs to be staked for a validator to be elected (self-stake plus nominations) is determined by the amount staked on other validators. If there are more validators who have a higher total stake, those validators will be chosen instead.
+
+You can get the details by running the [subquery/tutorials-validator-threshold](https://github.com/subquery/tutorials-validator-threshold) indexer on Vara Network.
+
+## How often are staking rewards distributed?
+
+Staking rewards are distributed at the end of each era, i.e., every 12 hours.
+
+## How are staking rewards calculated?
+
+Rewards for validators and nominators are computed per era (an era is a period of 12 hours) based on era points. An era point is a reward point earned by a validator for performing certain actions such as producing a block.
+
+The total reward pool for an era is split between validators (and their nominators) proportionally to the number of era points they have earned. The more era points a validator earns, the larger the portion of the reward pool they (and their nominators) receive.
+
+The validator's own reward is then calculated based on their commission, which is a percentage of the total reward that they take before distributing the rest to their nominators. Nominators' rewards are distributed based on the amount of fund they have staked.
+
+## How should I decide the commission rate?
+
+The commission is the percentage of rewards you keep before they are given out to nominators. With 0% commission, nominators get all the rewards; with 100% commission, they get NO rewards. 
+
+In general, in order to stay attractive to nominators you should keep the commission low. However, you also need to ensure that the commission rate you set allows you to sustainably operate your validator node. It's a balance of competitive positioning, sustainability, and profitability.
+
+## How many validators will there be in each era?
+
+The ideal number of active validators is defined by the `staking.validatorsCount` storage item, and is subject to change in the future.
+
+You can query the storage item by visiting [PolkadotJS Apps](https://polkadot.js.org/apps/?rpc=wss://rpc.vara-network.io) > Developer > Chain state > staking > validatorCount
+
+![querying chainstate](./img/querying-chainstate.png)
+
+In each era, if there are more validators than the ideal threshold, the inactive validators will stay in the waiting list until they are elected.

@@ -29,7 +29,7 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
-            'https://github.com/gear-tech/vara-wiki/edit/master',
+            'https://github.com/gear-foundation/vara-wiki/edit/master',
         },
         blog: false,
         theme: {
@@ -69,7 +69,7 @@ const config = {
             position: 'right',
           },
           {
-            href: 'https://github.com/gear-tech/vara-wiki',
+            href: 'https://github.com/gear-foundation/vara-wiki',
             label: 'Contribute',
             position: 'right',
           },

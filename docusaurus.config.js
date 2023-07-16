@@ -29,7 +29,7 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
-            'https://github.com/gear-foundation/vara-wiki',
+            'https://github.com/gear-foundation/vara-wiki/edit/master',
         },
         blog: false,
         theme: {

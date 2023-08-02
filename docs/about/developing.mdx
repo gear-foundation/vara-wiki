@@ -1,0 +1,35 @@
+---
+title: Developing on Vara Network
+sidebar_position: 3
+sidebar_label: Developing on Vara
+---
+
+## Introduction
+
+As a smart contract engine, Vara Network relies on the Gear Protocol to execute WebAssembly (Wasm) smart contracts. The integration of Gear Protocol allows Vara to provide a developer-friendly environment for implementing and running smart contracts with arbitrary logic and complexity.
+
+## Messaging Concept
+
+Understanding the message communication model and its benefits is crucial for both safety and developers when working with Vara Network. This model is based on the Actor Model, where all participants, including both programs and users, are treated as "actors." These actors interact with each other by sending messages.
+
+To dive deeper into the development process using the message communication model, refer to the [Gear Wiki](https://wiki.gear-tech.io/docs/developing-contracts/introduction).
+
+## Program Rent-Based system
+
+Vara Network introduces a novel program life cycle management system that ensures sustainable and economical usage of resources.
+
+Each uploaded program is assigned a predetermined expiration date, set to `5,000,000` blocks (with each block lasting 3 seconds ~ 173 days). After this specified time, the program is automatically removed from storage unless the owner decides to extend its life by paying for additional blocks.
+
+***Why is this important?***
+
+- The program expiration system prevents the accumulation of outdated or unused programs in Vara Network's storage. This efficient management optimizes resource utilization, reducing clutter and maintaining a clean ecosystem.
+- Utility Token Stimulation: To extend the life of their programs, owners must pay rent using utility tokens. This system stimulates the use of utility tokens, increasing circulation, and enhancing the overall utility of Vara's ecosystem.
+- Sustainable Economic Model: Vara Network's program life cycle approach ensures that resources are allocated to actively maintained and useful programs. The rent-based system promotes sustainability, allowing Vara to maintain a healthier and more robust network.
+
+Learn more about the rent program system on the [Gear Wiki](https://wiki.gear-tech.io/docs/developing-contracts/rent-system).
+
+## How to Start Developing on Vara Network?
+
+1. Learn smart contract development using the [developer documentation](https://wiki.gear-tech.io/docs/developing-contracts/introduction).
+2. Explore and try a batch of read-made programs on [GitHub](https://github.com/gear-foundation).
+3. Take a free developer course at [Gear Academy](https://academy.gear.foundation/).

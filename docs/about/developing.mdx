@@ -1,0 +1,43 @@
+---
+title: Developing on Vara Network
+sidebar_position: 3
+sidebar_label: Developing on Vara
+---
+
+## Introduction
+
+As a cutting-edge smart contract engine, Vara Network places its trust in the robust [Gear Protocol](https://gear-tech.io/) for seamless execution of WebAssembly (Wasm) smart contracts. The integration of the Gear Protocol empowers Vara to create a developer-friendly environment that excels in implementing and running smart contracts with unparalleled flexibility, accommodating both intricate logic and complex functionalities. This collaboration ensures that developers can unleash their creativity while maintaining a strong focus on safety and security.
+
+With Vara Network and Gear Protocol working hand in hand, the world of smart contracts becomes more accessible and dynamic, offering endless possibilities for developers and users alike.
+
+## Messaging Concept
+
+Understanding the message communication model and its benefits is of utmost importance for the safety and success of developers working with Vara Network. This innovative model is built upon the principles of the Actor Model, where all participants, including programs and users, are considered as "actors." These actors interact seamlessly by exchanging messages.
+
+To delve deeper into the development process and leverage the full potential of the message communication model, we encourage you to explore the comprehensive resources available in the [Gear Wiki](https://wiki.gear-tech.io/docs/developing-contracts/introduction). This valuable reference will provide you with clear insights and guidance on implementing smart contracts with efficiency and precision.
+
+## Program Rent-Based system
+
+Vara Network introduces an innovative program life cycle management system, prioritizing sustainable and economical resource usage. Within this system, programs on the Vara network have the option to rent network resources for their execution and memory storage. This rental concept can be likened to a time-limited subscription that allows the program to remain active and operational within the network.
+
+Upon program upload, each program is automatically assigned a predefined expiration date <ins>for free</ins>, typically set to last for `5,000,000` blocks, where each block has a duration of approximately 3 seconds (~ 173 days). 
+
+To extend the program's functionality beyond this period, users have the option to increase this expiration parameter for the program. However, to ensure the viability of the program throughout the chosen lifetime extension, the user must possess enough VARA tokens in their balances.
+
+To maintain the program's functionality after the current rent period expires, the user should proactively pay more VARA tokens for the program. Any user on the network can contribute additional VARA to any program as needed.
+
+After the rent period's expiration, the program automatically transitions to a 'paused' state, leading to the removal of its memory pages from the storage. However, important data such as the block number when the program was paused and its memory hash remain accessible on the network. Consequently, the paused program can be resumed with its state restored to the point at which it was paused, provided an archive node is connected to the network.
+
+### Why is this important?
+
+- **Efficient Resource Utilization**: The program expiration system implemented by Vara Network plays a crucial role in preventing the accumulation of outdated or unused programs within its storage. By automatically expiring programs after a predetermined period, the network optimizes resource utilization, reducing clutter and ensuring a clean ecosystem for active and relevant programs.
+- **Stimulating Utility Token Use**: To extend the life of their programs beyond the initial expiration date, owners must pay rent using utility tokens. This mechanism incentivizes and stimulates the use of utility tokens within the Vara ecosystem. As a result, the circulation of utility tokens increases, enhancing their overall utility and promoting a healthy token economy.
+- **Promoting a Sustainable Economic Model**: Vara Network's thoughtful program life cycle approach ensures that network resources are allocated to actively maintained and useful programs. By utilizing a rent-based system, Vara fosters a sustainable economic model, wherein programs that continue to provide value can be sustained over time, leading to a healthier and more robust network.
+
+To explore the technical aspect of the rent program system, we encourage you to visit the [Gear Wiki](https://wiki.gear-tech.io/docs/developing-contracts/rent-system).
+
+## How to Start Developing on Vara Network?
+
+1. Learn smart contract development using the [developer documentation](https://wiki.gear-tech.io/docs/developing-contracts/introduction).
+2. Explore and try a batch of read-made programs on [GitHub](https://github.com/gear-foundation).
+3. Take a free developer course at [Gear Academy](https://academy.gear.foundation/).

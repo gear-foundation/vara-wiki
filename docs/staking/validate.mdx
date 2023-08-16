@@ -27,7 +27,7 @@ Beginners can start their validator setup on Linux-based cloud servers. Select t
 
 ### Install Vara Node
 
-Download `gear` node from the nightly builds repo and unpack (choose the binary according to your host operating system):
+Download the latest stable release of the `gear` node from the builds repo and unpack (choose the binary according to your host operating system):
 
 ````mdx-code-block
 <Tabs>
@@ -36,18 +36,18 @@ Download `gear` node from the nightly builds repo and unpack (choose the binary 
 Terminal:
 
 ```bash
-curl -O https://get.gear.rs/gear-nightly-x86_64-pc-windows-msvc.zip
+curl -O https://get.gear.rs/gear-v0.2.1-x86_64-pc-windows-msvc.zip
 ```
 
 or
 
-**Windows x64**: [gear-nightly-x86_64-pc-windows-msvc.zip](https://get.gear.rs/gear-nightly-x86_64-pc-windows-msvc.zip)
+**Windows x64**: [gear-v0.2.1-x86_64-pc-windows-msvc.zip](https://get.gear.rs/gear-v0.2.1-x86_64-pc-windows-msvc.zip)
 
 Unzip the downloaded package then you can try to run the node:
 
 ```
 ❯ gear.exe --version
-gear.exe 0.1.3-dda96e01adf
+gear.exe 0.2.1-cfb433a4dcb
 ```
 
 </TabItem>
@@ -56,18 +56,18 @@ gear.exe 0.1.3-dda96e01adf
 Terminal:
 
 ```bash
-curl https://get.gear.rs/gear-nightly-aarch64-apple-darwin.tar.xz | tar xJ
+curl https://get.gear.rs/gear-v0.2.1-aarch64-apple-darwin.tar.xz | tar xJ
 ```
 
 or
 
-**macOS M1/M2**: [gear-nightly-aarch64-apple-darwin.tar.xz](https://get.gear.rs/gear-nightly-aarch64-apple-darwin.tar.xz)
+**macOS M1/M2**: [gear-v0.2.1-aarch64-apple-darwin.tar.xz](https://get.gear.rs/gear-v0.2.1-aarch64-apple-darwin.tar.xz)
 
 You can try to run the node:
 
 ```
 ❯ ./gear --version
-gear 0.1.3-dda96e01adf
+gear 0.2.1-cfb433a4dcb
 ```
 
 </TabItem>
@@ -76,18 +76,18 @@ gear 0.1.3-dda96e01adf
 Terminal:
 
 ```bash
-curl https://get.gear.rs/gear-nightly-x86_64-apple-darwin.tar.xz | tar xJ
+curl https://get.gear.rs/gear-v0.2.1-x86_64-apple-darwin.tar.xz | tar xJ
 ```
 
 or
 
-**macOS Intel x64**: [gear-nightly-x86_64-apple-darwin.tar.xz](https://get.gear.rs/gear-nightly-x86_64-apple-darwin.tar.xz)
+**macOS Intel x64**: [gear-v0.2.1-x86_64-apple-darwin.tar.xz](https://get.gear.rs/gear-v0.2.1-x86_64-apple-darwin.tar.xz)
 
 You can try to run the node:
 
 ```
 ❯ ./gear --version
-gear 0.1.3-dda96e01adf
+gear 0.2.1-cfb433a4dcb
 ```
 
 </TabItem>
@@ -97,18 +97,18 @@ gear 0.1.3-dda96e01adf
 Terminal:
 
 ```bash
-curl https://get.gear.rs/gear-nightly-x86_64-unknown-linux-gnu.tar.xz | tar xJ
+curl https://get.gear.rs/gear-v0.2.1-x86_64-unknown-linux-gnu.tar.xz | tar xJ
 ```
 
 or
 
-**Linux x64**: [gear-nightly-x86_64-unknown-linux-gnu.tar.xz](https://get.gear.rs/gear-nightly-x86_64-unknown-linux-gnu.tar.xz)
+**Linux x64**: [gear-v0.2.1-x86_64-unknown-linux-gnu.tar.xz](https://get.gear.rs/gear-v0.2.1-x86_64-unknown-linux-gnu.tar.xz)
 
 You can try to run the node:
 
 ```
 ❯ ./gear --version
-gear 0.1.3-dda96e01adf
+gear 0.2.1-cfb433a4dcb
 ```
 
 </TabItem>
@@ -146,7 +146,7 @@ ExecStart=/usr/bin/gear \
     --chain vara  \
     --rpc-cors all \
     --name "VALIDATOR_NAME" \
-    --telemetry-url "wss://telemetry.rs/submit 0" \
+    --telemetry-url "wss://telemetry.rs/submit 1" \
     --validator
 Restart=always
 RestartSec=3

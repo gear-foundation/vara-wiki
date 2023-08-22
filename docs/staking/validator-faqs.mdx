@@ -243,11 +243,11 @@ In each era, if there are more validators than the ideal threshold, the inactive
 
 ## What files should I backup before migrating the validator node to another machine?
 
-It is crucial to have backups of the following files and directories in case your current node becomes inaccessible due to extreme conditions:
+It is recommended to have backups of the following files and directories in case your current node becomes inaccessible due to extreme conditions:
 
-1. __Validator Session Keys__: If you are running a validator node, it is recommended to backup your session keys. These files are typically located in the `~/.local/share/gear/chains/vara_network/keystore` directory.
+1. __Validator Session Keys__: If you are running a validator node, please backup your session keys. These files are located in the `~/.local/share/gear/chains/vara_network/keystore` directory.
 
-2. __Network Key__: The network key uniquely identifies your node in the peer-to-peer network. It is located at `~/.local/share/gear/chains/vara_network/network/secret_ed25519`.
+2. __Network Key__(optional): The network key uniquely identifies your node in the peer-to-peer network. It is located at `~/.local/share/gear/chains/vara_network/network/secret_ed25519`.
 
 3. __Blockchain Database__(optional): The blockchain database resides in the `~/.local/share/gear/chains/vara_network/db` directory. It can be deleted and synchronized from scratch at any time, but keep in mind that this process may take some time.
 

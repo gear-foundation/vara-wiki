@@ -240,3 +240,17 @@ You can query the storage item by visiting [PolkadotJS Apps](https://polkadot.js
 ![querying chainstate](./img/querying-chainstate.png)
 
 In each era, if there are more validators than the ideal threshold, the inactive validators will stay in the waiting list until they are elected.
+
+## What files should I backup before migrating the validator node to another machine?
+
+It is recommended to have backups of the following files and directories in case your current node becomes inaccessible due to extreme conditions:
+
+1. __Validator Session Keys__: If you are running a validator node, please backup the secret seeds of your session keys for minimal downtime migration. These files are located in the `~/.local/share/gear/chains/vara_network/keystore` directory. You must submit an extrinsic to replace the keys if they are leaked or lost.
+
+2. __Network Key__(optional): The network key uniquely identifies your node in the peer-to-peer network. It is located at `~/.local/share/gear/chains/vara_network/network/secret_ed25519`. If this file is lost, a new peer identity will be randomly generated when the node starts.
+
+3. __Blockchain Database__(optional): The blockchain database resides in the `~/.local/share/gear/chains/vara_network/db` directory. It can be deleted and synchronized from scratch at any time, but keep in mind that this process may take some time.
+
+:::info
+Please make sure the old node is stopped before you launch the new node, otherwise replicating session keys across multiple nodes may lead to equivocation slashes.
+:::

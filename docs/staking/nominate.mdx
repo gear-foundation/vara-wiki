@@ -8,26 +8,24 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import CodeBlock from '@theme/CodeBlock';
 
-Nominators are passive participants of any `PoS consensus mechanism`. They are indirectly involved in maintaining the health and security of the network by sharing their tokens with the most reliable validators who are already engaged in confirming blocks. Nominators receive a reward for their bet, which depends on the network economy and on the percentage that the validator takes for himself.
+Nominators are passive participants in any `Proof of Stake (PoS)` consensus mechanism. They indirectly contribute to maintaining the health and security of the network by delegating their tokens to the most reliable validators who are actively confirming blocks. Nominators receive rewards for their delegation, which depend on the network's economy and the percentage that the validator takes for themselves.
 
-Being a nominator does not require running a node of your own or worrying about online uptime.
+Being a nominator does not require running your own node or worrying about online uptime
 
-## How to set up a nominator
+## How to set up as a nominator
 
-To nominate your VARA tokens go to Polkadot.{js} app and navigate to Network → Staking → [Account actions](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.vara-network.io#/staking/actions) section and click `+Nominator`:
+To nominate your VARA tokens, go to the Polkadot.{js} app, navigate to the Network → Staking → [Accounts](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.vara-network.io#/staking/actions) section, and click `+ Nominator`:
 
-Select a validator (or validators) that you’d like to nominate. You can choose up to 16 validators and the algorithm will determinete how to nominate your funds for each Era in the most effective way.
+1. Select the stash and controller accounts, along with the amount of value you wish to bond.
 
 ![setup nominator](./img/nominator-1.png)
 
-Select a validator (or validators) that you'd like to nominate. You can choose up to 16 validators and the algorithm will determine how to nominate your funds for each Era in the most effective way.
-
-It is worth choosing only reliable validators with a good reputation to be sure that they will not be slashed.
+2. Choose a validator (or validators) you'd like to nominate. You can select up to 16 validators, and the algorithm will determine how to distribute your funds effectively for each Era. It's advisable to choose only reliable validators with a good reputation to ensure they won't be slashed.
 
 ![setup nominator](./img/nominator-2.png)
 
-Click Bond & Nominate and sign the transaction. If everything is correct, then you’ll see your bonded VARA will appear in the Nominators list.
+3. Click `Bond & Nominate` and sign the transaction. If everything is correct, your bonded VARA will appear in the Nominators list.
 
 ![setup nominator](./img/nominator-3.png)
 
-Congratulations! You are now nominating. Your nominations will become active in the next era.
+Congratulations! You are now an active nominator. Your nominations will take effect in the next era."

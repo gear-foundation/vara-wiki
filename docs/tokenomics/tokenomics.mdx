@@ -5,9 +5,11 @@ sidebar_label: Vara Token Economy
 ---
 # VARA Token Utility & Crypto Economics
 
+This article covers Vara Network's crypto-economics, highlighting key components, features, and the core utility of VARA. It also discusses measures taken to balance incentives and ensure ecosystem stability.
+
 ## VARA Utility & Token Distribution
 
-***Total Token Supply: 10 Billions VARA***
+**Total Token Supply: 10 Billions VARA**
 
 ![token distribution](./img/chart-08.png)
 
@@ -48,25 +50,29 @@ Vara is designed such that protocol rewards would not affect network decentraliz
 
 1. The maximum inflation rate for year 1 is 6.00%. VARA has been designed with a decreasing inflation rate in mind. Below is a sample inflation rate schedule, however, the exact rates will be determined by governance voting:
 
-Year 1: 6.00%, Year 2: 6.00%, Year 3: 5.50%, Year 4: 5.75%,
-Year 5 - onwards: gradual decrease to the minimum level of 3-4%
+    |Year since genesis|Inflation rate|
+    |---|---|
+    |Year 1|6.00%|
+    |Year 2|5.50%|
+    |Year 3|5.00%|
+    |Year 4|4.75%|
+    |Year 5 - onwards|gradual decrease to the minimum level of 3-4%|
 
 2. **Limit the amount of stakeable tokens to decrease the annual inflation rate.**
 Team and investor locked tokens are not stakeable until they are vested (this helps by reducing the potential inflation by more than 50% in the first 12 months and, more importantly, protecting against any increase in the centralization of token ownership)
 
-3. An Inflation Offsetting Pool to **reduce TTS Inflation to 0% for the first 24+ months**.
-10% of Total Token Supply (TTS) is allocated to a separate pool **(the Inflation Offsetting Pool)** to offset the increase of TTS caused by token emission from block rewards. Tokens from this pool are set to be automatically sent to a zero address (or “burned”) proportionally to the number of minted inflationary tokens. this will remain in effect unless otherwise allocated by the community for other funding initiatives (e.g. for developer grants/rewards pool), as voted upon and changed by the community.
-
-About ⅓  of the Foundation’s staking rewards will replenish the Inflation Offsetting Pool, with the remaining 2/3 going to fund Foundation operations and further protocol initiatives and development. Staking rewards received by Developer grants and Education/Bootcamp programs/PR/Events pools are going to fund the respective pools activities.
+3. An Inflation Offsetting Pool to **reduce TTS Inflation to 0% for the first 24+ months**. 10% of Total Token Supply (TTS) is allocated to a separate pool **(the Inflation Offsetting Pool)** to offset the increase of TTS caused by token emission from block rewards. Tokens from this pool are set to be automatically sent to a zero address (or “burned”) proportionally to the number of minted inflationary tokens. this will remain in effect unless otherwise allocated by the community for other funding initiatives (e.g. for **developer grants/rewards pool**), as voted upon and changed by the community.
+    
+    About ⅓  of the Foundation’s staking rewards will replenish the Inflation Offsetting Pool, with the remaining 2/3 going to fund Foundation operations and further protocol initiatives and development. Staking rewards received by Developer grants and Education/Bootcamp programs/PR/Events pools are going to fund the respective pools activities.
 
 4. **Provide in-market staking** incentives over time as the market continues to mature.
-The Vara Network maintains the Ideal Staking Rate by incentivizing or disincentivizing staking. Any downside divergence from the ideal staking rate will result in a higher ROI for stakers, providing a greater incentive to stake until the ideal stake rate has been achieved. Inversely, a staking rate higher than the ideal staking rate would yield a diluted return for stakers, encouraging token holders to unstake.
+    The Vara Network maintains the Ideal Staking Rate by incentivizing or disincentivizing staking. Any downside divergence from the ideal staking rate will result in a higher ROI for stakers, providing a greater incentive to stake until the ideal stake rate has been achieved. Inversely, a staking rate higher than the ideal staking rate would yield a diluted return for stakers, encouraging token holders to unstake.
 
-**The Ideal Staking Rate on Vara is 85%**. Based on preliminary research provided by community enthusiasts and observations of the other L1/L2 protocols, we expect the Ideal Staking Rate to decrease 75% within 12 months since the PoS launch (subject to governance voting)  before settling around 50-67%. This would allow the protocol to align the staking rate and inflation levels with the circulating supply growth. 
+    **The Ideal Staking Rate on Vara is 85%**. Based on preliminary research provided by community enthusiasts and observations of the other L1/L2 protocols, we expect the Ideal Staking Rate to decrease 75% within 12 months since the PoS launch (subject to governance voting)  before settling around 50-67%. This would allow the protocol to align the staking rate and inflation levels with the circulating supply growth. 
 
 These measures have the capacity to allow for maintenance of the same total token supply within the next 24+ months and, with the entire ecosystem in a more mature development stage, maintain an inflation rate in the low single-digits thereafter. 
 
-![token distribution](./img/chart-02.png)
+![token distribution](./img/chart-10.jpg)
 
 To encourage system flexibility, the community could choose to initiate a governance proposal to decide whether:
 
@@ -83,37 +89,38 @@ Vara was designed with a decreasing annual inflation model in mind, instead of a
 
 Staking ROI is driven by both the staking rate (the percentage of stakeable tokens staked) and the block rewards curve. The block rewards curve effectively represents the total protocol inflation with hardcoded Minimum Inflation (constant = 1%) and Maximum inflation. The Maximum Inflation level decreases (see above) as the Network and the Ecosystem mature. 
 
-Vara uses [Polkadot’s standard inflation](https://research.web3.foundation/en/latest/polkadot/overview/2-token-economics.html) model to calculate the distribution of block rewards, with several key modifications: 
+Vara uses [Polkadot’s standard inflation model](https://research.web3.foundation/en/latest/polkadot/overview/2-token-economics.html) to calculate the distribution of block rewards, with several key modifications: 
 
 1. **Staking rate:**
 
-:::info
-Staking Rate = number of tokens staked / number of stakeable tokens
-Number of stakeable tokens = TTS - Locked Team tokens - Locked Investors tokens  - Inflation offsetting pool tokens
-:::
+    :::info
+    Staking Rate = number of tokens staked / number of stakeable tokens
+    
+    Number of stakeable tokens = TTS - Locked Team tokens - Locked Investors tokens  - Inflation offsetting pool tokens
+    :::
 
-At Genesis the stakeable tokens amount to 48.5% of TTS. This initially allows the protocol to have 51.5% less inflation while providing competitive market rates for staking ROI. While tokens are getting unlocked and/or expended, the number of stakeable tokens trends towards the TTS. 
+    At Genesis the stakeable tokens amount to 48.5% of TTS. This initially allows the protocol to have 51.5% less inflation while providing competitive market rates for staking ROI. While tokens are getting unlocked and/or expended, the number of stakeable tokens trends towards the TTS. 
 
-The proven and battle-tested block reward curve and ROI model implemented by Polkadot also supports the Vara network to incentivize token holders to maintain the Ideal Staking Rate.
+    The proven and battle-tested block reward curve and ROI model implemented by Polkadot also supports the Vara network to incentivize token holders to maintain the Ideal Staking Rate.
 
-Within the first 24 months, the Ideal Staking Rate will be decreased from 85% to 50-67% level (subject to governance voting as mentioned above), in line with token vesting unlocks and depending on the Foundation’s spending schedules/overall ecosystem development.
+    Within the first 24 months, the Ideal Staking Rate will be decreased from 85% to 50-67% level (subject to governance voting as mentioned above), in line with token vesting unlocks and depending on the Foundation’s spending schedules/overall ecosystem development.
 
 2. **Variable inflation rate**
 
-Effective inflation of total token supply is a variable, not a constant, in the developed model. To calculate the total amount of tokens issued as block rewards, each block uses the block rewards curve instead of a fixed percentage. This is a divergence from Polkadot’s model, where a fixed inflation rate is minted before being divided between stakers and the Foundation treasury. 
+    Effective inflation of total token supply is a variable, not a constant, in the developed model. To calculate the total amount of tokens issued as block rewards, each block uses the block rewards curve instead of a fixed percentage. This is a divergence from Polkadot’s model, where a fixed inflation rate is minted before being divided between stakers and the Foundation treasury. 
 
-Instead, the network mints only the number of tokens actually required to reward participation by validators in the network. In this model, Polkadot’s inflation model is used to determine the actual number of tokens minted, by aligning this with the Staking ratio. Another difference from the Polkadot model is the staking ROI cap: in case the staking ratio is significantly lower than the Ideal Staking Rate and ROI increases above a certain level, the surplus ROI surplus will be distributed to the treasury.
+    Instead, the network mints only the number of tokens actually required to reward participation by validators in the network. In this model, Polkadot’s inflation model is used to determine the actual number of tokens minted, by aligning this with the Staking ratio. Another difference from the Polkadot model is the staking ROI cap: in case the staking ratio is significantly lower than the Ideal Staking Rate and ROI increases above a certain level, the surplus ROI surplus will be distributed to the treasury.
 
-This enables Vara to issue only the amount of new tokens required to reward the percentage of stakeable tokens that were staked, so that the absolute inflation level is aligned with the participation of token holders staking to the network.
+    This enables Vara to issue only the amount of new tokens required to reward the percentage of stakeable tokens that were staked, so that the absolute inflation level is aligned with the participation of token holders staking to the network.
 
 3. **Block rewards curve**
 
-- To form the Block rewards curve, the following rates are used: 
-- The minimum inflation rate: constant  1% each year in case Staking rate = 0% 
-- The maximum Inflation rate, which is constant for 12 months. 
-- The max inflation rate will then be decreased as the network and the ecosystem mature (subject to governance vote as described above). 
-- From Minimum to Maximum inflation rates (i.e from 0% tokens staked to Ideal Staking Rate), the Block rewards curve grows gradually according to a linear equation (as in the standard Polkadot model).
-- In case the % of tokens staked > Ideal Staking Rate, the curve decreases to the Minimum inflation level according to a hyperbolic equation (as in the standard Polkadot model).
+    - To form the Block rewards curve, the following rates are used: 
+    - The minimum inflation rate: constant  1% each year in case Staking rate = 0% 
+    - The maximum Inflation rate, which is constant for 12 months. 
+    - The max inflation rate will then be decreased as the network and the ecosystem mature (subject to governance vote as described above). 
+    - From Minimum to Maximum inflation rates (i.e from 0% tokens staked to Ideal Staking Rate), the Block rewards curve grows gradually according to a linear equation (as in the standard Polkadot model).
+    - In case the % of tokens staked > Ideal Staking Rate, the curve decreases to the Minimum inflation level according to a hyperbolic equation (as in the standard Polkadot model).
 
 The staking ROI curve is driven by the block rewards curve and % of tokens staked: Block rewards curve / % of stakeable tokens staked. It decreases hyperbolically until the Ideal Staking Rate is reached and then falls hyperbolically in case % of the tokens staked increases beyond the Ideal Staking Rate.
 

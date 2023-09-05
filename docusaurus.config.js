@@ -45,6 +45,7 @@ const config = {
       colorMode: {
         defaultMode: 'dark'
       },
+      image: 'img/ogimage.jpg',
       navbar: {
         logo: {
           alt: 'Vara Network',

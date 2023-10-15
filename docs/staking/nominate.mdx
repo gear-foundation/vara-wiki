@@ -8,13 +8,51 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import CodeBlock from '@theme/CodeBlock';
 
-Nominators are passive participants in any `Proof of Stake (PoS)` consensus mechanism. They indirectly contribute to maintaining the health and security of the network by delegating their tokens to the most reliable validators who are actively confirming blocks. Nominators receive rewards for their delegation, which depend on the network's economy and the percentage that the validator takes for themselves.
+Nominators are passive participants in any `Proof of Stake (PoS)` consensus mechanism. They indirectly contribute to maintaining the health and security of the network by delegating their tokens to the most reliable validators who actively confirm blocks. Nominators receive rewards for their delegation, which depend on the network's economy and the percentage that the validator takes for themselves.
 
-Being a nominator does not require running your own node or worrying about online uptime
+Being a nominator does not require running your own node or worrying about online uptime.
 
 ## How to set up as a nominator
 
-To nominate your VARA tokens, go to the Polkadot.{js} app, navigate to the Network → Staking → [Accounts](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.vara-network.io#/staking/actions) section, and click `+ Nominator`:
+### Via Staking Dashboard
+
+Vara offers a user-friendly staking dashboard, inspired by the Polkadot staking dashboard, that simplifies the process of staking and nominating validators.
+
+1. To begin your VARA token staking journey, visit our staking dashboard at **[staking.vara-network.io](https://staking.vara-network.io/)**.
+2. Once on the staking dashboard, connect your account and navigate to the "Nominate" section.
+3. Click the `Start Nominating` button.
+
+![setup dashboard](./img/dashboard-1.png)
+
+4. Payout Options
+
+    Next, you'll be presented with payout options:
+
+    - **Compound**: Rewards are automatically re-staked and bonded.
+    - **To Your Account**: Rewards are deposited into your account.
+
+    Select the option that suits your preferences and click "Continue" to proceed.
+
+![setup dashboard](./img/dashboard-2.png)
+
+5. Nominating Validators
+
+    Now, it's time to choose your nominations. The staking dashboard provides two methods:
+
+    - **Automatic Optimal Selection**: This feature selects validators for you based on their performance and rewards. It's an excellent option if you're unsure about which validators to nominate.
+    - **Manual Selection**: If you want more control over your nominations, opt for manual selection. Carefully choose the validators you wish to nominate. Nominating multiple validators can help diversify your risk.
+
+![setup dashboard](./img/dashboard-3.png)
+
+6. Define your Bond - specify amount of VARA to be staked, confirm and sign the transaction.
+
+![setup dashboard](./img/dashboard-4.png)
+
+Congratulations! You are now an active nominator. You will now begin earning staking rewards starting from the next era.
+
+### Via Polkadot.{js} app
+
+Go to the Polkadot.{js} app, navigate to the Network → Staking → [Accounts](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.vara-network.io#/staking/actions) section, and click `+ Nominator`:
 
 1. Select the stash and controller accounts, along with the amount of value you wish to bond. You can see in the screenshot what Stash and Controller accounts are. If you have not created your controller account, you can use the same one for both.
 
@@ -28,7 +66,7 @@ To nominate your VARA tokens, go to the Polkadot.{js} app, navigate to the Netwo
 
 ![setup nominator](./img/nominator-3.png)
 
-Congratulations! You are now an active nominator. Your nominations will take effect in the next era."
+Your nominations will take effect in the next era.
 
 ## Nomination pools
 
@@ -44,41 +82,3 @@ Participating in Vara Staking Pools is straightforward:
 2. Connect your wallet to the platform securely.
 3. Browse the available pools and choose the one that aligns with your preferences and goals.
 4. Join the pool, and your staked VARA tokens will start actively participating in network consensus and earning rewards.
-
-### Via Staking Dashboard
-
-Vara offers a user-friendly staking dashboard, inspired by the Polkadot staking dashboard, that simplifies the process of staking and nominating validators.
-
-1. To kickstart your VARA token staking journey, visit our staking dashboard at [staking.vara-network.io](https://staking.vara-network.io/).
-2. Once on the staking dashboard, connect your account and head to the "Nominate" section.
-3. Look for the "Start Nominating" button and click it.
-
-![setup dashboard](./img/dashboard-1.png)
-
-4. Payout Options
-
-Next, you'll be presented with next payout options:
-
-- **Compound**: Rewards are automatically re-staked and bonded.
-- **To Your Account**: Rewards are deposited into your account.
-
-Select the option that suits your preferences and click "Continue" to proceed.
-
-![setup dashboard](./img/dashboard-2.png)
-
-5. Nominating Validators
-
-Now, it's time to choose your nominations. The staking dashboard provides two methods:
-
-- **Automatic Optimal Selection**: This feature selects validators for you based on their performance and rewards. It's an excellent option if you're unsure about which validators to nominate.
-- **Manual Selection**: If you want more control over your nominations, opt for manual selection. Carefully choose the validators you wish to nominate. Nominating multiple validators can help diversify your risk.
-
-![setup dashboard](./img/dashboard-3.png)
-
-6. Defining Your Bond
-
-7. Confirm and Sign Transaction
-
-![setup dashboard](./img/dashboard-4.png)
-
-You will now begin earning staking rewards starting from the next era.

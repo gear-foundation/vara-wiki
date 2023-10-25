@@ -1,8 +1,8 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const lightCodeTheme = require('prism-react-renderer/themes/github')
+const darkCodeTheme = require('prism-react-renderer/themes/dracula')
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -35,22 +35,25 @@ const config = {
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
+        googleTagManager: {
+          containerId: 'GTM-NH2N6VX',
+        },
       }),
     ],
   ],
 
   themeConfig:
-    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
+  /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       colorMode: {
-        defaultMode: 'dark'
+        defaultMode: 'dark',
       },
       image: 'img/ogimage.jpg',
       navbar: {
         logo: {
           alt: 'Vara Network',
           src: 'img/logo-vara-green.svg',
-          srcDark: "img/logo-vara.svg"
+          srcDark: 'img/logo-vara.svg',
         },
         items: [
           {
@@ -87,10 +90,7 @@ const config = {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
       },
-      googleTagManager: {
-        containerId: 'GTM-NH2N6VX',
-      },
     }),
-};
+}
 
-module.exports = config;
+module.exports = config

@@ -3,6 +3,7 @@ name: Build and Deploy Vara Wiki to k8s
 on:
   push:
     branches: ['master']
+  pull_request: # FIXME: Remove!
 
 env:
   REGISTRY: ghcr.io
@@ -44,7 +45,7 @@ jobs:
         with:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-  
+
   deploy-to-k8s:
     needs: build-and-push-vara-wiki-image
     runs-on: ubuntu-latest

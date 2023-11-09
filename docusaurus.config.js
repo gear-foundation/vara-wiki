@@ -1,11 +1,7 @@
-// @ts-check
-// Note: type annotations allow type checking and IDEs autocompletion
+import lightCodeTheme from 'prism-react-renderer';
+import darkCodeTheme from 'prism-react-renderer';
 
-const lightCodeTheme = require('prism-react-renderer/themes/github')
-const darkCodeTheme = require('prism-react-renderer/themes/dracula')
-
-/** @type {import('@docusaurus/types').Config} */
-const config = {
+export default {
   title: 'Vara Network Documentation Portal',
   tagline: 'All documentation related to Vara Network',
   url: 'https://wiki.vara-network.io/',
@@ -27,13 +23,13 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
+          sidebarPath: './sidebars.js',
           editUrl:
             'https://github.com/gear-foundation/vara-wiki/edit/master',
         },
         blog: false,
         theme: {
-          customCss: require.resolve('./src/css/custom.css'),
+          customCss: './src/css/custom.css',
         },
         googleTagManager: {
           containerId: 'GTM-NH2N6VX',
@@ -91,6 +87,4 @@ const config = {
         darkTheme: darkCodeTheme,
       },
     }),
-}
-
-module.exports = config
+};

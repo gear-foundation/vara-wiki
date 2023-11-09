@@ -1,4 +1,4 @@
-FROM node:16-alpine AS builder
+FROM node:18-alpine AS builder
 WORKDIR /vara-wiki
 COPY . /vara-wiki
 RUN npm install --force

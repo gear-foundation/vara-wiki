@@ -3,7 +3,6 @@ name: Build and Deploy Vara Wiki to k8s
 on:
   push:
     branches: ['master']
-  pull_request: # FIXME: Remove!
 
 env:
   REGISTRY: ghcr.io

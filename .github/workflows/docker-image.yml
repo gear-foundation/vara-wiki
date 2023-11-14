@@ -4,6 +4,10 @@ on:
   push:
     branches: ['master']
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+  
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
@@ -14,16 +18,9 @@ env:
   KUBE_NAMESPACE: vara
 
 jobs:
-  wait-previous-run:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: mktcode/consecutive-workflow-action@v1 # please read security note
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
   build-and-push-vara-wiki-image:
     runs-on: ubuntu-latest
-    needs: [wait-previous-run]
     permissions:
       contents: read
       packages: write
@@ -63,7 +60,7 @@ jobs:
           args: rollout restart deployment vara-wiki -n $KUBE_NAMESPACE
 
   check-k8s-deployments:
-    needs: [deploy-to-k8s, wait-previous-run]
+    needs: [deploy-to-k8s]
     runs-on: ubuntu-latest
 
     steps:

@@ -13,17 +13,17 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: 'Start developing',
-    img: 'img/develop.png',
+    img: 'img/develop.svg',
     description: (
       <>
-        Are you developer? <br/>Start building a new generation of Web3 applications right now.
+        Are you developer? Start building a new generation of Web3 applications right now.<br/><br/>
       </>
     ),
     url: '/docs/build'
   },
   {
     title: 'Become a Validator',
-    img: 'img/validate.png',
+    img: 'img/validate.svg',
     description: (
       <>
         Provide computing resources to keep the Vara Network secure, performant and censorship-resistant. It is not only a responsibility, but also a good reward.
@@ -33,19 +33,29 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Become a Nominator',
-    img: 'img/nominate.png',
+    img: 'img/nominate.svg',
     description: (
       <>
-        Help maintain the network security by participating as a nominator. <br/> Stake your VARA and get reward!
+        Help maintain the network security by participating as a nominator. Stake your VARA and get reward!<br/><br/>
       </>
     ),
     url: '/docs/staking/nominate'
+  },
+  {
+    title: 'Explore Vara`s Token Economy',
+    img: 'img/tokenomics.svg',
+    description: (
+      <>
+        Learn how it is strategically designed to build long-term network resilience, foster ecosystem growth, and deliver lasting benefits. 
+      </>
+    ),
+    url: '/docs/tokenomics'
   },
 ];
 
 function Feature({ title, img, description, url }: FeatureItem) {
   return (
-    <div className={clsx('col col--4')}>
+    <div className={clsx('col col--3')}>
       <div className="text--center">
         <img src={img} className={styles.featureSvg} role="img" />
       </div>

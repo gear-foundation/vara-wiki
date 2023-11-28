@@ -1,5 +1,4 @@
-import lightCodeTheme from 'prism-react-renderer';
-import darkCodeTheme from 'prism-react-renderer';
+import {themes as prismThemes} from 'prism-react-renderer';
 
 export default {
   title: 'Vara Network Documentation Portal',
@@ -83,8 +82,8 @@ export default {
         isCloseable: false,
       },
       prism: {
-        theme: lightCodeTheme,
-        darkTheme: darkCodeTheme,
+        theme: prismThemes.github,
+        darkTheme: prismThemes.dracula,
       },
     }),
 };

@@ -165,3 +165,39 @@ Pool staking rewards are not claimed automatically by default. You have to perio
 :::note
 This instruction is also valid for using this app on Laptop/Desktop devices via **[this link](https://polkadot.js.org/apps/?rpc=wss://rpc.vara-network.io#/staking/pools)**.
 :::
+
+## Rewards and Withdrawals
+
+[Payouts](https://staking.vara-network.io/#/payouts) represent staking rewards on Vara and depend on the accumulation of 'Era Points' by your nominated validators over time. These rewards are determined at the end of each Era, which spans 12-hour periods.
+
+### Direct Nomination Rewards
+
+To claim staking rewards, a Payout needs to be requested (Claimed). Any nominator supporting the relevant validator can initiate this request. **One request** triggers the reward payout for **all nominators**. Consequently, for most nominators, payouts are received **automatically**.
+
+As per the user's staking options, rewards will either automatically bond with the current bond or can be sent to the stash, controller, or an external account.
+
+The [Nominate](https://staking.vara-network.io/#/nominate) section of the Vara Staking Portal provides an overview of Bonded Funds and Nominator Status. Additionally, it offers a `Claim` option for available Pending Payouts.
+
+![nomnate overview](./img/nominate-rewards.png)
+
+Depending on the interface used for staking, the available options may vary.
+
+### Pool Nomination Rewards
+
+Unlike direct nominators, [Pool](https://staking.vara-network.io/#/pools) members are required to **manually claim** their rewards.
+
+Users have two choices for claiming rewards:
+
+- Reinvest them into the pool (`Compound`), increasing the pool share and accumulating further rewards.
+- `Withdraw` them from the pool to the user's account as free (transferable) VARA.
+
+![nomnate overview](./img/pool-rewards.png)
+
+### Unstaking
+
+When users require their tokens to be transferable, they must unstake them first.
+
+- For direct nominators, click the `Unstake` button in the [Nominate](https://staking.vara-network.io/#/nominate) section.
+- As a [Pool](https://staking.vara-network.io/#/pools) member, click `Manage` and then select the `Leave pool` option. Your funds will be unbonded, and your account will exit the nomination pool.
+
+Once unbonded, users' funds will be unlocked **after 7 days**. Users must click the `padlock` icon to withdraw their funds to their wallet.

@@ -3,7 +3,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 export default {
   title: 'Vara Network Documentation Portal',
   tagline: 'All documentation related to Vara Network',
-  url: 'https://wiki.vara-network.io/',
+  url: 'https://wiki.vara.network/',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -58,8 +58,8 @@ export default {
             label: 'Docs',
           },
           {
-            href: 'https://www.vara-network.io/',
-            label: 'Vara-network.io',
+            href: 'https://www.vara.network/',
+            label: 'Vara.network',
             position: 'right',
           },
           {

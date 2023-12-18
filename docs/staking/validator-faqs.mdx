@@ -14,25 +14,25 @@ Here is a list of frequently asked questions about running a Vara validator node
 
 ## What is Vara Network?
 
-[Vara Network](https://vara-network.io/) is a fast and scalable Layer-1 decentralized network powered by [Gear Protocol](https://gear-tech.io/).
+[Vara Network](https://vara.network/) is a fast and scalable Layer-1 decentralized network powered by [Gear Protocol](https://gear-tech.io/).
 
 Links:
-- Official site: https://vara-network.io/
+- Official site: https://vara.network/
 - Block Explorer: https://explorer.vara-network.io/
-- Vara Wiki: https://wiki.vara-network.io/
+- Vara Wiki: https://wiki.vara.network/
 - Node Telemetry: https://telemetry.rs/
-- Tokenomics: https://wiki.vara-network.io/docs/tokenomics/
-- Whitepaper: https://whitepaper.gear-tech.io/
+- Tokenomics: https://wiki.vara.network/docs/tokenomics/
+- Whitepaper: https://whitepaper.gear.foundation/
 - Gear Wiki: https://wiki.gear-tech.io/
 - Gear Foundation: https://gear.foundation/
 
 ## What are the public RPC endpoints?
 
 - RPC Node:
-  - `wss://rpc.vara-network.io`
+  - `wss://rpc.vara.network`
 
 - Archive RPC Node:
-  - `wss://archive-rpc.vara-network.io`
+  - `wss://archive-rpc.vara.network`
 
 
 ## What bootnode should I use to connect to the network?
@@ -111,7 +111,7 @@ or find more tags here: https://github.com/gear-tech/gear/pkgs/container/node
 
 ## How do I check if my node is validator or not?
 
-Navigate to https://polkadot.js.org/apps/?rpc=wss://rpc.vara-network.io#/staking, and you will find a list of the active validators
+Navigate to https://polkadot.js.org/apps/?rpc=wss://rpc.vara.network#/staking, and you will find a list of the active validators
 
 ## What is slashing?
 
@@ -173,7 +173,7 @@ Running multiple validators can increase your chances of earning rewards, but it
 
 It's important to note that running multiple validators doesn't mean running multiple nodes on the same server or under the same network conditions. This could lead to simultaneous failures, which could result in multiple nodes being slashed at the same time. Ideally, each validator node should be run on separate servers and potentially in different geographic locations for redundancy and resilience.
 
-## How to achieve high availability for my validator node? 
+## How to achieve high availability for my validator node?
 
 To maintain high availability for your validator node, it may seem tempting to use redundant validator setups. However, incorrect setups can be risky because validator session keys should be confined to one node. Duplication across nodes may cause equivocation slashes, leading to the loss of all staked funds.
 
@@ -227,7 +227,7 @@ The validator's own reward is then calculated based on their commission, which i
 
 ## How should I decide the commission rate?
 
-The commission is the percentage of rewards you keep before they are given out to nominators. With 0% commission, nominators get all the rewards; with 100% commission, they get NO rewards. 
+The commission is the percentage of rewards you keep before they are given out to nominators. With 0% commission, nominators get all the rewards; with 100% commission, they get NO rewards.
 
 In general, in order to stay attractive to nominators you should keep the commission low. However, you also need to ensure that the commission rate you set allows you to sustainably operate your validator node. It's a balance of competitive positioning, sustainability, and profitability.
 
@@ -235,7 +235,7 @@ In general, in order to stay attractive to nominators you should keep the commis
 
 The ideal number of active validators is defined by the `staking.validatorsCount` storage item, and is subject to change in the future.
 
-You can query the storage item by visiting [PolkadotJS Apps](https://polkadot.js.org/apps/?rpc=wss://rpc.vara-network.io) > Developer > Chain state > staking > validatorCount
+You can query the storage item by visiting [PolkadotJS Apps](https://polkadot.js.org/apps/?rpc=wss://rpc.vara.network) > Developer > Chain state > staking > validatorCount
 
 ![querying chainstate](./img/querying-chainstate.png)
 

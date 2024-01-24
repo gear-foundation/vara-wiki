@@ -6,52 +6,69 @@ sidebar_label: Vara Capabilities
 
 ## Vara mission
 
-Vara provides an environment for developers to build decentralized applications, at a new level in the Web3 industry. 
-**Anyone can build dApps and deploy them on the Vara Network without having to develop their own blockchain.**
+Vara offers developers an ecosystem for creating decentralized applications at an advanced level within the Web3 industry. **Anyone can build dApps and deploy them on the Vara Network without developing their own blockchain.**
 
-By bridging the gap between Web2 and Web3 for developers, Vara opens up opportunities for the next generation of decentralized applications, helping speed up adoption and spearheading the future of Web3 technologies.
-Built as a WebAssembly native blockchain, any developer has the ability to write and compile in traditional languages.
+By bridging the gap between Web2 and Web3 for developers, Vara opens up opportunities for the next generation of decentralized applications, helping speed up adoption and spearheading the future of Web3 technologies. Built as a WebAssembly native blockchain, any developer can write and compile in traditional languages.
 
-In addition, Vara Network offers low transaction costs, staking, participation in governance, validator, nominator and ambassador programs (as well as gas fee rebates in future).
+In addition, Vara Network offers low transaction costs, staking, participation in governance, validator, nominator and ambassador programs (as well as gas fee rebates in the future).
 
 ## Use cases
 
-Vara's strengths in providing scalability and security allow it to support next-gen Gaming and Financial-based applications. However Vara is capable of working with a vast number of different business and application use cases including tokenizing real world assets, supply chain management, and storing verifiable documentation such as academic results and digital identities. These next generation solutions require low latency execution and high level memory management, which Vara provides, enabling it to act as the fastest and most reliable on-ramp for the next iteration of applications.
+Vara's strengths in providing scalability and security allow it to support next-gen Gaming and Financial-based applications. However, Vara is capable of working with a vast number of different business and application use cases, including tokenizing real-world assets, supply chain management and storing verifiable documentation such as academic results and digital identities. These next-generation solutions require low latency execution and high-level memory management, which Vara provides, enabling it to act as the fastest and most reliable on-ramp for the next iteration of applications.
 
-Gear Team implemented a vast number of examples for various use cases that can be used for familiarization with writing programs on Gear Protocol or become the basis for your own dApp. They can be used as is or modified to suit your own scenarios.
+The Vara community has created numerous examples for different use cases. These can help developers learn how to write programs on Gear Protocol or serve as a foundation for their own dApp. They can be used as is or modified to suit your own scenarios.
 
-More details are in [Smart Contract Examples](https://wiki.gear-tech.io/docs/examples/prerequisites), the source code is available on [GitHub](https://github.com/gear-foundation).
+More details are in [Program Examples](https://wiki.gear-tech.io/docs/examples/prerequisites), the source code is available on [GitHub](https://github.com/gear-foundation/dapps).
 
 ### On-chain gaming
 
-The gaming industry is the largest and fast growing entertainment business. It is larger than the movie and music industries combined.
+The gaming industry is the largest and fast-growing entertainment business. It is larger than the movie and music industries combined.
 
-During the gaming process, players create, buy or exchange digital gaming assets. Blockchain technology perfectly fits in to carry out in-game transactions and confirm the assets ownership and possession. It enables new game mechanics and economic models (like the play-to-earn). Smart contracts take advantage of blockchain technology's security and transparency guarantees to ensure protection of in-game assets represented by NFTs.
+During the gaming process, players create, buy, or exchange digital gaming assets. Blockchain technology perfectly fits in to carry out in-game transactions and confirm an asset's ownership and provenance. It enables new game mechanics and economic models (like the play-to-earn). Gaming programs take advantage of blockchain technology's security and transparency guarantees to ensure the protection of in-game assets represented by NFTs.
 
-Game creators have realized the benefits of this technology and increasingly use it as one of the essential parts of their game architecture. Since transactions in Vara are very fast and cheap, it fits perfectly for highly loaded gaming applications with a huge number of transactions.
+The primary features of the most popular games include exciting game mechanics that encourage repeated engagement, progression through levels, ease of entry and learning, the potential for rewards upon achievements and definitely ease of use.
 
-### Financial-based applications
+However, many modern blockchain platforms struggle to meet these fundamental requirements independently. Their applications often demand users to install specialized wallet programs, create accounts, buy in-game currency, and engage in transaction signing, leading to inconveniences. To overcome these issues, these platforms resort to employing centralized components, the malfunction of which can render the entire application inoperative. Such practices are a far cry from achieving true decentralization.
 
-Decentralized Finance (DeFi) is a blockchain-based alternative to the current financial system. DeFi applications let you borrow, save, invest, trade, exchange and do much more with your money than traditional financial systems allow. Whereas the current financial system is opaque, tightly controlled and outdated, DeFi empowers individuals by giving them personal control and visibility over their finances. This new financial market, which has fewer intermediaries, can potentially be very beneficial for its users.
+By utilizing [delayed messages](https://wiki.gear-tech.io/docs/developing-contracts/delayed-messages), developers can implement optimizations that may not directly affect the user experience but ultimately yield a positive impact on the application's performance and cost for end users. For instance, in a gaming scenario where certain session data needs storing, employing delayed messages allows for timely clearance of completed data. This prevents excessive growth in program memory and reduces the expense associated with storing information on the blockchain.
 
-Thanks to the Gear's architecture, scalability and technology features, transactions on a Gear Network are processed at an enormous speed and as a result, have an insignificant fee. It makes launching smart contracts on a Vara Network especially attractive for DeFi scenarios.
+The Gear Protocol provides a developer-friendly [framework](https://wiki.gear-tech.io/docs/developing-contracts/introduction) for creating fully on-chain games and deploying them on a decentralized network, such as Vara. Features like continuous automation (via delayed messages), payless and signless transactions, [gas reservation](https://wiki.gear-tech.io/docs/developing-contracts/gas-reservation), and more serve as essential tools for developers striving to craft successful games within the Vara decentralized network.
 
-### Other use cases
+Game creators have realized the benefits of this technology and increasingly use it as one of the essential parts of their game architecture. Since transactions on Vara are very fast and cheap, it fits perfectly for highly loaded gaming applications with a huge number of transactions.
 
-#### DAO
 
-Decentralized Autonomous Organizations (DAOs) are organizations that operate without central authority or control and they are an effective and safe way to work with like-minded people around the globe. DAOs are usually flat and fully democratized instead of hierarchical. They also require members to vote on proposals or for any changes to be made. This is the difference from traditional organizations that usually have a sole decision maker. The concept of DAOs are extremely exciting for those involved in blockchain technology. It solves almost everything that's wrong with how modern day organizations are run.
+### Infrastructure
 
-#### NFTs and tokenized real world assets
+Vara opens doors for traditional and Web2 businesses, ensuring their transition into more transparent, reliable, and sustainable services using decentralized Web3 technology under the hood.
 
-NFTs are ways in which we can represent anything as a unique digital asset. They're powered by smart contracts and they're enabling creators to have more power and control over their work than ever before. NFTs let us represent ownership and tokenize assets like art, collectibles, tickets and even real estate. They can only have one official owner at a time and they're secured by blockchain technology, which means that no one can modify the record of ownership or bring new 'original' NFTs into existence. Tokenization has a great potential to transform the landscape of traditional assets and financial markets. It will help create a global asset ecosystem where everything can be traded as easily as cryptocurrencies can.
+Many Web2 services operate on a [subscription](https://wiki.gear-tech.io/docs/examples/Infra/varatube) basis, with a critical feature being automatic subscription renewal. Upon expiration, money is automatically debited from the wallet, renewing the subscription without user intervention. Vara facilitates easy self-invocation of programs without introducing centralized components through a few functions in the code. A program can dispatch a delayed message to itself across a defined number of blocks, contingent upon sufficient reserved gas to place the message in the Waitlist.
 
-#### Supply Chain Management
+[Decentralized Internet (DNS)](https://wiki.gear-tech.io/docs/examples/Infra/dein) can demonstrate an on-chain server-less approach to web sites and web applications hosting. Unlike server-based DNS built on centralized components and services, decentralized solutions running on the blockchain are characterized by boosted data security, enhanced data reconciliation, minimized system weak points, optimized resource allocation, and demonstrated great fault tolerance. It brings all the benefits of decentralization such as censorship resistance, security resilience, high transparency.
 
-Supply chain management traditionally suffered due to inefficient systems where documents would pass through multiple parties, increasing the risk of fraud and loss of data. However, smart contracts can nullify such risk by automating most supply chain processes. They reduce complexity by processing transactions automatically and verifiably in real time, which improves the efficiency and allows supply chains to become more agile. And they also provide a traceable history of transactions, which improves transparency and strengthens trust between all parties involved in a supply chain.
+[Supply chain](https://wiki.gear-tech.io/docs/examples/Infra/supply-chain) management traditionally suffered due to inefficient systems where documents would pass through multiple parties, increasing the risk of fraud and loss of data. However, on-chain programs can nullify such risk by automating most supply chain processes. They reduce complexity by processing transactions automatically and verifiably in real-time, which improves efficiency and allows supply chains to become more agile. And they also provide a traceable history of transactions, which improves transparency and strengthens trust between all parties involved in a supply chain.
 
-#### Other use cases
+Vara's capabilities are not limited to these examples. Many other scenarios and services can be implemented using the Gear Protocol.
 
-Years ago, software development moved from monolithic to microservice architecture. Addressing complexities of previous approach related to tightly coupled, interconnected code. In recent years, nanoservices have become mainstream to address known microservice complexity.
+### Decentralized Finance
 
-Any general-purpose language nanoservice function compiled to Wasm can be uploaded as a program to Vara Network or a single node. Gear Node will execute the code to process a certain task within the necessary timeframe. Vara provides automatic seamless scalability according to the number of tasks necessary to process. You only pay for the resources your function consumes.
+Decentralized Finance (DeFi) is a blockchain-based alternative to the current financial system. DeFi applications let you borrow, save, invest, trade, exchange, and do much more with your money than traditional financial systems allow. Whereas the current financial system is opaque, tightly controlled, and outdated - DeFi empowers individuals by giving them personal control and visibility over their finances. This new financial market, which has fewer intermediaries, can potentially be very beneficial for its users.
+
+Deploying DeFi apps on Vara brings unique advantages. Thanks to Gear Protocol's highly scalable architecture, transactions on Vara are processed at lightning speed and with minimal fees. 
+
+With Vara, users can enjoy a set-and-forget DeFi experience where their earnings are automatically deposited into their accounts without any manual intervention. Rewards are regularly harvested, swapped for the original vault asset, and deposited again for compound farming, allowing users to earn even more without having to take any additional action.
+
+Its distinctive features, enabling on-chain automation for numerous use cases, make Vara a preferred option for running financial applications. This cost and efficiency benefit can drive increased transactions, enhancing liquidity and activity within DeFi applications.
+
+### NFTs and Tokenized Real-world Assets
+
+Non-Fungible Tokens (NFTs) are ways in which anything can be represented as a unique digital asset. They’re powered by on-chain programs (or smart contracts) and they’re enabling creators to have more power and control over their work than ever before. NFTs let people represent ownership and tokenize assets like art, music, collectibles, tickets and even real estate. They can only have one official owner at a time and they’re secured by blockchain technology, which means that no one can modify the record of ownership or bring new ‘original’ NFTs into existence.
+
+Tokenization has great potential to transform the landscape of traditional assets and financial markets. It will help create a global asset ecosystem where everything can be traded as easily as cryptocurrencies can.
+
+One of the key features of NFTs is their dynamism, allowing their properties to be altered based on specific conditions. [Dynamic NFTs](https://wiki.gear-tech.io/docs/examples/NFTs/dynamic-nft) can be promptly updated by their owner or automatically through delayed messages. The NFT program within Vara can transmit messages to itself at regular intervals, enabling automatic updates to the token's properties. For instance, the NFT could modify itself based on factors like the duration of ownership, specific dates or times, time of day, seasonal changes, current price, price fluctuations over a period, and a myriad of other use cases that Gear Protocol allows developers to implement.
+
+### Decentralized Autonomous Organizations
+
+DAOs are organizations that operate without central authority. They present a democratic and safe way to work with like-minded individuals worldwide. DAOs are usually fully democratized rather than hierarchical, requiring members to vote on proposals or any changes to be made. DAOs represent a radical departure from traditional organizations and offer a new model for collaboration and decision-making.
+
+Gear's messaging nature in its architecture is uniquely suited to support DAOs. The fast, inexpensive transactions facilitated by Vara are perfect for DAO governance, intensive discussions, frequent voting and proposal mechanisms. Additionally, a secure, reliable, and transparent Vara network ensures that DAO operations can be conducted with confidence and trust.

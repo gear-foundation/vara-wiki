@@ -46,7 +46,7 @@ const FeatureList: FeatureItem[] = [
     img: 'img/tokenomics.svg',
     description: (
       <>
-        Learn how it is strategically designed to build long-term network resilience, foster ecosystem growth, and deliver lasting benefits. 
+        Learn how every transaction and stake contributes to a robust network. From incentives to governance, Vara opens doors to a new era in decentralized networks. 
       </>
     ),
     url: '/docs/tokenomics'

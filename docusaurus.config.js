@@ -85,5 +85,10 @@ export default {
         theme: prismThemes.github,
         darkTheme: prismThemes.dracula,
       },
+      docs: {
+        sidebar: {
+          autoCollapseCategories: true,
+        },
+      },
     }),
 };

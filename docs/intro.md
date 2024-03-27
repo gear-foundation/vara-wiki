@@ -4,7 +4,7 @@ sidebar_position: 1
 sidebar_label: Getting Started
 ---
 
-**Vara Network** is a stand-alone layer-1 decentralized network built and running on top of **[Gear Protocol](https://www.gear-tech.io/)**.
+**[Vara Network](http://vara.network/)** is a stand-alone layer-1 decentralized network built and running on top of **[Gear Protocol](https://www.gear-tech.io/)**.
 
 Gear Protocol is a Substrate-based programming platform that enables anyone to develop and run dApps in Vara Network as well as other networks powered by the Gear Protocol’s runtime and technology. 
 

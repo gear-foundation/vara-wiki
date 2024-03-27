@@ -4,6 +4,20 @@ sidebar_position: 1
 sidebar_label: Vara Capabilities
 ---
 
+## Background
+
+The Internet began with Web1, a read-only content delivery network. Users could only consume what was offered by site owners, which significantly limited their interaction with the web content.
+
+Web2 introduced the next stage of internet evolution, offering both read and write capabilities. This change transformed the Web into an interactive platform, fostering the growth of technology giants and social media. However, this shift came with its own set of challenges, including centralized content control, data leaks, account restrictions, and censorship, leading to an increased interest in trustless decentralized control of content and assets on the web.
+
+Blockchain technology responded to these challenges, heralding the advent of Web3.0. This new web era decentralizes control over user content and assets. The history of each transaction stored within the blockchain is accessible to and verifiable by all network participants, which eliminates the possibility of including false transactions, or altering the history of the ledger. Additionally, blockchain networks have no single point of failure and offer censorship resistance, promoting a truly open and permissionless web.
+
+This innovation quickly led to a proliferation of a new category of decentralized applications and assets, including decentralized finance (DeFi), gaming platforms, NFTs, marketplaces and Social Tokens, among others.
+
+Yet, as second-generation blockchain networks such as Ethereum gained popularity, they encountered numerous challenges. The surge in adoption led to issues of scalability, slowed transaction speeds, and escalated transaction costs. Furthermore, the emergence of new blockchains necessitated the development of fresh intercommunication tools and intrinsic interoperability to ensure seamless cross-chain interactions. Moreover, their proof-of-work consensus mechanisms, which consume substantial energy to complete the computations required to add a new block to the chain, drew criticism for their environmental impact. Additionally, Web2 developers are not able to apply design patterns and functionality they are accustomed to, often having to learn unique, domain-specific languages and unconventional methodologies.
+
+[Gear Protocol](https://gear-tech.io/) was conceived to overcome these barriers. Built on Substrate, Gear serves as a developer-friendly programming platform for decentralized applications and a technology that can be used to deploy Layer-1 standalone networks, such as [Vara Network](http://vara.network/). The vision for Gear is to empower developers to deploy next-generation Web3.0 applications in the easiest, most efficient way possible, using the underlying network that best suits their application and users’ specific needs.
+
 ## Vara mission
 
 Vara offers developers an ecosystem for creating decentralized applications at an advanced level within the Web3 industry. **Anyone can build dApps and deploy them on the Vara Network without developing their own blockchain.**
@@ -36,6 +50,7 @@ The Gear Protocol provides a developer-friendly [framework](https://wiki.gear-te
 
 Game creators have realized the benefits of this technology and increasingly use it as one of the essential parts of their game architecture. Since transactions on Vara are very fast and cheap, it fits perfectly for highly loaded gaming applications with a huge number of transactions.
 
+Examples of how gaming dApps can be implemented using the Gear Protocol and run on the Vara network can be found here: [Gear Wiki/Gaming](https://wiki.gear-tech.io/docs/examples/Gaming/battleship).
 
 ### Infrastructure
 
@@ -47,11 +62,20 @@ Many Web2 services operate on a [subscription](https://wiki.gear-tech.io/docs/ex
 
 [Supply chain](https://wiki.gear-tech.io/docs/examples/Infra/supply-chain) management traditionally suffered due to inefficient systems where documents would pass through multiple parties, increasing the risk of fraud and loss of data. However, on-chain programs can nullify such risk by automating most supply chain processes. They reduce complexity by processing transactions automatically and verifiably in real-time, which improves efficiency and allows supply chains to become more agile. And they also provide a traceable history of transactions, which improves transparency and strengthens trust between all parties involved in a supply chain.
 
+Zero-knowledge cryptography (ZK) is a game-changer in the world of Web3. It empowers developers to create scalable and private applications. In many scenarios it is critically important to have a secret way to prove something is true without revealing any extra details:
+
+- ZK proofs can authenticate identities without disclosing the actual identity information. The verification of data integrity without exposing the data itself is beneficial for audits or proofs of existence where data needs to be validated without revealing its content.
+- In DeFi applications ZK enables users to privately prove ownership or eligibility for certain financial activities without disclosing their holdings or transaction history.
+- It can be utilized to validate the authenticity of products in supply chains.
+- ZK proofs allow for anonymous voting while ensuring the integrity of the voting process, preventing double voting or tampering.
+- In the context of [ZKML](https://wiki.gear-tech.io/docs/examples/Infra/zkml), the prover can verify the integrity and accuracy of machine learning (ML) models outcome, when the computation occurs off-chain, without revealing any additional information.
+- ZK proofs can ensure patient privacy by allowing medical institutions to perform computations on sensitive patient data without accessing the data itself.
+
 Vara's capabilities are not limited to these examples. Many other scenarios and services can be implemented using the Gear Protocol.
 
 ### Decentralized Finance
 
-Decentralized Finance (DeFi) is a blockchain-based alternative to the current financial system. DeFi applications let you borrow, save, invest, trade, exchange, and do much more with your money than traditional financial systems allow. Whereas the current financial system is opaque, tightly controlled, and outdated - DeFi empowers individuals by giving them personal control and visibility over their finances. This new financial market, which has fewer intermediaries, can potentially be very beneficial for its users.
+[Decentralized Finance (DeFi)](https://wiki.gear-tech.io/docs/examples/DeFi/multisig-wallet) is a blockchain-based alternative to the current financial system. DeFi applications let you borrow, save, invest, trade, exchange, and do much more with your money than traditional financial systems allow. Whereas the current financial system is opaque, tightly controlled, and outdated - DeFi empowers individuals by giving them personal control and visibility over their finances. This new financial market, which has fewer intermediaries, can potentially be very beneficial for its users.
 
 Deploying DeFi apps on Vara brings unique advantages. Thanks to Gear Protocol's highly scalable architecture, transactions on Vara are processed at lightning speed and with minimal fees. 
 
@@ -69,6 +93,6 @@ One of the key features of NFTs is their dynamism, allowing their properties to 
 
 ### Decentralized Autonomous Organizations
 
-DAOs are organizations that operate without central authority. They present a democratic and safe way to work with like-minded individuals worldwide. DAOs are usually fully democratized rather than hierarchical, requiring members to vote on proposals or any changes to be made. DAOs represent a radical departure from traditional organizations and offer a new model for collaboration and decision-making.
+[DAOs](https://wiki.gear-tech.io/docs/examples/Governance/DAO) are organizations that operate without central authority. They present a democratic and safe way to work with like-minded individuals worldwide. DAOs are usually fully democratized rather than hierarchical, requiring members to vote on proposals or any changes to be made. DAOs represent a radical departure from traditional organizations and offer a new model for collaboration and decision-making.
 
 Gear's messaging nature in its architecture is uniquely suited to support DAOs. The fast, inexpensive transactions facilitated by Vara are perfect for DAO governance, intensive discussions, frequent voting and proposal mechanisms. Additionally, a secure, reliable, and transparent Vara network ensures that DAO operations can be conducted with confidence and trust.

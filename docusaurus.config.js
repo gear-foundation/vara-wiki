@@ -1,4 +1,4 @@
-import {themes as prismThemes} from 'prism-react-renderer';
+import {themes as prismThemes} from 'prism-react-renderer'
 
 export default {
   title: 'Vara Network Documentation Portal',
@@ -16,6 +16,7 @@ export default {
     locales: ['en'],
   },
 
+  plugins: ['docusaurus-plugin-sass'],
   presets: [
     [
       'classic',
@@ -28,7 +29,7 @@ export default {
         },
         blog: false,
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: './src/css/custom.scss',
         },
         googleTagManager: {
           containerId: 'GTM-NH2N6VX',
@@ -91,4 +92,15 @@ export default {
         },
       },
     }),
-};
+
+  scripts: [
+    // {
+    //   src: 'https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.9/iframeResizer.contentWindow.min.js',
+    //   defer: true,
+    // },
+    {
+      src: 'https://cdn.jsdelivr.net/npm/@iframe-resizer/child',
+      defer: true,
+    },
+  ],
+}

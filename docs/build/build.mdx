@@ -1,48 +1,45 @@
 ---
-title: Building Programs
+title: Developing Programs
 sidebar_position: 1
-sidebar_label: Building Programs
+sidebar_label: Developing Programs
 ---
 
-To get started with writing programs on the Gear Protocol and uploading them to the Vara Network, you will need specific prerequisites and tools. Gear offers a centralized resource known as the **[Gear Wiki](https://wiki.gear-tech.io/)**, which serves as a single point of knowledge.
+This Wiki, along with the [Vara Educational Hub](https://vara.network/education-hub), serves as a primary source of knowledge for getting started with writing programs using the Gear Protocol and uploading them to the Vara Network.
 
-For a quick overview of writing and running programs on Gear-powered networks, you can refer to [this guide](https://wiki.gear-tech.io/docs/getting-started-in-5-minutes). It walks you through writing a program, compiling it to Wasm and deploying it to the Vara Network within just 5 minutes.
+For a quick overview of writing and running programs on Vara, refer to [this guide](/docs/getting-started-in-5-minutes.md). It walks through writing a program, compiling it to Wasm, and deploying it to the Vara Network within just 5 minutes.
 
-## Gear Protocol's library
+## Gear Protocol's Library
 
- Messages is the main interface for communications between Actors (users and programs). Each Gear program contains code for processing incoming messages. During message processing, programs can send messages to other programs and users, including replies to the initial message.
+Messages are the main interface for communications between Actors (users and programs). Each Vara program contains code for processing incoming messages. During message processing, programs can send messages to other programs and users, including replies to the initial message.
 
-The Gear Protocol's library `gstd` provides necessary and sufficient custom functions and methods including arbitrary async/await syntax for developing smart-contracts.
+The Gear Protocol's library `gstd` provides necessary and sufficient custom functions and methods, including arbitrary async/await syntax for developing programs.
 
-For detailed information on developing dApps on the Gear Protocol, check out [these articles](https://wiki.gear-tech.io/docs/developing-contracts/introduction). They cover various aspects such as the Gear library, executable and state functions, data decoding/encoding, asynchronous programming, program testing, and more.
+The next articles in this section cover various aspects of the Gear library, executable and state functions, data decoding/encoding, asynchronous programming, program testing, and more.
 
-## Gear Node
+## Vara Node
 
-Gear Node provides a runtime that assists program developers in implementation and testing (personal node) while also enabling participation in the Vara Network as validators.
+Vara Node provides a runtime that assists program developers in implementation and testing (personal node) while also enabling participation in the Vara Network as validators.
 
-Anyone can either compile a Gear node on their own or download the prebuilt binary (nightly build). From a functional standpoint, it doesn't matter whether it was downloaded or built manually.
-The Node can be built, installed, and run on Linux, Mac, and Windows operating systems.
+Anyone can either compile a Vara node or download the prebuilt binary (nightly build). From a functional standpoint, it doesn't matter whether it was downloaded or built manually. The Node can be built, installed, and run on Linux, Mac, and Windows operating systems.
 
-For detailed instructions on installing and running the Gear Node, as well as keeping it operational, backing up, restoring, and troubleshooting, refer to the guide [here](https://wiki.gear-tech.io/docs/node/setting-up).
+For detailed instructions on installing and running the Vara Node, as well as keeping it operational, backing up, restoring, and troubleshooting, refer to the guide [here](/docs/node/node.mdx).
 
 ## Gear-JS API
 
-The Gear-JS API provides a range of utilities, libraries, and tools that enable JavaScript applications to interact with programs running on the Vara Network via queries to a Gear Node.
+The Gear-JS API provides a range of utilities, libraries, and tools that enable JavaScript applications to interact with programs running on the Vara Network via queries to a Vara Node.
 
-The basic API is implemented on the Substrate layer and remains consistent across all Substrate-based networks. It enables connection to a local or remote node, get node info, subscribe to events etc. The main capabilities of Gear-JS API are - working with the program's metadata, calculating gas required for network operations, uploading programs in the network, sending a message or a reply to a program, reading program's state, getting messages from the user's mailbox and more.
+The basic API is implemented on the Substrate layer and remains consistent across all Substrate-based networks. It enables connection to a local or remote node, getting node info, subscribing to events, etc. The main capabilities of the Gear-JS API include working with the program's metadata, calculating gas required for network operations, uploading programs to the network, sending a message or a reply to a program, reading a program's state, getting messages from the user's mailbox, and more.
 
-To learn more about implementing your web application to interact with programs on the Vara Network, check out [this resource](https://wiki.gear-tech.io/docs/api/getting-started).
+To learn more about implementing a web application to interact with programs on the Vara Network, check out the [Gear-JS API](/docs/api). Also, take a look at the [NFT frontend application](/docs/examples/NFTs/nft-marketplace/nft-application.md) example, which describes how to implement a frontend application that interacts with the program on the blockchain.
 
 ## Gear Idea
 
-**[Gear Idea](https://idea.gear-tech.io/)** is a convenient tool that allows program developers to easily and swiftly upload programs to a Vara Network directly through their browser without additional configuration.
+**[Gear Idea](https://idea.gear-tech.io/)** is a convenient tool that allows program developers to easily and swiftly upload programs to the Vara Network directly through their browser without additional configuration.
 
-For development and testing purposes, the Gear Idea can be connected to any supported Gear-based networks, including Test-Networks (public or private) or even a localhost Gear Node.
+For development and testing purposes, Gear Idea can be connected to any supported Gear-based network, including test networks (public or private) or even a localhost Node.
 
-This application encompasses all the interactions with programs in Gear Networks, such as uploading new programs, sending messages to contracts, and receiving responses. The Idea also facilitates account and balance management, observation of transaction events, working with various wallets, and more.
+This application encompasses all interactions with programs in the Vara Networks (mainnet and testnet), such as uploading new programs, sending messages to contracts, and receiving responses. Gear Idea also facilitates account and balance management, observation of transaction events, working with various wallets, and more.
 
 ## Program Examples
 
-The Gear Team has implemented numerous examples for various use cases. These examples serve as useful references for getting acquainted with writing programs on the Gear Protocol or as a foundation for your own dApp. They can be utilized as they are or modified to suit your specific scenarios.
-
-For more details on Program Examples, you can visit this [link](https://wiki.gear-tech.io/docs/examples/prerequisites), and the source code is available on [GitHub](https://github.com/gear-foundation).
+For developers' convenience, the Gear Foundation provides numerous [examples](/docs/examples/examples.mdx) for various use cases. These examples serve as useful references for getting acquainted with writing programs on the Gear Protocol or as a foundation for developing custom dApps. They can be utilized as they are or modified to suit specific scenarios. The source code is available on [GitHub](https://github.com/gear-foundation).

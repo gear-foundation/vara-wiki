@@ -1,0 +1,216 @@
+---
+sidebar_label: Prerequisites
+sidebar_position: 1
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+
+# Vara Examples
+
+This section contains a set of examples that can be used for familiarization with writing programs on Vara or as the basis for dApps: [https://github.com/gear-foundation](https://github.com/gear-foundation).
+
+Programs can be written from scratch or built from provided examples.
+
+## Stable Environment
+
+All program examples and JS applications have been tested in a stable environment with specific development tool versions necessary for implementing, building, and running programs and JS applications.
+
+A local development environment can be configured according to the information provided below or by using a pre-configured Docker image as described in the [Using Docker](#using-docker) section.
+
+Current stable release: `v1.4.1`
+
+<table>
+<tr>
+<td><b>Compiler Tools</b></td> 
+<td><b>Version</b></td> 
+<td><b>How to install / access</b></td>
+</tr>
+
+<tr>
+<td>Linux users should generally install `GCC` and `Clang`, according to their distribution’s documentation.</td>
+<td>Latest</td>
+<td>
+For example, on Ubuntu use:
+```bash
+sudo apt install -y build-essential clang cmake
+```
+On macOS, install a compiler toolset by running:
+```bash
+xcode-select --install
+```
+</td>
+</tr>
+
+<tr>
+<td>Rust</td>
+<td>2023-09-18</td>
+<td>
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+Add Wasm target to the toolchain:
+```bash
+rustup target add wasm32-unknown-unknown
+```
+</td>
+</tr>
+
+<tr>
+<td>Gear Rust libraries: `gstd`, `gtest`, `gmeta`, `gclient`, `gear-wasm-builder`</td>
+<td>v1.1.1</td>
+<td>
+Ensure the correct version is tagged in the `Cargo.toml` file of the program in use. For example: https://github.com/gear-foundation/dapps/blob/master/contracts/Cargo.toml
+</td>
+</tr>
+
+<tr>
+<td>Vara Network Testnet</td>
+<td>1.4.1</td>
+<td>
+Ensure connection to the Vara Network Testnet. Switch networks by clicking on the network name in https://idea.gear-tech.io
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td><b>Gear JS Tools</b></td>
+<td><b>Version</b></td>
+<td><b>How to install / access</b></td>
+</tr>
+<tr>
+<td>Gear JS API</td>
+<td>0.36.3</td>
+<td>Ensure this version is specified in the package.json file of the program repository</td>
+</tr>
+<tr>
+<td>Gear JS React Hooks</td>
+<td>0.10.3</td>
+<td>Ensure this version is specified in the package.json file of the program repository</td>
+</tr>
+<tr>
+<td>Gear JS UI Kit</td>
+<td>0.5.22</td>
+<td>Ensure this version is specified in the package.json file of the program repository</td>
+</tr>
+</table>
+
+:::warning Note
+Windows users may encounter problems related to the installation of Rust components and dependencies.
+It is highly recommended to use Linux or macOS for compiling Vara nodes and programs.
+:::
+
+<details>
+  <summary>Environment Versions History</summary>
+
+## Previous Environment Versions
+
+| Vara node version | Runtime version | Gear libraries version | Rust toolchain version |
+| ----------------- | --------------- | ---------------------- | ---------------------- |
+| v1.4.0            | 1400            | tag = "v1.4.0"         | stable                 |
+| v1.3.1            | 1310            | tag = "v1.3.1"         | stable                 |
+| v1.2.1            | 1210            | tag = "v1.2.1"         | stable                 |
+| v1.1.1            | 1110            | tag = "v1.1.1"         | stable                 |
+| v1.0.5            | 1050            | tag = "v1.0.5"         | nightly-2023-09-18     |
+| v1.0.2            | 1020            | tag = "v1.0.2"         | nightly-2023-10-14     |
+| v1.0.1            | 1010            | tag = "v1.0.1"         | nightly-2023-10-14     |
+| v1.0.0            | 1000            | tag = "v1.0.0"         | nightly-2023-04-25     |
+| v0.3.3            | 330             | tag = "v0.3.3"         | nightly-2023-04-25     |
+| v0.2.2            | 220             | rev = "946ac47"        | nightly-2023-04-25     |
+| v0.1.6            | 160             | rev = "78dfa07"        | nightly-2023-04-25     |
+| v0.1.4            | 140             | rev = "5c685d0"        | nightly-2023-03-14     |
+
+</details>
+
+## First Steps
+
+To create an app project, use the command **cargo**:
+
+```bash
+cargo new gear-app --lib
+```
+
+The project structure will be as follows:
+
+```
+  └── gear-app // Program directory
+      │
+      ├── src // Source files of the program
+      │    ├── maybe_some_file.rs // Additional module if needed
+      │    └── lib.rs // Main file of the program
+      │
+      └── Cargo.toml // Manifest of the program
+```
+
+Create a file `build.rs` with the following code:
+
+```rust
+fn main() {
+    gear_wasm_builder::build();
+}
+```
+
+`Cargo.toml` is a project manifest in Rust, containing all metadata necessary for compiling the project.
+Configure the `Cargo.toml` similarly to how it is configured in [dapp-template/Cargo.toml](https://github.com/gear-foundation/dapp-template/blob/master/Cargo.toml). Refer to [Getting Started](/docs/getting-started-in-5-minutes.md) for additional details.
+
+## Building Rust Program
+
+Compile the program in the app folder:
+
+```bash
+cargo build --release
+```
+
+The application should compile successfully, and the final file `target/wasm32-unknown-unknown/release/gear-app.wasm` should appear.
+
+## Using Docker
+
+A pre-configured Docker image can be used to build and test programs. The image contains all necessary tools and dependencies for building and running programs and JS applications.
+
+The source code of the image is available on [GitHub](https://github.com/gear-foundation/gear-env).
+
+To use the image, install Docker on the machine. Installation instructions for different operating systems are available on the [Docker website](https://docs.docker.com/get-docker/).
+
+After installing Docker, pull the image from Docker Hub:
+
+```bash
+docker pull ghcr.io/gear-foundation/gear-env:stable
+```
+
+Run the image with the following command:
+
+```bash
+docker run --rm --name gear-env -itd ghcr.io/gear-foundation/gear-env:stable bash
+```
+
+The command will run the image in the background and provide access to the container's shell. Access the container's shell with:
+
+```bash
+docker exec -it gear-env bash
+```
+
+Copy a program to be built to the container (use the `gear-app` created above):
+
+```bash
+docker cp ./gear-app gear-env:/root
+```
+
+Build the program:
+
+```bash
+docker exec -itw /root/gear-app gear-env cargo build --release
+```
+
+The compiled program will be available in the `target/wasm32-unknown-unknown/release` folder inside the container. Copy it to the local machine:
+
+```bash
+docker cp gear-env:/root/gear-app/target/wasm32-unknown-unknown/release/. ./
+```
+
+Stop the Docker container after use:
+
+```shell
+docker stop gear-env
+```

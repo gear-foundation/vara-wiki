@@ -1,5 +1,8 @@
 import {themes as prismThemes} from 'prism-react-renderer'
 
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+
 export default {
   title: 'Vara Network Documentation Portal',
   tagline: 'All documentation related to Vara Network',
@@ -8,7 +11,7 @@ export default {
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.svg',
-  organizationName: 'Gear Technologies',
+  organizationName: 'Gear Foundation',
   projectName: 'vara-wiki',
 
   i18n: {
@@ -26,6 +29,8 @@ export default {
           sidebarPath: './sidebars.js',
           editUrl:
             'https://github.com/gear-foundation/vara-wiki/edit/master',
+          remarkPlugins: [remarkMath],
+          rehypePlugins: [rehypeKatex],
         },
         blog: false,
         theme: {
@@ -54,7 +59,7 @@ export default {
         items: [
           {
             type: 'doc',
-            docId: 'intro',
+            docId: 'welcome',
             position: 'left',
             label: 'Docs',
           },
@@ -92,7 +97,15 @@ export default {
         },
       },
     }),
-
+  stylesheets: [
+    {
+      href: 'https://cdn.jsdelivr.net/npm/katex@0.13.24/dist/katex.min.css',
+      type: 'text/css',
+      integrity:
+        'sha384-odtC+0UGzzFL/6PNoE8rX/SPcQDXBJ+uRepguP4QkPCm2LBxH3FA3y+fKSiJ+AmM',
+      crossorigin: 'anonymous',
+    },
+  ],
   scripts: [
     {
       src: 'https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/4.3.11/iframeResizer.contentWindow.min.js',

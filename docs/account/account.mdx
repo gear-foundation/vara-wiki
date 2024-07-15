@@ -1,0 +1,170 @@
+---
+title: Create Vara Address
+sidebar_position: 1
+sidebar_label: Create Vara Address
+---
+
+A Substrate account enables connection to applications across all Substrate-based networks including Polkadot, Kusama, and their parachains.
+
+The Vara Network is Substrate-based, meaning any keypair compatible with `sr25519` will also work on Vara.
+
+There are several ways to generate a Substrate account described in this article, depending on whether using a desktop or a mobile device.
+
+## Key Information and Security
+
+For most users, popular and reliable wallets will suffice. For creating a cold wallet for storing funds, consider using [Polkadot Vault](polkadot-vault.mdx) (formerly Parity Signer). Ledger support is expected later.
+
+Two key features make up an account - an address and a key (keypair):
+
+- **Address**: The public aspect of the account. Essentially a location to send transactions to and from.
+- **Key**: The private part of the account. Enables access to the address.
+
+The only way to access an account is via its private key (using the seed (or mnemonic) phrase or the account's JSON file and a password).
+
+### Storing the Key Safely
+
+The seed phrase is the key to the account. If access to the account is lost due to changing devices, forgetting the password, or losing the JSON file, the account can be restored using the seed. This also means someone else can access the account if they have the seed.
+
+Store the seed in secure places like encrypted hard drives, non-digital devices, or ideally, paper. Also, take precautions to prevent physical damage to the copy, like fire and water, and make multiple copies stored in different locations.
+
+Never store the seed on a device that is or ever will be connected to the internet.
+
+### Storing the Account's JSON File
+
+The account's JSON file is encrypted with a password. This means it can be imported into any wallet, but the password is needed to do so successfully. While there is this additional layer of security - a password - it is still important to use highly secure passwords that are not used elsewhere. Make a note of this password offline.
+
+## Via SubWallet
+
+SubWallet is a comprehensive non-custodial wallet solution for Polkadot, Substrate, and Ethereum ecosystems. SubWallet's vision is to become a Web3 multiverse gateway, allowing users to enjoy multichain services with ease and absolute security. Connecting and using blockchain-based applications is smoother with SubWallet Browser Extension and SubWallet Mobile App.
+
+1. Install SubWallet extension and mobile app [here](https://subwallet.app/download.html).
+
+2. Open SubWallet by clicking on the logo in the browser menu bar.
+
+3. Click the `Create new account` button:
+
+![img alt](./img/subwallet-1.png)
+
+4. Create a master password and click `Continue`.
+
+:::note
+SubWallet cannot help restore the password once it is lost as the wallet is non-custodial. Recover the account using the seed if the master password is forgotten.
+:::
+
+![img alt](./img/subwallet-2.png)
+
+5. Keep the seed phrase in a safe place and never disclose it to anyone. After saving it, click `I have kept it somewhere safe` to move on.
+
+![img alt](./img/subwallet-3.png)
+
+6. The wallet has been successfully created!
+
+![img alt](./img/subwallet-4.png)
+
+## Via Talisman
+
+Talisman is a popular non-custodial wallet for creating and managing Substrate accounts. Connected to Web3 applications across various networks, Talisman browser extension allows for storing, sending, and receiving assets. It is one of the easiest and most secure ways of creating a Substrate account.
+
+1. Install Talisman extension for the browser [here](https://talisman.xyz/).
+
+2. Open the extension by clicking on the logo in the menu bar.
+
+3. In the opened application, click "New wallet":
+
+![img alt](./img/talisman-1.png)
+
+4. Enter a strong password:
+
+![img alt](./img/talisman-2.png)
+
+And that's it. The wallet has been created:
+
+![img alt](./img/talisman-3.png)
+
+:::warning Note!
+Don't forget to save the seed phrase by clicking the `Backup Now` button. If this step is skipped, it can be done later from Settings.
+:::
+
+## Via Polkadot.js Browser Extension
+
+The Polkadot.js browser extension is the original application created by Parity Technologies for managing Substrate accounts. This method involves installing the Polkadot.js plugin and using it as a "virtual vault" separate from the browser to store private keys and sign transactions.
+
+1. Install the extension via the following links:
+
+Install on [Chromium](https://chrome.google.com/webstore/detail/polkadot%7Bjs%7D-extension/mopnmbcafieddcagagdcbnhejhlodfdd?hl=en)-based browser.
+
+Install on [Firefox](https://addons.mozilla.org/en-US/firefox/addon/polkadot-js-extension).
+
+2. Open the extension by clicking on the logo in the menu bar.
+
+3. Click the large plus button to create a new account. Alternatively, navigate to the smaller plus icon in the top right and select "Create New Account".
+
+![img alt](./img/create-account-1.png)
+
+4. Save the `seed phrase` in a safe place using the security advice at the beginning of this article.
+
+![img alt](./img/create-account-2.png)
+
+5. Specify the name of the account and a strong password for making transactions. Click "Add the account with the generated seed".
+
+![img alt](./img/create-account-3.png)
+
+:::note
+The password chosen here will be used to encrypt this account's information. Re-enter it when attempting to process any kind of outgoing transaction or when using it to cryptographically sign a message. This password is stored locally on the browser extension.
+:::
+
+A new account has now been successfully created using the Polkadot.js browser extension.
+
+## Via Mobile App
+
+For accessing accounts on a mobile device, the following mobile wallets for the Polkadot/Kusama ecosystem can be used:
+
+[![img alt](./img/subwallet-logo2.png)](https://subwallet.app/)
+
+[![img alt](./img/nova-logo.png)](https://novawallet.io/)
+
+Check all supported wallets [here](https://wiki.polkadot.network/docs/build-wallets).
+
+## Via Console
+
+If the `Gear` or `Vara` node is installed, generate a new `seed phrase` using the command:
+
+```sh
+./gear key generate --network vara
+```
+
+Then `import` the generated seed phrase into any convenient wallet.
+
+## How to Get Your Address in the Vara Network Format
+
+:::note Skip these steps if the account was created via Polkadot.js browser extension
+
+1. Install Polkadot browser extension from [here](https://polkadot.js.org/extension/) and import the account via Seed phrase or JSON file.
+2. Go to [Polkadot.js apps](https://polkadot.js.org/apps), and allow this web application to interact with the Polkadot extension in the prompt window.
+   :::
+
+- To see the account in the Vara Network format, go to [Vara Accounts](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.vara.network#/accounts).
+- The address will be shown in the Vara format (with `kG…` or `kD…` prefix). Copy the address to share it with others.
+
+![img alt](./img/pdjs-vara-account.png)
+
+## Frequently Asked Questions
+
+#### Is this account portable?
+
+> Yes, access the account on a different device or wallet of choice as long as the account's seed phrase or JSON file associated with the account is available.
+
+#### Can transactions be done directly in the Polkadot.js browser extension?
+
+> The Polkadot.js browser extension does not have functionality to make transactions directly.
+> To make transactions, launch [Gear Idea](https://idea.gear-tech.io) on the browser.
+> Before making any transactions, allow Gear Idea to access the account.
+> The browser extension holds the account information. Choose which websites get to access this information.
+
+#### Does Vara support hard wallets?
+
+> Yes! Vara currently supports [Parity Signer](polkadot-vault.mdx). Ledger support is expected later.
+
+#### How to get the address in the Vara Network format?
+
+> The Vara address prefix is 137. To see the account in the Vara Network format, go to [Vara Accounts](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.vara.network#/accounts).

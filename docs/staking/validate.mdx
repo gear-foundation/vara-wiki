@@ -31,64 +31,63 @@ Download the latest stable release of the `gear` node from the builds repo and u
 
 ````mdx-code-block
 <Tabs>
-<TabItem value="mac-arm" label="MacOS ARM" className="unique-tabs" default>
+<TabItem value="linux" label="Linux x64" className="unique-tabs" default>
 
 Terminal:
 
 ```bash
-curl https://get.gear.rs/gear-v1.1.1-aarch64-apple-darwin.tar.xz | tar xJ
+curl https://get.gear.rs/gear-v1.4.1-x86_64-unknown-linux-gnu.tar.xz | tar xJ
 ```
 
 or
 
-**macOS M1/M2**: [gear-v1.1.1-aarch64-apple-darwin.tar.xz](https://get.gear.rs/gear-v1.1.1-aarch64-apple-darwin.tar.xz)
+**Linux x64**: [gear-v1.4.1-x86_64-unknown-linux-gnu.tar.xz](https://get.gear.rs/gear-v1.4.1-x86_64-unknown-linux-gnu.tar.xz)
 
 Run the node:
 
 ```
 ❯ ./gear --version
-gear 1.1.1-33ee05d5aab
+gear 1.4.1-a25a431f157
 ```
 
 </TabItem>
-<TabItem value="mac-intel" label="MacOS x64">
+<TabItem value="mac-arm" label="macOS ARM">
 
 Terminal:
 
 ```bash
-curl https://get.gear.rs/gear-v1.1.1-x86_64-apple-darwin.tar.xz | tar xJ
+curl https://get.gear.rs/gear-v1.4.1-aarch64-apple-darwin.tar.xz | tar xJ
 ```
 
 or
 
-**macOS Intel x64**: [gear-v1.1.1-x86_64-apple-darwin.tar.xz](https://get.gear.rs/gear-v1.1.1-x86_64-apple-darwin.tar.xz)
+**macOS ARM**: [gear-v1.4.1-aarch64-apple-darwin.tar.xz](https://get.gear.rs/gear-v1.4.1-aarch64-apple-darwin.tar.xz)
 
 Run the node:
 
 ```
 ❯ ./gear --version
-gear 1.1.1-33ee05d5aab
+gear 1.4.1-a25a431f157
 ```
 
 </TabItem>
-
-<TabItem value="linux" label="Linux x64">
+<TabItem value="mac-intel" label="macOS x64">
 
 Terminal:
 
 ```bash
-curl https://get.gear.rs/gear-v1.1.1-x86_64-unknown-linux-gnu.tar.xz | tar xJ
+curl https://get.gear.rs/gear-v1.4.1-x86_64-apple-darwin.tar.xz | tar xJ
 ```
 
 or
 
-**Linux x64**: [gear-v1.1.1-x86_64-unknown-linux-gnu.tar.xz](https://get.gear.rs/gear-v1.1.1-x86_64-unknown-linux-gnu.tar.xz)
+**macOS Intel x64**: [gear-v1.4.1-x86_64-apple-darwin.tar.xz](https://get.gear.rs/gear-v1.4.1-x86_64-apple-darwin.tar.xz)
 
 Run the node:
 
 ```
 ❯ ./gear --version
-gear 1.1.1-33ee05d5aab
+gear 1.4.1-a25a431f157
 ```
 
 </TabItem>
@@ -103,7 +102,7 @@ Copy the `gear` executable to the `/usr/bin` directory:
 sudo cp gear /usr/bin
 ```
 
-To run the Gear node as one of the Linux services, you need to configure the systemd file:
+To run the Vara node as one of the Linux services, you need to configure the systemd file:
 
 ```bash
 cd /etc/systemd/system

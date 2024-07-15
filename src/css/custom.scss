@@ -1,10 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@100..700&display=swap');
-
 /* You can override the default Infima variables here. */
-
-html {
-  font-size: 15px;
-}
 
 :root {
   --ifm-color-primary: #00a87a;
@@ -17,6 +11,90 @@ html {
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   --docusaurus-announcement-bar-height: auto !important;
+
+  --brand: 0 255 196;
+  --brand-500: 3 255 196;
+  --brand-400: 100 255 219;
+  --brand-600: 14 211 163;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn {
+    @apply inline-flex justify-center items-center text-center min-w-fit py-3 px-8 text-lg/6 font-bold tracking-[0.03em] rounded whitespace-nowrap cursor-pointer select-none
+    [--ifm-link-hover-color:black] [--ifm-link-hover-decoration:no-underline];
+  }
+
+  .btn--primary {
+    @apply text-black bg-brand hover:bg-brand-400 focus-visible:bg-brand-400 active:opacity-80 transition;
+  }
+
+  .btn--white {
+    @apply bg-white text-black hocus:bg-[#D4D4D4] active:bg-white transition
+  }
+
+  .btn--black {
+    @apply bg-black text-white hover:bg-[#404040] hover:ring-[#404040] active:bg-[#1B1A1A] active:ring-[#1B1A1A] focus-visible:bg-[#262626] focus-visible:ring-[#262626] transition
+  }
+
+  .btn--white-tonal {
+    @apply bg-white/15 text-white hocus:bg-white/25 active:bg-white/35
+  }
+
+  .btn--white-outline {
+    @apply ring-2 ring-inset ring-current text-white hocus:bg-white hocus:ring-white hocus:text-black active:opacity-80 transition
+  }
+
+  .btn--black-outline {
+    @apply ring-2 ring-inset ring-current text-black hocus:bg-black hocus:ring-black hocus:text-white active:opacity-80 transition
+  }
+
+  .btn--black-tonal {
+    @apply text-black bg-black/[7%] hocus:bg-black/15 active:opacity-80 transition
+  }
+
+  .btn--sm {
+    @apply py-1.5 px-4
+  }
+
+  .btn:disabled,
+  .btn[disabled] {
+    @apply cursor-not-allowed bg-neutral-600 text-white/50
+  }
+
+  .btn--loading {
+    @apply opacity-90 gap-2 before:w-4 before:h-4 before:border-2 before:border-neutral-400 before:rounded-full before:border-l-transparent before:border-t-transparent before:animate-spin;
+  }
+
+  .gradient-text-black {
+    @apply text-transparent bg-clip-text bg-black bg-gradient-to-r from-30% to-75% from-[#2B2B2B] to-brand
+  }
+
+  .gradient-text-white {
+    @apply text-transparent bg-clip-text bg-black bg-gradient-to-r from-30% to-75% from-[#FFFFFF] to-brand;
+  }
+
+  .typo-title-1 {
+    @apply font-semibold lg:font-medium text-[42px] md:text-[46px] lg:text-[52px] xl:text-[62px] 2xl:text-[72px] leading-[50px] md:leading-[55px] lg:leading-[62px] xl:leading-[74px] 2xl:leading-[86px];
+  }
+}
+
+
+html {
+  font-size: 16px;
+  font-family: 'Anuphan', var(--ifm-font-family-base), serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Anuphan', var(--ifm-heading-font-family), serif;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -40,7 +118,7 @@ html {
 }
 
 [data-theme='light'] .navbar__link {
-  color: #00a87a;
+  --ifm-navbar-link-color: white;
 }
 
 .navbar__logo {
@@ -53,45 +131,27 @@ html {
   border-color: hsla(0, 0%, 94%, 0.1);
 }
 
-[data-theme='light']
-.toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module {
+[data-theme='light'] .toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module {
   color: #ffffff !important;
 }
 
-[data-theme='light']
-.toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module:hover {
+[data-theme='light'] .toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module:hover {
   background: #444950 !important;
 }
 
 div[class^="announcementBar"][role="banner"] {
-  border-bottom-color: #444950;
-  line-height: 20px;
-  font-size: 19px;
-  font-weight: bold;
-  padding: 7px 0px;
-  color: #00ffc4;
-  background-color: #188269;
+  @apply bg-brand py-1.5 text-[18px] leading-[20px] font-bold text-black border-0 *:p-0;
+
+  a {
+    @apply btn btn--black py-1.5 px-4 text-sm/5 no-underline uppercase;
+  }
+
+  button.close {
+    color: #000;
+  }
 }
 
-div[class^="announcementBar"][role="banner"] a {
-  text-decoration: none;
-  color: #000000;
-  background-color: #03ffc4;
-  padding: 2px 12px;
-  border-radius: 4px;
-  transition-duration: 1s;
-}
-
-div[class^="announcementBar"][role="banner"] a:hover {
-  /*color: var(--ifm-color-primary) !important; */
-  background-color: #00cdad;
-}
-
-div[class^="announcementBar"][role="banner"] button.close {
-  color: #00ffc4;
-}
-
-
+// Styles for iframe
 [data-theme-vara=true] {
   ::selection {
     background-color: rgba(0, 0, 0, 0.07);
@@ -103,8 +163,6 @@ div[class^="announcementBar"][role="banner"] button.close {
     --ifm-color-content: #000;
     --ifm-color-primary: #0da681;
 
-    --ifm-font-family-base: 'Anuphan';
-    --ifm-heading-font-family: 'Anuphan';
     --ifm-font-family-monospace: 'Anuphan';
 
     --ifm-heading-font-weight: 600;

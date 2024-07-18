@@ -478,4 +478,4 @@ The source code of this example of VaraMan Game program and the example of an im
 
 See also an example of the smart contract testing implementation based on `gtest`: [gear-foundation/dapps/vara-man/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/vara-man/tests).
 
-For more details about testing programs written on Gear, refer to the [Program Testing](/docs/developing-contracts/testing) article.
+For more details about testing programs written on Gear, refer to the [Program Testing](/docs/build/testing) article.

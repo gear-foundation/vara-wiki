@@ -34,7 +34,7 @@ The interface provides an option whether to enable or disable subscription auto-
 There is also an option to cancel the active subscription.
 
 The VaraTube consists of two programs:
-- [Vara Fungible Token (VFT)](/docs/examples/Standards/gft-20.md) contract determines user and service balances required to purchase a subscription and approves Subscription program to get funds from user's balance.
+- [Vara Fungible Token (VFT)](/docs/examples/Standards/vft.md) contract determines user and service balances required to purchase a subscription and approves Subscription program to get funds from user's balance.
 - [VaraTube Subscription](https://github.com/gear-foundation/dapps/tree/master/contracts/varatube) program manages service's subscription - its availability, expiration, auto renewal.
 
 ## How to run

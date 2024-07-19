@@ -7,18 +7,11 @@ sidebar_position: 2
 
 ![varaman](../img/vara-man.png)
 
-Vara-Man is a classic arcade game where the player must collect all the coins in a maze within a set time and avoid enemies.
-
-The maze consists of three types of zones. The green zone is a rest area where enemies cannot enter, but it contains no coins. The blue zone is where players must collect available coins and avoid enemies. This zone offers many opportunities to evade enemies. The red zone, smaller in size, has fewer turns for escaping enemies, but it contains gold coins that provide more game points.
-
-The game has two modes: single-player, where a player can independently play and refine their skills.
-
-In the multiplayer mode, a tournament can be initiated where up to eight players can compete. The tournament winner receives the entire prize pool. One player creates a game lobby and sets the tournament properties - its duration, difficulty, and an entry fee that each player must pay upon entering the game, which constitutes the total prize fund. Other players join the game using the Vara address of the player who created the game.
-The entry fee can be set to zero, in which case the prize fund will also be empty.
+Vara-man is a classic arcade game, the main character is Vara mouse, who must collect all the coins in the allotted time. In the labyrinth, the main character will encounter cat enemies that must be avoided in order to survive and collect all the coins.
 
 The source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/vara-man). This article describes the program interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios. The game has several reward modes, one of which requires connecting the fungible token program that needs to be uploaded separately.
 
-Anyone can play the game via this link - [Play VaraMan](https://vara-man.vara.network/) (VARA tokens are requred for gas fees).
+Also everyone can play the game via this link - [Play VaraMan](https://vara-man.vara.network/) (VARA tokens are requred for gas fees).
 
 ## How to run
 
@@ -26,7 +19,7 @@ Anyone can play the game via this link - [Play VaraMan](https://vara-man.vara.ne
 > Additional details regarding this matter can be located within the [README](https://github.com/gear-foundation/dapps/tree/master/contracts/vara-man/README.md) directory of the program.
 
 2. Upload the program to the [Vara Network Testnet](https://idea.gear-tech.io/programs?node=wss%3A%2F%2Ftestnet.vara.network)
-> Further details regarding the process of program uploading can be located within the [Getting Started](/docs/getting-started-in-5-minutes#deploy-your-program-to-the-testnet) section.
+> Further details regarding the process of program uploading can be located within the [Getting Started](../../getting-started-in-5-minutes#deploy-your-program-to-the-testnet) section.
 
 3. Build and run user interface
 > More information about this can be found in the [README](https://github.com/gear-foundation/dapps/blob/master/frontend/apps/vara-man/README.md) directory of the frontend.
@@ -41,8 +34,8 @@ The VaraMan program contains the following information:
 
 ```rust title="vara-man/src/lib.rs"
 struct VaraMan {
-    games: HashMap<ActorId, GameInstance>,
-    players: HashMap<ActorId, Player>,
+    tournaments: HashMap<ActorId, Tournament>,
+    players_to_game_id: HashMap<ActorId, ActorId>,
     status: Status,
     config: Config,
     admins: Vec<ActorId>,
@@ -54,14 +47,19 @@ struct VaraMan {
 * `config` - program configuration
 * `admins` - admins addresses
 
-Where the structure of the `GameInstance` and the `GameInstance` is defined as follows
+Where the structure of the `Tournament` is defined as follows
 
-```rust title="vara-man/io/src/lib.rs"
-pub struct GameInstance {
-    pub level: Level,
-    pub gold_coins: u64,
-    pub silver_coins: u64,
+```rust title="vara-man/src/lib.rs"
+pub struct Tournament {
+    tournament_name: String,
+    admin: ActorId,
+    level: Level,
+    participants: HashMap<ActorId, Player>,
+    bid: u128,
+    stage: Stage,
+    duration_ms: u32,
 }
+
 ```
 * `level` - level of difficulty (Easy/Medium/Hard)
 * `gold_coins` - number of gold coins collected
@@ -70,9 +68,8 @@ pub struct GameInstance {
 ```rust title="vara-man/io/src/lib.rs"
 pub struct Player {
     pub name: String,
-    pub lives: u64,
-    pub claimed_gold_coins: u64,
-    pub claimed_silver_coins: u64,
+    pub time: u128,
+    pub points: u128,
 }
 ```
 
@@ -110,16 +107,15 @@ pub struct VaraManInit {
 ```
 ```rust title="vara-man/io/src/lib.rs"
 pub struct Config {
-    pub one_coin_in_value: u64,
-    pub tokens_per_gold_coin_easy: u64,
-    pub tokens_per_silver_coin_easy: u64,
-    pub tokens_per_gold_coin_medium: u64,
-    pub tokens_per_silver_coin_medium: u64,
-    pub tokens_per_gold_coin_hard: u64,
-    pub tokens_per_silver_coin_hard: u64,
-    pub gold_coins: u64,
-    pub silver_coins: u64,
-    pub number_of_lives: u64,
+    pub one_point_in_value: u128,
+    pub points_per_gold_coin_easy: u128,
+    pub points_per_silver_coin_easy: u128,
+    pub points_per_gold_coin_medium: u128,
+    pub points_per_silver_coin_medium: u128,
+    pub points_per_gold_coin_hard: u128,
+    pub points_per_silver_coin_hard: u128,
+    pub gas_for_finish_tournament: u64,
+    pub time_for_single_round: u32,
 }
 ```
 
@@ -138,9 +134,37 @@ pub struct Config {
 
 ```rust title="vara-man/io/src/lib.rs"
 pub enum VaraManAction {
-    StartGame { level: Level },
-    RegisterPlayer { name: String },
-    ClaimReward { silver_coins: u64, gold_coins: u64 },
+    CreateNewTournament {
+        tournament_name: String,
+        name: String,
+        level: Level,
+        duration_ms: u32,
+    },
+    StartTournament,
+    RegisterForTournament {
+        admin_id: ActorId,
+        name: String,
+    },
+    CancelRegister,
+    CancelTournament,
+    DeletePlayer {
+        player_id: ActorId,
+    },
+    RecordTournamentResult {
+        time: u128,
+        gold_coins: u128,
+        silver_coins: u128,
+    },
+    FinishTournament {
+        admin_id: ActorId,
+        time_start: u64,
+    },
+    FinishSingleGame {
+        gold_coins: u128,
+        silver_coins: u128,
+        level: Level,
+    },
+    LeaveGame,
     ChangeStatus(Status),
     ChangeConfig(Config),
     AddAdmin(ActorId),
@@ -152,17 +176,38 @@ pub enum VaraManAction {
 
 ```rust title="vara-man/io/src/lib.rs"
 pub enum VaraManEvent {
-    GameStarted,
-    RewardClaimed {
-        player_address: ActorId,
-        silver_coins: u64,
-        gold_coins: u64,
+    GameFinished {
+        winners: Vec<ActorId>,
+        participants: Vec<ActorId>,
+        prize: u128,
     },
+    NewTournamentCreated {
+        tournament_name: String,
+        name: String,
+        level: Level,
+        bid: u128,
+    },
+    PlayerRegistered {
+        admin_id: ActorId,
+        name: String,
+        bid: u128,
+    },
+    RegisterCanceled,
+    TournamentCanceled {
+        admin_id: ActorId,
+    },
+    PlayerDeleted {
+        player_id: ActorId,
+    },
+    ResultTournamentRecorded {
+        time: u128,
+        points: u128,
+    },
+    GameStarted,
     AdminAdded(ActorId),
-    PlayerRegistered(ActorId),
     StatusChanged(Status),
     ConfigChanged(Config),
-    Error(String),
+    LeftGame,
 }
 ```
 
@@ -433,4 +478,4 @@ The source code of this example of VaraMan Game program and the example of an im
 
 See also an example of the smart contract testing implementation based on `gtest`: [gear-foundation/dapps/vara-man/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/vara-man/tests).
 
-For more details about testing programs written on Vara, refer to the [Program Testing](/docs/build/testing) article.
+For more details about testing programs written on Gear, refer to the [Program Testing](/docs/build/testing) article.

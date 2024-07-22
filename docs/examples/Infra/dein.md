@@ -7,34 +7,70 @@ sidebar_position: 4
 
 Decentralized Internet (DNS) demonstrates an on-chain server-less approach to websites and web applications hosting. Unlike server-based DNS built on centralized components and services, decentralized solutions running on the blockchain are characterized by boosted data security, enhanced data reconciliation, minimized system weak points, optimized resource allocation, and demonstrated great fault tolerance. It brings all the benefits of decentralization, such as censorship resistance, security resilience, and high transparency.
 
-Briefly, the solution consists of a DNS program that is uploaded on-chain. It lists programs (smart contracts) that are also uploaded on-chain and registered in the DNS program as DNS records. Hosted programs may have the user interface that resides on IPFS. The DNS program stores program IDs and meta info of their interfaces (name, description, and link).
+Briefly, the solution consists of a DNS program that is uploaded on-chain. It lists programs (smart contracts) that are also uploaded on-chain and registered in the DNS program as DNS records. Hosted programs may have the user interface that resides on IPFS. The DNS program stores program IDs and meta info of their interfaces (name and program identifier).
 
-The source code of the program and frontend implementation is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/ddns). Note that its repository contains a git submodule, so cloning should be done with the `--recurse-submodules` flag, i.e.:
+The source code of the program is available on [GitHub](https://github.com/gear-foundation/dns).
 
+## DNS Smart Contract Interface Overview
+
+The DNS smart contract facilitates efficient management of DNS programs and their administrators, providing essential functions for adding, modifying, and querying program information, as well as handling related events.
+
+A DNS contract has the following interface:
+
+```rust
+type ContractInfo = struct {
+    admins: vec actor_id,    // List of administrator IDs for the program
+    program_id: actor_id,    // Unique identifier for the program
+    registration_time: str,  // Timestamp when the program was registered
+};
+
+service Dns {
+    // Adds a new admin to the specified program
+    AddAdminToProgram : (name: str, new_admin: actor_id) -> null;
+    // Registers a new program with the given name and ID
+    AddNewProgram : (name: str, program_id: actor_id) -> null;
+    // Changes the program ID for the specified program    
+    ChangeProgramId : (name: str, new_program_id: actor_id) -> null;
+    // Deletes the smart contract instance
+    DeleteMe : () -> null;
+    // Deletes the specified program
+    DeleteProgram : (name: str) -> null;
+    // Removes an admin from the specified program
+    RemoveAdminFromProgram : (name: str, admin_to_remove: actor_id) -> null;
+    
+    // Retrieves all registered programs and their info
+    query AllContracts : () -> vec struct { str, ContractInfo };
+    // Retrieves all actor IDs
+    query GetAllAddresses : () -> vec actor_id;
+    // Retrieves all program names                   
+    query GetAllNames : () -> vec str;          
+    // Retrieves contract info for the specified program name           
+    query GetContractInfoByName : (name: str) -> opt ContractInfo;
+    // Retrieves the program name for the specified program ID
+    query GetNameByProgramId : (program_id: actor_id) -> opt str;
+
+    events {
+        // Emitted when a new program is added
+        NewProgramAdded: struct { name: str, contract_info: ContractInfo };
+        // Emitted when a program ID is changed
+        ProgramIdChanged: struct { name: str, contract_info: ContractInfo };
+        // Emitted when a program is deleted
+        ProgramDeleted: struct { name: str };          
+        // Emitted when an admin is added to a program                     
+        AdminAdded: struct { name: str, contract_info: ContractInfo };
+        // Emitted when an admin is removed from a program
+        AdminRemoved: struct { name: str, contract_info: ContractInfo };
+    }
+};
 ```
-git clone --recurse-submodules "https://github.com/gear-foundation/dapps"
-```
+
+
 
 ## Connect a dApp to the Decentralized DNS
 
-1. To connect a program to the Decentralized DNS on Vara Network, it's necessary to have a variable of type `Option<DnsMeta>` in the program that will contain metadata of the DNS record:
+1. Deploy the program on the [network](https://idea.gear-tech.io) and obtain its ActorId.
 
-```rust title="ddns/io/src/lib.rs"
-pub struct DnsMeta {
-    pub name: String,
-    pub link: String,
-    pub description: String,
-}
-```
-
-2. Include the following enum variants:
-
-    1. In `handle_input` type:
-        - `GetDnsMeta` - it has to be the first variant of the enum
-        - `SetDnsMeta(DnsMeta)` - required to set the DNS record
-
-    2. In `handle_output` type:
-        - `DnsMeta(Option<DnsMeta>)` - it also has to be the first variant of the enum
+2. Use the `AddNewProgram` method of the DNS contract to register the program with its ActorId.
 
 3. After the program has been uploaded on the chain, build the frontend to a single HTML file and upload it to IPFS:
     1. Download and install IPFS Desktop - https://github.com/ipfs/ipfs-desktop

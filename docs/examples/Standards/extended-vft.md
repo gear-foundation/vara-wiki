@@ -37,13 +37,13 @@ For a more detailed implementation, the code related to this article can be foun
 To extend the functionality, it is necessary to add the existing VFT standard in the `Cargo.toml` file
 
 ```toml
-vft = { package = "vft-service", git = "https://github.com/gear-foundation/standards" }
+vft-service = { git = "https://github.com/gear-foundation/standards" }
 ```
 
 After adding the necessary dependency to `Cargo.toml`, a new service can be created in the extended version that includes the old one
 
 ```rust
-use vft::Service as VftService;
+use vft_service::Service as VftService;
 
 pub struct ExtendedService {
     vft: VftService,

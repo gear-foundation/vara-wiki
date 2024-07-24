@@ -65,21 +65,29 @@ service Dns {
 ```
 
 
-
 ## Connect a dApp to the Decentralized DNS
+
+### Options for Interacting with the DNS Contract
+
+1. Direct interaction with the DNS contract
+2. Deploying a custom indexer that will process the events of the DNS contract
+
+Let's consider the first option in detail:
 
 1. Deploy the program on the [network](https://idea.gear-tech.io) and obtain its ActorId.
 
 2. Use the `AddNewProgram` method of the DNS contract to register the program with its ActorId.
 
-3. After the program has been uploaded on the chain, build the frontend to a single HTML file and upload it to IPFS:
+3. In your dApp use [sails-js](https://github.com/gear-tech/sails/blob/master/js/README.md) to interact with the DNS program:
+    1. Install [sails-js](https://github.com/gear-tech/sails/blob/master/js/README.md#installation)
+    2. [Generate](https://github.com/gear-tech/sails/blob/master/js/README.md#generate-library-from-idl) typescript code from the IDL file
+    3. [Create program instance](https://github.com/gear-tech/sails/blob/master/js/README.md#create-an-instance) using DNS program ID
+    4. Use `GetContractInfoByName` query to get your programs ActorId
+
+4. After the program has been uploaded on the chain, build the frontend to a single HTML file and upload it to IPFS:
     1. Download and install IPFS Desktop - https://github.com/ipfs/ipfs-desktop
     2. Upload the built web app using the 'Files' tab
     3. Get the file link by pressing the option dots button on the file and choosing 'Share link'
-
-4. The next step is to send Metadata to the program using the `SetDnsMeta` enum variant. Set the name, link (that is the link to the HTML file on IPFS), and description.
-
-5. To register the dApp in DNS, send a message to the DNS program. This can be done through https://idea.gear-tech.io/ - find the DNS program and send the message `Register` with the ID of the program.
 
 ## Open and use dApp
 

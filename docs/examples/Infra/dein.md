@@ -67,7 +67,7 @@ service Dns {
 
 ## Connect a dApp to the Decentralized DNS
 
-### Options for Interacting with the DNS Contract
+Options for interacting with the DNS contract:
 
 1. Direct interaction with the DNS contract
 2. Deploying a custom indexer that will process the events of the DNS contract

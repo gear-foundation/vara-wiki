@@ -7,7 +7,11 @@ sidebar_position: 4
 
 Decentralized Internet (DNS) demonstrates an on-chain server-less approach to websites and web applications hosting. Unlike server-based DNS built on centralized components and services, decentralized solutions running on the blockchain are characterized by boosted data security, enhanced data reconciliation, minimized system weak points, optimized resource allocation, and demonstrated great fault tolerance. It brings all the benefits of decentralization, such as censorship resistance, security resilience, and high transparency.
 
-Briefly, the solution consists of a DNS program that is uploaded on-chain. It lists programs (smart contracts) that are also uploaded on-chain and registered in the DNS program as DNS records. Hosted programs may have the user interface that resides on IPFS. The DNS program stores program IDs and meta info of their interfaces (name and program identifier).
+Briefly, the solution consists of a DNS program that is uploaded on-chain. It lists programs (smart contracts) that are also uploaded on-chain and registered in the DNS program as DNS records. A DNS record consists of a pair - the name of the program and its address on the network. Frontend applications and backend services can refer to the DNS contract to find the current address of programs.
+
+This is particularly useful for programs that are frequently updated on the blockchain, leading to changes in their addresses. Consequently, developers often have to redeploy applications that interact with on-chain programs. With this new approach, anyone can create a DNS record and configure their application to access the DNS contract, using the name of the program to find its current address and then interact with it. In case of a program update on the network, the owner of the DNS record can simply update its address in the DNS without needing to redeploy frontend and backend services.
+
+This solution can be extended by hosting programs that have their user interface residing on the IPFS. The DNS program in this case can store program IDs and meta info of their interfaces (name and program identifier).
 
 The source code of the program is available on [GitHub](https://github.com/gear-foundation/dns).
 

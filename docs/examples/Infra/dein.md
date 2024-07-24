@@ -84,15 +84,6 @@ Let's consider the first option in detail:
     3. [Create program instance](https://github.com/gear-tech/sails/blob/master/js/README.md#create-an-instance) using DNS program ID
     4. Use `GetContractInfoByName` query to get your programs ActorId
 
-4. After the program has been uploaded on the chain, build the frontend to a single HTML file and upload it to IPFS:
-    1. Download and install IPFS Desktop - https://github.com/ipfs/ipfs-desktop
-    2. Upload the built web app using the 'Files' tab
-    3. Get the file link by pressing the option dots button on the file and choosing 'Share link'
-
-## Open and use dApp
-
-Firstly, download the `dns.html` file from Releases and open it in a browser. If the dApp is registered in the DNS program, it will appear in the list of available dApps. Click the "Open" button to open the interface in a new tab.
-
 ## Get DNS records
 
 Using https://idea.gear-tech.io, read the state of the DNS program to get records - all or filtered by name, ID, and pattern.

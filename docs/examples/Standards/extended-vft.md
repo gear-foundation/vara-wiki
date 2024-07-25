@@ -50,10 +50,10 @@ pub struct ExtendedService {
 }
 ```
 
-In order to extend the functionality it is necessary to use the extends argument in the `#[gservice]` attribute, *ExtendedService* then inherits the methods and properties of *VftService*. This means that all functionality provided by the *VftService* will now be available in the *ExtendedService*.
+In order to extend the functionality it is necessary to use the extends argument in the `#[service]` attribute, *ExtendedService* then inherits the methods and properties of *VftService*. This means that all functionality provided by the *VftService* will now be available in the *ExtendedService*.
 
 ```rust
-#[gservice(extends = VftService, events = Event)]
+#[service(extends = VftService, events = Event)]
 impl ExtendedService {
     // Realization of new functionality
 }
@@ -71,7 +71,7 @@ pub enum Event {
 Overall, the implementation of new methods in the extended version takes the following form:
 
 ```rust
-#[gservice(extends = VftService, events = Event)]
+#[service(extends = VftService, events = Event)]
 impl ExtendedService {
     pub fn new() -> Self {
         Self {

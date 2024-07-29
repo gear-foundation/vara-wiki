@@ -161,6 +161,10 @@ If everything is executed successfully, your working directory should now contai
                 └── hello_world.opt.wasm   <---- this is optimized .wasm file
     ```
 
+- `hello_world.wasm` is the output Wasm binary built from source files
+- `hello_world.opt.wasm` is the optimized Wasm aimed to be uploaded to the blockchain  
+(Optimization include reducing the file size and improving performance)
+
 In addition, the interface file `hello_world.idl` should have been generated in the `wasm` project directory.
 
     ```idl title="hello_world/wasm/hello_world.idl"

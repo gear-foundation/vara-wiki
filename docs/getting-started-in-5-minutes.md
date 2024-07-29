@@ -87,10 +87,10 @@ In `Cargo.toml`, the essential libraries required for building your first projec
     license = "GPL-3.0"
 
     [workspace.dependencies]
-    gstd = "1.4.2"
-    gear-wasm-builder = "1.4.2"
-    sails-idl-gen = "0.2.0"
-    sails-rs = "0.2.0"
+    gstd = "*"
+    gear-wasm-builder = "*"
+    sails-idl-gen = "*"
+    sails-rs = "*"
     ```
 
 Let's move on to the main code:
@@ -157,8 +157,8 @@ If everything is executed successfully, your working directory should now contai
         ├── ...
         └── wasm32-unknown-unknown
             └── release
-                ├── hello_world_wasm.wasm       <---- this is our built .wasm file
-                └── hello_world_wasm.opt.wasm   <---- this is optimized .wasm file
+                ├── hello_world.wasm       <---- this is our built .wasm file
+                └── hello_world.opt.wasm   <---- this is optimized .wasm file
     ```
 
 In addition, the interface file `hello_world.idl` should have been generated in the `wasm` project directory.
@@ -172,12 +172,6 @@ In addition, the interface file `hello_world.idl` should have been generated in 
       HelloWorld : () -> str;
     };
     ```
-
-Now the `target/wasm32-unknown-unknown/release` directory contains two required Wasm binaries:
-
-- `hello_world_wasm.wasm` is the output Wasm binary built from source files
-- `hello_world_wasm.opt.wasm` is the optimized Wasm aimed to be uploaded to the blockchain
-
 
 ## Deploy your program to the Testnet
 
@@ -229,7 +223,12 @@ Gear provides an application for developers (Gear Idea) that implements all of t
 
     ![Upload program button](/assets/getting-started/upload.png)
 
-2. Specify the program Name and click <kbd>Calculate Gas</kbd> button. The Gas limit will be set automatically. Now click the <kbd>Upload program</kbd> button.
+2. Click the <kbd>Select file</kbd> and navigate to the `.idl` file we have pointed to above. 
+
+    ![Upload idl button](/assets/getting-started/add_idl.png)
+
+3. Specify the program Name and click <kbd>Calculate Gas</kbd> button. The Gas limit will be set automatically.  
+Now click the <kbd>Upload program</kbd> button.
 
     ![Upload program form](/assets/getting-started/interface.png)
 

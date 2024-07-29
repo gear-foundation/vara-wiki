@@ -41,165 +41,143 @@ Don't miss this opportunity to become a pro Vara blockchain developer. Enroll no
     rustup target add wasm32-unknown-unknown
     ```
 
-4. Install the `wasm-proc` utility that optimizes compiled Wasm to be more compact.
-
-    ```bash
-    cargo install --locked --git https://github.com/gear-tech/gear.git wasm-proc
-    ```
-
 **_Note:_** If you use Windows, download and install [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/?q=build+tools).
 
 ## Creating your first Vara program
 
-1. For your convenience, it is recommended that you create a dedicated directory for everything Gear-related. The rest of the article will assume that you are using the paths suggested. Type to create a folder in your home directory:
+To create a program, use the following command to load the project template:
 
     ```bash
-    mkdir -p ~/gear
+    cargo-gbuild new hello_world
     ```
 
-2. Create a `contracts` directory inside `gear` and `cd` to it.
-
-    ```bash
-    mkdir -p ~/gear/contracts
-    cd ~/gear/contracts
-    ```
-
-3. Build a Rust library for the program:
-
-    ```bash
-    cargo new counter --lib
-    ```
-
-    Now, your `gear/contracts` directory tree should look like this:
+Now, your `hello_world` directory tree should look like this:
 
     ```
-    counter
+    hello_world
+    │
     ├── Cargo.toml
-    └── src
-        └── lib.rs
+    ├── app
+    │   ├── Cargo.toml
+    │   └── src
+    │       └── lib.rs
+    │
+    └── wasm
+        ├── Cargo.toml
+        ├── build.rs
+        └── src
+            └── lib.rs
+
+    
     ```
-
-4. It's time to write some code. Open `counter` with your favorite editor. For `VS Code` editor type:
-
-    ```bash
-    code ~/gear/contracts/counter
-    ```
-
-5. In the `counter` folder, configure `Cargo.toml` for our program to be properly built:
+    
+In `Cargo.toml`, the essential libraries required for building your first project have been included:
 
     ```toml
-    [package]
-    name = "counter"
+    [workspace]
+    resolver = "2"
+
+    members = [
+        "app", "wasm",
+    ]
+
+    [workspace.package]
     version = "0.1.0"
     edition = "2021"
+    license = "GPL-3.0"
 
-    # highlight-start
-    [lib]
-    crate-type = ["cdylib"]
-    # highlight-end
-
-    [dependencies]
-    # highlight-next-line
-    gstd = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1" }
+    [workspace.dependencies]
+    gstd = "1.4.2"
+    gear-wasm-builder = "1.4.2"
+    sails-idl-gen = "0.2.0"
+    sails-rs = "0.2.0"
     ```
 
-6. Replace the default contents of `lib.rs` in the `counter` folder with the code for our first program.
+Let's move on to the main code:
 
-    This simple program accepts `inc`, `dec`, and `get` commands. Open `src/lib.rs` in your editor and paste the following code:
+This Rust code defines a simple **Hello, World!** program for the Vara Network. It consists of a `Program` struct with a method to instantiate it and another method to return a `HelloWorld` struct. The `HelloWorld` struct has a service method that returns the string *"Hello, world!"*. This example demonstrates the basic structure and functionality of a Vara program using the `sails_rs` library.
 
-    ```rust
+    ```rust title="hello_world/app/src/lib.rs"
     #![no_std]
+    use sails_rs::prelude::*;
 
-    use gstd::{msg, prelude::*};
+    #[derive(Default)]
+    pub struct Program;
 
-    static mut COUNTER: i32 = 0;
-
-    #[no_mangle]
-    extern "C" fn handle() {
-        let command = msg::load_bytes().expect("Invalid message");
-
-        let mut counter = unsafe { COUNTER };
-
-        match command.as_slice() {
-            b"inc" => counter += 1,
-            b"dec" => counter -= 1,
-            b"get" => {
-                msg::reply_bytes(format!("{counter}"), 0).expect("Unable to reply");
-            }
-            _ => (),
+    #[program]
+    impl Program {
+        pub fn new() -> Self {
+            Self
         }
+        pub fn hello_world(&self) -> HelloWorld {
+            HelloWorld::default()
+        }
+    }
 
-        unsafe { COUNTER = counter };
+    #[derive(Default)]
+    pub struct HelloWorld(());
+
+    #[service]
+    impl HelloWorld {
+        pub fn hello_world(&mut self) -> &'static str {
+            "Hello, world!"
+        }
     }
     ```
 
-7. Now compile the program to Wasm using `cargo`:
+The following code is needed to compile the project into WebAssembly and generate an **.idl** file for the program interface. It uses `gear_wasm_builder` to compile the code and the `sails_idl_gen` library to generate the **IDL** file.
 
-    ```bash
-    RUSTFLAGS="-C link-args=--import-memory -C linker-plugin-lto" \
-        cargo build --release --target=wasm32-unknown-unknown
+    ```rust title="hello_world/wasm/build.rs"
+    use hello_world_app::Program;
+    use sails_idl_gen::program;
+    use std::{env, path::PathBuf};
+
+    fn main() {
+        gear_wasm_builder::build();
+
+        program::generate_idl_to_file::<Program>(
+            PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("hello_world.idl"),
+        )
+        .unwrap();
+    }
     ```
 
-    This command is quite verbose, so you can create cargo config and Rust toolchain override files to make it shorter. Create a `.cargo/config.toml` file in the `counter` directory with the following contents:
-
-    ```toml
-    [build]
-    target = "wasm32-unknown-unknown"
-    rustflags = [
-        "-C", "link-args=--import-memory",
-        "-C", "linker-plugin-lto",
-    ]
-    ```
-
-    And create a `rust-toolchain.toml` file in the `counter` directory with the following contents:
-
-    ```toml
-    [toolchain]
-    channel = "stable"
-    targets = ["wasm32-unknown-unknown"]
-    profile = "default"
-    ```
-
-    Now build your program with a single command:
+Now build your program with a single command:
 
     ```bash
     cargo build --release
     ```
 
-    If everything goes well, your working directory should now have a `target` directory that looks like this:
+If everything is executed successfully, your working directory should now contain a `target` directory structured as follows:
 
     ```
-    target
+    hello_world
     ├── ...
-    └── wasm32-unknown-unknown
-        └── release
-            ├── ...
-            └── counter.wasm    <---- this is our built .wasm file
+    ├── target
+        ├── ...
+        └── wasm32-unknown-unknown
+            └── release
+                ├── hello_world_wasm.wasm       <---- this is our built .wasm file
+                └── hello_world_wasm.opt.wasm   <---- this is optimized .wasm file
     ```
 
-8. The last step is to optimize the Wasm binary using `wasm-proc`:
+In addition, the interface file `hello_world.idl` should have been generated in the `wasm` project directory.
 
-    ```bash
-    wasm-proc target/wasm32-unknown-unknown/release/counter.wasm
+    ```idl title="hello_world/wasm/hello_world.idl"
+    constructor {
+      New : ();
+    };
+
+    service HelloWorld {
+      HelloWorld : () -> str;
+    };
     ```
 
-    A new Wasm file will be created:
+Now the `target/wasm32-unknown-unknown/release` directory contains two required Wasm binaries:
 
-    ```bash
-    target
-    ├── ...
-    └── wasm32-unknown-unknown
-        └── release
-            ├── ...
-            ├── counter.wasm        <---- this is our built .wasm file
-            # highlight-next-line
-            └── counter.opt.wasm    <---- this is optimized .wasm file
-    ```
+- `hello_world_wasm.wasm` is the output Wasm binary built from source files
+- `hello_world_wasm.opt.wasm` is the optimized Wasm aimed to be uploaded to the blockchain
 
-    Now the `target/wasm32-unknown-unknown/release` directory contains two required Wasm binaries:
-
-    - `counter.wasm` is the output Wasm binary built from source files
-    - `counter.opt.wasm` is the optimized Wasm aimed to be uploaded to the blockchain
 
 ## Deploy your program to the Testnet
 
@@ -274,7 +252,7 @@ The red dot status for a program indicates init failure. Try to upload the progr
 
 1. Now, try sending your newly uploaded program a message to see how it responds! Click the <kbd>Send message</kbd> button.
 
-2. In the `Payload` field of the opened dialog type `0x696E63` (this is `inc` encoded in hex). Click <kbd>Calculate Gas</kbd> button, the Gas limit will be set automatically. Now click the <kbd>Send Message</kbd> button.
+2. Click <kbd>Calculate Gas</kbd> button, the Gas limit will be set automatically. Now click the <kbd>Send Message</kbd> button.
 
     ![Send form](/assets/getting-started/send-request.png)
 
@@ -284,19 +262,16 @@ The red dot status for a program indicates init failure. Try to upload the progr
 
     ![Log](/assets/getting-started/message-log.png)
 
-    Now you have sent an increment command to the program. After processing the counter will be incremented to `1`.
+    Now you have sent a HelloWorld command to the program. After processing the program will also greet you.
 
-5. Repeat step 2 with `0x676574` payload (this is `get` command). This will send a get command to the program.
+5. The message pane should now display new message regarding sending, along with any corresponding reply.
 
-6. Press the <kbd>Mailbox</kbd> button to enter the mailbox and find the reply.
+    ![Log](/assets/getting-started/messages.png)
 
-    ![Mailbox reply](/assets/getting-started/mailbox-reply.png)
+6. In the response details, the expected "**Hello, World!**" response can be seen in the payload.
 
-    :::note
+    ![Log](/assets/getting-started/reply.png)
 
-    The reply is in the mailbox for a limited time depending on the gas limit. If you don't see the reply, try resending the `0x676574` (`get`) message with the gas limit increasing and go to the mailbox immediately after sending the message.
-
-    :::
 ---
 
 ## Further reading

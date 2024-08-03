@@ -292,25 +292,25 @@ In zk-SNARKs the proof generation and verification process is essential for main
 The process of generating a zk-SNARK proof involves compiling a circuit, calculating a witness, and then using a proving key to create the proof. For a detailed explanation of witness generation, you can refer to the steps [here](https://docs.circom.io/getting-started/computing-the-witness/#what-is-a-witness), and for the proof generation process, see this [link](https://docs.circom.io/getting-started/proving-circuits/).
 
 #### **Verification Key Generation**
-A verification key is generated during the setup phase, which corresponds to the specific circuit and proving key. This verification key is then provided to the smart contract during its initialization, enabling the contract to verify zk-SNARK proofs submitted by users.
+A verification key is generated during the setup phase, which corresponds to the specific circuit and proving key. This verification key is then provided to the program during its initialization, enabling the program to verify zk-SNARK proofs submitted by users.
 
-#### **Verification Process in Smart Contracts**
+#### **Verification Process in Programs**
 When proving circuits with ZK, two key outputs are generated: proof and public.
 
 - Proof: This is the zk-SNARK proof, a cryptographic proof that verifies the correctness of the computation.
 
-- Public: This contains the public inputs or outputs of the circuit. These are open data that the smart contract uses for verification. For instance, this could include information about a hit or miss in a game, or a hash representing the ship placement. The contract uses this data to validate the proof and ensure consistency, such as checking that the ship placement hash remains unchanged throughout the game.
+- Public: This contains the public inputs or outputs of the circuit. These are open data that the program uses for verification. For instance, this could include information about a hit or miss in a game, or a hash representing the ship placement. The program uses this data to validate the proof and ensure consistency, such as checking that the ship placement hash remains unchanged throughout the game.
 
-These outputs are then passed to the smart contract, which securely verifies the computations without revealing private data, ensuring transparent and fair interactions.
+These outputs are then passed to the program, which securely verifies the computations without revealing private data, ensuring transparent and fair interactions.
 
 
-### Smart Contract Workflow Explanation
+### Program Workflow Explanation
 
-The smart contract's primary responsibility in the Battleship game is to verify zero-knowledge proofs (ZKPs) that ensure the game's integrity while maintaining player privacy. The contract is initialized with verification keys that are essential for validating these proofs during gameplay.
+The program's primary responsibility in the Battleship game is to verify zero-knowledge proofs (ZKPs) that ensure the game's integrity while maintaining player privacy. The program is initialized with verification keys that are essential for validating these proofs during gameplay.
 
-#### Contract Initialization
+#### Program Initialization
 
-During the contract's initialization, the following parameters are passed:
+During the program's initialization, the following parameters are passed:
 
 ```rust
 constructor {
@@ -326,7 +326,7 @@ constructor {
 
 #### Data Structures for Verification
 
-The contract uses several data structures to handle verification processes:
+The program uses several data structures to handle verification processes:
 
 ```rust
 pub struct VerifyingKeyBytes {
@@ -341,7 +341,7 @@ This structure represents the verification keys, which are necessary to validate
 
 #### Ship Placement Verification
 
-When verifying the placement of ships, the contract receives:
+When verifying the placement of ships, the program receives:
 
 ```rust
 proof: services::verify::ProofBytes,
@@ -364,11 +364,11 @@ public_input: services::verify::PublicStartInput,
         pub hash: Vec<u8>,
     }
     ```
-    - `hash`: This is the hash of the ship placement, ensuring that the layout remains confidential while allowing the contract to verify its correctness.
+    - `hash`: This is the hash of the ship placement, ensuring that the layout remains confidential while allowing the program to verify its correctness.
 
 #### Move Verification
 
-For each move the contract processes the following:
+For each move the program processes the following:
 
     ```rust
     pub struct PublicMoveInput {
@@ -383,19 +383,19 @@ For each move the contract processes the following:
 
 #### Verification Process
 
-The verification process is central to the smart contract's function. When a player submits a move or sets up their ships, the contract checks the provided proof against the public inputs using the stored verification keys. If the proof is valid, the contract acknowledges the action as legitimate; otherwise, it rejects the action.
+The verification process is central to the program's function. When a player submits a move or sets up their ships, the program checks the provided proof against the public inputs using the stored verification keys. If the proof is valid, the program acknowledges the action as legitimate; otherwise, it rejects the action.
 
 :::note
 This process allows the game to maintain fairness and privacy, ensuring that players cannot cheat by altering ship placements or falsifying shot outcomes.
 :::
 
-### Use of BLS12-381 in the Smart Contract
+### Use of BLS12-381 in the Program
 
-The smart contract leverages the BLS12-381 elliptic curve for verifying zero-knowledge proofs, which is a computationally intensive process. BLS cryptography is known for its ability to efficiently handle signature aggregation and verification at scale using Elliptic Curve cryptography.
+The program leverages the BLS12-381 elliptic curve for verifying zero-knowledge proofs, which is a computationally intensive process. BLS cryptography is known for its ability to efficiently handle signature aggregation and verification at scale using Elliptic Curve cryptography.
 
-In the context of this contract, performing BLS computations directly on-chain would significantly increase gas costs and processing time, potentially requiring over 30 blocks on the Vara network to complete. To address this, the contract utilizes the [BLS12-381 Built-in Actor](docs/build/builtinactors/bia-bls.md), a specialized module integrated into the Vara runtime.
+In the context of this program, performing BLS computations directly on-chain would significantly increase gas costs and processing time, potentially requiring over 30 blocks on the Vara network to complete. To address this, the program utilizes the [BLS12-381 Built-in Actor](docs/build/builtinactors/bia-bls.md), a specialized module integrated into the Vara runtime.
 
-This module allows the contract to offload BLS cryptographic operations to be executed in native mode off-chain by the validators. By sending a message with the necessary arguments to the BLS12-381 actor's address, the contract ensures that these intensive computations are processed efficiently and within the single block time of the Vara network (which is 3 seconds). Once the computation is complete, the result is returned to the contract, minimizing on-chain resource usage and reducing gas costs. 
+This module allows the program to offload BLS cryptographic operations to be executed in native mode off-chain by the validators. By sending a message with the necessary arguments to the BLS12-381 actor's address, the program ensures that these intensive computations are processed efficiently and within the single block time of the Vara network (which is 3 seconds). Once the computation is complete, the result is returned to the program, minimizing on-chain resource usage and reducing gas costs. 
 
 #### Code Explanation
 

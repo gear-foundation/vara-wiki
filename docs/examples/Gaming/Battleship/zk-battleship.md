@@ -20,6 +20,8 @@ In simple terms, zk-proofs enable a player to prove that they possess certain in
 
 ## Implementation details
 
+The source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/zk-battleship). This article describes the program interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios.
+
 ### Problem Statement
 
 The game of Battleship inherently relies on the mutual trust between players to accurately place their ships on the board and honestly record hits on their ships. The necessary guarantees for a fair game are as follows:
@@ -91,22 +93,39 @@ Example input:
    ```
 
 2. **Edge Constraints:**
-   The `NotRightEdge`, `NotLeftEdge`, and `NotHalfEdge` templates ensure that ships do not incorrectly wrap around the edges of the board, which would violate the game's rules.
+    The templates `NotRightEdge`, `NotLeftEdge`, and `NotHalfEdge` are utilized as utility components to assist in validating board conditions within the game. These templates do not directly prevent the placement of ships at the board's edges; rather, they help ensure that subsequent checks and operations involving coordinates are correctly applied based on the board's structure.
 
-   ```circom
-   template NotRightEdge() {
-       signal input coord;
-       signal output out;
+    - NotRightEdge:
+    This template checks if a given coordinate is not on the right edge of the board. It does so by comparing the coordinate against specific values corresponding to the rightmost cells in each row. If the coordinate is not at the right edge, the output is 1, otherwise it's 0.
 
-       component is_equal_4 = IsEqual();
-       is_equal_4.in[0] <== coord;
-       is_equal_4.in[1] <== 4;
+    - NotLeftEdge:
+    Similarly, this template checks if a coordinate is not on the left edge of the board by comparing against the leftmost cells in each row. If the coordinate is not on the left edge, the output is 1, otherwise it's 0.
 
-       // Additional edge checks...
+    - NotHalfEdge:
+    This template is used to check if a coordinate is not near a boundary that would cause wrapping when calculating neighboring cells. It compares the coordinate against specific values that are susceptible to such wrapping issues. If the coordinate is not near such an edge, the output is 1.
 
-       out <== (1 - is_equal_4.out - ...);
-   }
-   ```
+    `NotRightEdge()` template example: 
+    ```circom
+    template NotRightEdge() {
+        signal input coord;
+        signal output out;
+
+        component is_equal_4 = IsEqual();
+        is_equal_4.in[0] <== coord;
+        is_equal_4.in[1] <== 4;
+
+        // Additional edge checks...
+
+        out <== (1 - is_equal_4.out - ...);
+    }
+    ```
+   These templates are then incorporated into more complex validation logic, such as:
+
+    - `CheckDistance`:
+    This function uses the `NotRightEdge` and `NotLeftEdge` templates to adjust the calculation of surrounding cell coordinates based on the position of the cell on the board. This ensures that the calculation correctly respects the board's boundaries and prevents erroneous checks across the edges.
+
+    - `IntegrityEdgeSize2` and `IntegrityEdgeSize3`:
+    These functions verify that a ship of size 2 or 3 is placed correctly on the board, without wrapping around edges. The `NotRightEdge` and `NotHalfEdge` templates are used to ensure that the coordinates of the ship's cells are aligned either horizontally or vertically within the bounds of the board.
 
 3. **Distance Check Between Ships:**
    The `CheckDistance` template is used to ensure that ships are not placed too close to each other. This is done by checking the surrounding cells of each coordinate to ensure no other ship occupies these cells.
@@ -285,3 +304,221 @@ When proving circuits with ZK, two key outputs are generated: proof and public.
 These outputs are then passed to the smart contract, which securely verifies the computations without revealing private data, ensuring transparent and fair interactions.
 
 
+### Smart Contract Workflow Explanation
+
+The smart contract's primary responsibility in the Battleship game is to verify zero-knowledge proofs (ZKPs) that ensure the game's integrity while maintaining player privacy. The contract is initialized with verification keys that are essential for validating these proofs during gameplay.
+
+#### Contract Initialization
+
+During the contract's initialization, the following parameters are passed:
+
+```rust
+constructor {
+    New : (
+        verification_key_for_start: VerifyingKeyBytes,
+        verification_key_for_move: VerifyingKeyBytes,
+        // other initialization fields 
+    );
+};
+```
+- **verification_key_for_start**: This key is used to verify the proof of the initial ship placement.
+- **verification_key_for_move**: This key is used to verify the proof for each move or shot taken during the game.
+
+#### Data Structures for Verification
+
+The contract uses several data structures to handle verification processes:
+
+```rust
+pub struct VerifyingKeyBytes {
+    pub alpha_g1_beta_g2: Vec<u8>,
+    pub gamma_g2_neg_pc: Vec<u8>,
+    pub delta_g2_neg_pc: Vec<u8>,
+    pub ic: Vec<Vec<u8>>,
+}
+```
+
+This structure represents the verification keys, which are necessary to validate proofs.
+
+#### Ship Placement Verification
+
+When verifying the placement of ships, the contract receives:
+
+```rust
+proof: services::verify::ProofBytes,
+public_input: services::verify::PublicStartInput,
+```
+
+**ProofBytes**: Contains the proof generated by the player.
+    ```rust
+    pub struct ProofBytes {
+        pub a: Vec<u8>,
+        pub b: Vec<u8>,
+        pub c: Vec<u8>,
+    }
+    ```
+    - `a`, `b`, and `c`: These fields represent the proof components in the elliptic curve pairing used in ZKPs.
+
+**PublicStartInput**: Contains the public input required for verification.
+    ```rust
+    pub struct PublicStartInput {
+        pub hash: Vec<u8>,
+    }
+    ```
+    - `hash`: This is the hash of the ship placement, ensuring that the layout remains confidential while allowing the contract to verify its correctness.
+
+#### Move Verification
+
+For each move the contract processes the following:
+
+    ```rust
+    pub struct PublicMoveInput {
+        pub out: u8,
+        pub hit: u8,
+        pub hash: Vec<u8>,
+    }
+    ```
+    - `out`: Represents the outcome of the shot, where 0 indicates a miss, 1 indicates a hit, and 2 indicates a sunk ship.
+    - `hit`: The coordinate of the attempted shot.
+    - `hash`: The hash of the ship placement, which ensures that the integrity of the board state is maintained throughout the game.
+
+#### Verification Process
+
+The verification process is central to the smart contract's function. When a player submits a move or sets up their ships, the contract checks the provided proof against the public inputs using the stored verification keys. If the proof is valid, the contract acknowledges the action as legitimate; otherwise, it rejects the action.
+
+:::note
+This process allows the game to maintain fairness and privacy, ensuring that players cannot cheat by altering ship placements or falsifying shot outcomes.
+:::
+
+### Use of BLS12-381 in the Smart Contract
+
+The smart contract leverages the BLS12-381 elliptic curve for verifying zero-knowledge proofs, which is a computationally intensive process. BLS cryptography is known for its ability to efficiently handle signature aggregation and verification at scale using Elliptic Curve cryptography.
+
+In the context of this contract, performing BLS computations directly on-chain would significantly increase gas costs and processing time, potentially requiring over 30 blocks on the Vara network to complete. To address this, the contract utilizes the [BLS12-381 Built-in Actor](docs/build/builtinactors/bia-bls.md), a specialized module integrated into the Vara runtime.
+
+This module allows the contract to offload BLS cryptographic operations to be executed in native mode off-chain by the validators. By sending a message with the necessary arguments to the BLS12-381 actor's address, the contract ensures that these intensive computations are processed efficiently and within the single block time of the Vara network (which is 3 seconds). Once the computation is complete, the result is returned to the contract, minimizing on-chain resource usage and reducing gas costs. 
+
+#### Code Explanation
+
+The following Rust code snippet illustrates the process:
+
+```rust
+// Verifies the proof by comparing the result of the exponentiation with the expected value.
+let miller_out = calculate_multi_miller_loop(a.encode(), b.encode(), builtin_bls381_address).await;
+
+let exp = calculate_exponentiation(miller_out, builtin_bls381_address).await;
+
+if exp != alpha_g1_beta_g2 {
+    ext::panic("Verification failed");
+}
+```
+
+1. **Multi-Miller Loop Calculation:**
+   The first step involves calculating the multi-Miller loop using the G1 and G2 points (`a` and `b`) of the proof. This operation is offloaded to the BLS12-381 Built-in Actor for efficient execution.
+
+   ```rust
+   async fn calculate_multi_miller_loop(
+       g1: Vec<u8>,
+       g2: Vec<u8>,
+       builtin_bls381_address: ActorId,
+   ) -> Vec<u8> {
+       let request = Request::MultiMillerLoop { a: g1, b: g2 }.encode();
+       let reply = msg::send_bytes_for_reply(builtin_bls381_address, &request, 0, 0)
+           .expect("Failed to send message")
+           .await
+           .expect("Received error reply");
+       let response = Response::decode(&mut reply.as_slice()).expect("Error: decode response");
+       match response {
+           Response::MultiMillerLoop(v) => v,
+           _ => unreachable!(),
+       }
+   }
+   ```
+
+   - A request is encoded and sent to the BLS12-381 Built-in Actor.
+   - The response is awaited and decoded to retrieve the output of the Miller loop.
+
+2. **Final Exponentiation:**
+   After obtaining the result from the Miller loop, the next step is to perform the final exponentiation, which transforms the pairing result into a form that can be compared to the expected value.
+
+   ```rust
+   async fn calculate_exponentiation(
+       f: Vec<u8>,
+       builtin_bls381_address: ActorId,
+   ) -> ArkScale<<Bls12_381 as Pairing>::TargetField> {
+       let request = Request::FinalExponentiation { f }.encode();
+       let reply = msg::send_bytes_for_reply(builtin_bls381_address, &request, 0, 0)
+           .expect("Failed to send message")
+           .await
+           .expect("Received error reply");
+       let response = Response::decode(&mut reply.as_slice()).expect("Error: decode response");
+       let exp = match response {
+           Response::FinalExponentiation(v) => {
+               ArkScale::<<Bls12_381 as Pairing>::TargetField>::decode(&mut v.as_slice())
+                   .expect("Error: decode ArkScale")
+           }
+           _ => unreachable!(),
+       };
+       exp
+   }
+   ```
+
+   - Similar to the Miller loop, a request is sent to the BLS12-381 Built-in Actor to perform the exponentiation.
+   - The result is decoded and compared with the expected `alpha_g1_beta_g2` value. If the result does not match, the verification fails.
+   
+:::note
+This implementation highlights the use of off-chain computation via the BLS12-381 Built-in Actor to handle complex cryptographic operations, thus optimizing both performance and cost.
+:::
+
+### Overview of Application Workflow
+
+This diagram represents the overall workflow of an application that integrates zero-knowledge proofs (ZKPs) into a decentralized environment. The workflow is divided into three main sections: **Circuit**, **Program**, and **Frontend**, each of which plays a crucial role in the end-to-end process of generating, verifying, and utilizing ZKPs within the application.
+
+![zk general scheme](../../img/zk-general-scheme.png)
+
+#### 1. Circuit
+
+- Write Circuit:  
+  The workflow starts with defining the circuit, which sets the logical constraints and conditions necessary for the zero-knowledge proof. This circuit acts as the mathematical foundation of the proof system.
+
+- Compile to Intermediate Representation:  
+  After the circuit is written, it is compiled into an intermediate format. This representation acts as a transitional phase between the abstract design of the circuit and its practical application in key generation.
+
+- Powers of Tau Trusted Setup:  
+  A trusted setup, commonly known as "Powers of Tau," is conducted to produce a setup file. This step is essential for establishing the security and integrity of the zero-knowledge proof system.
+
+- Generate Proving Key:  
+  Using the intermediate representation and the trusted setup file, a proving key is generated. This key is essential for producing proofs that the program can subsequently verify.
+
+#### 2. Program
+
+- Program initialization with verifier:
+  The program is initialized with a verifier that can check the validity of the proofs generated by the circuit. This verifier is crucial for integrating the proof system into the program.
+
+- Deployed program:
+  The program, along with the verifier, is then deployed. This makes the verification process available for real-time interactions.
+
+- Transaction result:
+  When the proof is sent, the program processes the transaction and produces a result. This step not only verifies the proof, but also updates the state of the game or application based on the verified proof.
+
+#### 3. Frontend
+
+- User inputs in frontend:
+  Users interact with the application through the frontend, providing the necessary inputs that will be used to generate the proof.
+
+- Calculate witness and generate proof:
+  Based on the user inputs, the frontend calculates the witness (the private inputs) and generates a proof. This proof encapsulates the information required for the verifier to confirm the validity of the transaction.
+
+- Submit transaction with proof:
+  - The generated proof is submitted to the deployed program as a transaction. The program then verifies this proof using the verifier.
+
+- Frontend update:
+  Based on the result of the transaction, the frontend is updated to reflect the outcome, providing feedback to the user.
+
+This structured workflow ensures that the application can securely and efficiently handle zero-knowledge proofs, from circuit creation to proof verification and user interaction.
+
+
+## Conclusion
+
+Overall, this application demonstrates how advanced cryptographic techniques like ZKPs can be effectively incorporated into interactive applications, ensuring high security and data integrity without revealing sensitive information.
+
+For more details, refer to the [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/zk-battleship) repository.

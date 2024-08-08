@@ -236,18 +236,11 @@ Now click the <kbd>Upload program</kbd> button.
 
     ![Upload program form](/assets/getting-started/interface.png)
 
-3. Sign the program uploading transaction to Vara. Also, sign the program and metadata upload to the Gear Idea portal so you could work with the program. It is recommended to set the checkbox `Remember my password for the next 15 minutes` for your convenience.
+4. Sign the program uploading transaction to Vara. Also, sign the program and metadata upload to the Gear Idea portal so you could work with the program. It is recommended to set the checkbox `Remember my password for the next 15 minutes` for your convenience.
 
     ![Sign transaction](/assets/getting-started/sign-transaction.png)
 
-:::note
-
-![Programs](/assets/getting-started/contracts.png)
-
-The red dot status for a program indicates init failure. Try to upload the program again with an increased **Gas limit**.
-:::
-
-4. Once your program is uploaded, head to the `Programs` section and find your program.
+5. Once your program is uploaded, head to the `Programs` section and find your program.
 
     ![Recently uploaded programs](/assets/getting-started/recent.png)
 

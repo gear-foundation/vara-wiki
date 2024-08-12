@@ -44,7 +44,7 @@ Don't miss this opportunity to become a pro Vara blockchain developer. Enroll no
 4. Install the `wasm-proc` utility that optimizes compiled Wasm to be more compact.
 
     ```bash
-    cargo install --locked --git https://github.com/gear-tech/gear.git wasm-proc
+    cargo install wasm-proc
     ```
 
 **_Note:_** If you use Windows, download and install [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/?q=build+tools).

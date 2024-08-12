@@ -15,7 +15,7 @@ Don't miss this opportunity to become a pro Vara blockchain developer. Enroll no
 
 ## Prerequisites
 
-1. Linux users should generally install `GCC` and `Clang`, according to their distribution’s documentation.
+1. Linux users should generally install `GCC` and `Clang` according to their distribution’s documentation.
 
     For example, on Ubuntu use:
 
@@ -51,13 +51,13 @@ To get started, install the `cargo-gbuild` tool using the following command:
     cargo install cargo-gbuild
     ```
 
-After the installation, you can create a new Vara project named `hello_world` by running:
+After installation, you can create a new Vara project named `hello_world` by running:
 
     ```bash
     cargo-gbuild new hello_world
     ```
 
-Now, your `hello_world` directory tree should look like this:
+Your `hello_world` directory tree should look like this:
 
     ```
     hello_world
@@ -148,13 +148,13 @@ The following code is needed to compile the project into WebAssembly and generat
     }
     ```
 
-Now build your program with a single command:
+Build your program with a single command:
 
     ```bash
     cargo build --release
     ```
 
-If everything is executed successfully, your working directory should now contain a `target` directory structured as follows:
+If everything has been executed successfully, your working directory should now contain a `target` directory structured as follows:
 
     ```
     hello_world
@@ -207,7 +207,7 @@ Gear provides an application for developers (Gear Idea) that implements all of t
 
     ![Allow access](/assets/getting-started/polkadot-access.png)
 
-6. Make sure you are connected to the `Vara Network Testnet`. The network name is on the bottom left corner of the page.
+6. Make sure you are connected to the `Vara Network Testnet`. The network name is at the bottom left corner of the page.
 
     ![Network name](/assets/getting-started/idea-network.png)
 
@@ -241,40 +241,45 @@ Gear provides an application for developers (Gear Idea) that implements all of t
 
     ![Upload idl button](/assets/getting-started/add_idl.png)
 
-4. Specify the program Name and click <kbd>Calculate Gas</kbd> button. The Gas limit will be set automatically.  
-Now click the <kbd>Upload program</kbd> button.
+4. Specify the program name, click the <kbd>Calculate Gas</kbd> button to set the gas limit automatically, and then click the <kbd>Upload program</kbd> button.
 
     ![Upload program form](/assets/getting-started/interface.png)
 
-5. Sign the program uploading transaction to Vara. Also, sign the program and metadata upload to the Gear Idea portal so you could work with the program. It is recommended to set the checkbox `Remember my password for the next 15 minutes` for your convenience.
+5. Sign the `gear.uploadProgram` transaction to Vara. It is recommended to set the checkbox `Remember my password for the next 15 minutes` for your convenience.
 
     ![Sign transaction](/assets/getting-started/sign-transaction.png)
 
-6. Once your program is uploaded, head to the `Programs` section and find your program.
+6. Once your program is uploaded, go to the `Programs` section, find your program, and select it.
 
     ![Recently uploaded programs](/assets/getting-started/recent.png)
 
+7. Click on your program to see more information, such as `Program details`, `IDL`, and the `Messages` pane.
+
+    ![Main page program](/assets/getting-started/main-page-program.png)
+
 ### Send message to a program
 
-1. Now, try sending your newly uploaded program a message to see how it responds! Click the <kbd>Send message</kbd> button.
+1. Send your newly uploaded program a message to see how it responds! Click the <kbd>Send message</kbd> button.
 
-2. Click <kbd>Calculate Gas</kbd> button, the Gas limit will be set automatically. Now click the <kbd>Send Message</kbd> button.
+2. Click the <kbd>Calculate Gas</kbd> button to set the gas limit automatically, then click the <kbd>Send Message</kbd> button.
 
     ![Send form](/assets/getting-started/send-request.png)
 
-3. Sign the message sending transaction as it is shown in step 3 of the section **Upload Program**.
+3. Sign the `gear.sendMessage` transaction as it is shown in step 5 of the section **Upload Program**.
 
-4. After your message has been successfully processed, you are to see correspondent log messages:
+4. After your message has been successfully processed, you will see corresponding notifications:
 
     ![Log](/assets/getting-started/message-log.png)
 
-    Now you have sent a HelloWorld command to the program. After processing the program will also greet you.
+    You have just sent a HelloWorld command to your program!
 
-5. The message pane should now display new message regarding sending, along with any corresponding reply.
+5. Go back to your program by either clicking the <kbd>Cancel</kbd> button or using the browser's back button. 
+
+6. In the message pane, you can see the new message request (blue arrow) along with the corresponding response (green arrow).
 
     ![Log](/assets/getting-started/messages.png)
 
-6. In the response details, the expected "**Hello, World!**" response can be seen in the payload.
+7. Click on the message response to see more information. The expected "**Hello, World!**" response can be seen in the `Payload`.
 
     ![Log](/assets/getting-started/reply.png)
 

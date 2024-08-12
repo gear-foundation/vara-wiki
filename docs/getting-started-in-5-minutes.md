@@ -20,7 +20,7 @@ Don't miss this opportunity to become a pro Vara blockchain developer. Enroll no
     For example, on Ubuntu use:
 
     ```bash
-    sudo apt install -y build-essential clang cmake
+    sudo apt install -y build-essential clang cmake curl
     ```
 
     On macOS, you can get a compiler toolset by running:
@@ -45,7 +45,13 @@ Don't miss this opportunity to become a pro Vara blockchain developer. Enroll no
 
 ## Creating your first Vara program
 
-To create a program, use the following command to load the project template:
+To get started, install the cargo-gbuild tool using the following command:
+
+    ```bash
+    cargo install cargo-gbuild
+    ```
+
+After the installation, you can create a new Vara project named `hello_world` by running:
 
     ```bash
     cargo-gbuild new hello_world
@@ -128,7 +134,7 @@ This Rust code defines a simple **Hello, World!** program for the Vara Network. 
 The following code is needed to compile the project into WebAssembly and generate an **.idl** file for the program interface. It uses `gear_wasm_builder` to compile the code and the `sails_idl_gen` library to generate the **IDL** file.
 
     ```rust title="hello_world/wasm/build.rs"
-    use hello_world_app::Program;
+    use app::Program;
     use sails_idl_gen::program;
     use std::{env, path::PathBuf};
 
@@ -136,7 +142,7 @@ The following code is needed to compile the project into WebAssembly and generat
         gear_wasm_builder::build();
 
         program::generate_idl_to_file::<Program>(
-            PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("hello_world.idl"),
+            PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("app.idl"),
         )
         .unwrap();
     }
@@ -157,17 +163,17 @@ If everything is executed successfully, your working directory should now contai
         ├── ...
         └── wasm32-unknown-unknown
             └── release
-                ├── hello_world.wasm       <---- this is our built .wasm file
-                └── hello_world.opt.wasm   <---- this is optimized .wasm file
+                ├── application_builder.wasm       <---- this is our built .wasm file
+                └── application_builder.opt.wasm   <---- this is optimized .wasm file
     ```
 
-- `hello_world.wasm` is the output Wasm binary built from source files
-- `hello_world.opt.wasm` is the optimized Wasm aimed to be uploaded to the blockchain  
+- `application_builder.wasm` is the output Wasm binary built from source files
+- `application_builder.opt.wasm` is the optimized Wasm aimed to be uploaded to the blockchain  
 (Optimization include reducing the file size and improving performance)
 
-In addition, the interface file `hello_world.idl` should have been generated in the `wasm` project directory.
+In addition, the interface file `app.idl` should have been generated in the `wasm` project directory.
 
-    ```idl title="hello_world/wasm/hello_world.idl"
+    ```idl title="hello_world/wasm/app.idl"
     constructor {
       New : ();
     };
@@ -223,24 +229,28 @@ Gear provides an application for developers (Gear Idea) that implements all of t
 
 ### Upload program
 
-1. When your account balance is sufficient, click the <kbd>Upload program</kbd> and navigate to the `.opt.wasm` file we have pointed to above.
+1. When your account balance is sufficient, click the <kbd>Upload program</kbd>  button to open a popup window for uploading your new program.
 
     ![Upload program button](/assets/getting-started/upload.png)
 
-2. Click the <kbd>Select file</kbd> and navigate to the `.idl` file we have pointed to above. 
+2. In the popup, click the <kbd>Select file</kbd> button and navigate to the `.opt.wasm` file we have pointed to above
+
+    ![Upload new program](/assets/getting-started/upload-new-program.png)
+
+3. After uploading the program, you need to upload the IDL file. Click the <kbd>Select file</kbd> button and navigate to the .idl file referenced earlier.
 
     ![Upload idl button](/assets/getting-started/add_idl.png)
 
-3. Specify the program Name and click <kbd>Calculate Gas</kbd> button. The Gas limit will be set automatically.  
+4. Specify the program Name and click <kbd>Calculate Gas</kbd> button. The Gas limit will be set automatically.  
 Now click the <kbd>Upload program</kbd> button.
 
     ![Upload program form](/assets/getting-started/interface.png)
 
-4. Sign the program uploading transaction to Vara. Also, sign the program and metadata upload to the Gear Idea portal so you could work with the program. It is recommended to set the checkbox `Remember my password for the next 15 minutes` for your convenience.
+5. Sign the program uploading transaction to Vara. Also, sign the program and metadata upload to the Gear Idea portal so you could work with the program. It is recommended to set the checkbox `Remember my password for the next 15 minutes` for your convenience.
 
     ![Sign transaction](/assets/getting-started/sign-transaction.png)
 
-5. Once your program is uploaded, head to the `Programs` section and find your program.
+6. Once your program is uploaded, head to the `Programs` section and find your program.
 
     ![Recently uploaded programs](/assets/getting-started/recent.png)
 

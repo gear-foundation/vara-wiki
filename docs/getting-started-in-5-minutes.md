@@ -45,7 +45,7 @@ Don't miss this opportunity to become a pro Vara blockchain developer. Enroll no
 
 ## Creating your first Vara program
 
-To get started, install the cargo-gbuild tool using the following command:
+To get started, install the `cargo-gbuild` tool using the following command:
 
     ```bash
     cargo install cargo-gbuild
@@ -237,7 +237,7 @@ Gear provides an application for developers (Gear Idea) that implements all of t
 
     ![Upload new program](/assets/getting-started/upload-new-program.png)
 
-3. After uploading the program, you need to upload the IDL file. Click the <kbd>Select file</kbd> button and navigate to the .idl file referenced earlier.
+3. After uploading the program, you need to upload the IDL file. Click the <kbd>Select file</kbd> button and navigate to the `.idl` file referenced earlier.
 
     ![Upload idl button](/assets/getting-started/add_idl.png)
 

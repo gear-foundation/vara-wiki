@@ -255,6 +255,8 @@ Gear provides an application for developers (Gear Idea) that implements all of t
 
 7. Click on your program to see more information, such as `Program details`, `IDL`, and the `Messages` pane.
 
+    ![Main page program](/assets/getting-started/main-page-program.png)
+
 ### Send message to a program
 
 1. Send your newly uploaded program a message to see how it responds! Click the <kbd>Send message</kbd> button.

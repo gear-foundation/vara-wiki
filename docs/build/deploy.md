@@ -16,6 +16,16 @@ Where:
 - `gasLimit: u64` - the amount of gas that users are willing to spend on processing the upload of a new program
 - `value: u128` - the value that will be transferred to a balance of the newly created account for the program
 
+## Program Balance
+
+The Gear Protocol ensures that every active program has an associated account capable of storing any amount of value throughout the program's lifetime. This account is created during the program’s initialization and serves as the program’s fund repository.
+
+For each created program, 1 Vara (ED) token is locked as a fixed deposit. This deposit can only be withdrawn upon the program's termination through the gr_exit function.
+
+At the time of a program’s initialization, the protocol deducts the existential deposit (ED) amount from the initiator’s balance, establishing the program’s minimal balance. It is also possible to allocate more than the ED value during the program's initialization.
+
+When a program is created by another program, the system verifies whether the initiating program has a sufficient balance to cover the required deposit.
+
 ## Program upload events
 
 > Note: while extrinsics represent information from the outside world, events represent information from the chain. Extrinsics can trigger events.

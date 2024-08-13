@@ -16,6 +16,14 @@ Where:
 - `gasLimit: u64` - the amount of gas that users are willing to spend on processing the upload of a new program
 - `value: u128` - the value that will be transferred to a balance of the newly created account for the program
 
+## Program Balance
+
+For each created program, amount of VARA equal to [existential deposit](https://docs.substrate.io/reference/glossary/#existential-deposit) (currently 1 VARA) is locked as a fixed deposit at the program's balance and cannot be used throughout the program's lifetime. This deposit can only be withdrawn upon the program's termination through the `gr_exit` function or program' initialization failure.
+
+At the time of a program’s initialization, the protocol deducts the existential deposit amount from the initiator’s balance, establishing the program’s minimal balance. It is also possible to allocate more than the ED value during the program's initialization.
+
+When a program is created by another program, the system verifies whether the initiating program has a sufficient balance to cover the required deposit.
+
 ## Program upload events
 
 > Note: while extrinsics represent information from the outside world, events represent information from the chain. Extrinsics can trigger events.

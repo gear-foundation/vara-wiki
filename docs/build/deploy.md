@@ -18,11 +18,9 @@ Where:
 
 ## Program Balance
 
-The Gear Protocol ensures that every active program has an associated account capable of storing any amount of value throughout the program's lifetime. This account is created during the program’s initialization and serves as the program’s fund repository.
+For each created program, amount of VARA equal to [existential deposit](https://docs.substrate.io/reference/glossary/#existential-deposit) (currently 1 VARA) is locked as a fixed deposit at the program's balance and cannot be used throughout the program's lifetime. This deposit can only be withdrawn upon the program's termination through the `gr_exit` function or program' initialization failure.
 
-For each created program, 1 Vara (ED) token is locked as a fixed deposit. This deposit can only be withdrawn upon the program's termination through the gr_exit function.
-
-At the time of a program’s initialization, the protocol deducts the existential deposit (ED) amount from the initiator’s balance, establishing the program’s minimal balance. It is also possible to allocate more than the ED value during the program's initialization.
+At the time of a program’s initialization, the protocol deducts the existential deposit amount from the initiator’s balance, establishing the program’s minimal balance. It is also possible to allocate more than the ED value during the program's initialization.
 
 When a program is created by another program, the system verifies whether the initiating program has a sufficient balance to cover the required deposit.
 

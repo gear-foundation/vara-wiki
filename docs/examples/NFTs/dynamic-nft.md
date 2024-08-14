@@ -6,7 +6,7 @@ sidebar_position: 3
 # Gear Dynamic Non-Fungible Token
 
 ### Introduction
-This is an extension of standard [Non-Fungible token](/docs/examples/Standards/gnft-721.md). It proposes an additional dynamic part that can change or evolve over time. The source code of the Gear NFT smart contract example is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/dynamic-nft).
+This is an extension of standard [Non-Fungible token](/docs/examples/Standards/vnft.md). It proposes an additional dynamic part that can change or evolve over time. The source code of the Gear NFT smart contract example is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/dynamic-nft).
 
 ### Motivation
 
@@ -25,7 +25,7 @@ gear-lib = { git = "https://github.com/gear-foundation/dapps.git" }
 gear-lib-derive = { git = "https://github.com/gear-foundation/dapps.git" }
 ```
 
-Dynamic NFT contains regular [NFT](/docs/examples/Standards/gnft-721.md) and additional field  `dynamic_data`:
+Dynamic NFT contains regular [NFT](/docs/examples/Standards/vnft.md) and additional field  `dynamic_data`:
 
 ```rust title="dynamic-nft/src/lib.rs"
 #[derive(Debug, Default, NFTStateKeeper, NFTCore, NFTMetaState)]
@@ -40,7 +40,7 @@ pub struct DynamicNft {
     pub dynamic_data: Vec<u8>,
 }
 ```
-In all other cases, everything also corresponds to the usual [non-fungible-token](/docs/examples/Standards/gnft-721.md) contract, except additional specific actions:
+In all other cases, everything also corresponds to the usual [non-fungible-token](/docs/examples/Standards/vnft.md) contract, except additional specific actions:
 
 ```rust title="dynamic-nft/io/src/lib.rs"
 pub enum NFTAction {

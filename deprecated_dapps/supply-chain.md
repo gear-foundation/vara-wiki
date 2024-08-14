@@ -80,7 +80,7 @@ yarn start
 
 ## Logic
 
-* Each newly produced item gets the NFT (in Gear's context - [Vara non-fungible token (VNFT)](/docs/examples/Standards/gnft-721.md) and its ID equals an ID of the item. Then, as an item moves along a supply chain, an item's NFT transfers between a supply chain program, item's producer, and future distributor, retailer and end consumer.
+* Each newly produced item gets the NFT in Gear's context - [Vara non-fungible token (VNFT)](/docs/examples/Standards/vnft.md) and its ID equals an ID of the item. Then, as an item moves along a supply chain, an item's NFT transfers between a supply chain program, item's producer, and future distributor, retailer and end consumer.
 * Anyone who knows an item's ID can get item info.
 * Sale, purchase, delivery is made in [Vara fungible tokens (VFT)](/docs/examples/Standards/vft.md).
 

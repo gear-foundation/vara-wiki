@@ -5,7 +5,7 @@ sidebar_position: 2
 
 # NFT frontend application
 
-This article explains how to create a `React` application and connect it to an [NFT smart contract](/docs/examples/Standards/gnft-721.md) running in the blockchain.
+This article explains how to create a `React` application and connect it to an [NFT smart contract](/docs/examples/Standards/vnft.md) running in the blockchain.
 
 ### Preparation
 

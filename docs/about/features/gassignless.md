@@ -1,9 +1,9 @@
 ---
-sidebar_label: Gasless and Signlesss
+sidebar_label: Gasless and Signless
 sidebar_position: 3
 ---
 
-# Gasless and Signlesss Transactions
+# Gasless and Signless Transactions
 
 Gear Protocol's introduction of gasless transactions, along with signless user interactions, presents a groundbreaking concept in the Web3 sphere. This innovation is revolutionizing communication within Vara network and boosting the adoption of decentralized applications. By making their usability comparable to Web2 services and applications, Gear Protocol significantly enhances user experience in the decentralized space.
 

@@ -45,34 +45,33 @@ Don't miss this opportunity to become a pro Vara blockchain developer. Enroll no
 
 ## Creating your first Vara program
 
-To get started, install the `cargo-gbuild` tool using the following command:
+To get started, install the `sails-cli` tool using the following command:
 
     ```bash
-    cargo install cargo-gbuild
+    cargo install sails-cli
     ```
 
-After installation, you can create a new Vara project named `hello_world` by running:
+After installation, you can create a new Vara project named `vara-app` by running:
 
     ```bash
-    cargo-gbuild new hello_world
+    cargo-sails new-program vara-app
     ```
 
-Your `hello_world` directory tree should look like this:
+Your `vara-app` directory tree should look like this:
 
     ```
-    hello_world
+    vara-app
     │
     ├── Cargo.toml
-    ├── app
-    │   ├── Cargo.toml
-    │   └── src
-    │       └── lib.rs
+    ├── build.rs
+    ├── client
+    │   └── ...
     │
-    └── wasm
-        ├── Cargo.toml
-        ├── build.rs
-        └── src
-            └── lib.rs
+    ├── src
+    │   └── lib.rs     
+    │
+    └── tests
+        └── gtest.rs
 
     
     ```
@@ -81,71 +80,75 @@ In `Cargo.toml`, the essential libraries required for building your first projec
 
     ```toml
     [workspace]
-    resolver = "2"
 
-    members = [
-        "app", "wasm",
-    ]
-
-    [workspace.package]
+    [package]
+    name = "vara-app"
     version = "0.1.0"
     edition = "2021"
-    license = "GPL-3.0"
 
-    [workspace.dependencies]
-    gstd = "*"
-    gear-wasm-builder = "*"
-    sails-idl-gen = "*"
-    sails-rs = "*"
+    [dependencies]
+    sails-rs = "0.3.0"
+
+    [build-dependencies]
+    sails-rs = { version = "0.3.0", features = ["wasm-builder"] }
+
+    [dev-dependencies]
+    vara-app = { path = ".", features = ["wasm-binary"] }
+    vara-app-client = { path = "client" }
+    tokio = { version = "1.39", features = ["rt", "macros"] }
+
+    [features]
+    wasm-binary = []
     ```
 
 Let's move on to the main code:
 
-This Rust code defines a simple **Hello, World!** program for the Vara Network. It consists of a `Program` struct with a method to instantiate it and another method to return a `HelloWorld` struct. The `HelloWorld` struct has a service method that returns the string *"Hello, world!"*. This example demonstrates the basic structure and functionality of a Vara program using the `sails_rs` library.
+This Rust code defines a simple program for the Vara Network, now updated with a new structure. The program consists of a `VaraAppProgram` struct with a method to instantiate it and another method to return a `VaraAppService` struct. The `VaraAppService` struct has a service method that returns the string *"Hello from VaraApp!"*. This example demonstrates the basic structure and functionality of a Vara program using the `sails_rs` library.
 
-    ```rust title="hello_world/app/src/lib.rs"
+    ```rust title="vara-app/src/lib.rs"
     #![no_std]
+
+    #[cfg(feature = "wasm-binary")]
+    #[cfg(not(target_arch = "wasm32"))]
+    pub use code::WASM_BINARY_OPT as WASM_BINARY;
+
     use sails_rs::prelude::*;
 
-    #[derive(Default)]
-    pub struct Program;
+    struct VaraAppService(());
 
-    #[program]
-    impl Program {
+    #[sails_rs::service]
+    impl VaraAppService {
         pub fn new() -> Self {
-            Self
+            Self(())
         }
-        pub fn hello_world(&self) -> HelloWorld {
-            HelloWorld::default()
+
+        // Service's method (command)
+        pub fn do_something(&mut self) -> String {
+            "Hello from VaraApp!".to_string()
+        }
+    }
+
+    pub struct VaraAppProgram(());
+
+    #[sails_rs::program]
+    impl VaraAppProgram {
+        // Program's constructor
+        pub fn new() -> Self {
+            Self(())
+        }
+
+        // Exposed service
+        pub fn vara_app(&self) -> VaraAppService {
+            VaraAppService::new()
         }
     }
 
-    #[derive(Default)]
-    pub struct HelloWorld(());
-
-    #[service]
-    impl HelloWorld {
-        pub fn hello_world(&mut self) -> &'static str {
-            "Hello, world!"
-        }
+    #[cfg(feature = "wasm-binary")]
+    #[cfg(not(target_arch = "wasm32"))]
+    mod code {
+        include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
     }
-    ```
 
-The following code is needed to compile the project into WebAssembly and generate an **.idl** file for the program interface. It uses `gear_wasm_builder` to compile the code and the `sails_idl_gen` library to generate the **IDL** file.
-
-    ```rust title="hello_world/wasm/build.rs"
-    use app::Program;
-    use sails_idl_gen::program;
-    use std::{env, path::PathBuf};
-
-    fn main() {
-        gear_wasm_builder::build();
-
-        program::generate_idl_to_file::<Program>(
-            PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("app.idl"),
-        )
-        .unwrap();
-    }
     ```
 
 Build your program with a single command:
@@ -154,32 +157,38 @@ Build your program with a single command:
     cargo build --release
     ```
 
+After a successful build, you can execute your tests to verify that everything is functioning correctly:
+
+    ```bash
+    cargo test --release
+    ```
+
 If everything has been executed successfully, your working directory should now contain a `target` directory structured as follows:
 
     ```
-    hello_world
+    vara-app
     ├── ...
     ├── target
         ├── ...
         └── wasm32-unknown-unknown
             └── release
-                ├── application_builder.wasm       <---- this is our built .wasm file
-                └── application_builder.opt.wasm   <---- this is optimized .wasm file
+                ├── vara_app.wasm       <---- this is our built .wasm file
+                └── vara_app.opt.wasm   <---- this is optimized .wasm file
     ```
 
-- `application_builder.wasm` is the output Wasm binary built from source files
-- `application_builder.opt.wasm` is the optimized Wasm aimed to be uploaded to the blockchain  
+- `vara_app.wasm` is the output Wasm binary built from source files
+- `vara_app.opt.wasm` is the optimized Wasm aimed to be uploaded to the blockchain  
 (Optimization include reducing the file size and improving performance)
 
-In addition, the interface file `app.idl` should have been generated in the `wasm` project directory.
+In addition, the interface file `vara_app.idl` should have been generated in the `client` project directory.
 
-    ```idl title="hello_world/wasm/app.idl"
+    ```idl title="vara-app/client/vara_app.idl"
     constructor {
       New : ();
     };
 
-    service HelloWorld {
-      HelloWorld : () -> str;
+    service VaraApp {
+      DoSomething : () -> str;
     };
     ```
 
@@ -241,7 +250,7 @@ Gear provides an application for developers (Gear Idea) that implements all of t
 
     ![Upload idl button](/assets/getting-started/add_idl.png)
 
-4. Specify the program name, click the <kbd>Calculate Gas</kbd> button to set the gas limit automatically, and then click the <kbd>Upload program</kbd> button.
+4. Specify the program name, click the <kbd>Calculate Gas</kbd> button to set the gas limit automatically, and then click the <kbd>Submit</kbd> button.
 
     ![Upload program form](/assets/getting-started/interface.png)
 
@@ -253,7 +262,7 @@ Gear provides an application for developers (Gear Idea) that implements all of t
 
     ![Recently uploaded programs](/assets/getting-started/recent.png)
 
-7. Click on your program to see more information, such as `Program details`, `IDL`, and the `Messages` pane.
+7. Click on your program to see more information, such as `Metadata/Sails`, `Messages`, `Events`, and the `Vouchers` pane.
 
     ![Main page program](/assets/getting-started/main-page-program.png)
 
@@ -271,15 +280,15 @@ Gear provides an application for developers (Gear Idea) that implements all of t
 
     ![Log](/assets/getting-started/message-log.png)
 
-    You have just sent a HelloWorld command to your program!
+    You have just sent a `DoSomething` command to your program!
 
 5. Go back to your program by either clicking the <kbd>Cancel</kbd> button or using the browser's back button. 
 
-6. In the message pane, you can see the new message request (blue arrow) along with the corresponding response (green arrow).
+6. In the message pane, you can view the corresponding response.
 
     ![Log](/assets/getting-started/messages.png)
 
-7. Click on the message response to see more information. The expected "**Hello, World!**" response can be seen in the `Payload`.
+7. Click on the message response to see more information. The expected "**Hello from VaraApp!**" response can be seen in the `Payload`.
 
     ![Log](/assets/getting-started/reply.png)
 

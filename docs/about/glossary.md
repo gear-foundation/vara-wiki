@@ -107,7 +107,7 @@ A smart contract is a transactional computer program that can execute transactio
 
 ### Substrate
 
-Substrate is the modular framework for building customized blockchains and the foundation for the whole DotSama ecosystem. Substrate allows developers to quickly build and launch a blockchain that will be capable of connecting to the Polkadot or Kusama networks.
+The Substrate framework is a modular and extensible framework for building custom blockchains, developed by Parity Technologies, that enables the creation of blockchain networks with specific, programmable governance, consensus, and runtime logic.
 
 ### Transaction
 

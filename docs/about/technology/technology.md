@@ -30,14 +30,14 @@ Vara, built on the Substrate blockchain development framework, offers a solution
 
 Gear Protocol offers a versatile platform for building next-generation Web3 applications. Gear's true strength lies in its broader capabilities:
 
-- **Sovereign Layer-1 Networks** tailored to developer's specific needs, escaping the limitations of pre-defined protocols, enabling complete control over governance, consensus mechanisms, and fee structures.
+- **Sovereign Layer-1 Network** tailored to developer's specific needs, escaping the limitations of pre-defined protocols, enabling complete control over governance, consensus mechanisms, and fee structures.
 - **Scalable Layer-2 Solutions** seamlessly integrating with popular Layer-1 networks (like Ethereum), offloading computationally intensive tasks, significantly reducing on-chain costs and boosting transaction throughput.
 - **Parallel Processing Powerhouse** - Gear scales naturally with hardware advancements, thanks to its unique parallel processing architecture. Run demanding applications on standard computers, ensuring cost-effectiveness and accessibility.
 - **Modular Microservices Mastery** - allows to deploy and manage individual microservices on single nodes or custom networks, optimize resource allocation, simplify maintenance, and achieve fine-grained control over the application's functionality.
 - Unleash the potential of **Zero-Knowledge Proofs** (ZKPs) with Gear's high-performance infrastructure. Develop privacy-preserving applications, including ZKML (Zero-Knowledge Machine Learning), without sacrificing scalability or performance.
 - **Familiar Development Environment** - leverages developers existing skillset supporting widely adopted programming languages like Rust, C, and C++, allowing developers to seamlessly transition to the Gear ecosystem without mastering new complexities.
 - **Collaborative Community** - becoming a part of a thriving developer community enables anyone access a wealth of resources and support, including a growing library of pre-built programs and smart contracts examples, tools, and documentation. Contribute to the development of a vibrant and collaborative ecosystem.
-- Seamlessly deployable as a **parachain within the DotSama** ecosystem. Along with most projects in Dotsama ecosystem, the Gear Protocol uses a Substrate framework. This simplifies the creation of different parachains for specific applications. Substrate provides extensive functionality out-of-the-box and allows one to focus on creating a custom engine on top of the protocol. The majority of developers and inspirers of the Gear Protocol were directly involved in creating Polkadot and Substrate technologies. 
+- Potential integration with other Substrate-based networks within and outside the DotSama ecosystem. Substrate framework simplifies the creation of custom blockchains and parachains for specific applications. Substrate provides extensive functionality out-of-the-box and allows one to focus on creating a custom engine on top of the protocol. The majority of developers and inspirers of the Gear Protocol were directly involved in creating the Substrate technology. 
 
 Anyone with a standard computer can run a [Gear node](/docs/node/node.mdx) today and always. 
 

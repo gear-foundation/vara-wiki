@@ -7,7 +7,7 @@ sidebar_label: React-hooks
 
 Hooks allow functional components to have access to programs running on Vara network and significantly simplify the development of front-end applications.
 
-For example, [NFT Marketplace example](/examples/NFTs/nft-marketplace/nft-application.md) demonstrates the creation of a React application that connects to an [NFT smart contract](/examples/Standards/gnft-721.md) running on the blockchain.
+For example, [NFT Marketplace example](/examples/NFTs/nft-marketplace/nft-application.md) demonstrates the creation of a React application that connects to an [NFT smart contract](/examples/Standards/vnft.md) running on the blockchain.
 
 ## Installation
 

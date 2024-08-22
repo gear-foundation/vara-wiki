@@ -7,7 +7,7 @@ sidebar_position: 2
 
 ## Introduction
 
-This example of an NFT smart contract shows a method where token assets are stored on the blockchain itself. To learn about a common implementation of gNFT smart contracts, refer to [gNFT-721](/docs/examples/Standards/gnft-721.md).
+This example of an NFT smart contract shows a method where token assets are stored on the blockchain itself. To learn about a common implementation of gNFT smart contracts, refer to [vNFT-721](/docs/examples/Standards/vnft.md).
 
 When a user wants to transfer ownership of a specific token ID to another user, confirming ownership and assigning the token to a new owner is straightforward. Usually, NFT images (or other essential resources) are stored elsewhere, like on IPFS, with only the metadata stored in the contract. The metadata includes a name, an ID, and links to external resources where the images are stored.
 

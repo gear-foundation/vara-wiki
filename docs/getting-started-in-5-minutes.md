@@ -62,24 +62,33 @@ Your `vara-app` directory tree should look like this:
     ```
     vara-app
     │
-    ├── Cargo.toml
-    ├── build.rs
+    ├── app
+    │   └── src
+    │       └── lib.rs
+    │
     ├── client
     │   └── ...
     │
     ├── src
     │   └── lib.rs     
     │
-    └── tests
-        └── gtest.rs
-
-    
+    ├── tests
+    │   └── gtest.rs
+    │
+    ├── build.rs
+    │
+    ├── Cargo.toml
+    │
+    └──  README.md
     ```
     
 In `Cargo.toml`, the essential libraries required for building your first project have been included:
 
-    ```toml
+    ```rust title="vara-app/Cargo.toml"
     [workspace]
+
+    members = ["client"]
+
 
     [package]
     name = "vara-app"
@@ -87,14 +96,17 @@ In `Cargo.toml`, the essential libraries required for building your first projec
     edition = "2021"
 
     [dependencies]
-    sails-rs = "0.3.0"
+    vara-app-app = { path = "app" }
 
     [build-dependencies]
-    sails-rs = { version = "0.3.0", features = ["wasm-builder"] }
+    vara-app-app = { path = "app" }
+    sails-rs = { version = "0.4.0", features = ["wasm-builder"] }
+    sails-idl-gen = "0.4.0"
 
     [dev-dependencies]
     vara-app = { path = ".", features = ["wasm-binary"] }
     vara-app-client = { path = "client" }
+    sails-rs = { version = "0.4.0", features = ["gtest"] }
     tokio = { version = "1.39", features = ["rt", "macros"] }
 
     [features]
@@ -105,12 +117,8 @@ Let's move on to the main code:
 
 This Rust code defines a simple program for the Vara Network, now updated with a new structure. The program consists of a `VaraAppProgram` struct with a method to instantiate it and another method to return a `VaraAppService` struct. The `VaraAppService` struct has a service method that returns the string *"Hello from VaraApp!"*. This example demonstrates the basic structure and functionality of a Vara program using the `sails_rs` library.
 
-    ```rust title="vara-app/src/lib.rs"
+    ```rust title="vara-app/app/src/lib.rs"
     #![no_std]
-
-    #[cfg(feature = "wasm-binary")]
-    #[cfg(not(target_arch = "wasm32"))]
-    pub use code::WASM_BINARY_OPT as WASM_BINARY;
 
     use sails_rs::prelude::*;
 
@@ -142,13 +150,6 @@ This Rust code defines a simple program for the Vara Network, now updated with a
             VaraAppService::new()
         }
     }
-
-    #[cfg(feature = "wasm-binary")]
-    #[cfg(not(target_arch = "wasm32"))]
-    mod code {
-        include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
-    }
-
     ```
 
 Build your program with a single command:
@@ -173,24 +174,14 @@ If everything has been executed successfully, your working directory should now 
         └── wasm32-unknown-unknown
             └── release
                 ├── vara_app.wasm       <---- this is our built .wasm file
-                └── vara_app.opt.wasm   <---- this is optimized .wasm file
+                ├── vara_app.opt.wasm   <---- this is optimized .wasm file
+                └── vara_app.idl        <---- this is our application interface .idl file
     ```
 
 - `vara_app.wasm` is the output Wasm binary built from source files
 - `vara_app.opt.wasm` is the optimized Wasm aimed to be uploaded to the blockchain  
 (Optimization include reducing the file size and improving performance)
-
-In addition, the interface file `vara_app.idl` should have been generated in the `client` project directory.
-
-    ```idl title="vara-app/client/vara_app.idl"
-    constructor {
-      New : ();
-    };
-
-    service VaraApp {
-      DoSomething : () -> str;
-    };
-    ```
+- `vara_app.idl` is the Interface Definition Language (IDL) file that describes the application's interface, defining the structure and methods callable on the `vara_app` program. It’s essential for interacting with the application on the blockchain, specifying available functions and their inputs and outputs. This file is crucial for developers and clients to ensure they use the correct method signatures and data types when interacting with the deployed program.
 
 ## Deploy your program to the Testnet
 

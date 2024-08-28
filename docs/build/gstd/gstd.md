@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# Gear Library
+# Gear Library (Low-Level)
 
 The Gear Protocol’s library `gstd` provides all the necessary and sufficient functions and methods for developing programs.
 

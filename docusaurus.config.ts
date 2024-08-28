@@ -16,6 +16,11 @@ const config: Config = {
   organizationName: "Gear Foundation",
   projectName: "vara-wiki",
 
+  markdown: {
+    mermaid: true,
+  },
+  themes: ['@docusaurus/theme-mermaid'],
+
   i18n: {
     defaultLocale: "en",
     locales: ["en"],

@@ -5,15 +5,15 @@ sidebar_position: 1
 
 # Message Routing - `#[route]`
 
-Message *__routing__* doesn't have a mandatory representation in code, but can be altered by using the `#[route]`
-attribute applied to those public methods and associated functions described above.
+Message **routing** doesn't have a mandatory representation in code, but can be altered by using the `#[route]`
+attribute applied to the public methods of structs labelled with the `#[program]` or `#[service]` attribute.
 The concept itself is about rules for dispatching an incoming request message to
 a specific service's method using service and method names. By default, every
 service exposed via program is exposed using the name of the service constructor
 method converted into *PascalCase*. For example:
 
 ```rust
-#[gprogram]
+#[program]
 impl MyProgram {
     // The `MyPing` service is exposed as `PingSvc`
     pub fn ping_svc(&self) -> MyPing {
@@ -22,10 +22,10 @@ impl MyProgram {
 }
 ```
 
-This behavior can be changed by applying the `#[route]` attribute:
+This default behavior can be changed by applying the `#[route]` attribute:
 
 ```rust
-#[gprogram]
+#[program]
 impl MyProgram {
     // The `MyPing` service is exposed as `Ping`
     #[route("ping")] // The specified name will be converted into PascalCase
@@ -38,7 +38,7 @@ impl MyProgram {
 The same rules are applicable to service method names:
 
 ```rust
-#[gservice]
+#[service]
 impl MyPing {
     // The `do_ping` method is exposed as `Ping`
     #[route("ping")]

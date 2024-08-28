@@ -14,6 +14,19 @@ It exposes public methods as remote calls, with commands that modify state and q
 
 Additionally, Sails provides a mechanism to emit **events** from your service while processing commands, as well as the option for customized **message routing**, which involves defining rules for directing incoming request messages to specific service methods based on service and method names. It also offers advanced features like the ability to extend (or **mix in**) existing services.
 
+```mermaid
+graph TD
+    subgraph "Program"
+        A[Service 1]:::varaStyle;
+        B[Service 2]:::varaStyle;
+        C["..."]:::inv;
+        D[Service n]:::varaStyle;
+        style Program color:#00ffa0, fill:none;
+        classDef varaStyle stroke:#00ffc3;
+        classDef inv color:#FFFFFF,stroke-width:0px,fill:none;
+    end
+```
+
 ## Service - `#[service]`
 
 The service's main responsibility is to implement specific aspects of the application's business logic. The set of its **public** methods defined in the `impl` block essentially represents a collection of remote calls that the service exposes to external consumers. In Sails, there are two types of calls available:

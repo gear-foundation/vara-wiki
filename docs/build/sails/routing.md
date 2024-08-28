@@ -1,9 +1,9 @@
 ---
 sidebar_label: Message Routing
-sidebar_position: 1
+sidebar_position: 3
 ---
 
-# Message Routing - `#[route]`
+# Message Routing
 
 Message **routing** doesn't have a mandatory representation in code, but can be altered by using the `#[route]`
 attribute applied to the public methods of structs labelled with the `#[program]` or `#[service]` attribute.

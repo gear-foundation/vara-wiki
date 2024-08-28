@@ -1,5 +1,5 @@
 ---
-sidebar_label: Introduction
+sidebar_label: Programs and Services
 sidebar_position: 1
 ---
 
@@ -10,12 +10,17 @@ This is reflected in the code as follows:
 
 - **Services**: A service is a Rust `struct` whose `impl` block is marked with the `#[service]` attribute. It is responsible for handling the business logic of the application.
 It exposes public methods as remote calls, with commands that modify state and queries that return data without making state changes.
-- **Programs**: A program is Rust `struct` whose `impl` block is marked with the `#[program]` attribute. It hosts one or more services and manages the application lifecycle. It defines how the program and its services are initialized and interact with external consumers through constructors and public methods. Only one program is allowed per application.
+- **Programs**: A program is Rust `struct` whose `impl` block is marked with the `#[program]` attribute. It hosts one or more services and manages the application lifecycle. It defines how the program and its services are initialized and interact with external consumers through constructors and public methods. *Only one program is allowed per application.*
 
 Additionally, Sails provides a mechanism to emit **events** from your service while processing commands, as well as the option for customized **message routing**, which involves defining rules for directing incoming request messages to specific service methods based on service and method names. It also offers advanced features like the ability to extend (or **mix in**) existing services.
 
 ```mermaid
-graph TD
+%%{
+    init: {
+        'width': '100%'
+    }
+}%%
+graph LR
     subgraph "Program"
         A[Service 1]:::varaStyle;
         B[Service 2]:::varaStyle;
@@ -27,7 +32,7 @@ graph TD
     end
 ```
 
-## Service - `#[service]`
+## Service
 
 The service's main responsibility is to implement specific aspects of the application's business logic. The set of its **public** methods defined in the `impl` block essentially represents a collection of remote calls that the service exposes to external consumers. In Sails, there are two types of calls available:
 
@@ -57,7 +62,7 @@ impl MyService {
 }
 ```
 
-## Program - `#[program]`
+## Program
 
 The program's main responsibility is to host one or more services and expose them to external consumers. The structure of a program is somewhat simpler compared to that of services. As with services, there are two possible variants for its **public** methods:
 

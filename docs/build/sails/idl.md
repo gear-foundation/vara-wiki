@@ -1,0 +1,92 @@
+---
+sidebar_label: IDL Specification
+sidebar_position: 3
+---
+
+# IDL Specification
+
+Applications written with Sails come with an auto-generated IDL file. This file contains the following data about the application.
+
+## Types
+
+## Constructors
+## Services
+## Events
+
+## Example: Demo App
+
+```rust
+type ReferenceCount = struct {
+  u32,
+};
+
+type DoThatParam = struct {
+  p1: nat32,
+  p2: actor_id,
+  p3: ManyVariants,
+};
+
+type ManyVariants = enum {
+  One,
+  Two: u32,
+  Three: opt u256,
+  Four: struct { a: u32, b: opt u16 },
+  Five: struct { str, h256 },
+  Six: struct { u32 },
+};
+
+type TupleStruct = struct {
+  bool,
+};
+
+constructor {
+  Default : ();
+  New : (counter: opt u32, dog_position: opt struct { i32, i32 });
+};
+
+service Counter {
+  Add : (value: u32) -> u32;
+  Sub : (value: u32) -> u32;
+  query Value : () -> u32;
+
+  events {
+    Added: u32;
+    Subtracted: u32;
+  }
+};
+
+service Dog {
+  MakeSound : () -> str;
+  Walk : (dx: i32, dy: i32) -> null;
+  query AvgWeight : () -> u32;
+  query Position : () -> struct { i32, i32 };
+
+  events {
+    Barked;
+    Walked: struct { from: struct { i32, i32 }, to: struct { i32, i32 } };
+  }
+};
+
+service PingPong {
+  Ping : (input: str) -> result (str, str);
+};
+
+service References {
+  Add : (v: u32) -> u32;
+  AddByte : (byte: u8) -> vec u8;
+  GuessNum : (number: u8) -> result (str, str);
+  Incr : () -> ReferenceCount;
+  SetNum : (number: u8) -> result (null, str);
+  query Baked : () -> str;
+  query LastByte : () -> opt u8;
+  query Message : () -> opt str;
+};
+
+service ThisThat {
+  DoThat : (param: DoThatParam) -> result (struct { actor_id, nat32 }, struct { str });
+  DoThis : (p1: u32, p2: str, p3: struct { opt h160, nat8 }, p4: TupleStruct) -> struct { str, u32 };
+  Noop : () -> null;
+  query That : () -> result (str, str);
+  query This : () -> u32;
+};
+```

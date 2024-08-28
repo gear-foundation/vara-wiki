@@ -2,7 +2,9 @@
 
 Sails offers a mechanism to emit events from your service while processing commands.
 These events serve as a means to notify off-chain subscribers about changes in
-the application state. In Sails, events are configured and emitted on a per-service
+the application state. 
+
+In Sails, events are configured and emitted on a per-service
 basis through the `events` argument of the `#[gservice]` attribute. They are defined
 by a Rust enum, with each variant representing a separate event and its optional data.
 Once a service declares that it emits events, the `#[gservice]` attribute automatically

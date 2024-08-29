@@ -73,7 +73,7 @@ The reply message is similar to the ordinary message, but it has some difference
 
 There are a lot of imported functions that can be used by the Vara program. They are called API functions. These functions are provided by the runtime that executes the Gear program. The most convenient way to use these functions is to use the Gear standard library called [`gstd`](https://docs.gear.rs/gstd/). It is a set of high-level functions that are implemented on top of the low-level API functions.
 
-More details about the Gear Protocol's standard library can be found in the [Gear Library](/docs/build/gstd.md) section.
+More details about the Gear Protocol's standard library can be found in the [Gear Library](/docs/build/gstd) section.
 
 ## Basic stages of the Vara program lifecycle
 
@@ -157,7 +157,7 @@ This function is stored in the blockchain in the same Wasm blob with `handle()` 
 
 The data returned by the `state()` function can be converted to any convenient representation by using a state-conversion program. This is a separate program compiled into Wasm and dedicated to being executed on the off-chain runner. It should contain a set of meta-functions that accept the data returned by the `state()` function and return the data in a convenient format. There is a dedicated [`read_state_using_wasm`](https://docs.gear.rs/pallet_gear_rpc/trait.GearApiServer.html#tymethod.read_state_using_wasm) RPC call for reading the program state using the state-conversion program.
 
-More details about state functions can be found in the [State Functions](/docs/build/state.md) section.
+More details about state functions can be found in the [State Functions](/docs/build/gstd/state.md) section.
 
 ### Asynchronous programming
 
@@ -183,7 +183,7 @@ async fn init() {
 }
 ```
 
-More details about asynchronous programming can be found in the [Asynchronous Programming](/docs/build/async-programing.md) section.
+More details about asynchronous programming can be found in the [Asynchronous Programming](/docs/build/gstd/async-programing.md) section.
 
 ### Creating programs from programs
 
@@ -193,13 +193,13 @@ The only prerequisite is that the code of the program should be stored in the bl
 
 There are several helper functions for creating programs from programs in the [`gstd::prog`](https://docs.gear.rs/gstd/prog/) module.
 
-More details about creating programs from programs can be found in the [Create Program](/docs/build/create.md) section.
+More details about creating programs from programs can be found in the [Create Program](/docs/build/gstd/create.md) section.
 
 ### Gas reservation
 
 Vara programs use gas for measuring the complexity of the program execution. The user pays a fee for the gas used by the program. Some part of the gas limit may be reserved during the current execution to be spent later. This gas reserving mechanism can be used to shift the burden of paying for program execution from one user to another. Also, it makes it possible to run some deferred actions using delayed messages described below.
 
-You can find more details about gas reservation in the [Gas Reservation](/docs/build/gas-reservation.md) section.
+You can find more details about gas reservation in the [Gas Reservation](/docs/build/gstd/gas-reservation.md) section.
 
 ### Delayed messages
 
@@ -207,7 +207,7 @@ Vara's programs can send messages to other actors during the current execution a
 
 Use functions with `*_delayed` suffix from [`gstd::msg`](https://docs.gear.rs/gstd/msg/index.html) module to send a delayed message to a program or user. The message will be sent after the specified number of blocks.
 
-More details about delayed messages can be found in the [Delayed Messages](./delayed-messages.md) section.
+More details about delayed messages can be found in the [Delayed Messages](/docs/build/gstd/delayed-messages.md) section.
 
 ### System signals
 
@@ -221,7 +221,7 @@ extern "C" fn handle_signal() {
     // Handle system signal here
 }
 ```
-You can find more details about system signals in the [System Signals](./system-signals.md) section.
+You can find more details about system signals in the [System Signals](/docs/build/gstd/system-signals.md) section.
 
 ### Reply deposit
 
@@ -229,4 +229,4 @@ Usually, the reply sender pays a gas fee for the reply message execution. Howeve
 
 The reply deposit is a part of the gas limit reserved during the current execution to be spent later. The reserved gas can be used to pay for the reply message execution. To do this, the program should call the [`gstd::exec::reply_deposit`](https://docs.gear.rs/gstd/exec/fn.reply_deposit.html) function. This function provides a gas deposit from the current message to handle the reply message on the given message ID. This message ID should be sent within the execution. Once the destination actor or system sends a reply to it, the gas limit is ignored; if the program provides a deposit, only it will be used for the execution of `handle_reply`.
 
-More details about reply deposit can be found in the [Reply Deposit](/docs/build/reply-deposit.md) section. 
+More details about reply deposit can be found in the [Reply Deposit](/docs/build/gstd/reply-deposit.md) section. 

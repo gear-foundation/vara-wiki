@@ -11,7 +11,7 @@ This is a "game strategies battle" where players compete with each other by impl
 
 Syndote consists of Master program and Player programs. Master program is the main program that starts and controls the game. Player programs implement the game strategies that can be unique for each participant of the game.
 
-After the game starts, all moves in the game take place automatically, but the UI provides an ability to jump to each one individually to analyze the player's strategy. To complete the game and determine the winner, many moves are required, which are processed over several blocks. In order for the Master program to have enough gas to perform all the moves, the [gas reservation](/docs/build/gas-reservation.md) technology is used.
+After the game starts, all moves in the game take place automatically, but the UI provides an ability to jump to each one individually to analyze the player's strategy. To complete the game and determine the winner, many moves are required, which are processed over several blocks. In order for the Master program to have enough gas to perform all the moves, the [gas reservation](/docs/build/gstd/gas-reservation.md) technology is used.
 
 ![img alt](../img/monopoly-1.png)
 

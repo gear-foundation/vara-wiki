@@ -9,7 +9,7 @@ Smart contracts on other blockchains typically rely on external, centralized res
 
 The external transaction serves as a "poke" to activate the smart contract and initiate its logic. For instance, someone can start an auction by sending a message to the auction contract. When the auction time has passed, the contract will need to process the result of the auction. However, this will not happen until someone sends the appropriate message to the contract to trigger this action.
 
-Gear Protocol solves this issue by introducing delayed messaging functionality. Programs in Vara Network can execute themselves an **unlimited** number of blocks, as long as enough gas for execution is kept available. The [gas reservation](/docs/build/gas-reservation.md) option ensures this. As a result, the need for including centralized components in dApps is eliminated, allowing them to function **totally on-chain**.
+Gear Protocol solves this issue by introducing delayed messaging functionality. Programs in Vara Network can execute themselves an **unlimited** number of blocks, as long as enough gas for execution is kept available. The [gas reservation](/docs/build/gstd/gas-reservation.md) option ensures this. As a result, the need for including centralized components in dApps is eliminated, allowing them to function **totally on-chain**.
 
 The [`msg::send_delayed`](https://docs.gear.rs/gstd/msg/fn.send_delayed.html) function allows sending a message after a specified delay. The function takes the following parameters:
 

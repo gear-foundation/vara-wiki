@@ -59,7 +59,7 @@ The `Explorer` view allows you to get details about recent network events, searc
 
 ### Mailbox
 
-[`Mailbox`](/docs/build/mailbox.md) contains messages sent from programs to the currently connected account.
+[`Mailbox`](/docs/build/gstd/mailbox.md) contains messages sent from programs to the currently connected account.
 
 ### Vouchers
 

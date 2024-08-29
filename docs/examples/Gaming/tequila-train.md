@@ -8,7 +8,7 @@ Tequila Train is a game similar to the Mexican Train game but has several differ
 
 ![Tequila Train Game](../img/tequila-train.png)
 
-Typically, the program's state undergoes alterations during its utilization. An integral feature of the software implementation of this game is the ability to maintain individual timers for each player and to closely monitor time intervals, thus increasing the dynamism and intrigue of the game. Such functionality is achieved through the utilization of [Delayed messages](/docs/build/delayed-messages), which constitute one among several distinctive attributes of the Gear Protocol.
+Typically, the program's state undergoes alterations during its utilization. An integral feature of the software implementation of this game is the ability to maintain individual timers for each player and to closely monitor time intervals, thus increasing the dynamism and intrigue of the game. Such functionality is achieved through the utilization of [Delayed messages](/docs/build/gstd/delayed-messages), which constitute one among several distinctive attributes of the Gear Protocol.
 
 ## Rules
 

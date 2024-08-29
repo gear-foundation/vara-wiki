@@ -9,7 +9,7 @@ A classic and simple game in which the user competes against a program operating
 
 ![Tic-Tac-Toe](../img/tictactoe.png)
 
-Usually, the state of a program advances as the application is utilized. A <u>distinctive feature</u> of this game's program implementation is its capability to clean up its storage. In other words, as soon as the game session is completed and the results are recorded in the program, all unnecessary data structures are purged automatically through a special **delayed message**. [Delayed messages](/docs/build/delayed-messages) represent one of the various unique features of the Gear Protocol.
+Usually, the state of a program advances as the application is utilized. A <u>distinctive feature</u> of this game's program implementation is its capability to clean up its storage. In other words, as soon as the game session is completed and the results are recorded in the program, all unnecessary data structures are purged automatically through a special **delayed message**. [Delayed messages](/docs/build/gstd/delayed-messages) represent one of the various unique features of the Gear Protocol.
 
 The source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe).
 The [frontend application](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/tic-tac-toe) facilitates gameplay and interacts with the smart program.

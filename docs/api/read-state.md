@@ -26,7 +26,7 @@ await api.programState.read(
 );
 ```
 
-2. If using custom functions to query only specific parts of the program state ([see more](/docs/build/metadata#generate-metadata)), call the `api.programState.readUsingWasm` method:
+2. If using custom functions to query only specific parts of the program state ([see more](/docs/build/gstd/metadata#generate-metadata)), call the `api.programState.readUsingWasm` method:
 
 ```javascript
 import { getStateMetadata } from '@gear-js/api';

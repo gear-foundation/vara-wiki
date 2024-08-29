@@ -23,7 +23,7 @@ The typical development workflow with the Sails framework consists of the follow
 
 - **Implement**: The program logic is implemented in Rust using the Sails framework.
 - **Build**: The Rust program is compiled into an optimized WebAssembly (WASM) blob. The `sails_idl_gen` crate is then used to automatically generate a corresponding IDL file for interfacing with the program. Typically, all of these steps are executed automatically with a proper cargo configuration for Sails.
-- **Deploy**: The optimized WASM blob and corresponding IDL file are uploaded to the Vara Network (mainnet or testnet) via the Gear IDEA portal.
+- **Deploy**: The optimized WASM blob and corresponding IDL file are uploaded to the Vara Network (mainnet or testnet) via the [Gear IDEA portal](https://idea.gear-tech.io/).
 - **Interact**: Interaction with the deployed dApp is carried out either directly through the Gear IDEA portal or by using a Rust/TypeScript client generated from the IDL file.
 
 ```mermaid

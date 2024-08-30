@@ -5,9 +5,15 @@ sidebar_position: 2
 
 # Vara-Man Game
 
-![varaman](../img/vara-man.png)
+![varaman](../img/vara-man.jpg)
 
 Vara-man is a classic arcade game, the main character is Vara mouse, who must collect all the coins in the allotted time. In the labyrinth, the main character will encounter cat enemies that must be avoided in order to survive and collect all the coins.
+
+There is an option to include [vouchers](docs/api/vouchers.md) that allow users to play with a zero tokens on their balance (**gasless transactions**). This requires activation of the backend to issue vouchers (instructions for voucher integration will be detailed in the article).
+
+Another feature of this example is an option that allos anyone to interact with the dApp without needing to sign in (**signless transactions**). The dApp transaction operates as usual with one difference — a voucher is issued not directly to a user, but to a temporarily created account (sub-account) to which the user grants temporary rights to sign transactions on their behalf in this application.
+
+These features allow users to interact with the game for a certain period without the need to individually sign each transaction. By eliminating the repetitive signing process, this approach streamlines interactions and significantly improves the overall UX efficiency.
 
 The source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/vara-man). This article describes the program interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios. The game has several reward modes, one of which requires connecting the fungible token program that needs to be uploaded separately.
 
@@ -27,6 +33,7 @@ Also everyone can play the game via this link - [Play VaraMan](https://vara-man.
 4. **Optional**.
 > In case of a reward mode in the form of fungible tokens , build the program as described in the [README](https://github.com/gear-foundation/dapps/tree/master/contracts/fungible-token/README.md) and upload the program to the [Vara Network Testnet](https://idea.gear-tech.io/programs?node=wss%3A%2F%2Ftestnet.vara.network). After that it will be necessary to send a message `VaraManAction::ChangeStatus` to the program to put it in status `StartedWithFungibleToken { ft_address }`, where the address of the loaded program should be specified.
 
+5. **Optional**. Build and run the backend to release vouchers.
 
 ## Implementation details
 

@@ -11,6 +11,8 @@ sidebar_position: 2
 
 To address this issue and preserve the confidentiality of players' data, the new version of the game integrates **Zero-Knowledge Proofs (zk-SNARKs)**. With this technology, players' boards are stored locally, and no information about ship positions is transmitted to the network, ensuring both fairness and security in gameplay.
 
+Everyone can play the game via this link - [Play ZK Battleship](https://zk-battleship.vara.network/) (VARA tokens are required for gas fees).
+
 ### What Are Zero-Knowledge Proofs?
 
 **Zero-Knowledge Proofs (zk-SNARKs)** are a cryptographic technology that allows one party to prove to another that a certain statement is true without revealing any additional information.

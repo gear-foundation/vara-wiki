@@ -15,6 +15,8 @@ However, in the case of Vara, the game operates **fully on-chain**, thanks to th
 
 For this version of the game, improvements were made to increase its appeal. The game features a competition where a player races against two pre-loaded programs on the blockchain. Participants have three cars: the player's car is green, while the competitors' cars are white. Both the player and the program algorithms can choose to either accelerate, moving the car forward, or shoot at the nearest car to slow it down. The objective is to cross the finish line first to win the race.
 
+The game example uses the [**EZ-Transactions package**](/docs/api/tooling/gasless-txs.md) that simplifies blockchain interactions by enabling gasless and signless transactions. Anyone can use it to integrate into their dApp projects. For more details, visit the [GitHub page](https://github.com/gear-foundation/dapps/tree/vt-update-ez-transactions/frontend/packages/ez-transactions).
+
 The source code for the game program and algorithm examples are available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/car-races).
 The [frontend application](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/racing-car-game) facilitates gameplay and interacts with the programs.
 This article describes the program interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios.

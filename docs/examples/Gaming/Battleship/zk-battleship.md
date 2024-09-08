@@ -11,6 +11,8 @@ sidebar_position: 2
 
 To address this issue and preserve the confidentiality of players' data, the new version of the game integrates **Zero-Knowledge Proofs (zk-SNARKs)**. With this technology, players' boards are stored locally, and no information about ship positions is transmitted to the network, ensuring both fairness and security in gameplay.
 
+The game example uses the [**EZ-Transactions package**](/docs/api/tooling/gasless-txs.md) that simplifies blockchain interactions by enabling gasless and signless transactions. Anyone can use it to integrate into their dApp projects. For more details, visit the [GitHub page](https://github.com/gear-foundation/dapps/tree/vt-update-ez-transactions/frontend/packages/ez-transactions).
+
 Everyone can play the game via this link - [Play ZK Battleship](https://zk-battleship.vara.network/) (VARA tokens are required for gas fees).
 
 ### What Are Zero-Knowledge Proofs?

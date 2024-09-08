@@ -11,6 +11,8 @@ A classic and simple game in which the user competes against a program operating
 
 Usually, the state of a program advances as the application is utilized. A <u>distinctive feature</u> of this game's program implementation is its capability to clean up its storage. In other words, as soon as the game session is completed and the results are recorded in the program, all unnecessary data structures are purged automatically through a special **delayed message**. [Delayed messages](/docs/build/gstd/delayed-messages) represent one of the various unique features of the Gear Protocol.
 
+The game example uses the [**EZ-Transactions package**](/docs/api/tooling/gasless-txs.md) that simplifies blockchain interactions by enabling gasless and signless transactions. Anyone can use it to integrate into their dApp projects. For more details, visit the [GitHub page](https://github.com/gear-foundation/dapps/tree/vt-update-ez-transactions/frontend/packages/ez-transactions).
+
 The source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe).
 The [frontend application](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/tic-tac-toe) facilitates gameplay and interacts with the smart program.
 This article describes the program interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios.

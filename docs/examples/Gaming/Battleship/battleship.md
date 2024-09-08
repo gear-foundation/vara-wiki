@@ -15,7 +15,7 @@ Battleship is a popular game that operates **entirely on-chain**. The primary ga
 
 Another feature of this example is an option that allos anyone to interact with the dApp without needing to sign in (**signless transactions**). The dApp transaction operates as usual with one difference — a voucher is issued not directly to a user, but to a temporarily created account (sub-account) to which the user grants temporary rights to sign transactions on their behalf in this application.
 
-These features allow users to interact with the game for a certain period without the need to individually sign each transaction. By eliminating the repetitive signing process, this approach streamlines interactions and significantly improves the overall UX efficiency.
+These features allow users to interact with the game for a certain period without the need to individually sign each transaction. By eliminating the repetitive signing process, this approach streamlines interactions and significantly improves the overall UX efficiency. For more details about how to use Gasless and Signless features in your dApps, visit [**EZ-Transactions package**](/docs/api/tooling/gasless-txs.md) article.
 
 The source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/battleship ). This article describes the program interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios.
 

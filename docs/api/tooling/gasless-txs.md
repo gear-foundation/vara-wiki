@@ -11,7 +11,7 @@ With gasless transactions, the dApp developer covers gas fees for their users (w
 
 Developers can easily integrate these features into their dApps using provided hooks and providers, such as `GaslessTransactionsProvider` and `SignlessTransactionsProvider`. The package also includes UI components for enabling or disabling these features.
 
-For more details, visit the [GitHub page](https://github.com/gear-foundation/dapps/tree/vt-update-ez-transactions/frontend/packages/ez-transactions).
+For more details, visit the [GitHub page](https://github.com/gear-foundation/dapps/tree/master/frontend/packages/ez-transactions).
 
 ## Key Features
 ### Gasless Transactions
@@ -49,4 +49,4 @@ The package also provides UI elements that can toggle these features on or off, 
 ## Conclusion
 The **EZ-Transactions package** empowers developers to create smoother and more accessible blockchain applications. By integrating gasless and signless transaction capabilities, developers can remove major pain points for their users and improve overall engagement.
 
-For detailed documentation about how to use, check the [GitHub page](https://github.com/gear-foundation/dapps/tree/vt-update-ez-transactions/frontend/packages/ez-transactions).
+For detailed documentation about how to use, check the [GitHub page](https://github.com/gear-foundation/dapps/tree/master/frontend/packages/ez-transactions).

@@ -11,9 +11,10 @@ A classic and simple game in which the user competes against a program operating
 
 Usually, the state of a program advances as the application is utilized. A <u>distinctive feature</u> of this game's program implementation is its capability to clean up its storage. In other words, as soon as the game session is completed and the results are recorded in the program, all unnecessary data structures are purged automatically through a special **delayed message**. [Delayed messages](/docs/build/gstd/delayed-messages) represent one of the various unique features of the Gear Protocol.
 
-The game example uses the [**EZ-Transactions package**](/docs/api/tooling/gasless-txs.md) that simplifies blockchain interactions by enabling gasless and signless transactions. Anyone can use it to integrate into their dApp projects. For more details, visit the [GitHub page](https://github.com/gear-foundation/dapps/tree/vt-update-ez-transactions/frontend/packages/ez-transactions).
 
-The source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe).
+The game example uses the [**EZ-Transactions package**](/docs/api/tooling/gasless-txs.md) that simplifies blockchain interactions by enabling gasless and signless transactions. Anyone can use it to integrate into their dApp projects. For more details, visit the [GitHub page](https://github.com/gear-foundation/dapps/tree/vt-update-ez-transactions/frontend/packages/ez-transactions).  
+
+The source code, developed using the [Sails](../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe/sails).
 The [frontend application](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/tic-tac-toe) facilitates gameplay and interacts with the smart program.
 This article describes the program interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios.
 
@@ -22,7 +23,7 @@ Everyone can play the game via this link - [Play Tic-Tac-Toe](https://tictactoe.
 ## How to run
 
 1. Build a program
-> Additional details regarding this matter can be located within the [README](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe/README.md) directory of the program.
+> Additional details regarding this matter can be located within the [README](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe/sails/README.md) directory of the program.
 
 2. Upload the program to the [Vara Network Testnet](https://idea.gear-tech.io/programs?node=wss%3A%2F%2Ftestnet.vara.network)
 > Initiate the process by uploading the bot program, followed by the subsequent upload of the main program. Further details regarding the process of program uploading can be located within the [Getting Started](/docs/getting-started-in-5-minutes#deploy-your-program-to-the-testnet) section.
@@ -36,12 +37,13 @@ Everyone can play the game via this link - [Play Tic-Tac-Toe](https://tictactoe.
 
 The program contains the following information
 
-```rust title="tic-tac-toe/src/contract.rs"
-struct Game {
-    pub admins: Vec<ActorId>,
-    pub current_games: HashMap<ActorId, GameInstance>,
-    pub config: Config,
-    pub messages_allowed: bool,
+```rust title="tic-tac-toe/sails/app/services/game/mod.rs"
+pub struct Storage {
+    admins: Vec<ActorId>,
+    current_games: HashMap<ActorId, GameInstance>,
+    config: Config,
+    messages_allowed: bool,
+    dns_info: Option<(ActorId, String)>,
 }
 ```
 
@@ -49,10 +51,11 @@ struct Game {
 * `current_games` - game information for each player
 * `config` - game configuration
 * `messages_allowed` - access to playability
+* `dns_info` -  optional field that stores the [dDNS](../Infra/dein.md) address and the program name. 
 
 Where `GameInstance` is defined as follows:
 
-```rust title="tic-tac-toe/io/src/lib.rs"
+```rust title="tic-tac-toe/sails/app/services/game/utils.rs"
 pub struct GameInstance {
     pub board: Vec<Option<Mark>>,
     pub player_mark: Mark,
@@ -62,7 +65,7 @@ pub struct GameInstance {
     pub game_result: Option<GameResult>,
 }
 ```
-```rust title="tic-tac-toe/io/src/lib.rs"
+```rust title="tic-tac-toe/sails/app/services/game/utils.rs"
 pub enum Mark {
     X,
     O,
@@ -71,93 +74,133 @@ pub enum Mark {
 
 ### Initialization
 
-To initialize the game program, it only needs to be passed the game configuration
+To initialize the game program, the game configuration and the optional DNS address and name must be provided.
 
-```rust title="tic-tac-toe/src/contract.rs"
-#[no_mangle]
-extern fn init() {
-    let init_msg: GameInit = msg::load().expect("Unable to load the message");
+```rust title="tic-tac-toe/sails/app/services/game/mod.rs"
+    pub async fn init(config: Config, dns_id_and_name: Option<(ActorId, String)>) -> Self {
+        unsafe {
+            STORAGE = Some(Storage {
+                admins: vec![msg::source()],
+                current_games: HashMap::with_capacity(10_000),
+                config,
+                messages_allowed: true,
+                dns_info: dns_id_and_name.clone(),
+            });
+        }
 
-    unsafe {
-        GAME = Some(Game {
-            admins: vec![msg::source()],
-            current_games: HashMap::with_capacity(10_000),
-            config: init_msg.config,
-            messages_allowed: true,
-        });
+        if let Some((id, name)) = dns_id_and_name {
+            let request = [
+                "Dns".encode(),
+                "AddNewProgram".to_string().encode(),
+                (name, exec::program_id()).encode(),
+            ]
+            .concat();
+
+            msg::send_bytes_with_gas_for_reply(id, request, 5_000_000_000, 0, 0)
+                .expect("Error in sending message")
+                .await
+                .expect("Error in `AddNewProgram`");
+        }
+        Self(())
     }
-}
 ```
 
-```rust title="tic-tac-toe/io/src/lib.rs"
-pub struct GameInit {
-    pub config: Config,
-}
-//
+```rust title="tic-tac-toe/sails/app/services/game/utils.rs"
 pub struct Config {
     pub s_per_block: u64,
     pub gas_to_remove_game: u64,
+    pub gas_to_delete_session: u64,
     pub time_interval: u32,
     pub turn_deadline_ms: u64,
+    pub minimum_session_duration_ms: u64,
 }
 ```
 * `s_per_block` - time per block in seconds
 * `gas_to_remove_game` - gas to delete a game using delayed messages
+* `gas_to_delete_session` - gas to delete a game session using delayed messages 
 * `time_interval` - time after which the game should be deleted using delayed messages
 * `turn_deadline_ms` - turnaround time
+* `minimum_session_duration_ms` - minimum session duration 
 
 ### Action
 
-```rust title="tic-tac-toe/io/src/lib.rs"
-pub enum GameAction {
-    AddAdmin(ActorId),
-    RemoveAdmin(ActorId),
-    StartGame,
-    Turn {
-        step: u8,
-    },
-    Skip,
-    RemoveGameInstance {
-        account_id: ActorId,
-    },
-    RemoveGameInstances {
-        accounts: Option<Vec<ActorId>>,
-    },
-    UpdateConfig {
+```rust title="tic-tac-toe/sails/app/services/game/mod.rs"
+    // user actions
+    pub fn start_game(&mut self, session_for_account: Option<ActorId>);
+    pub fn turn(&mut self, step: u8, session_for_account: Option<ActorId>);
+    pub fn skip(&mut self, session_for_account: Option<ActorId>);
+
+    // action for the program itself (for delayed messages)
+    pub fn remove_game_instance(&mut self, account: ActorId);
+
+    // admin actions
+    pub fn remove_game_instances(&mut self, accounts: Option<Vec<ActorId>>);
+    pub fn add_admin(&mut self, admin: ActorId);
+    pub fn remove_admin(&mut self, admin: ActorId);
+    pub fn update_config(
+        &mut self,
         s_per_block: Option<u64>,
         gas_to_remove_game: Option<u64>,
         time_interval: Option<u32>,
         turn_deadline_ms: Option<u64>,
-    },
-    AllowMessages(bool),
-}
+        gas_to_delete_session: Option<u64>,
+    );
+    pub fn allow_messages(&mut self, messages_allowed: bool);
+    pub async fn kill(&mut self, inheritor: ActorId);
 ```
-`GameAction::Skip` is necessary if a player didn't make a move in time (`config.turn_deadline_ms`)
 
-### Reply
+### Event
 
-```rust title="tic-tac-toe/io/src/lib.rs"
-pub enum GameReply {
-    GameStarted { game: GameInstance },
-    MoveMade { game: GameInstance },
+```rust title="tic-tac-toe/sails/app/services/game/mod.rs"
+pub enum Event {
+    GameFinished {
+        game: GameInstance,
+        player_address: ActorId,
+    },
+    GameStarted {
+        game: GameInstance,
+    },
+    MoveMade {
+        game: GameInstance,
+    },
+    GameInstanceRemoved,
+    ConfigUpdated,
+    AdminRemoved,
+    AdminAdded,
+    StatusMessagesUpdated,
+    Killed {
+        inheritor: ActorId,
+    },
 }
 ```
 
 ### Logic
 
-The `GameAction::StartGame` command is sent to begin the game. If the player has not completed the previous game, the program will not create a new game. Move turn is determined randomly, if the first move is given to the bot, it automatically makes a move to the center of the board.
+#### Start Game
 
-```rust title="tic-tac-toe/src/contract.rs"
-fn start_game(&mut self) {
-    let msg_source = msg::source();
+At the start of the game, the program checks its status and verifies whether the player has an unfinished game. The first move is determined randomly; if the bot is assigned the first move, it automatically plays in the center of the board.
 
-    if let Some(current_game) = self.current_games.get(&msg_source) {
+```rust title="tic-tac-toe/sails/app/services/game/funcs.rs"
+pub fn start_game(
+    storage: &mut Storage,
+    sessions: &HashMap<ActorId, SessionData>,
+    msg_source: ActorId,
+    session_for_account: Option<ActorId>,
+) -> Result<Event, GameError> {
+    check_allow_messages(storage, msg_source)?;
+    let player = get_player(
+        sessions,
+        &msg_source,
+        &session_for_account,
+        ActionsForSession::StartGame,
+    );
+    if let Some(current_game) = storage.current_games.get(&player) {
         if !current_game.game_over {
-            panic!("Please complete the previous game");
+            return Err(GameError::GameIsAlreadyStarted);
         }
     }
 
-    let turn = turn();
+    let turn = random_turn(player);
 
     let (player_mark, bot_mark) = if turn == 0 {
         (Mark::O, Mark::X)
@@ -177,87 +220,121 @@ fn start_game(&mut self) {
         game_instance.board[4] = Some(Mark::X);
     }
 
-    self.current_games.insert(msg_source, game_instance.clone());
+    storage.current_games.insert(player, game_instance.clone());
 
-    msg::reply(
-        GameReply::GameStarted {
-            game: game_instance,
-        },
-        0,
-    )
-    .expect("Error in sending a reply");
+    Ok(Event::GameStarted {
+        game: game_instance,
+    })
+}
+
+//.. 
+
+fn check_allow_messages(storage: &Storage, msg_source: ActorId) -> Result<(), GameError> {
+    if !storage.messages_allowed && !storage.admins.contains(&msg_source) {
+        return Err(GameError::NotAllowedToSendMessages);
+    }
+    Ok(())
 }
 
 ```
 
-After successfully starting a new game, players can take their turn `GameAction::Turn{ step }`, where a series of the following checks are performed:
+#### Turn
 
-```rust title="tic-tac-toe/src/contract.rs"
-fn player_move(&mut self, step: u8) {
-    let msg_source = msg::source();
-    let game_instance = self
+After successfully starting a new game, players can take their turn where a series of the following checks are performed:
+
+```rust title="tic-tac-toe/sails/app/services/game/funcs.rs"
+pub fn turn(
+    storage: &mut Storage,
+    sessions: &HashMap<ActorId, SessionData>,
+    msg_source: ActorId,
+    step: u8,
+    session_for_account: Option<ActorId>,
+) -> Result<Event, GameError> {
+    check_allow_messages(storage, msg_source)?;
+    let player = get_player(
+        sessions,
+        &msg_source,
+        &session_for_account,
+        ActionsForSession::StartGame,
+    );
+
+    let game_instance = storage
         .current_games
-        .get_mut(&msg_source)
-        .expect("The player has no game, please start the game");
+        .get_mut(&player)
+        .ok_or(GameError::GameIsNotStarted)?;
+
     if game_instance.board[step as usize].is_some() {
-        panic!("The cell is already occupied!");
+        return Err(GameError::CellIsAlreadyOccupied);
     }
     if game_instance.game_over {
-        panic!("Game is already over");
+        return Err(GameError::GameIsAlreadyOver);
     }
-
-    if game_instance.last_time + self.config.turn_deadline_ms < exec::block_timestamp() {
-        panic!("You missed your turn, please skip the move");
+    let block_timestamp = exec::block_timestamp();
+    if game_instance.last_time + storage.config.turn_deadline_ms < block_timestamp {
+        return Err(GameError::MissedYourTurn);
     }
     //..
 ```
 After successful game status checks, the player's move is saved and the time of the last move is updated
 
-```rust title="tic-tac-toe/src/contract.rs"
+```rust title="tic-tac-toe/sails/app/services/game/funcs.rs"
     //..
     game_instance.board[step as usize] = Some(game_instance.player_mark);
-
-    game_instance.last_time = exec::block_timestamp();
+    game_instance.last_time = block_timestamp;
 
     if let Some(mark) = get_result(&game_instance.board.clone()) {
-        game_instance.game_over = true;
         if mark == game_instance.player_mark {
-            game_instance.game_result = Some(GameResult::Player);
-            send_messages(&msg_source, &self.config);
+            game_over(game_instance, &player, &storage.config, GameResult::Player);
         } else {
-            game_instance.game_result = Some(GameResult::Bot);
-            send_messages(&msg_source, &self.config);
+            game_over(game_instance, &player, &storage.config, GameResult::Bot);
         }
-        msg::reply(
-            GameReply::MoveMade {
-                game: game_instance.clone(),
-            },
-            0,
-        )
-        .expect("Error in sending a reply");
-        return;
+        return Ok(Event::GameFinished {
+            game: game_instance.clone(),
+            player_address: player,
+        });
     }
     // ..
 ```
 If the game is over, a **delayed message** will be sent to delete the game from the program
 
-```rust title="tic-tac-toe/src/contract.rs"
-fn send_messages(account: &ActorId, config: &Config) {
-    msg::send_with_gas_delayed(
+```rust title="tic-tac-toe/sails/app/services/game/funcs.rs"
+fn game_over(
+    game_instance: &mut GameInstance,
+    player: &ActorId,
+    config: &Config,
+    result: GameResult,
+) {
+    game_instance.game_over = true;
+    game_instance.game_result = Some(result);
+    send_delayed_message_to_remove_game(*player, config.gas_to_remove_game, config.time_interval);
+}
+
+fn send_delayed_message_to_remove_game(
+    account: ActorId,
+    gas_to_remove_game: u64,
+    time_interval: u32,
+) {
+    let request = [
+        "TicTacToe".encode(),
+        "RemoveGameInstance".to_string().encode(),
+        (account).encode(),
+    ]
+    .concat();
+
+    msg::send_bytes_with_gas_delayed(
         exec::program_id(),
-        GameAction::RemoveGameInstance {
-            account_id: *account,
-        },
-        config.gas_to_remove_game,
+        request,
+        gas_to_remove_game,
         0,
-        config.time_interval,
+        time_interval,
     )
     .expect("Error in sending message");
 }
+
 ```
 But if the game is not over, the turn passes to the bot and the same actions are performed
 
-```rust title="tic-tac-toe/src/contract.rs"
+```rust title="tic-tac-toe/sails/app/services/game/funcs.rs"
 
     let bot_step = make_move(game_instance);
 
@@ -265,106 +342,146 @@ But if the game is not over, the turn passes to the bot and the same actions are
         game_instance.board[step_num] = Some(game_instance.bot_mark);
     }
 
-    let win = get_result(&game_instance.board.clone());
-
-    if let Some(mark) = win {
-        game_instance.game_over = true;
+    if let Some(mark) = get_result(&game_instance.board.clone()) {
         if mark == game_instance.player_mark {
-            game_instance.game_result = Some(GameResult::Player);
-            send_messages(&msg_source, &self.config);
+            game_over(
+                game_instance,
+                &msg_source,
+                &storage.config,
+                GameResult::Player,
+            );
         } else {
-            game_instance.game_result = Some(GameResult::Bot);
-            send_messages(&msg_source, &self.config);
+            game_over(game_instance, &msg_source, &storage.config, GameResult::Bot);
         }
-    } else if !game_instance.board.contains(&None) || bot_step.is_none() {
-        game_instance.game_over = true;
-        game_instance.game_result = Some(GameResult::Draw);
-        send_messages(&msg_source, &self.config);
-    }
-
-    msg::reply(
-        GameReply::MoveMade {
+        return Ok(Event::GameFinished {
             game: game_instance.clone(),
-        },
-        0,
-    )
-    .expect("Error in sending a reply");
+            player_address: player,
+        });
+    } else if !game_instance.board.contains(&None) || bot_step.is_none() {
+        game_over(
+            game_instance,
+            &msg_source,
+            &storage.config,
+            GameResult::Draw,
+        );
+        return Ok(Event::GameFinished {
+            game: game_instance.clone(),
+            player_address: player,
+        });
+    }
+    Ok(Event::MoveMade {
+        game: game_instance.clone(),
+    })
 }
 ```
 
-## Program metadata and state
-Metadata interface description:
+#### Skip
 
-```rust title="tic-tac-toe/io/src/lib.rs"
-pub struct ContractMetadata;
+If the player misses their turn, a *Skip* command must be sent to continue the game and allow the bot to make its move.
 
-impl Metadata for ContractMetadata {
-    type Init = In<GameInit>;
-    type Handle = InOut<GameAction, GameReply>;
-    type Others = ();
-    type Reply = ();
-    type Signal = ();
-    type State = InOut<StateQuery, StateReply>;
-}
-```
-One of Gear's features is reading partial states.
+```rust title="tic-tac-toe/sails/app/services/game/funcs.rs"
+pub fn skip(
+    storage: &mut Storage,
+    sessions: &HashMap<ActorId, SessionData>,
+    msg_source: ActorId,
+    session_for_account: Option<ActorId>,
+) -> Result<Event, GameError> {
+    check_allow_messages(storage, msg_source)?;
+    let player = get_player(
+        sessions,
+        &msg_source,
+        &session_for_account,
+        ActionsForSession::StartGame,
+    );
 
-```rust title="tic-tac-toe/io/src/lib.rs"
-pub enum StateQuery {
-    Admins,
-    Game { player_id: ActorId },
-    AllGames,
-    Config,
-    MessagesAllowed,
-}
-```
+    let game_instance = storage
+        .current_games
+        .get_mut(&player)
+        .ok_or(GameError::GameIsNotStarted)?;
 
-```rust title="tic-tac-toe/io/src/lib.rs"
-pub enum StateReply {
-    Admins(Vec<ActorId>),
-    Game(Option<GameInstance>),
-    AllGames(Vec<(ActorId, GameInstance)>),
-    Config(Config),
-    MessagesAllowed(bool),
-}
-```
+    if game_instance.game_over {
+        return Err(GameError::GameIsAlreadyOver);
+    }
+    let block_timestamp = exec::block_timestamp();
+    if game_instance.last_time + storage.config.turn_deadline_ms >= block_timestamp {
+        return Err(GameError::NotMissedTurnMakeMove);
+    }
 
-To display the program state information, the `state()` function is used:
+    let bot_step = make_move(game_instance);
+    game_instance.last_time = block_timestamp;
 
-```rust title="tic-tac-toe/src/contract.rs"
-#[no_mangle]
-extern fn state() {
-    let Game {
-        admins,
-        current_games,
-        config,
-        messages_allowed,
-    } = unsafe { GAME.take().expect("Failed to get state") };
-    let query: StateQuery = msg::load().expect("Unable to load the state query");
-
-    match query {
-        StateQuery::Admins => {
-            msg::reply(StateReply::Admins(admins), 0).expect("Unable to share the state");
+    match bot_step {
+        Some(step_num) => {
+            game_instance.board[step_num] = Some(game_instance.bot_mark);
+            let win = get_result(&game_instance.board.clone());
+            if let Some(mark) = win {
+                if mark == game_instance.player_mark {
+                    game_over(game_instance, &player, &storage.config, GameResult::Player);
+                } else {
+                    game_over(game_instance, &player, &storage.config, GameResult::Bot);
+                }
+                return Ok(Event::GameFinished {
+                    game: game_instance.clone(),
+                    player_address: player,
+                });
+            } else if !game_instance.board.contains(&None) {
+                game_over(game_instance, &player, &storage.config, GameResult::Draw);
+                return Ok(Event::GameFinished {
+                    game: game_instance.clone(),
+                    player_address: player,
+                });
+            }
         }
-        StateQuery::Game { player_id } => {
-            let game: Option<GameInstance> = current_games.get(&player_id).cloned();
-            msg::reply(StateReply::Game(game), 0).expect("Unable to share the state");
-        }
-        StateQuery::AllGames => {
-            msg::reply(StateReply::AllGames(current_games.into_iter().collect()), 0)
-                .expect("Unable to share the state");
-        }
-        StateQuery::Config => {
-            msg::reply(StateReply::Config(config), 0).expect("Unable to share the state");
-        }
-        StateQuery::MessagesAllowed => {
-            msg::reply(StateReply::MessagesAllowed(messages_allowed), 0)
-                .expect("Unable to share the state");
+        None => {
+            game_over(game_instance, &player, &storage.config, GameResult::Draw);
+            return Ok(Event::GameFinished {
+                game: game_instance.clone(),
+                player_address: player,
+            });
         }
     }
+    Ok(Event::MoveMade {
+        game: game_instance.clone(),
+    })
 }
+
 ```
+
+## Query
+
+```rust title="tic-tac-toe/sails/app/services/game/mod.rs"
+    pub fn admins(&self) -> &'static Vec<ActorId> {
+        &self.get().admins
+    }
+    pub fn game(&self, player_id: ActorId) -> Option<GameInstance> {
+        self.get().current_games.get(&player_id).cloned()
+    }
+    pub fn all_games(&self) -> Vec<(ActorId, GameInstance)> {
+        self.get().current_games.clone().into_iter().collect()
+    }
+    pub fn config(&self) -> &'static Config {
+        &self.get().config
+    }
+    pub fn messages_allowed(&self) -> &'static bool {
+        &self.get().messages_allowed
+    }
+    pub fn dns_info(&self) -> Option<(ActorId, String)> {
+        self.get().dns_info.clone()
+    }
+```
+
+- `admins(&self)`: Returns the list of game administrators.
+
+- `game(&self, player_id: ActorId)`: Returns the current game instance for a specific player, if it exists.
+
+- `all_games(&self)`: Returns a list of all ongoing game instances along with their associated player IDs.
+
+- `config(&self)`: Returns the game configuration settings.
+
+- `messages_allowed(&self)`: Indicates whether messages are allowed in the current game state.
+
+- `dns_info(&self)`: Returns the optional dDNS information, including the dDNS address and program name, if available.
 
 ## Source code
 
-The source code of this example of Tic-Tac-Toe Game program and the example of an implementation of its testing is available on [gear-foundation/dapp/contracts/tic-tac-toe](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe).
+The source code of this example of Tic-Tac-Toe Game program and the example of an implementation of its testing is available on [gear-foundation/dapp/contracts/tic-tac-toe/sails](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe/sails).

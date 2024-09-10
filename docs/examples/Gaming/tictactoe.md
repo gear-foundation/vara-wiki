@@ -126,17 +126,17 @@ pub struct Config {
 
 ```rust title="tic-tac-toe/sails/app/services/game/mod.rs"
     // user actions
-    pub fn start_game(&mut self, session_for_account: Option<ActorId>)
-    pub fn turn(&mut self, step: u8, session_for_account: Option<ActorId>)
-    pub fn skip(&mut self, session_for_account: Option<ActorId>)
+    pub fn start_game(&mut self, session_for_account: Option<ActorId>);
+    pub fn turn(&mut self, step: u8, session_for_account: Option<ActorId>);
+    pub fn skip(&mut self, session_for_account: Option<ActorId>);
 
     // action for the program itself (for delayed messages)
-    pub fn remove_game_instance(&mut self, account: ActorId)
+    pub fn remove_game_instance(&mut self, account: ActorId);
 
     // admin actions
-    pub fn remove_game_instances(&mut self, accounts: Option<Vec<ActorId>>)
-    pub fn add_admin(&mut self, admin: ActorId)
-    pub fn remove_admin(&mut self, admin: ActorId)
+    pub fn remove_game_instances(&mut self, accounts: Option<Vec<ActorId>>);
+    pub fn add_admin(&mut self, admin: ActorId);
+    pub fn remove_admin(&mut self, admin: ActorId);
     pub fn update_config(
         &mut self,
         s_per_block: Option<u64>,
@@ -144,9 +144,9 @@ pub struct Config {
         time_interval: Option<u32>,
         turn_deadline_ms: Option<u64>,
         gas_to_delete_session: Option<u64>,
-    ) 
-    pub fn allow_messages(&mut self, messages_allowed: bool)
-    pub async fn kill(&mut self, inheritor: ActorId) 
+    );
+    pub fn allow_messages(&mut self, messages_allowed: bool);
+    pub async fn kill(&mut self, inheritor: ActorId);
 ```
 
 ### Event

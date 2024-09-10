@@ -19,13 +19,12 @@ const config: Config = {
   markdown: {
     mermaid: true,
   },
-  themes: ['@docusaurus/theme-mermaid'],
+  themes: ["@docusaurus/theme-mermaid"],
 
   i18n: {
     defaultLocale: "en",
     locales: ["en"],
   },
-
   plugins: [
     "docusaurus-plugin-sass",
     async function tailwindPlugin(context, options) {
@@ -109,6 +108,15 @@ const config: Config = {
       sidebar: {
         autoCollapseCategories: true,
       },
+    },
+
+    algolia: {
+      appId: "B00UWUB92M",
+      apiKey: "22579656b62b7175a3070ec7c5c7039d",
+      indexName: "vara",
+      contextualSearch: true,
+      searchParameters: {},
+      searchPagePath: "search",
     },
   } satisfies Preset.ThemeConfig,
   stylesheets: [

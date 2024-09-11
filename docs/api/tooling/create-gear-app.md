@@ -27,8 +27,9 @@ The Vara React Application Template is an invaluable resource for developers in 
 
 ## Installation
 
-To install, simply clone the repository to a local folder:
+Create new project based on this template:
 
 ```sh
-git clone https://github.com/gear-foundation/dapps-react-app.git d-app
+npx degit gear-foundation/dapps-react-app dApp
+cd dApp
 ```

@@ -16,7 +16,7 @@ For more details, visit the [GitHub page](https://github.com/gear-foundation/dap
 ## Key Features
 ### Gasless Transactions
 
-- Users no longer need to worry about paying gas fees. The backend handles transaction fees, creating a more streamlined experience.
+- Users no longer need to worry about paying gas fees. The [backend](https://github.com/gear-foundation/dapps/tree/master/backend/gasless) handles transaction fees, creating a more streamlined experience.
 - This is particularly useful for applications targeting non-crypto-savvy users who might find gas fees confusing.
 
 ### Signless Transactions

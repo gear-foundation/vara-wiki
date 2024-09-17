@@ -5,11 +5,11 @@ sidebar_position: 6
 
 # Migration of `gstd` programs
 
-[`Sails`](/docs/build/sails/sails.mdx) is a library for of writing applications utilizing Gear Protocol with simplicity and clarity. This powerful tool has been introduced as a next step evolution of the Gear Protocol. 
+[`Sails`](/docs/build/sails/sails.mdx) is a library for writing applications utilizing the Gear Protocol with simplicity and clarity. This powerful tool represents the next step in the evolution of the Gear Protocol.
 
-Initially Gear applications typically employ the less convenient [`gstd`](/docs/build/gstd/gstd.md) library for managing low-level operations and essential functionality. `Sails` library builds programs on top of `gstd` making the most low-level interactions under the hood. As projects grow, adopting the `Sails` framework allows developers to shift towards a more modular and service-oriented architecture. The exsiting dApp writen on `gstd` can be effortlessly migrated to `Sails`.
+Initially, Gear applications typically employ the less convenient [`gstd`](/docs/build/gstd/gstd.md) library for managing low-level operations and essential functionality. The `Sails` library builds programs on top of `gstd`, handling most low-level interactions under the hood. As projects grow, adopting the `Sails` framework allows developers to shift towards a more modular and service-oriented architecture. Existing dApps written with `gstd` can be effortlessly migrated to `Sails`.
 
-This guide focuses on the key steps involved in transitioning existing gstd-based code to the `Sails` framework, outlining necessary code transformations and architectural adjustments while leveraging the underlying `gstd` infrastructure.
+This guide focuses on the key steps involved in transitioning existing gstd-based code to the `Sails` framework, outlining the necessary code transformations and architectural adjustments while leveraging the underlying `gstd` infrastructure.
 
 ## Setting Up Your Sails Project
 

@@ -134,6 +134,11 @@ This Rust code defines a simple program for the Vara Network, now updated with a
         pub fn do_something(&mut self) -> String {
             "Hello from VaraApp!".to_string()
         }
+
+        // Service's query
+        pub fn get_something(&self) -> String {
+            "Hello from VaraApp!".to_string()
+        }  
     }
 
     pub struct VaraAppProgram(());

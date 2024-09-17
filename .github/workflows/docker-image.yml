@@ -1,51 +1,80 @@
 name: Build and Deploy Vara Wiki to k8s
 
 on:
+  workflow_dispatch:
   push:
-    branches: ['master']
+    branches: ['master', 'main', 'staging']
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-  
+
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  ENVIRONMENT: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'prod' || 'stg' }}
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: ${{ secrets.AWS_REGION }}
   KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+  KUBECTL_VERSION: 'v1.22.17'
   KUBE_NAMESPACE: vara
+  KUBE_DEPLOYMENT_PREFIX: vara-wiki
+  REGISTRY: ghcr.io/${{ github.repository }}
 
 jobs:
-
-  build-and-push-vara-wiki-image:
+  prepair:
     runs-on: ubuntu-latest
+    outputs:
+      image_name: ${{ steps.image.outputs.image_name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get branch
+        id: branch
+        run: |
+          branch_name=${GITHUB_REF#refs/heads/}
+          echo "branch_name=$branch_name" >> $GITHUB_ENV
+
+      - name: Get short SHA
+        id: sha
+        run: |
+          sha_short=$(git rev-parse --short HEAD)
+          echo "sha_short=$sha_short" >> $GITHUB_ENV
+
+      - name: Set IMAGE_NAME
+        id: image
+        run: |
+          image_name=${{ env.REGISTRY }}-${{ env.KUBE_DEPLOYMENT_PREFIX }}:${{ env.branch_name }}-${{ env.sha_short }}
+          echo "image_name=$image_name" >> $GITHUB_OUTPUT
+
+  build-and-push-image:
+    needs: [prepair]
+    runs-on: ubuntu-latest
+    environment: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'prod' || 'stg' }}
     permissions:
       contents: read
       packages: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Log in to the github container registry
-        uses: docker/login-action@master
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Vara-Wiki Docker image
-        uses: docker/build-push-action@master
+      - name: Build and push image
+        uses: docker/build-push-action@v5
         with:
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ needs.prepair.outputs.image_name }}
 
   deploy-to-k8s:
-    needs: build-and-push-vara-wiki-image
+    needs: [prepair, build-and-push-image]
     runs-on: ubuntu-latest
-
+    environment: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'prod' || 'stg' }}
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -54,17 +83,25 @@ jobs:
           aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Deploy to k8s
-        uses: sergeyfilyanin/kubectl-aws-eks@master
+      - name: Update deployment image
+        uses: kodermax/kubectl-aws-eks@main
         with:
-          args: rollout restart deployment vara-wiki -n $KUBE_NAMESPACE
+          args: |
+            set image deployment/${{ env.KUBE_DEPLOYMENT_PREFIX }}-${{ env.ENVIRONMENT }} \
+            ${{ env.KUBE_DEPLOYMENT_PREFIX }}-${{ env.ENVIRONMENT }}=${{ needs.prepair.outputs.image_name }} \
+            -n ${{ env.KUBE_NAMESPACE }}
 
-  check-k8s-deployments:
-    needs: [deploy-to-k8s]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check k8s deployments
-        uses: sergeyfilyanin/kubectl-aws-eks@master
+      - name: Restart deployment
+        uses: kodermax/kubectl-aws-eks@main
         with:
-          args: get deployment -o name -n $KUBE_NAMESPACE | xargs -n1 -t kubectl rollout status -n $KUBE_NAMESPACE --timeout=120s
+          args: |
+            rollout restart deployment/${{ env.KUBE_DEPLOYMENT_PREFIX }}-${{ env.ENVIRONMENT }} \
+            -n ${{ env.KUBE_NAMESPACE }}
+
+      - name: Check deployment
+        uses: kodermax/kubectl-aws-eks@main
+        with:
+          args: |
+            rollout status deployment/${{ env.KUBE_DEPLOYMENT_PREFIX }}-${{ env.ENVIRONMENT }} \
+            --timeout=240s \
+            -n ${{ env.KUBE_NAMESPACE }}

@@ -15,7 +15,7 @@ const config: Config = {
   favicon: "img/favicon.svg",
   organizationName: "Gear Foundation",
   projectName: "vara-wiki",
-  // trailingSlash: false,
+  trailingSlash: false,
 
   markdown: {
     mermaid: true,

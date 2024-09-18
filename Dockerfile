@@ -11,7 +11,7 @@ COPY --from=builder /vara-wiki/build ./build
 COPY --from=builder /vara-wiki/package*.json ./
 
 RUN rm -rf node_modules package-lock.json
-RUN npm cache clean --force && npm ci --omit=dev
+RUN npm cache clean --force && npm install --omit=dev
 
 EXPOSE 3000
 

@@ -1,17 +1,8 @@
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 WORKDIR /vara-wiki
 COPY . /vara-wiki
 RUN npm install --force
 RUN npm run build
-
-FROM node:18-alpine AS production
-WORKDIR /vara-wiki
-
-COPY --from=builder /vara-wiki/build ./build
-COPY --from=builder /vara-wiki/package*.json ./
-
-RUN rm -rf node_modules package-lock.json
-RUN npm cache clean --force && npm install --omit=dev
 
 EXPOSE 3000
 

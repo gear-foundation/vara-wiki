@@ -5,7 +5,7 @@ RUN npm install --force
 RUN npm run build
 
 FROM node:18-alpine AS production
-RUN npm install --force
+RUN npm install --only=production
 WORKDIR /vara-wiki
 
 COPY --from=builder /vara-wiki/build ./build

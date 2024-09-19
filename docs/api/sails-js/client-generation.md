@@ -1,11 +1,14 @@
 ---
-sidebar_position: 1
+sidebar_position: 3
 sidebar_label: Client Generation
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Client Generation
 
-One of the key features of the `sails-js` library is its ability to generate working client code from IDL files. This page outlines the various options available to developers when using TypeScript. In short, client code can either be generated manually by parsing an IDL file or automatically with the `sails-js-cli` command-line tool.
+One of the key features of the `sails-js` library is its ability to generate working client code from IDL files. In particular for smaller projects or for application testing this approach offers a quick way for developers to start interacting with their application on Vara Network.
 
 ## Generation with `sails-js-cli`
 
@@ -31,31 +34,71 @@ To generate a TypeScript client library, run the following command:
 sails-js generate path/to/sails.idl -o path/to/out/dir
 ```
 
-If you prefer not to install the package globally, you can achieve the same with `npx`:
-
-```bash
-npx sails-js-cli generate path/to/sails.idl -o path/to/out/dir
-```
-
 To generate only the `lib.ts` file without the full project structure, use the `--no-project` flag:
 
 ```bash
 sails-js generate path/to/sails.idl -o path/to/out/dir --no-project
 ```
 
-## Manually Parse IDL
+## Using a Generated Client Library
 
+The generated library consists of a `program` class, which represents the Sails application and handles initialization and deployment and one additional class for each service of the application.
+
+### The `program` Class
+The `program` class initializes the connection to the Sails program. It manages the program's ID and provides methods to deploy the program to Vara Network. The constructor accepts a `GearApi` instance for interacting with Vara Network and an optional `programId` representing the address of the deployed application.
 ```js
-import { Sails } from 'sails-js';
-import { SailsIdlParser } from 'sails-js-parser';
-
-const parser = await SailsIdlParser.new();
-const sails = new Sails(parser);
-
-const idl = '<idl content>';
-
-sails.parseIdl(idl);
+constructor(public api: GearApi, public programId?: `0x${string}`) { ... }
+```
+The `newCtorFromCode` method creates a `TransactionBuilder` to deploy the program using the provided code bytes, setting the `programId` upon deployment.
+```js
+newCtorFromCode(code: Uint8Array | Buffer): TransactionBuilder<null> { ... }
+```
+Similarly, the `newCtorFromCodeId` method deploys the program using an existing `codeId` on Vara Network and sets the `programId` after deployment.
+```js
+newCtorFromCodeId(codeId: `0x${string}`): TransactionBuilder<null> { ... }
 ```
 
-The `sails` object contains all the constructors, services, functions and events available in the IDL file.
-To send messages, create programs and subscribe to events using `Sails` it is necessary [to connect to the chain using `@gear-js/api`](https://github.com/gear-tech/gear-js/blob/main/api/README.md) and set a `GearApi` instance using `setApi` method.
+### Example: Querying a Sails Application
+
+The following code snippet shows how to instantiate a `program` object using a `GearApi` instance and issuing a call to a simple query as implemented by the `varaApp` service.
+
+<Tabs>
+  <TabItem value="TypeScript" label="TypeScript" default>
+    ```js
+    import { GearApi } from '@gear-js/api';
+    import { program } from './lib'; // Import Program from lib.ts
+
+    async function main() {
+        const api = await GearApi.create({ providerAddress: 'wss://testnet.vara.network' });
+
+        // Use the Program class
+        const programId = '0x<something>';
+        const prgm = new program(api, programId);
+
+        // Access varaApp and call getSomething
+        const alice = 'kGkLEU3e3XXkJp2WK4eNpVmSab5xUNL9QtmLPh8QfCL2EgotW';
+        const result = await prgm.varaApp.getSomething(alice);
+    
+        console.log(result);
+    }
+    main().catch(console.error);
+    ```
+  </TabItem>
+  <TabItem value="idl" label="IDL">
+    ```rust
+    constructor {
+        New : ();
+    };
+
+    service VaraApp {
+        DoSomething : () -> str;
+        query getSomething : () -> str;
+    };
+    ```
+  </TabItem>
+</Tabs>
+
+
+
+
+

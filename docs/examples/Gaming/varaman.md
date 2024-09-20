@@ -9,9 +9,9 @@ sidebar_position: 2
 
 Vara-man is a classic arcade game, the main character is Vara mouse, who must collect all the coins in the allotted time. In the labyrinth, the main character will encounter cat enemies that must be avoided in order to survive and collect all the coins.
 
-The game example uses the [**EZ-Transactions package**](/docs/api/tooling/gasless-txs.md) that simplifies blockchain interactions by enabling gasless and signless transactions. Anyone can use it to integrate into their dApp projects. For more details, visit the [GitHub page](https://github.com/gear-foundation/dapps/tree/vt-update-ez-transactions/frontend/packages/ez-transactions).
+The game example uses the [**EZ-Transactions package**](/docs/api/tooling/gasless-txs.md) that simplifies blockchain interactions by enabling gasless and signless transactions. Anyone can use it to integrate into their dApp projects. For more details, visit the [GitHub page](https://github.com/gear-foundation/dapps/tree/master/frontend/packages/ez-transactions).
 
-It implies [vouchers](docs/api/vouchers.md) that allow users to play with a zero tokens on their balance (**gasless transactions**). This requires activation of the backend to issue vouchers (instructions for voucher integration will be detailed in the article).
+It implies [vouchers](/docs/api/vouchers.md) that allow users to play with a zero tokens on their balance (**gasless transactions**). This requires activation of the backend to issue vouchers (instructions for voucher integration will be detailed in the article).
 
 Another feature of this example is an option that allos anyone to interact with the dApp without needing to sign in (**signless transactions**). The dApp transaction operates as usual with one difference — a voucher is issued not directly to a user, but to a temporarily created account (sub-account) to which the user grants temporary rights to sign transactions on their behalf in this application.
 

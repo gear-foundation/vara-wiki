@@ -12,9 +12,9 @@ A classic and simple game in which the user competes against a program operating
 Usually, the state of a program advances as the application is utilized. A <u>distinctive feature</u> of this game's program implementation is its capability to clean up its storage. In other words, as soon as the game session is completed and the results are recorded in the program, all unnecessary data structures are purged automatically through a special **delayed message**. [Delayed messages](/docs/build/gstd/delayed-messages) represent one of the various unique features of the Gear Protocol.
 
 
-The game example uses the [**EZ-Transactions package**](/docs/api/tooling/gasless-txs.md) that simplifies blockchain interactions by enabling gasless and signless transactions. Anyone can use it to integrate into their dApp projects. For more details, visit the [GitHub page](https://github.com/gear-foundation/dapps/tree/vt-update-ez-transactions/frontend/packages/ez-transactions).  
+The game example uses the [**EZ-Transactions package**](/docs/api/tooling/gasless-txs.md) that simplifies blockchain interactions by enabling gasless and signless transactions. Anyone can use it to integrate into their dApp projects. For more details, visit the [GitHub page](https://github.com/gear-foundation/dapps/tree/master/frontend/packages/ez-transactions).  
 
-The source code, developed using the [Sails](../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe/sails).
+The source code, developed using the [Sails](../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe).
 The [frontend application](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/tic-tac-toe) facilitates gameplay and interacts with the smart program.
 This article describes the program interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios.
 
@@ -23,7 +23,7 @@ Everyone can play the game via this link - [Play Tic-Tac-Toe](https://tictactoe.
 ## How to run
 
 1. Build a program
-> Additional details regarding this matter can be located within the [README](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe/sails/README.md) directory of the program.
+> Additional details regarding this matter can be located within the [README](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe/README.md) directory of the program.
 
 2. Upload the program to the [Vara Network Testnet](https://idea.gear-tech.io/programs?node=wss%3A%2F%2Ftestnet.vara.network)
 > Initiate the process by uploading the bot program, followed by the subsequent upload of the main program. Further details regarding the process of program uploading can be located within the [Getting Started](/docs/getting-started-in-5-minutes#deploy-your-program-to-the-testnet) section.
@@ -373,7 +373,7 @@ But if the game is not over, the turn passes to the bot and the same actions are
         game: game_instance.clone(),
     })
 }
-```
+``` 
 
 #### Skip
 
@@ -484,4 +484,8 @@ pub fn skip(
 
 ## Source code
 
-The source code of this example of Tic-Tac-Toe Game program and the example of an implementation of its testing is available on [gear-foundation/dapp/contracts/tic-tac-toe/sails](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe/sails).
+The source code of this example of Tic-Tac-Toe Game program and the example of an implementation of its testing is available on [gear-foundation/dapp/contracts/tic-tac-toe](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe).
+
+See also an example of the smart contract testing implementation based on `gtest`: [gear-foundation/dapps/vara-man/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe/app/tests).
+
+For more details about testing programs written on Gear, refer to the [Program Testing](/docs/build/testing) article.

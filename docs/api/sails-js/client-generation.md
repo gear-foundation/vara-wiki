@@ -8,30 +8,34 @@ import TabItem from '@theme/TabItem';
 
 # Client Generation
 
-One of the key features of the `sails-js` library is its ability to generate working client code from IDL files. In particular for smaller projects or for application testing this approach offers a quick way for developers to start interacting with their application on Vara Network.
+The `sails-js-cli` is a command-line tool designed to generate TypeScript client libraries from Sails IDL files. It automates the creation of fully functional client libraries based on the interfaces defined in the Sails framework, streamlining development and ensuring consistency between client and on-chain programs.
 
-## Generation with `sails-js-cli`
+## Installation
 
-The `sails-js-cli` is a command-line tool designed to generate TypeScript client libraries from Sails IDL files. It automates the process of creating fully functional client libraries based on the interfaces defined in the Sails framework, streamlining development and ensuring consistency between client and on-chain programs.
-
-### Installation
-To install the `sails-js-cli` package globally, use the following command:
+To install the `sails-js-cli` package globally, run the following command:
 
 ```bash
 npm install -g sails-js-cli
 ```
 
-Alternatively, you can run the command without installing the package by using `npx`:
+Alternatively, you can use `npx` to run the command without installing the package:
 
 ```bash
-npx sails-js-cli command <args>
+npx sails-js-cli command ...args
 ```
 
-### Usage
+## Generating a TypeScript Client Library Using an IDL File
+
 To generate a TypeScript client library, run the following command:
 
 ```bash
 sails-js generate path/to/sails.idl -o path/to/out/dir
+```
+
+If you want to avoid global installation, use `npx`:
+
+```bash
+npx sails-js-cli generate path/to/sails.idl -o path/to/out/dir
 ```
 
 To generate only the `lib.ts` file without the full project structure, use the `--no-project` flag:
@@ -40,65 +44,233 @@ To generate only the `lib.ts` file without the full project structure, use the `
 sails-js generate path/to/sails.idl -o path/to/out/dir --no-project
 ```
 
-## Using a Generated Client Library
+React hooks generation is available via the `--with-hooks` flag:
 
-The generated library consists of a `program` class, which represents the Sails application and handles initialization and deployment and one additional class for each service of the application.
-
-### The `program` Class
-The `program` class initializes the connection to the Sails program. It manages the program's ID and provides methods to deploy the program to Vara Network. The constructor accepts a `GearApi` instance for interacting with Vara Network and an optional `programId` representing the address of the deployed application.
-```js
-constructor(public api: GearApi, public programId?: `0x${string}`) { ... }
-```
-The `newCtorFromCode` method creates a `TransactionBuilder` to deploy the program using the provided code bytes, setting the `programId` upon deployment.
-```js
-newCtorFromCode(code: Uint8Array | Buffer): TransactionBuilder<null> { ... }
-```
-Similarly, the `newCtorFromCodeId` method deploys the program using an existing `codeId` on Vara Network and sets the `programId` after deployment.
-```js
-newCtorFromCodeId(codeId: `0x${string}`): TransactionBuilder<null> { ... }
+```bash
+sails-js generate path/to/sails.idl -o path/to/out/dir --with-hooks
 ```
 
-### Example: Querying a Sails Application
+## Using the Generated Library
 
-The following code snippet shows how to instantiate a `program` object using a `GearApi` instance and issuing a call to a simple query as implemented by the `varaApp` service.
+### Creating an Instance
 
-<Tabs>
-  <TabItem value="TypeScript" label="TypeScript" default>
-    ```js
-    import { GearApi } from '@gear-js/api';
-    import { program } from './lib'; // Import Program from lib.ts
+First, connect to the chain using `@gear-js/api`:
 
-    async function main() {
-        const api = await GearApi.create({ providerAddress: 'wss://testnet.vara.network' });
+```javascript
+import { GearApi } from '@gear-js/api';
 
-        // Use the Program class
-        const programId = '0x<something>';
-        const prgm = new program(api, programId);
+const api = await GearApi.create();
+```
 
-        // Access varaApp and call getSomething
-        const alice = 'kGkLEU3e3XXkJp2WK4eNpVmSab5xUNL9QtmLPh8QfCL2EgotW';
-        const result = await prgm.varaApp.getSomething(alice);
-    
-        console.log(result);
-    }
-    main().catch(console.error);
-    ```
-  </TabItem>
-  <TabItem value="idl" label="IDL">
-    ```rust
-    constructor {
-        New : ();
-    };
+Next, import the `Program` class from the generated file and create an instance:
 
-    service VaraApp {
-        DoSomething : () -> str;
-        query getSomething : () -> str;
-    };
-    ```
-  </TabItem>
-</Tabs>
+```javascript
+import { Program } from './lib';
 
+const program = new Program(api);
 
+// If the program is already deployed, provide its ID
+const programId = '0x...';
+const program = new Program(api, programId);
+```
 
+The `Program` class includes all the functions defined in the IDL file.
 
+## Methods of the `Program` Class
 
+The `Program` class contains several types of methods:
+
+- Query methods
+- Message methods
+- Constructor methods
+- Event subscription methods
+
+### Query Methods
+
+Query methods are used to query the program's state. These methods accept the required arguments for the function call and return the result. Additionally, they accept optional parameters: `originAddress` (the caller's account address, defaulting to a zero address if not provided), `value` (an optional amount of tokens for function execution), and `atBlock` (to query the program state at a specific block).
+
+```javascript
+const alice = '0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d';
+const result = await program.serviceName.queryFnName(arg1, arg2, alice);
+console.log(result);
+```
+
+### Message Methods
+
+Message methods are used to send messages to the program. These methods accept the required arguments for sending the message and return a [Transaction Builder](../README.md#transaction-builder), which contains methods for building and sending the transaction.
+
+```javascript
+const transaction = program.serviceName.functionName(arg1, arg2);
+
+// ## Set the account sending the message
+
+// Using a KeyringPair instance
+import { Keyring } from '@polkadot/api';
+const keyring = new Keyring({ type: 'sr25519' });
+const pair = keyring.addFromUri('//Alice');
+transaction.withAccount(pair);
+
+// Or using an address and signer options (common in frontend applications with connected wallets)
+import { web3FromSource, web3Accounts } from '@polkadot/extension-dapp';
+const allAccounts = await web3Accounts();
+const account = allAccounts[0];
+const injector = await web3FromSource(account.meta.source);
+transaction.withAccount(account.address, { signer: injector.signer });
+
+// ## Set the value of the message
+transaction.withValue(BigInt(10 * 1e12)); // 10 VARA
+
+// ## Calculate gas
+// Optionally, you can provide two arguments:
+// The first argument, `allowOtherPanics`, either allows or forbids panics in other programs (default: false).
+// The second argument, `increaseGas`, is the percentage to increase the gas limit (default: 0).
+await transaction.calculateGas();
+
+// Alternatively, use `withGas` to set the gas limit manually:
+transaction.withGas(100000n);
+
+// ## Send the transaction
+// `signAndSend` returns the message ID, block hash, and a `response` function for retrieving the program's response.
+const { msgId, blockHash, response } = await transaction.signAndSend();
+const result = await response();
+console.log(result);
+```
+
+### Constructor Methods
+
+Constructor methods, postfixed with `CtorFromCode` and `CtorFromCodeId` in the `Program` class, are used to deploy the program on the chain. These methods accept either the Wasm code bytes or the code ID and return a [Transaction Builder](../README.md#transaction-builder) just like message methods.
+
+```javascript
+const code = fs.readFileSync('path/to/program.wasm');
+// Or use the fetch function to retrieve the code in frontend environments
+const transaction = program.newCtorFromCode(code);
+
+// The same methods as message methods can be used to build and send the transaction.
+```
+
+### Event Subscription Methods
+
+Event subscription methods allow subscribing to specific events emitted by the program.
+
+```javascript
+program.subscribeToSomeEvent((data) => {
+  console.log(data);
+});
+```
+
+## React Hooks
+
+Generating the library with the `--with-hooks` flag creates custom React hooks that simplify interaction with a `sails-js` program. These hooks are wrappers around the generic hooks provided by the `@gear-js/react-hooks` library. They are generated based on the `Program` class in `lib.ts`, tailored to the specific types and names derived from it.
+
+Refer to the `@gear-js/react-hooks` [README](https://github.com/gear-tech/gear-js/tree/main/utils/gear-hooks#sails) on GitHub for more details on these hooks.
+
+### `useProgram`
+
+Initializes the program with the provided parameters.
+
+```jsx
+import { useProgram } from './hooks';
+
+const { data: program } = useProgram({ id: '0x...' });
+```
+
+### `useSend` for `serviceName` and `functionName` Transaction
+
+Sends a transaction to a specified service and function.
+
+```jsx
+import { useProgram, useSendAdminMintTransaction } from './hooks';
+
+const { data: program } = useProgram({ id: '0x...' });
+const { sendTransaction } = useSendAdminMintTransaction({ program });
+```
+
+### `usePrepare` for `serviceName` and `functionName` Transaction
+
+Prepares a transaction for a specified service and function.
+
+```jsx
+import { useProgram, usePrepareAdminMintTransaction } from './hooks';
+
+const { data: program } = useProgram({ id: '0x...' });
+const { prepareTransaction } = usePrepareAdminMintTransaction({ program });
+```
+
+### `use` for `serviceName` and `functionName` Query
+
+Queries a specified service and function.
+
+```jsx
+import { useProgram, useErc20BalanceOfQuery } from './hooks';
+
+const { data: program } = useProgram({ id: '0x...' });
+const { data } = useErc20BalanceOfQuery({ program, args: ['0x...'] });
+```
+
+### `use` for `serviceName` and `functionName` Event
+
+Subscribes to events from a specified service and event.
+
+```jsx
+import { useProgram, useAdminMintedEvent } from './hooks';
+
+const { data: program } = useProgram({ id: '0x...' });
+const { data } = useAdminMintedEvent({ program, onData: (value) => console.log(value) });
+```
+
+## Example: The Demo Project
+
+The following example demonstrates how the generated `lib.ts` can be used in conjunction with `@gear-js/api` to upload a WASM binary of an application to the chain, create and submit a service command to the deployed application, and receive its response. This example is part of the Sails GitHub repository and can be viewed [here](https://github.com/gear-tech/sails/tree/master/js/example). Although the project includes multiple services, this example focuses on interacting with the `pingPong` service. The relevant portion of the IDL looks like this:
+
+```rust
+service PingPong {
+  Ping : (input: str) -> result (str, str);
+};
+```
+
+The script first initializes the `GearApi` and creates a keyring to retrieve Alice’s account using the `@polkadot/api` library, which is used for signing transactions. It then reads the compiled WASM application and deploys it to the network using `newCtorFromCode` from the generated `lib.ts`, which creates a `TransactionBuilder` for constructing the deployment transaction. After deployment, the script interacts with the program by invoking the `ping` function from the `pingPong` service, constructing and sending a new transaction. Finally, the program's reply is awaited and logged to the console.
+
+```jsx
+import { GearApi } from '@gear-js/api';
+import { Keyring } from '@polkadot/api';
+import { Program } from './lib.js';
+import { readFileSync } from 'fs';
+
+const main = async () => {
+  const api = await GearApi.create();
+  const keyring = new Keyring({ type: 'sr25519', ss58Format: 137 });
+
+  const alice = keyring.addFromUri('//Alice');
+
+  const program = new Program(api);
+
+  // Deploy the program
+
+  const code = readFileSync('../../target/wasm32-unknown-unknown/release/demo.opt.wasm');
+
+  const ctorBuilder = await program.newCtorFromCode(code, null, null).withAccount(alice).calculateGas();
+  const { blockHash, msgId, txHash } = await ctorBuilder.signAndSend();
+
+  console.log(
+    `\nProgram deployed. \n\tprogram id ${program.programId}, \n\tblock hash: ${blockHash}, \n\ttx hash: ${txHash}, \n\tinit message id: ${msgId}`,
+  );
+
+  // Call the program
+
+  const pingBuilder = await program.pingPong.ping('ping').withAccount(alice).calculateGas();
+  const { blockHash: blockHashPing, msgId: msgIdPing, txHash: txHashPing, response } = await pingBuilder.signAndSend();
+
+  console.log(
+    `\nPing message sent. \n\tBlock hash: ${blockHashPing}, \n\ttx hash: ${txHashPing}, \n\tmessage id: ${msgIdPing}`,
+  );
+  const reply = await response();
+  console.log(`\nProgram replied: \n\t${JSON.stringify(reply)}`);
+};
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.log(error);
+    process.exit(1);
+  });
+```

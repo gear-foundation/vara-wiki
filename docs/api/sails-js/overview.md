@@ -4,7 +4,18 @@ sidebar_label: Library Overview
 ---
 
 # Library Overview
-## Parse IDL
+
+The `sails-js` library workflow begins by creating a `Sails` object through parsing a provided IDL description. This process maps the interface defined by the IDL to corresponding objects in the `Sails` instance, including:
+
+- Constructors
+- Services
+- Functions (referred to as Commands in the Sails framework)
+- Queries
+- Events
+
+The library also offers methods for decoding information from payloads and encoding data to be sent to a program via transactions. The `TransactionBuilder` class facilitates the building and sending of these transactions to the blockchain. For further details, refer to the [Transaction Builder](#transaction-builder) section.
+
+## Parsing an IDL Description
 
 ```javascript
 import { Sails } from 'sails-js';
@@ -22,6 +33,7 @@ The `sails` object now contains all the constructors, services, functions, and e
 
 To send messages, create programs, and subscribe to events using `Sails`, you need to connect to the chain using `@gear-js/api` and set the `GearApi` instance using the `setApi` method.
 
+
 ```javascript
 import { GearApi } from '@gear-js/api';
 
@@ -29,7 +41,7 @@ const api = await GearApi.create();
 
 sails.setApi(api);
 ```
-
+## The `Sails` Class
 ### Constructors
 
 The `sails.ctors` property contains an object with all the constructors available in the IDL file. The keys are the constructor names, and each value is an object with the following properties:
@@ -53,8 +65,6 @@ The `sails.ctors` property contains an object with all the constructors availabl
 To get a constructor object, use `sails.ctors.ConstructorName`.
 
 The `fromCode` and `fromCodeId` methods return an instance of the `TransactionBuilder` class, which can be used to build and send the transaction to the chain.
-
-For more information, check the [Transaction Builder](#transaction-builder) section.
 
 ### Services
 
@@ -89,8 +99,6 @@ It's necessary to provide a program ID so that the function can be called. You c
 ```javascript
 sails.setProgramId('0x...');
 ```
-
-For more information about the `TransactionBuilder` class, refer to the [Transaction Builder](#transaction-builder) section.
 
 To create a transaction for a function call, you can do the following:
 

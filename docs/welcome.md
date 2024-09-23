@@ -10,7 +10,7 @@ This Wiki outlines foundational information, provides general technology overvie
 
 ## What is the Vara Network?
 
-**[Vara Network](http://vara.network/)** is a stand-alone layer-1 decentralized network built and running on top of **[Gear Protocol](https://www.gear-tech.io/)**.
+**[Vara Network](https://vara.network/)** is a stand-alone layer-1 decentralized network built and running on top of **[Gear Protocol](https://gear-tech.io/)**.
 
 Alongside other blockchains that offer fast and inexpensive transactions, Vara possesses several unique features: a simple yet powerful framework for writing programs based on the Actor model, automation through deferred messages, gasless and signless transactions, built-in actors to extend program capabilities, and more. For more detailed information on these features, read the next article - [Distinctive Features](/docs/about/features/features.md).
 

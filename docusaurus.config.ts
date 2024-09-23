@@ -79,12 +79,12 @@ const config: Config = {
           label: "Docs",
         },
         {
-          href: "https://www.vara.network/",
+          href: "https://vara.network/",
           label: "Vara.network",
           position: "right",
         },
         {
-          href: "https://www.gear-tech.io/",
+          href: "https://gear-tech.io/",
           label: "Gear-tech.io",
           position: "right",
         },

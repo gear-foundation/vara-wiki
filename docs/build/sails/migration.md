@@ -31,14 +31,14 @@ To get started with the migration process, you can use a template to create a ne
 
 - In **gstd**-based projects, actions are typically defined using enums, which are processed within a `handle` function. This function decodes incoming messages and matches them to the corresponding action:
 
-        ```rust
-        pub enum Action {
-            DoA,
-            DoB,
-        }
+    ```rust
+    pub enum Action {
+        DoA,
+        DoB,
+    }
 
-        impl Metadata for ProgramMetadata {
-            type Handle = In<Action>;
+    impl Metadata for ProgramMetadata {
+        type Handle = In<Action>;
     }
 
     #[no_mangle]
@@ -51,17 +51,19 @@ To get started with the migration process, you can use a template to create a ne
     }
     ```            
 
-- In **`Sails`**, this approach is restructured to leverage the framework’s service-oriented architecture. Rather than processing all actions through a single entry point, each action is encapsulated in its own service method. Here’s how the same functionality would look in `Sails`:
+- In **`Sails`**, this approach is restructured to leverage the framework’s service-oriented architecture. While the actions are still processed through a single entry point (`handle` function), logically they are dispatched to service methods based on string identifiers rather than enum types. Each action is linked to a specific service method, which improves modularity.
 
-        ```rust
-        #[service]
-        impl Service {
-            pub fn do_a(&mut self) { /* Implementation for action A */ }
+    ```rust
+    #[service]
+    impl Service {
+        pub fn do_a(&mut self) { /* Implementation for action A */ }
         pub fn do_b(&mut self) { /* Implementation for action B */ }
     }
     ```
-
-This shift abstracts the message decoding and routing logic, with `Sails` automatically handling the dispatch of incoming messages to the appropriate service methods. The resulting code is more modular, with each action represented as a discrete method.
+:::note
+Instead of matching enum variants as in `gstd`, the **`Sails`** framework maps string-based service identifiers  
+(e.g. `do_a` or `do_b`) to the corresponding service methods, allowing for more flexible action routing.
+:::
 
 ## Migrating Reply Messages  
 

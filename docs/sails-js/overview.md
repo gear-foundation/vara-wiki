@@ -13,7 +13,7 @@ The `sails-js` library workflow begins by creating a `Sails` object through pars
 - Queries
 - Events
 
-The library also offers methods for decoding information from payloads and encoding data to be sent to a program via transactions. The `TransactionBuilder` class facilitates the building and sending of these transactions to the blockchain. For further details, refer to the [Transaction Builder](#transaction-builder) section.
+The library also offers methods for decoding information from payloads and encoding data to be sent to a program via transactions. The `TransactionBuilder` class facilitates the building and sending of these transactions to the blockchain. For further details, refer to the [Transaction Builder](transaction-builder.md) section.
 
 ## Parsing an IDL Description
 

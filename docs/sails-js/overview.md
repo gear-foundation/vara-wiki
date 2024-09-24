@@ -31,7 +31,7 @@ sails.parseIdl(idl);
 
 The `sails` object now contains all the constructors, services, functions, and events available in the IDL file.
 
-To send messages, create programs, and subscribe to events using `Sails`, you need to connect to the chain using `@gear-js/api` and set the `GearApi` instance using the `setApi` method.
+To send messages, create programs, and subscribe to events using `Sails`, you need to connect to the chain using `@gear-js/api` and set the `GearApi` instance using the `setApi` method. For further details, refer to the [Gear-JS](/docs/api) API section.
 
 
 ```javascript

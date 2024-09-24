@@ -62,7 +62,7 @@ import { GearApi } from '@gear-js/api';
 const api = await GearApi.create();
 ```
 
-Next, import the `Program` class from the generated file and create an instance:
+For further details, refer to the [Gear-JS](/docs/api) API section. Next, import the `Program` class from the generated file and create an instance:
 
 ```javascript
 import { Program } from './lib';

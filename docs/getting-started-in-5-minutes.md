@@ -54,7 +54,7 @@ To get started, install the `sails-cli` tool using the following command:
 After installation, you can create a new Vara project named `vara-app` by running:
 
     ```bash
-    cargo-sails new-program vara-app
+    cargo sails new-program vara-app
     ```
 
 Your `vara-app` directory tree should look like this:
@@ -100,13 +100,13 @@ In `Cargo.toml`, the essential libraries required for building your first projec
 
     [build-dependencies]
     vara-app-app = { path = "app" }
-    sails-rs = { version = "0.4.0", features = ["wasm-builder"] }
-    sails-idl-gen = "0.4.0"
+    sails-rs = { version = "0.5.0", features = ["wasm-builder"] }
+    sails-idl-gen = "0.5.0"
 
     [dev-dependencies]
     vara-app = { path = ".", features = ["wasm-binary"] }
     vara-app-client = { path = "client" }
-    sails-rs = { version = "0.4.0", features = ["gtest"] }
+    sails-rs = { version = "0.5.0", features = ["gtest"] }
     tokio = { version = "1.39", features = ["rt", "macros"] }
 
     [features]

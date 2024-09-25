@@ -37,7 +37,7 @@ Everyone can play the game via this link - [Play Tic-Tac-Toe](https://tictactoe.
 
 The program contains the following information
 
-```rust title="tic-tac-toe/sails/app/services/game/mod.rs"
+```rust title="tic-tac-toe/app/services/game/mod.rs"
 pub struct Storage {
     admins: Vec<ActorId>,
     current_games: HashMap<ActorId, GameInstance>,
@@ -55,7 +55,7 @@ pub struct Storage {
 
 Where `GameInstance` is defined as follows:
 
-```rust title="tic-tac-toe/sails/app/services/game/utils.rs"
+```rust title="tic-tac-toe/app/services/game/utils.rs"
 pub struct GameInstance {
     pub board: Vec<Option<Mark>>,
     pub player_mark: Mark,
@@ -65,7 +65,7 @@ pub struct GameInstance {
     pub game_result: Option<GameResult>,
 }
 ```
-```rust title="tic-tac-toe/sails/app/services/game/utils.rs"
+```rust title="tic-tac-toe/app/services/game/utils.rs"
 pub enum Mark {
     X,
     O,
@@ -76,7 +76,7 @@ pub enum Mark {
 
 To initialize the game program, the game configuration and the optional DNS address and name must be provided.
 
-```rust title="tic-tac-toe/sails/app/services/game/mod.rs"
+```rust title="tic-tac-toe/app/services/game/mod.rs"
     pub async fn init(config: Config, dns_id_and_name: Option<(ActorId, String)>) -> Self {
         unsafe {
             STORAGE = Some(Storage {
@@ -105,7 +105,7 @@ To initialize the game program, the game configuration and the optional DNS addr
     }
 ```
 
-```rust title="tic-tac-toe/sails/app/services/game/utils.rs"
+```rust title="tic-tac-toe/app/services/game/utils.rs"
 pub struct Config {
     pub s_per_block: u64,
     pub gas_to_remove_game: u64,
@@ -124,7 +124,7 @@ pub struct Config {
 
 ### Action
 
-```rust title="tic-tac-toe/sails/app/services/game/mod.rs"
+```rust title="tic-tac-toe/app/services/game/mod.rs"
     // user actions
     pub fn start_game(&mut self, session_for_account: Option<ActorId>);
     pub fn turn(&mut self, step: u8, session_for_account: Option<ActorId>);
@@ -151,7 +151,7 @@ pub struct Config {
 
 ### Event
 
-```rust title="tic-tac-toe/sails/app/services/game/mod.rs"
+```rust title="tic-tac-toe/app/services/game/mod.rs"
 pub enum Event {
     GameFinished {
         game: GameInstance,
@@ -180,7 +180,7 @@ pub enum Event {
 
 At the start of the game, the program checks its status and verifies whether the player has an unfinished game. The first move is determined randomly; if the bot is assigned the first move, it automatically plays in the center of the board.
 
-```rust title="tic-tac-toe/sails/app/services/game/funcs.rs"
+```rust title="tic-tac-toe/app/services/game/funcs.rs"
 pub fn start_game(
     storage: &mut Storage,
     sessions: &HashMap<ActorId, SessionData>,
@@ -242,7 +242,7 @@ fn check_allow_messages(storage: &Storage, msg_source: ActorId) -> Result<(), Ga
 
 After successfully starting a new game, players can take their turn where a series of the following checks are performed:
 
-```rust title="tic-tac-toe/sails/app/services/game/funcs.rs"
+```rust title="tic-tac-toe/app/services/game/funcs.rs"
 pub fn turn(
     storage: &mut Storage,
     sessions: &HashMap<ActorId, SessionData>,
@@ -277,7 +277,7 @@ pub fn turn(
 ```
 After successful game status checks, the player's move is saved and the time of the last move is updated
 
-```rust title="tic-tac-toe/sails/app/services/game/funcs.rs"
+```rust title="tic-tac-toe/app/services/game/funcs.rs"
     //..
     game_instance.board[step as usize] = Some(game_instance.player_mark);
     game_instance.last_time = block_timestamp;
@@ -297,7 +297,7 @@ After successful game status checks, the player's move is saved and the time of 
 ```
 If the game is over, a **delayed message** will be sent to delete the game from the program
 
-```rust title="tic-tac-toe/sails/app/services/game/funcs.rs"
+```rust title="tic-tac-toe/app/services/game/funcs.rs"
 fn game_over(
     game_instance: &mut GameInstance,
     player: &ActorId,
@@ -334,7 +334,7 @@ fn send_delayed_message_to_remove_game(
 ```
 But if the game is not over, the turn passes to the bot and the same actions are performed
 
-```rust title="tic-tac-toe/sails/app/services/game/funcs.rs"
+```rust title="tic-tac-toe/app/services/game/funcs.rs"
 
     let bot_step = make_move(game_instance);
 
@@ -379,7 +379,7 @@ But if the game is not over, the turn passes to the bot and the same actions are
 
 If the player misses their turn, a *Skip* command must be sent to continue the game and allow the bot to make its move.
 
-```rust title="tic-tac-toe/sails/app/services/game/funcs.rs"
+```rust title="tic-tac-toe/app/services/game/funcs.rs"
 pub fn skip(
     storage: &mut Storage,
     sessions: &HashMap<ActorId, SessionData>,
@@ -449,7 +449,7 @@ pub fn skip(
 
 ## Query
 
-```rust title="tic-tac-toe/sails/app/services/game/mod.rs"
+```rust title="tic-tac-toe/app/services/game/mod.rs"
     pub fn admins(&self) -> &'static Vec<ActorId> {
         &self.get().admins
     }

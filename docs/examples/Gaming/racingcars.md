@@ -121,72 +121,37 @@ service CarRacesService {
   // Admin actions
   //----------------------------------
 
-  // Adds a new admin by specifying their actor ID.
   AddAdmin : (admin: actor_id) -> null;
-
-  // Removes an admin by specifying their actor ID.
   RemoveAdmin : (admin: actor_id) -> null;
-
-  // Updates the configuration settings of the game, such as gas limits, speed limits, etc.
   UpdateConfig : (config: ServicesConfig) -> null;
-
-  // Enables or disables the processing of game-related messages.
   AllowMessages : (messages_allowed: bool) -> null;
-
-  // Terminates the program and transfers control to the specified inheritor.
   Kill : (inheritor: actor_id) -> null;
-
-  // Adds two strategy contracts (AI cars) to the game.
   AddStrategyIds : (car_ids: vec actor_id) -> null;
-
-  // Removes a specific player's game instance. Only applicable if the game has finished.
   RemoveGameInstance : (account: actor_id) -> null;
-
-  // Removes game instances for specific players or all instances that have exceeded the storage time.
   RemoveInstances : (player_ids: opt vec actor_id) -> null;
 
   // Player (game-related) actions
   //----------------------------------
 
-  // Starts a new game for the player, supporting signless/gasless sessions with an optional session account.
   StartGame : (session_for_account: opt actor_id) -> null;
-
-  // Processes a player's move. The `strategy_move` determines the player's action,
-  // and an optional session account can be specified for signless/gasless interaction.
   PlayerMove : (strategy_move: StrategyAction, session_for_account: opt actor_id) -> null;
 
   // Queries (read-only operations)
   //----------------------------------
 
-  // Queries the list of all admins currently registered in the service.
   query Admins : () -> vec actor_id;
-
-  // Returns the list of all active games, including player IDs and game states.
   query AllGames : () -> vec struct { actor_id, Game };
-
-  // Retrieves the current configuration settings of the service.
   query ConfigState : () -> ServicesConfig;
-
-  // Provides DNS information if the service is registered with DNS, including the actor ID and name.
   query DnsInfo : () -> opt struct { actor_id, str };
-
-  // Fetches the game state for a specific player, given their actor ID.
   query Game : (account_id: actor_id) -> opt Game;
-
-  // Checks if message processing is currently enabled or disabled for the game.
   query MessagesAllowed : () -> bool;
-
-  // Retrieves the IDs of the strategy (AI) cars that are part of the current game.
   query StrategyIds : () -> vec actor_id;
 
   // Events
   //----------------------------------
 
   events {
-    // Fired when a new round of the game is completed, containing round information.
     RoundInfo: RoundInfo;
-
-    // Triggered when the service is killed, transferring control to the inheritor.
     Killed: struct { inheritor: actor_id };
   }
 };

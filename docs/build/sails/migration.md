@@ -24,7 +24,7 @@ To get started with the migration process, you can use a template to create a ne
 - After installation, you can generate a new project named "vara-app" by running:
 
     ```bash
-    cargo-sails new-program vara-app
+    cargo sails new-program vara-app
     ```
 
 ## Migrating Action Handling  

@@ -44,11 +44,11 @@ To generate only the `lib.ts` file without the full project structure, use the `
 sails-js generate path/to/sails.idl -o path/to/out/dir --no-project
 ```
 
-React hooks generation is available via the `--with-hooks` flag:
+<!-- React hooks generation is available via the `--with-hooks` flag:
 
 ```bash
 sails-js generate path/to/sails.idl -o path/to/out/dir --with-hooks
-```
+``` -->
 
 ## Using the Generated Library
 
@@ -158,7 +158,7 @@ program.subscribeToSomeEvent((data) => {
 });
 ```
 
-## React Hooks
+<!-- ## React Hooks
 
 Generating the library with the `--with-hooks` flag creates custom React hooks that simplify interaction with a `sails-js` program. These hooks are wrappers around the generic hooks provided by the `@gear-js/react-hooks` library. They are generated based on the `Program` class in `lib.ts`, tailored to the specific types and names derived from it.
 
@@ -216,7 +216,7 @@ import { useProgram, useAdminMintedEvent } from './hooks';
 
 const { data: program } = useProgram({ id: '0x...' });
 const { data } = useAdminMintedEvent({ program, onData: (value) => console.log(value) });
-```
+``` -->
 
 ## Example: The Demo Project
 

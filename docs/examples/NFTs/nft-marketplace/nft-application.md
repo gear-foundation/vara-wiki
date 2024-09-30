@@ -9,7 +9,7 @@ This article explains how to create a `React` application and connect it to an [
 
 ### Preparation
 
-1. First clone the [frontend-starter](https://github.com/gear-foundation/dapps/tree/master/frontend/templates/gear-app-starter). Install [NodeJs](https://nodejs.org/en/download/) and [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). Make sure the latest LTS version of the NodeJs is installed. 
+1. First install one of the [templates](https://github.com/gear-foundation/dapps/tree/master/frontend/templates). Install [NodeJs](https://nodejs.org/en/download/) and [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). Make sure the latest LTS version of the NodeJs is installed. 
 
 2. Then install yarn:
     ```shell
@@ -17,18 +17,69 @@ This article explains how to create a `React` application and connect it to an [
     ```
 
 3. There is an `.env.example` file. Create your own `.env` file and copy the contents of `.env.example` to your `.env` file. It contains the following variables:
-    - `REACT_APP_NODE_ADDRESS`: This variable defines the node we'll be working on.
-    - `REACT_APP_CONTRACT_ADDRESS`: The address of the contract uploaded to the chain.
-    - `REACT_APP_IPFS_ADDRESS` and `REACT_APP_IPFS_GATEWAY_ADDRESS`: These variables are needed when uploading media files to IPFS.
+    - `VITE_NODE_ADDRESS`: This variable defines the node we'll be working on.
 
-4. Upload the contract to the chain and set up the address in the `.env` file. Place the `meta.txt` file in the `assets/meta` folder and the `nft_state.meta.wasm` file in the `assets/wasm folder`.
+    You have to add next varibles as well:
 
-5. Run the application:
+    - `VITE_CONTRACT_ADDRESS`: The address of the contract uploaded to the chain.
+    - `VITE_IPFS_ADDRESS` and `VITE_IPFS_GATEWAY_ADDRESS`: These variables are needed when uploading media files to IPFS
+
+4. In a root `consts.ts` file, specify newly added environment variables:
+    
+```typescript
+const ADDRESS = {
+  NODE: import.meta.env.VITE_NODE_ADDRESS as string,
+  CONTRACT_ADDRESS: import.meta.env.VITE_CONTRACT_ADDRESS as HexString,
+  IPFS_ADDRESS: import.meta.env.VITE_IPFS_ADDRESS as string,
+  IPFS_GATEWAY_ADDRESS: import.meta.env.VITE_IPFS_GATEWAY_ADDRESS as string,
+};
+```
+
+5. Install `kubo-rpc-client` library to handle IPFS requests:
+
+    ```shell
+    yarn add kubo-rpc-client
+    ```
+
+    Let's create a context to utilize it in a React way. Create `index.tsx` file in a `context` folder, and write the following code:
+
+    ```jsx
+    import { create, KuboRPCClient } from 'kubo-rpc-client';
+    import { createContext, ReactNode, useContext, useRef } from 'react';
+
+    type Props = {
+      children: ReactNode;
+    };
+
+    const IPFSContext = createContext({} as KuboRPCClient);
+
+    function IPFSProvider({ children }: Props) {
+      const ipfsRef = useRef(create({ url: process.env.REACT_APP_IPFS_ADDRESS as string }));
+      const { Provider } = IPFSContext;
+
+      return <Provider value={ipfsRef.current}>{children}</Provider>;
+    }
+
+    const useIPFS = () => useContext(IPFSContext);
+
+    export { IPFSProvider, useIPFS };
+    ```
+
+    Add `IPFSProvider` to a providers array in a `hocs/index.tsx` file:
+
+    ```typescript
+        import { IPFSProvider } from '@/context';
+
+        const providers = [..., IPFSProvider];
+    ```
+
+6. Upload the contract to the chain and set up the address in the `.env` file. Place the `meta.txt` file in the `assets/meta` folder and the `nft_state.meta.wasm` file in the `assets/wasm` folder.
+
+7. Run the application:
     ```shell
     yarn start
     ```
-
-6. The main file `App.tsx` is simple:
+8. The main file `App.tsx` is simple:
 
     ```typescript
     import { useApi, useAccount } from '@gear-js/react-hooks';
@@ -67,7 +118,7 @@ This article explains how to create a `React` application and connect it to an [
     const { isAccountReady } = useAccount();
     ```
 
-7. If the `api` is ready and the `account` is connected, it displays the application's pages. Navigate to the pages folder. The project has only one page `Home`. The `index.tsx` file is also simple:
+9. If the `api` is ready and the `account` is connected, it displays the application's pages. Navigate to the pages folder. The project has only one page `Home`. The `index.tsx` file is also simple:
 
     ```typescript
     import { Route, Routes } from 'react-router-dom';
@@ -284,7 +335,7 @@ and configure the `API` of your node:
 
     ```typescript
     ...
-    import { useIPFS } from 'hooks';
+    import { useIPFS } from '@/context';
     ...
     export function CreateNft() {
         ...
@@ -398,7 +449,7 @@ touch src/hooks/api.ts
     ```typescript 
     import { useAccount } from '@gear-js/react-hooks';
     import { Button, FileInput, Input } from '@gear-js/ui'
-    import { useIPFS } from 'hooks';
+    import { useIPFS } from '@/context';
     import { useSendNFTMessage } from 'hooks/api';
     import { useState } from 'react'
     import { useNavigate } from 'react-router-dom';

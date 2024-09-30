@@ -15,14 +15,14 @@ The Vara React Application Template is available in two themed variations:
 
 | Home Page | Wallet Connection |
 |------|------|
-| ![Vara Template Home Page](/assets/create-gear-app/cva.png) | ![Vara Template Wallet Connection](/assets/create-gear-app/cva-wallet.png) |
+| ![Vara Template Home Page](./img/cva.png) | ![Vara Template Wallet Connection](./img/cva-wallet.png) |
 
 
-and **Gear**, at [GitHub](https://github.com/gear-foundation/dapps/frontend/templates/create-gear-app).
+and **Gear**, at [GitHub](https://github.com/gear-foundation/dapps/frontend/templates).
 
 | Home Page | Wallet Connection |
 |------|------|
-| ![Gear Template Home Page](/assets/create-gear-app/cga.png) | ![Gear Template Wallet Connection](/assets/create-gear-app/cga-wallet.png) |
+| ![Gear Template Home Page](./img/cga.png) | ![Gear Template Wallet Connection](./img/cga-wallet.png) |
 
 This template is packed with benefits and features that make it an ideal choice for developers seeking efficiency and simplicity in their dApp development workflow.
 

@@ -9,7 +9,22 @@ sidebar_label: Vara React Application Template
 
 For those looking to swiftly launch decentralized applications (dApps) on the Vara network, the Vara React Application Template, also known as `create-vara-app`, offers a pre-configured solution designed to streamline the development process. With its well-thought-out infrastructure and convenient features, this template allows for quick creation and deployment of dApps on the Vara network.
 
-The Vara React Application Template is available on [GitHub](https://github.com/gear-foundation/dapps-react-app). This template is packed with benefits and features that make it an ideal choice for developers seeking efficiency and simplicity in their dApp development workflow.
+The Vara React Application Template is available in two themed variations:
+
+**Vara**, at [GitHub](https://github.com/gear-foundation/dapps/frontend/templates/create-vara-app),
+
+| Home Page | Wallet Connection |
+|------|------|
+| ![Vara Template Home Page](/assets/create-gear-app/cva.png) | ![Vara Template Wallet Connection](/assets/create-gear-app/cva-wallet.png) |
+
+
+and **Gear**, at [GitHub](https://github.com/gear-foundation/dapps/frontend/templates/create-gear-app).
+
+| Home Page | Wallet Connection |
+|------|------|
+| ![Gear Template Home Page](/assets/create-gear-app/cga.png) | ![Gear Template Wallet Connection](/assets/create-gear-app/cga-wallet.png) |
+
+This template is packed with benefits and features that make it an ideal choice for developers seeking efficiency and simplicity in their dApp development workflow.
 
 ## Features
 

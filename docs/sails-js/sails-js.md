@@ -5,7 +5,7 @@ sidebar_label: Sails-JS
 
 # Sails-JS
 
-The `sails-js` library is a powerful tool designed to help developers interact with their Sails applications on Vara Network. It facilitates seamless communication between your TypeScript projects and on-chain programs by providing two primary methods for generating client libraries from a Sails IDL (Interface Definition Language):
+The Sails-JS library is a powerful tool designed to help developers interact with their [Sails](/docs/build/sails/) applications on Vara Network. It facilitates seamless communication between your TypeScript projects and on-chain programs by providing two primary methods for generating client libraries from a Sails IDL (Interface Definition Language), while relying on the [Gear-JS API](/docs/api) library for low-level communication with Vara nodes and network interactions:
 
 1. **Parsing IDL with the Sails Class**
 

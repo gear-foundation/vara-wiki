@@ -42,9 +42,17 @@ The Vara React Application Template is an invaluable resource for developers in 
 
 ## Installation
 
-Create new project based on this template:
+Create new project based on Vara template:
 
 ```sh
-npx degit gear-foundation/dapps-react-app dApp
+npx degit gear-foundation/dapps/frontend/templates/create-vara-app dApp
+cd dApp
+```
+
+Create new project based on Gear template:
+
+
+```sh
+npx degit gear-foundation/dapps/frontend/templates/create-gear-app dApp
 cd dApp
 ```

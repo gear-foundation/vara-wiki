@@ -7,7 +7,7 @@ sidebar_label: Vara React Application Template
 
 ## Accelerate Decentralized App Development
 
-For those looking to swiftly launch decentralized applications (dApps) on the Vara network, the Vara React Application Template, also known as `create-vara-app`, offers a pre-configured solution designed to streamline the development process. With its well-thought-out infrastructure and convenient features, this template allows for quick creation and deployment of dApps on the Vara network.
+For those looking to swiftly launch decentralized applications (dApps) on the Vara network, the Vara React Application Template, also known as `create-vara-app` or `create-gear-app`, offers a pre-configured solution designed to streamline the development process. With its well-thought-out infrastructure and convenient features, this template allows for quick creation and deployment of dApps on the Vara network.
 
 The Vara React Application Template is available in two themed variations:
 

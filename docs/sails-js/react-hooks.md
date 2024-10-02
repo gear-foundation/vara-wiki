@@ -164,7 +164,7 @@ export { App };
 
 ## Prepare Hooks
 
-When performing long-running asynchronous work in response to a user interaction (e.g., using "transactional" hooks such as [`useSendProgramTransaction`](#usesendprogramtransaction)), the user only receives feedback on the transaction status after invoking the click handler. Prepare hooks can be used to eagerly obtain values before user interaction or to perform upfront validation before sending a transaction.
+When performing long-running asynchronous work in response to a user transaction using [`useSendProgramTransaction`](#usesendprogramtransaction)) hook, the user only receives feedback on the transaction status after transaction is complete. Prepare hooks can be used to eagerly obtain values before user interaction or to perform upfront validation before sending a transaction.
 
 ### `usePrepareProgramTransaction`
 

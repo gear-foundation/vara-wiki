@@ -55,7 +55,7 @@ console.log(data);
 
 The `useSendProgramTransaction` hook is used to call a `function` (also referred to as a [command](/docs/build/sails/coreconcepts.md#service) in Sails) of a Sails `service` from the application deployed at `id`. It returns a mutation to sign and send a transaction for this purpose.
 
-> **Note:** These calls are wrapped in a [`TransactionBuilder`](transaction-builder.md) in `sails-js` and need to be signed and sent using the `signAndSend` method. The `useSendProgramTransaction` hook abstracts this process by internally specifying an account and a [`@gear-js/api`](/docs/api/api.mdx) instance, making it a shortcut for this procedure.
+> **Note:** The returned mutation callback is essentially a wrapper over the [`TransactionBuilder`](transaction-builder.md) in `sails-js` and its `signAndSend` method, which will be called upon mutation execution. The `useSendProgramTransaction` hook abstracts this process by internally specifying an account and a [`@gear-js/api`](/docs/api/api.mdx) instance, making it a shortcut for this procedure.
 
 **Example:**
 

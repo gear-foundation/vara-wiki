@@ -66,7 +66,7 @@ impl MyService {
 
 The program's main responsibility is to host one or more services and expose them to external consumers. The structure of a program is somewhat simpler compared to that of services. As with services, there are two possible variants for its **public** methods:
 
-- **Application Constructors**: Methods working over `Self` are treated as application constructors. These functions can accept some parameters
+- **Application Constructors**: Methods returning `Self` are treated as application constructors. These functions can accept some parameters
 passed by a client and can be synchronous or asynchronous. One of them will be called
 once at the very beginning of the application lifetime, i.e. when the application is
 loaded onto the network. The returned program instance will live until the application

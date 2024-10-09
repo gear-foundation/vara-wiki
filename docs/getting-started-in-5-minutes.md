@@ -82,7 +82,7 @@ Your `vara-app` directory tree should look like this:
     └──  README.md
     ```
     
-In `Cargo.toml`, the essential libraries required for building your first project have been included:
+In `Cargo.toml`, the essential libraries required for building your first project have been included, for example:
 
     ```rust title="vara-app/Cargo.toml"
     [workspace]

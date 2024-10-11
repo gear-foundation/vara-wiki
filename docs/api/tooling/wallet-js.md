@@ -7,7 +7,7 @@ sidebar_label: Vara Wallet Connect
 
 ## Connecting Substrate-Based Wallets in React Applications Using Vara Wallet Connect
 
-**Vara Wallet Connect** is an open-source module designed to easily integrate Substrate-based wallets into React applications. This module is part of the Gear.js library and can be used by any developer who wants to add wallet functionality to their dApp without building from scratch.
+**Vara Wallet Connect** is an open-source library designed to easily integrate Substrate-based wallets into React applications. This module is part of the Gear.js utilities and can be used by any developer who wants to add wallet functionality to their dApp without building from scratch.
 
 **Features**
 
@@ -17,7 +17,7 @@ sidebar_label: Vara Wallet Connect
 
 ### Installation
 
-To install the Vara Wallet Connect module, simply add it as a dependency to your React project via npm:
+To install the Vara Wallet Connect package, simply add it as a dependency to your React project via npm:
 
 ```bash
 npm install @gear-js/wallet-connect
@@ -31,61 +31,92 @@ yarn add @gear-js/wallet-connect
 
 ### Usage
 
-The code example below follows the structure provided in the [GitHub README](https://github.com/gear-tech/gear-js/blob/main/utils/wallet-connect/README.md), which uses React hooks to manage the wallet connection and user account selection:
+The code example below follows the structure provided in the [GitHub README](https://github.com/gear-tech/gear-js/blob/main/utils/wallet-connect/README.md), which uses React components to manage the wallet connection and user account selection:
 
-```javascript
-import { useWallet, Wallet } from '@gear-js/wallet-connect';
-import { useState } from 'react';
+```tsx
+import { Wallet } from '@gear-js/wallet-connect';
+import Logo from './logo.svg?react';
 
-function App() {
-  const { accounts, connecting, activeAccount, error, connect, disconnect } = useWallet();
-  const [wallet, setWallet] = useState(null);
-
-  const handleConnect = async () => {
-    const selectedWallet = await Wallet.connect();
-    setWallet(selectedWallet);
-    await connect(); // Initiate the connection process
-  };
-
+function Header() {
   return (
-    <div>
-      {connecting ? (
-        <p>Connecting...</p>
-      ) : activeAccount ? (
-        <p>Connected: {activeAccount.address}</p>
-      ) : (
-        <button onClick={handleConnect}>Connect Wallet</button>
-      )}
+    <header>
+      <Logo />
 
-      {error && <p>{error.message}</p>}
-
-      {accounts.length > 0 && (
-        <ul>
-          {accounts.map((account) => (
-            <li key={account.address}>{account.address}</li>
-          ))}
-        </ul>
-      )}
-      {activeAccount && <button onClick={disconnect}>Disconnect</button>}
-    </div>
+      <Wallet
+        theme="vara" // 'vara' (default) or 'gear' theme variation
+        displayBalance={true} // true (default) or false
+      />
+    </header>
   );
 }
 
-export default App;
-
+export { Header };
 ```
-
-The example provided here closely follows the official GitHub documentation and demonstrates how to handle connecting, disconnecting, and displaying multiple wallet accounts.
-
-**API Overview:**
-
-- `Wallet.connect()`: Initiates the connection process to available Substrate-based wallets.
-- `Wallet.disconnect()`: Disconnects the currently connected wallet.
-- `Wallet.getAccounts()`: Returns the list of accounts from the connected wallet.
-- `Wallet.signTransaction(transaction)`: Signs a transaction using the connected wallet.
 
 ### Customization and Advanced Usage
 
-The module allows for full customization of the wallet connection logic. Developers can set up custom wallet connection strategies, handle different wallet types, and manage multiple connections. For advanced integration scenarios, such as working with multiple wallets in a single application, the API provides hooks and methods to manage connections more granularly.
+The package is available in light (Vara-styled) and dark (Gear-styled) themes.
 
-The package is available in light (Vara-styled) and dark (Gear-styled) themes, for more details refer to the [GitHub README](https://github.com/gear-tech/gear-js/blob/main/utils/wallet-connect/README.md).
+#### Vara UI Theme
+
+Be aware that in order for `vara` theme to work as expected, `@gear-js/vara-ui` package should be installed with configured global styles:
+
+```jsx
+import { Wallet } from '@gear-js/wallet-connect';
+import '@gear-js/vara-ui/dist/style.css';
+
+function VaraWallet() {
+  return <Wallet theme="vara" />;
+}
+
+export { VaraWallet };
+```
+
+#### Gear UI Theme
+
+In order for `gear` theme to work as expected, `@gear-js/ui` package should be installed with configured global `index.scss`:
+
+```scss
+@use '@gear-js/ui/resets';
+@use '@gear-js/ui/typography';
+```
+
+```jsx
+import { Wallet } from '@gear-js/wallet-connect';
+import './index.scss';
+
+function GearWallet() {
+  return <Wallet theme="gear" />;
+}
+
+export { GearWallet };
+```
+
+#### Wallet Modal
+
+Package exports the raw `WalletModal` component. It can be useful if you want to programmatically call the modal from any place in your application.
+
+```tsx
+import { WalletModal } from '@gear-js/wallet-connect';
+import { useState } from 'react';
+
+function WalletButton() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  return (
+    <>
+      <button type='submit' onClick={openModal}>
+        Open Wallet Modal
+      </button>
+
+      {/* 'vara' (default) or 'gear' theme variation */}
+      {isModalOpen && <WalletModal theme='vara' close={closeModal} />}
+    </>
+  )
+}
+
+export { WalletButton }
+```

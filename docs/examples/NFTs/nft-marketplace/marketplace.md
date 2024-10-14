@@ -11,8 +11,8 @@ NFT marketplace is a program where anyone can buy and sell non-fungible tokens f
 
 The following are program examples available on GitHub: 
 
-- [Vara Non-Fungible Token](https://github.com/gear-foundation/dapps/tree/master/contracts/non-fungible-token).
-- [NFT marketplace](https://github.com/gear-foundation/dapps/tree/master/contracts/nft-marketplace).
+- [Vara Non-Fungible Token](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/non-fungible-token).
+- [NFT marketplace](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/nft-marketplace).
 - Marketplace UI available on [Github](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/nft-marketplace)
 
 Anyone can easily create their own NFT marketplace application and run it on Vara Network. 
@@ -21,8 +21,8 @@ Anyone can easily create their own NFT marketplace application and run it on Var
 
 ### ⚒️ Build programs
 
-- Build [NFT contract](https://github.com/gear-foundation/dapps/tree/master/contracts/non-fungible-token) as described in `README.md`
-- Build [Marketplace program](https://github.com/gear-foundation/dapps/tree/master/contracts/nft-marketplace) as described in `README.md`
+- Build [NFT contract](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/non-fungible-token) as described in `README.md`
+- Build [Marketplace program](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/nft-marketplace) as described in `README.md`
 
 ### 🏗️ Upload programs
 
@@ -409,7 +409,7 @@ extern fn state() {
 }
 ```
 
-To display only necessary certain values from the state, write a separate crate. In this crate, specify functions that will return the desired values from the `Market` state. For example - [gear-foundation/dapps-nft-marketplace/state](https://github.com/gear-foundation/dapps/tree/master/contracts/nft-marketplace/state):
+To display only necessary certain values from the state, write a separate crate. In this crate, specify functions that will return the desired values from the `Market` state. For example - [gear-foundation/dapps-nft-marketplace/state](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/nft-marketplace/state):
 
 ```rust title="nft-marketplace/state/src/lib.rs"
 #[gmeta::metawasm]

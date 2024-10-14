@@ -11,7 +11,7 @@ A Dutch auction is one of several types of auctions for buying or selling goods.
 
 The auction uses [Vara non-fungible tokens (VFT)](/docs/examples/Standards/vnft.md) as tradable goods.
 
-This article explains the programming interface, data structure, basic functions, and their respective purposes. The program can be used as-is or modified to suit specific scenarios. Anyone can easily create an application and run it on the Gear Network. The source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/dutch-auction).
+This article explains the programming interface, data structure, basic functions, and their respective purposes. The program can be used as-is or modified to suit specific scenarios. Anyone can easily create an application and run it on the Gear Network. The source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dutch-auction).
 
 ## Program Description
 
@@ -122,7 +122,7 @@ extern fn state() {
         .expect("Failed to encode or reply with `AuctionInfo` from `state()`");
 }
 ```
-To display only specific values from the state, write a separate crate. In this crate, specify functions that will return the desired values from the `AuctionInfo` state. For example, see [dutch-auction/state](https://github.com/gear-foundation/dapps/tree/master/contracts/dutch-auction/state):
+To display only specific values from the state, write a separate crate. In this crate, specify functions that will return the desired values from the `AuctionInfo` state. For example, see [dutch-auction/state](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dutch-auction/state):
 
 ```rust title="dutch-auction/state/src/lib.rs"
 #[gmeta::metawasm]
@@ -140,8 +140,8 @@ pub mod metafns {
 
 ## Source Code
 
-The source code for this example of a Dutch Auction program and an implementation of its testing is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/dutch-auction).
+The source code for this example of a Dutch Auction program and an implementation of its testing is available on [GitHub](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dutch-auction).
 
-See also an example of the program testing implementation based on `gtest`: [gear-foundation/dapps/dutch-auction/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/dutch-auction/tests).
+See also an example of the program testing implementation based on `gtest`: [gear-foundation/dapps/dutch-auction/tests](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dutch-auction/tests).
 
 For more details about testing programs written on Vara, refer to the [Program Testing](/docs/build/testing) article.

@@ -14,7 +14,7 @@ While transactions on a centralized exchange are recorded in that exchange's int
 
 DEXs are usually built on open-source code, allowing anyone interested to see exactly how they work. This also means that developers can adapt existing code to create new competing projects, as seen with Uniswap's code being adapted by various DEXs like Sushiswap and Pancakeswap.
 
-The exchange uses [Vara fungible tokens (VFT)](/docs/examples/Standards/vft) for the tokens and the [Gear-lib FT wrapper](https://github.com/gear-foundation/dapps/tree/master/contracts/gear-lib-old/src/fungible_token) for the pair to track liquidity.
+The exchange uses [Vara fungible tokens (VFT)](/docs/examples/Standards/vft) for the tokens and the [Gear-lib FT wrapper](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/gear-lib-old/src/fungible_token) for the pair to track liquidity.
 
 ### Math
 All prices are algorithmically calculated. Investors provide funds to the liquidity pools, and the price is calculated according to the amount of tokens in the reserves using the following formula:
@@ -128,7 +128,7 @@ extern "C" fn state() {
         .expect("Failed to encode or reply with `<ContractMetadata as Metadata>::State` from `state()`");
 }
 ```
-To display only specific values from the state, write a separate crate. In this crate, specify functions that will return the desired values from the `State` struct. For example, see [gear-foundation/dapps/dex/factory/state](https://github.com/gear-foundation/dapps/tree/master/contracts/dex/factory/state):
+To display only specific values from the state, write a separate crate. In this crate, specify functions that will return the desired values from the `State` struct. For example, see [gear-foundation/dapps/dex/factory/state](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dex/factory/state):
 
 ```rust
 #[metawasm]
@@ -186,9 +186,9 @@ async fn create_pair(&mut self, mut token_a: ActorId, mut token_b: ActorId);
 ```
 
 ### Source Code
-The source code of this DEX factory program example and its testing implementation is available on [gear-foundation/dapps/dex/factory](https://github.com/gear-foundation/dapps/tree/master/contracts/dex/factory).
+The source code of this DEX factory program example and its testing implementation is available on [gear-foundation/dapps/dex/factory](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dex/factory).
 
-See also an example of the program testing implementation based on `gtest`: [tests/utils/factory.rs](https://github.com/gear-foundation/dapps/blob/master/contracts/dex/tests/utils/factory.rs).
+See also an example of the program testing implementation based on `gtest`: [tests/utils/factory.rs](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dex/tests/utils/factory.rs).
 
 For more details about testing programs written on Vara, refer to the [Program Testing](/docs/build/testing) article.
 

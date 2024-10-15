@@ -17,7 +17,7 @@ DAOs provide secure alternatives for pooling funds for a particular cause. It's 
 
 ### DAO application example
 
-Anyone can easily create their own DAO application and run it on the Vara Network. To facilitate this, use an example of the DAO program (smart contract), which is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/dao-light).
+Anyone can easily create their own DAO application and run it on the Vara Network. To facilitate this, use an example of the DAO program (smart contract), which is available on [GitHub](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dao-light).
 
 This article explains the programming interface, data structure, basic functions, and their purposes. You can use it as-is or modify it to suit your own scenarios.
 
@@ -283,7 +283,7 @@ extern fn state() {
         .expect("Failed to encode or reply with `DaoState` from `state()`");
 }
 ```
-To display only necessary certain values from the state, you need to write a separate crate. In this crate, specify functions that will return the desired values from the `DaoState` state. For example - [gear-foundation/dapps/dao/state](https://github.com/gear-foundation/dapps/tree/master/contracts/dao/state):
+To display only necessary certain values from the state, you need to write a separate crate. In this crate, specify functions that will return the desired values from the `DaoState` state. For example - [gear-foundation/dapps/dao/state](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dao/state):
 
 ```rust title="dao-light/state/src/lib.rs"
 #[gmeta::metawasm]
@@ -314,9 +314,9 @@ pub mod metafns {
 ```
 
 ## Source code
-The source code for this DAO program example and its testing implementation are available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/dao-light).
+The source code for this DAO program example and its testing implementation are available on [GitHub](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dao-light).
 
-The extended version of DAO that includes admin, membership proposals and delegated voting can be found at [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/dao).
+The extended version of DAO that includes admin, membership proposals and delegated voting can be found at [GitHub](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dao).
 
 <!--The application source code is available in: [https://github.com/gear-foundation/dapps-dao-app](https://github.com/gear-foundation/dapps-dao-app).
 -->

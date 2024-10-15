@@ -8,8 +8,8 @@ sidebar_position: 2
 
 An escrow is a special wallet to which certain assets (e.g., money or stocks) are deposited and stored until specific conditions are met. In terms of programs, an escrow is a wallet stored on a blockchain that, like a traditional escrow, can receive assets (e.g., cryptocurrency or fungible tokens, such as [Vara fungible tokens - VFT](../Standards/vft.md) in this example) from one user and, when certain conditions are met, send them to another.
 
-- Program source code is avalible on [Github](https://github.com/gear-foundation/dapps/tree/master/contracts/escrow)
-- dApp UI [Github](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/escrow)
+- Program source code is avalible on [Github](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/escrow)
+- dApp UI [Github](https://github.com/gear-foundation/dapps/tree/3f59be8c871dd1eceea5f5768a7dc275c3a29f0a/frontend/apps/escrow)
 
 ## How to run
 
@@ -17,8 +17,8 @@ This video demonstrates how to configure and run Escrow application on your own 
 
 ### ⚒️ Build program
 
-- Get the source code of the [Escrow program](https://github.com/gear-foundation/dapps/tree/master/contracts/escrow)
-- Build program as described in [program/README.md](https://github.com/gear-foundation/dapps/blob/master/contracts/escrow/README.md).
+- Get the source code of the [Escrow program](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/escrow)
+- Build program as described in [program/README.md](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/escrow/README.md).
 
 ### 🏗️ Upload Сode
 
@@ -30,7 +30,7 @@ This application requires code to create an escrow wallet
 
 ### 🖥️ Run UI
 
-1. Install packages as described in [frontend/README.md](https://github.com/gear-foundation/dapps/blob/master/frontend/apps/escrow/README.md)
+1. Install packages as described in [frontend/README.md](https://github.com/gear-foundation/dapps/tree/3f59be8c871dd1eceea5f5768a7dc275c3a29f0a/frontend/apps/escrow/README.md)
 2. Configure .evn file. Specify network address and code ID like in the example below:
 
 ```sh

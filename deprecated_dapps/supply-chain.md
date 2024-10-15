@@ -6,8 +6,8 @@ sidebar_position: 2
 
 In logistics, a supply chain is a system for tracking and delivering to an end consumer various items. As a rule, such systems can't work without a lot of paperwork and other layers of bureaucracy. All of this costs a lot of time and money and increases the likelihood of an accidental error or, worst of all, a fraud. With the help of smart contracts (programs) and blockchain technologies, it is possible to eliminate these problems by making a supply chain more efficient, reliable and transparent.
 
-- [Supply chain program](https://github.com/gear-foundation/dapps/tree/master/contracts/supply-chain).
-- [Supply chain UI](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/supply-chain).
+- [Supply chain program](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/supply-chain).
+- [Supply chain UI](https://github.com/gear-foundation/dapps/tree/3f59be8c871dd1eceea5f5768a7dc275c3a29f0a/frontend/apps/supply-chain).
 
 ## How to run
 
@@ -15,9 +15,9 @@ In logistics, a supply chain is a system for tracking and delivering to an end c
 
 Upload Supply chain program requires build two auxiliary programs:
 
-- Build [NFT contract](https://github.com/gear-foundation/dapps/tree/master/contracts/non-fungible-token) as described in `README.md`
-- Build [Sharded FT contract](https://github.com/gear-foundation/dapps/tree/master/contracts/sharded-fungible-token) as described in `README.md`
-- Build [Supply Chain program](https://github.com/gear-foundation/dapps/tree/master/contracts/supply-chain) as described in `README.md`
+- Build [NFT contract](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/non-fungible-token) as described in `README.md`
+- Build [Sharded FT contract](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/sharded-fungible-token) as described in `README.md`
+- Build [Supply Chain program](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/supply-chain) as described in `README.md`
 
 ### 🏗️ Upload programs
 
@@ -65,7 +65,7 @@ yarn install
 
 2. Configure .evn file. Specify network address and program ID like in the example below:
 
-For proper application functioning, one needs to adjust an environment variable parameters. An example is available [here](https://github.com/gear-foundation/dapps/blob/master/frontend/apps/supply-chain/.env.example).
+For proper application functioning, one needs to adjust an environment variable parameters. An example is available [here](https://github.com/gear-foundation/dapps/tree/3f59be8c871dd1eceea5f5768a7dc275c3a29f0a/frontend/apps/supply-chain/.env.example).
 
 ```sh
 REACT_APP_NODE_ADDRESS=wss://rpc-node.gear-tech.io
@@ -592,7 +592,7 @@ extern fn state() {
     msg::reply(state, 0).expect("Failed to encode or reply with `State` from `state()`");
 }
 ```
-To display only necessary certain values from the state, you need to write a separate crate. In this crate, specify functions that will return the desired values from the `State` struct. For example - [supply-chain/state](https://github.com/gear-foundation/dapps/tree/master/contracts/supply-chain/state):
+To display only necessary certain values from the state, you need to write a separate crate. In this crate, specify functions that will return the desired values from the `State` struct. For example - [supply-chain/state](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/supply-chain/state):
 
 ```rust title="supply-chain/state/src/lib.rs"
 #[gmeta::metawasm]
@@ -654,6 +654,6 @@ pub mod metafns {
 
 ## Source code
 
-The source code of this example of a supply chain program and an implementation of its testing is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/supply-chain). They can be used as is or modified to suit your own scenarios.
+The source code of this example of a supply chain program and an implementation of its testing is available on [GitHub](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/supply-chain). They can be used as is or modified to suit your own scenarios.
 
 For more details about testing programs written on Vara, refer to the [Program Testing](/docs/build/testing) article.

@@ -9,7 +9,7 @@ sidebar_position: 5
 
 Staking is an analogue of a bank deposit, providing passive earnings through the simple storage of cryptocurrency tokens. The percentage of income may vary depending on the term of the deposit.
 
-Anyone can create a Staking program and run it on the Gear Network. An example is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/staking).
+Anyone can create a Staking program and run it on the Gear Network. An example is available on [GitHub](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/staking).
 
 This article explains the programming interface, data structure, basic functions, and their purposes. The program can be used as-is or modified to suit specific scenarios.
 
@@ -389,11 +389,11 @@ The `Staking` program interacts with the `fungible` token contract. Each transac
 
 ## Conclusion
 
-The source code of this example of a staking program is available on GitHub: [`staking/src/lib.rs`](https://github.com/gear-foundation/dapps/blob/master/contracts/staking/src/lib.rs).
+The source code of this example of a staking program is available on GitHub: [`staking/src/lib.rs`](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/staking/src/lib.rs).
 
 See also examples of the program testing implementation based on gtest:
 
-- [`simple_test.rs`](https://github.com/gear-foundation/dapps/blob/master/contracts/staking/tests/simple_test.rs).
-- [`panic_test.rs`](https://github.com/gear-foundation/dapps/blob/master/contracts/staking/tests/panic_test.rs).
+- [`simple_test.rs`](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/staking/tests/simple_test.rs).
+- [`panic_test.rs`](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/staking/tests/panic_test.rs).
 
 For more details about testing programs written on Vara, refer to this article: [Program testing](/docs/build/testing).

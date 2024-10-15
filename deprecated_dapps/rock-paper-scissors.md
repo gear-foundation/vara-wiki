@@ -12,7 +12,7 @@ A simultaneous, zero-sum game, it has three possible outcomes: a draw, a win or 
 
 One popular five-weapon expansion is "rock paper scissors Spock lizard", invented by Sam Kass and Karen Bryla, which adds "Spock" and "lizard" to the standard three choices. "Spock" is signified with the Star Trek Vulcan salute, while "lizard" is shown by forming the hand into a sock-puppet-like mouth. Spock smashes scissors and vaporizes rock; he is poisoned by lizard and disproved by paper. Lizard poisons Spock and eats paper; it is crushed by rock and decapitated by scissors. This variant was mentioned in a 2005 article in The Times of London and was later the subject of an episode of the American sitcom The Big Bang Theory in 2008 (as rock-paper-scissors-lizard-Spock).
 
-Anyone can easily create their own decentralized game application and run it on the Gear Network. To do this, Gear made a "rock paper scissors Spock lizard" game version for multiple players, in which the winner can be determined in several rounds of tense struggle. The source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/rock-paper-scissors). This article explains the programming interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios.
+Anyone can easily create their own decentralized game application and run it on the Gear Network. To do this, Gear made a "rock paper scissors Spock lizard" game version for multiple players, in which the winner can be determined in several rounds of tense struggle. The source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/rock-paper-scissors). This article explains the programming interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios.
 
 ## Logic
 
@@ -213,7 +213,7 @@ extern fn state() {
         .expect("Failed to encode or reply with `ContractState` from `state()`");
 }
 ```
-To display only necessary certain values from the state, you need to write a separate crate. In this crate, specify functions that will return the desired values from the `ContractState` state. For example - [rock-paper-scissors/state](https://github.com/gear-foundation/dapps/tree/master/contracts/rock-paper-scissors/state):
+To display only necessary certain values from the state, you need to write a separate crate. In this crate, specify functions that will return the desired values from the `ContractState` state. For example - [rock-paper-scissors/state](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/rock-paper-scissors/state):
 
 ```rust title="rock-paper-scissors/state/src/lib.rs"
 #[gmeta::metawasm]
@@ -240,6 +240,6 @@ pub mod metafns {
 
 ## Source code
 
-The source code of Rock Paper Scissors implementation and the example of an implementation of its testing is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/rock-paper-scissors).
+The source code of Rock Paper Scissors implementation and the example of an implementation of its testing is available on [GitHub](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/rock-paper-scissors).
 
 For more details about testing programs written on Vara, refer to the [Program Testing](/docs/build/testing) article.

@@ -13,7 +13,7 @@ In this example, a single deployed program can hold one concert at a time. First
 
 The idea is simple - all the internal token interactions are handled using the VMT program, which address must be provided upon initializing a concert program.
 
-The article explains the programming interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit any custom scenarios. Anyone can easily create their own application and run it on the Vara Network. The source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/concert).
+The article explains the programming interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit any custom scenarios. Anyone can easily create their own application and run it on the Vara Network. The source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/f80c9ca301912fbfbfb2e0a4d3c8f7aa2506d522/contracts/concert).
 
 ## Interface
 
@@ -135,8 +135,8 @@ extern fn state() {
 ```
 
 ## Conclusion
-A source code of the program example is available on GitHub: [`concert/src`](https://github.com/gear-foundation/dapps/tree/master/contracts/concert/src).
+A source code of the program example is available on GitHub: [`concert/src`](https://github.com/gear-foundation/dapps/tree/f80c9ca301912fbfbfb2e0a4d3c8f7aa2506d522/contracts/concert/src).
 
-See also an example of the program testing implementation based on [gtest](https://github.com/gear-foundation/dapps/tree/master/contracts/concert/tests).
+See also an example of the program testing implementation based on [gtest](https://github.com/gear-foundation/dapps/tree/f80c9ca301912fbfbfb2e0a4d3c8f7aa2506d522/contracts/concert/tests).
 
 For more details about testing programs on Vara, refer to this article: [Program Testing](/docs/build/testing).

@@ -11,7 +11,7 @@ A public offering to help build brand-new cryptocurrency or other digital assets
 
 The example of a crowdsale program implementation described in this article is just one of many decentralized applications that can be implemented and launched on Gear. This article explains the programming interface, data structure, basic functions, and their purposes. It can be used as-is or modified to suit specific scenarios. Anyone can easily create a crowdsale application and run it on the Vara network.
 
-The initial resources used to acquire tokens are determined by the Vara fungible tokens contract - [VFT](/docs/examples/Standards/vft.md). The program's source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/crowdsale).
+The initial resources used to acquire tokens are determined by the Vara fungible tokens contract - [VFT](/docs/examples/Standards/vft.md). The program's source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/crowdsale).
 
 ## Interface
 
@@ -206,6 +206,6 @@ pub mod metafns {
 
 ## Conclusion
 
-The source code of this example of an ICO program and the example of an implementation of its testing is available on [Github](https://github.com/gear-foundation/dapps/tree/master/contracts/crowdsale).
+The source code of this example of an ICO program and the example of an implementation of its testing is available on [Github](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/crowdsale).
 
 For more details about testing programs written on Vara, refer to the [Program Testing](/docs/build/testing.md) article.

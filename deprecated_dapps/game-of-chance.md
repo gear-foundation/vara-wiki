@@ -8,15 +8,15 @@ sidebar_position: 5
 
 Game of chance is a simple game program with the lottery logic.
 
-- Program source code available on [Github](https://github.com/gear-foundation/dapps/tree/master/contracts/game-of-chance)
-- dApp UI [Github](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/game-of-chance)
+- Program source code available on [Github](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/game-of-chance)
+- dApp UI [Github](https://github.com/gear-foundation/dapps/tree/3f59be8c871dd1eceea5f5768a7dc275c3a29f0a/frontend/apps/game-of-chance)
 
 ## How to run
 
 ### ⚒️ Build program
 
-- Get the source code of [GOC contract](https://github.com/gear-foundation/dapps/tree/master/contracts/game-of-chance)
-- Build programs as described in [program/README.md](https://github.com/gear-foundation/dapps/blob/master/contracts/game-of-chance/README.md).
+- Get the source code of [GOC contract](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/game-of-chance)
+- Build programs as described in [program/README.md](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/game-of-chance/README.md).
 
 ### 🏗️ Upload program
 
@@ -28,7 +28,7 @@ Game of chance is a simple game program with the lottery logic.
 
 ### 🖥️ Run UI
 
-1. Install packages as described in [frontend/README.md](https://github.com/gear-foundation/dapps/blob/master/frontend/apps/game-of-chance/README.md)
+1. Install packages as described in [frontend/README.md](https://github.com/gear-foundation/dapps/tree/3f59be8c871dd1eceea5f5768a7dc275c3a29f0a/frontend/apps/game-of-chance/README.md)
 2. Configure `.env` file. Specify network address and program ID like in the example below:
 
 ```sh
@@ -174,6 +174,6 @@ To display only necessary certain values from the state, you need to write a sep
 
 ## Source code
 
-The source code of the Game of Chance program and an implementation of its testing are available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/game-of-chance). They can be used as is or modified to suit your own scenarios.
+The source code of the Game of Chance program and an implementation of its testing are available on [GitHub](https://github.com/gear-foundation/dapps/tree/3f59be8c871dd1eceea5f5768a7dc275c3a29f0a/frontend/apps/game-of-chance). They can be used as is or modified to suit your own scenarios.
 
 For more details about testing programs written on Vara, refer to the [Program Testing](/docs/build/testing) article.

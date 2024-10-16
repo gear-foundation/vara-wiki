@@ -11,7 +11,7 @@ sidebar_label: Vara Wallet Connect
 
 **Features**
 
-- **Multiple Wallet Support**: The library supports connecting to various Substrate-based wallets such as Polkadot.js, Talisman, and others.
+- **Multiple Wallet Support**: The library supports connecting to various Substrate-based wallets such as [SubWallet](https://www.subwallet.app/), [Talisman](https://www.talisman.xyz/), [Nova Wallet](https://novawallet.io/), [Polkadot.js extension](https://polkadot.js.org/extension/) and others.
 - **Ease of Use**: It provides a simple interface to connect and interact with wallets using standard Web3 APIs.
 - **Flexibility**: The module allows for full customization and integration into different React applications, making it suitable for diverse use cases.
 

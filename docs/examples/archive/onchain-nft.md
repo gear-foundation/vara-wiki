@@ -1,6 +1,6 @@
 ---
 sidebar_label: OnChain NFT
-sidebar_position: 2
+sidebar_position: 11
 ---
 
 # On-chain gNFT assets

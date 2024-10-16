@@ -1,6 +1,6 @@
 ---
 sidebar_label: Galactic Express
-sidebar_position: 7
+sidebar_position: 9
 ---
 
 # Galactic Express Game

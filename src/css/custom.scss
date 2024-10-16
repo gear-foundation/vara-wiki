@@ -80,8 +80,8 @@
   .typo-title-1 {
     @apply font-semibold lg:font-medium text-[42px] md:text-[46px] lg:text-[52px] xl:text-[62px] 2xl:text-[72px] leading-[50px] md:leading-[55px] lg:leading-[62px] xl:leading-[74px] 2xl:leading-[86px];
   }
-}
 
+}
 
 html {
   font-size: 16px;
@@ -239,5 +239,16 @@ div[class^="announcementBar"][role="banner"] {
   #__cookbook,
   .navbar {
     display: none;
+  }
+}
+
+.archive-category {
+  color: gray; 
+  font-style: italic;
+  opacity: 0.5;
+
+  &:hover {
+    color: darkgray;
+    opacity: 0.7;
   }
 }

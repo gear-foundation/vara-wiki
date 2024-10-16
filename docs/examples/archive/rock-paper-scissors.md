@@ -1,6 +1,6 @@
 ---
 sidebar_label: Rock Paper Scissors
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # Rock Paper Scissors

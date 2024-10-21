@@ -1,6 +1,6 @@
 ---
 sidebar_label: VNFT (ERC-721)
-sidebar_position: 3
+sidebar_position: 2
 ---
 
 # Vara Non-Fungible Token

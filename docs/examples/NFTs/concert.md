@@ -7,7 +7,7 @@ sidebar_position: 14
 
 ## Introduction
 
-The idea of this program is to demonstrate a real-life scenario where a fungible token (VFT) transforms into a non-fungible one (VNFT), representing the [Vara Miltiple Token Standard (VMT)](/docs/examples/Standards/gmt-1155.md) utilization. For example, when buying a concert ticket without a specific seat, all tickets are the same and interchangeable (fungible). However, once the concert is over, the electronic ticket can turn into a unique non-fungible token, belonging solely to you and serving as a reminder of the event.
+The idea of this program is to demonstrate a real-life scenario where a fungible token (VFT) transforms into a non-fungible one (VNFT), representing the [Vara Miltiple Token Standard (VMT)](/docs/examples/Standards/vmt.md) utilization. For example, when buying a concert ticket without a specific seat, all tickets are the same and interchangeable (fungible). However, once the concert is over, the electronic ticket can turn into a unique non-fungible token, belonging solely to you and serving as a reminder of the event.
 
 In this example, a single deployed program can hold one concert at a time. Firstly, all the tickets for the concert come as fungible-tokens. In order to buy tickets, one should provide the metadata (e.g. seat/row number) that will later be included in NFTs. When the concert ends, all the fungible tokens of all users (ticket holders) will turn into NFTs.
 

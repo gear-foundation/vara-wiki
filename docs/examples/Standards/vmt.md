@@ -25,6 +25,7 @@ The VMT service includes the following functions:
 - `TransferFrom(from, to, id, amount)`
 - `BatchTransferFrom(from, to, ids, amounts)`
 - `BalanceOf(account, id)`
+- `BalanceOfBatch(accounts, ids)`
 - `IsApproved(account, operator)`
 - `Name()`
 - `Symbol()`
@@ -79,6 +80,14 @@ Returns the balance of tokens for a given account and token ID.
 
 ```rust
 pub fn balance_of(&self, account: ActorId, id: TokenId) -> U256
+```
+
+#### `BalanceOfBatch`
+
+Returns the balances of tokens for the specified accounts and token IDs.
+
+```rust
+pub fn balance_of_batch(&self, accounts: Vec<ActorId>, id: Vec<TokenId>) -> Vec<U256>
 ```
 
 #### `IsApproved`
@@ -288,6 +297,7 @@ service Vmt {
   query Burners : () -> vec actor_id;
   query Minters : () -> vec actor_id;
   query BalanceOf : (account: actor_id, id: u256) -> u256;
+  query BalanceOfBatch : (accounts: vec actor_id, ids: vec u256) -> vec u256;
   query Decimals : () -> u8;
 
 

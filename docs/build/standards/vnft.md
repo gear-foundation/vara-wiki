@@ -11,6 +11,10 @@ The Vara Non-Fungible Token Standard is the analogue of ERC-721 on Ethereum.
 
 The Vara Non-Fungible Token (VNFT) Standard provides a unified API for programs to implement non-fungible token (NFT) functionalities. It encompasses critical operations like token transfer and approvals for third-party spending on the blockchain. Below is a detailed look at the state of the program, its interface, and key methods to facilitate these operations.
 
+:::tip
+The project code is developed using the [Sails](../../build/sails/sails.mdx) framework.
+::: 
+
 ## Functions
 
 ```

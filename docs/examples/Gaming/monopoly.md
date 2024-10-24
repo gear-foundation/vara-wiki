@@ -142,12 +142,12 @@ yarn start
 
 ![img alt](../img/monopoly-2.png)
 
-4. If the game is not over, make more reservations and send a message `GameAction::Play` again. After the game is over, it's state becomes Finished and the admin can restart the game by starting a new player registration.
+4. If the game is not over, make more reservations and send a message `Play` again. After the game is over, it's state becomes Finished and the admin can restart the game by starting a new player registration.
 
 ## Programs
 ### Master program
 
-The [Master program](https://github.com/gear-foundation/dapps/tree/master/contracts/syndote/src) initiates with monopoly card details (cell cost, special cells like jail and lottery) and is preloaded with sufficient gas for automated play. Prior to each player's move, the master program verifies the gas amount, triggering a message to the game admin for additional gas reservation if needed.
+The [Master program](https://github.com/gear-foundation/dapps/tree/master/contracts/syndote) initiates with monopoly card details (cell cost, special cells like jail and lottery) and is preloaded with sufficient gas for automated play. Prior to each player's move, the master program verifies the gas amount, triggering a message to the game admin for additional gas reservation if needed.
 
 **Players registration**:
 Players deploy their strategic programs and send a message `Register` to `Master` program. Master program:
@@ -191,7 +191,7 @@ During actions `AddGear` and `Upgrade` a player can sell his other properties to
 ### Player's program
 `Player` is a program in which the monopoly game strategy is implemented. It must meet the following requirements:
 - It has to accept the following message from `Master` program:
-    ```rust title="syndote/io/src/lib.rs"
+    ```rust title="syndote/app/src/services/syndote/utils.rs"
     pub struct YourTurn {
         pub players: Vec<(ActorId, PlayerInfo)>,
         pub properties: Vec<Option<(ActorId, Gears, Price, Rent)>>,

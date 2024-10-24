@@ -9,9 +9,13 @@ sidebar_position: 2
 The Vara Non-Fungible Token Standard is the analogue of ERC-721 on Ethereum.
 :::
 
-The Vara Non-Fungible Token Standard outlines a unified API for implementing non-fungible token functionalities in programs. The initial section of this document provides a comprehensive examination of the core VNFT service, which serves as a foundational framework. It covers essential operations such as token transfers and approvals for third-party spending, detailing the contract state, interface, and key methods involved. The source code of the standard is avaiable on the [GitHub](https://github.com/gear-foundation/standards/tree/master/vnft-service).
+The Vara Non-Fungible Token Standard outlines a unified API for implementing non-fungible token functionalities in programs. The initial section of this document provides a comprehensive examination of the core VNFT service, which serves as a foundational framework. It covers essential operations such as token transfers and approvals for third-party spending, detailing the contract state, interface, and key methods involved. The source code of the standard-service is avaiable on the [GitHub](https://github.com/gear-foundation/standards/tree/master/vnft-service).
 
 The subsequent section expands on how to leverage and extend this core service to develop a fully functional token application. It illustrates the process of adding advanced features like minting and burning, demonstrating how to build upon the core VNFT service to create a comprehensive and customizable token system. This extension highlights the flexibility and potential of the core standard, providing a pathway to develop more sophisticated and tailored token solutions. The source code of the extended version is avaiable on the [GitHub](https://github.com/gear-foundation/standards/tree/master/extended-vnft).
+
+:::tip
+The project code is developed using the [Sails](../../build/sails/sails.mdx) framework.
+:::  
 
 ## Functions
 
@@ -289,5 +293,5 @@ For a more detailed implementation, the code for the Extended VNFT can be found 
 
 ## Conclusion
 
-The core VNFT service establishes a robust foundation for implementing non-fungible tokens within the Vara ecosystem, encompassing essential functionalities that adhere to recognized token standards. This service functions as a fundamental core, with the Extended VNFT illustrating how it can be expanded to incorporate advanced capabilities, including minting, burning, and role management. Together, these implementations provide a comprehensive framework for developers, facilitating the creation of tailored and sophisticated token systems. By utilizing both the core service and its extended functionalities, developers are well-positioned to design flexible and secure token solutions that address specific requirements and enhance overall system capabilities.
+The core [VNFT service](https://github.com/gear-foundation/standards/tree/master/vnft-service) establishes a robust foundation for implementing non-fungible tokens within the Vara ecosystem, encompassing essential functionalities that adhere to recognized token standards. This service functions as a fundamental core, with the [Extended VNFT](https://github.com/gear-foundation/standards/tree/master/extended-vnft) illustrating how it can be expanded to incorporate advanced capabilities, including minting, burning, and role management. Together, these implementations provide a comprehensive framework for developers, facilitating the creation of tailored and sophisticated token systems. By utilizing both the core service and its extended functionalities, developers are well-positioned to design flexible and secure token solutions that address specific requirements and enhance overall system capabilities.
 

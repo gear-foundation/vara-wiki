@@ -11,9 +11,13 @@ sidebar_position: 3
 The Vara Multi-Token (VMT) Standard is the analogue of ERC-1155 on Ethereum.
 :::
 
-The VMT Standard outlines a unified API for implementing multi-token functionality in programs. The initial section provides an in-depth exploration of the core VMT service, covering operations like batch token transfers and token balance queries, detailing the contract state, interface, and key methods.
+The VMT Standard outlines a unified API for implementing multi-token functionality in programs. The initial section provides an in-depth exploration of the core VMT service, covering operations like batch token transfers and token balance queries, detailing the contract state, interface, and key methods. The source code of the standard-service is avaiable on the [GitHub](https://github.com/gear-foundation/standards/tree/master/vmt-service).
 
-The following section expands on extending this core service to develop a fully functional multi-token application. This part illustrates how to incorporate minting and burning capabilities and advanced management features, building upon the core VMT service to create a robust and flexible token system.
+The following section expands on extending this core service to develop a fully functional multi-token application. This part illustrates how to incorporate minting and burning capabilities and advanced management features, building upon the core VMT service to create a robust and flexible token system. The source code of the extended version is avaiable on the [GitHub](https://github.com/gear-foundation/standards/tree/master/extended-vmt).
+ 
+:::tip
+The project code is developed using the [Sails](../../build/sails/sails.mdx) framework.
+:::  
 
 ## Core VMT Service
 

@@ -9,9 +9,13 @@ sidebar_position: 1
 The Vara Fungible Token Standard is the analogue of ERC-20 on Ethereum.
 :::
 
-The Vara Fungible Token Standard outlines a unified API for implementing fungible token functionalities in programs. The initial section of this document provides a comprehensive examination of the core VFT service, which serves as a foundational framework. It covers essential operations such as token transfers and approvals for third-party spending, detailing the contract state, interface, and key methods involved.
+The Vara Fungible Token Standard outlines a unified API for implementing fungible token functionalities in programs. The initial section of this document provides a comprehensive examination of the core VFT service, which serves as a foundational framework. It covers essential operations such as token transfers and approvals for third-party spending, detailing the contract state, interface, and key methods involved. The source code of the standard-service is avaiable on the [GitHub](https://github.com/gear-foundation/standards/tree/master/vft-service).
 
-The subsequent section expands on how to leverage and extend this core service to develop a fully functional token application. It illustrates the process of adding advanced features like minting and burning, demonstrating how to build upon the core VFT service to create a comprehensive and customizable token system. This extension highlights the flexibility and potential of the core standard, providing a pathway to develop more sophisticated and tailored token solutions.
+The subsequent section expands on how to leverage and extend this core service to develop a fully functional token application. It illustrates the process of adding advanced features like minting and burning, demonstrating how to build upon the core VFT service to create a comprehensive and customizable token system. This extension highlights the flexibility and potential of the core standard, providing a pathway to develop more sophisticated and tailored token solutions. The source code of the extended version is avaiable on the [GitHub](https://github.com/gear-foundation/standards/tree/master/extended-vft).
+
+:::tip
+The project code is developed using the [Sails](../../build/sails/sails.mdx) framework.
+::: 
 
 ## Core VFT Service
 
@@ -271,4 +275,4 @@ For a more detailed implementation, the code for the Extended VFT can be found o
 
 ## Conclusion
 
-The core VFT service establishes a robust foundation for implementing fungible tokens within the Vara ecosystem, encompassing essential functionalities that adhere to recognized token standards. This service functions as a fundamental core, with the Extended VFT illustrating how it can be expanded to incorporate advanced capabilities, including minting, burning, and role management. Together, these implementations provide a comprehensive framework for developers, facilitating the creation of tailored and sophisticated token systems. By utilizing both the core service and its extended functionalities, developers are well-positioned to design flexible and secure token solutions that address specific requirements and enhance overall system capabilities.
+The core [VFT service](https://github.com/gear-foundation/standards/tree/master/vft-service) establishes a robust foundation for implementing fungible tokens within the Vara ecosystem, encompassing essential functionalities that adhere to recognized token standards. This service functions as a fundamental core, with the [Extended VFT](https://github.com/gear-foundation/standards/tree/master/extended-vft) illustrating how it can be expanded to incorporate advanced capabilities, including minting, burning, and role management. Together, these implementations provide a comprehensive framework for developers, facilitating the creation of tailored and sophisticated token systems. By utilizing both the core service and its extended functionalities, developers are well-positioned to design flexible and secure token solutions that address specific requirements and enhance overall system capabilities.

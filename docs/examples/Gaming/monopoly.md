@@ -191,7 +191,7 @@ During actions `AddGear` and `Upgrade` a player can sell his other properties to
 ### Player's program
 `Player` is a program in which the monopoly game strategy is implemented. It must meet the following requirements:
 - It has to accept the following message from `Master` program:
-    ```rust title="syndote/app/src/services/syndote/utils.rs"
+    ```rust title="syndote/app/src/services/game/utils.rs"
     pub struct YourTurn {
         pub players: Vec<(ActorId, PlayerInfo)>,
         pub properties: Vec<Option<(ActorId, Gears, Price, Rent)>>,

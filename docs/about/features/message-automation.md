@@ -23,7 +23,7 @@ Perhaps most interestingly, gas reservation allows a program to send a message t
 
 This opens up a wide range of possibilities for the implementation of functional logic related to **continuing messaging automation** in programs. Delayed messages are similar to cron jobs, which cannot be implemented in programs on other blockchain platforms without the use of external resources. The remarkable advantage of this solution is that it eliminates the need for centralized components in dApps, ensuring they function **completely on-chain** and are fully decentralized and autonomous.
 
-Applications that use delayed messages in their business logic and their source code are shown in the [Program Examples](/examples/examples.mdx) section. These include applications such as: [Tamagotchi battle](/examples/Gaming/tamagotchi-battle.md), [VaraTube](/examples/Infra/varatube.md), [Dynamic NFT](/examples/NFTs/dynamic-nft.md).
+Applications that use delayed messages in their business logic and their source code are shown in the [Program Examples](/examples/examples.mdx) section. These include applications such as: [Game Battle](/examples/Gaming/battle.md), [VaraTube](/examples/Infra/varatube.md), [Dynamic NFT](/examples/NFTs/dynamic-nft.md).
 
 ## Use cases
 

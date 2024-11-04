@@ -1,24 +1,44 @@
 ---
-sidebar_label: Battle
+sidebar_label: Web3 Warriors
 sidebar_position: 6
 ---
 
-# Battle Game
+# Web3 Warriors Battle
 
-The Battle game is a strategic, turn-based PvP (player-versus-player) game where players compete in combat rounds, using moves like attacks, dodges, and special abilities to outmaneuver and defeat their opponents. Each player’s stats, including attack, defense, and dodge skills, affect their chance of success in the match. The game offers a dynamic experience where players build up their characters and participate in battles to achieve victory.
+The Battle game is a strategic, turn-based PvP (player-versus-player) game where players compete in combat rounds, using moves like attacks, dodges, and special abilities to outmaneuver and defeat their opponents. Each player’s stats, including attack, defense, and dodge skills, affect their chance of success in the match. The game offers a dynamic experience where players build up their characters (warriors) and participate in battles to achieve victory.
 
 This project introduces unique features, such as [gas reservations](/docs/build/gstd/gas-reservation.md) and [delayed messaging](/docs/build/gstd/delayed-messages.md), to make the gameplay more automated and engaging. Gas reservation ensures that each player reserves the necessary resources to cover the gas costs of their moves in advance, maintaining the fluidity of the game even when players might not make a move on time. Delayed messages then trigger automated actions if a player doesn't make their move within the time limit, ensuring that the match progresses without interruptions. This setup keeps battles smooth and fair, allowing each round to continue seamlessly and creating a more immersive gaming experience. Messaging automation can also be read about in this [article](/docs/about/features/message-automation.md).
 
-<!-- ![Battle](../img/battle.png) -->
-
+![Battle](../img/w3wbattle.jpg)
 
 The source code, developed using the [Sails](../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/battle).
 The [frontend application](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/web3-warriors-battle) facilitates gameplay and interacts with the smart program.
 This article describes the program interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios.
 
-Everyone can play the game via this link - [Play Battle](https://w3w-battle.vara.network/) (VARA tokens are requred for gas fees).
+Everyone can play the game via this link - [Play Battle on the testnet](https://w3w-battle.vara.network/) (free TVARA tokens are requred for gas fees).
 
 ## Implementation details
+
+## Warrior
+
+Warriors are the main characters in the Battle, representing programs uploaded to the Vara network. To start or join a game, a player must specify their Warrior during registration or when creating a battle. There are two ways to select a player’s Warrior:
+
+1.	Warriors can be generated directly from the Battle UI with randomly selected appearance options, which are then used by the Battle program.
+
+2. Alternatively, players can specify their own Warrior program address within the Battle game. This option allows players to develop and upload unique Warriors for participation in battles, ensuring each Warrior reflects the creativity of its creator.
+
+Those interested in crafting their own Warriors can use the example program as a foundation, and build it following the instructions provided in the [README](https://github.com/gear-foundation/dapps/tree/master/contracts/battle/warrior). To customize the Warrior’s appearance, simply modify parameters in the [`lib.rs` file](https://github.com/gear-foundation/dapps/blob/master/contracts/battle/warrior/app/src/lib.rs). 
+For example:
+```rust
+appearance: Appearance {
+    head_index: 1,
+    hat_index: 2,
+    body_index: 3,
+    accessory_index: 4,
+    body_color: "#008000".to_string(),
+    back_color: "#0000FF".to_string(),
+},
+```
 
 ### Program description
 
@@ -775,12 +795,6 @@ pub fn start_next_fight(storage: &mut Storage) -> Result<Event, BattleError> {
 - `admins(&self)`: returns the list of administrators
 
 - `config(&self)`: returns the game configuration
-
-## Warrior
-
-Players have the capability to create and upload their own warrior programs, enabling them to develop unique warriors for participation in battles. During the registration or creation of a battle, players can conveniently specify the address of their warrior program. This functionality ensures that each warrior reflects the creativity of its creator.
-
-For individuals interested in crafting their own warriors, detailed instructions on how to develop a warrior program are available in the [README](https://github.com/gear-foundation/dapps/tree/master/contracts/battle/warrior). This guide outlines all the necessary steps to effectively bring a unique warrior to life within the arena.
 
 ## Source code
 

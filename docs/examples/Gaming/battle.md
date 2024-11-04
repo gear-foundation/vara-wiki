@@ -17,8 +17,6 @@ This article describes the program interface, data structure, basic functions an
 
 Everyone can play the game via this link - [Play Battle on the testnet](https://w3w-battle.vara.network/) (free TVARA tokens are requred for gas fees).
 
-## Implementation details
-
 ## Warrior
 
 Warriors are the main characters in the Battle, representing programs uploaded to the Vara network. To start or join a game, a player must specify their Warrior during registration or when creating a battle. There are two ways to select a player’s Warrior:
@@ -39,6 +37,7 @@ appearance: Appearance {
     back_color: "#0000FF".to_string(),
 },
 ```
+## Battle implementation details
 
 ### Program description
 

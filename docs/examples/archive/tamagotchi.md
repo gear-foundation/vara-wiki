@@ -1,6 +1,6 @@
 ---
 sidebar_label: Tamagotchi
-sidebar_position: 8
+sidebar_position: 14
 ---
 
 # Tamagotchi

@@ -11,11 +11,11 @@ One of the well-known drawbacks of other platforms' smart contracts is that they
 
 While classic smart contract logic may rely on users to initiate transactions and awaken the contract, many cases require a trigger when certain conditions are met, such as reaching a specific point in time or the occurrence of a particular event. In the past, this has either limited the capabilities of smart contracts or required developers to introduce a centralized service to trigger smart contracts.
 
-Now thanks to Gear Protocol's support for asynchronous messaging, program developers can implement arbitrary logic with [delayed messages](/build/gstd/delayed-messages.md) that can wake the program after a specified period of time or in response to certain events. This enables a much more extensive range of use cases for programs, unlocks new decentralized functionality, and unlocks more value for users in the blockchain ecosystem.
+Now thanks to Gear Protocol's support for asynchronous messaging, program developers can implement arbitrary logic with [delayed messages](/docs/build/gstd/delayed-messages.md) that can wake the program after a specified period of time or in response to certain events. This enables a much more extensive range of use cases for programs, unlocks new decentralized functionality, and unlocks more value for users in the blockchain ecosystem.
 
 ## Continuing messaging automation
 
-The execution of any messages in Vara, including the [system messages](/build/gstd/system-signals.md), consumes "gas". The Gear Protocol introduces the concept of [gas reservation](/build/gstd/gas-reservation.md), which allows for the creation of gas pools that can be used by programs for further execution. Each pool is unique to the program that creates it, and the gas from the pool can be consumed by the program if its "gas_available" is not sufficient.
+The execution of any messages in Vara, including the [system messages](/docs/build/gstd/system-signals.md), consumes "gas". The Gear Protocol introduces the concept of [gas reservation](/docs/build/gstd/gas-reservation.md), which allows for the creation of gas pools that can be used by programs for further execution. Each pool is unique to the program that creates it, and the gas from the pool can be consumed by the program if its "gas_available" is not sufficient.
 
 One of the key benefits of the gas reservation is the ability to send **delayed messages** that can be triggered automatically at a specific time in the future. These messages, like any other message in Vara, can invoke another program in the network or appear in the user's mailbox.
 
@@ -23,7 +23,7 @@ Perhaps most interestingly, gas reservation allows a program to send a message t
 
 This opens up a wide range of possibilities for the implementation of functional logic related to **continuing messaging automation** in programs. Delayed messages are similar to cron jobs, which cannot be implemented in programs on other blockchain platforms without the use of external resources. The remarkable advantage of this solution is that it eliminates the need for centralized components in dApps, ensuring they function **completely on-chain** and are fully decentralized and autonomous.
 
-Applications that use delayed messages in their business logic and their source code are shown in the [Program Examples](/examples/examples.mdx) section. These include applications such as: [Tamagotchi battle](/examples/Gaming/tamagotchi-battle.md), [VaraTube](/examples/Infra/varatube.md), [Dynamic NFT](/examples/NFTs/dynamic-nft.md).
+Applications that use delayed messages in their business logic and their source code are shown in the [Program Examples](/examples/examples.mdx) section. These include applications such as: [Game Battle](/examples/Gaming/battle.md), [VaraTube](/examples/Infra/varatube.md), [Dynamic NFT](/examples/NFTs/dynamic-nft.md).
 
 ## Use cases
 
@@ -46,7 +46,7 @@ Overall, the ability to update NFTs dynamically opens up a wide range of possibi
 
 Everyone knows that the most successful games are those that are exciting, that you play with pleasure.
 
-The success of such games depends on the right game mechanics established by the developers. The Gear Protocol offers a tool for developing such games and running them on [Vara](https://vara.network/). Features such as [delayed messages](/build/gstd/delayed-messages.md), [gasless and signless transactions](/docs/api/vouchers.md), and [gas reservation](/build/gstd/gas-reservation.md) become essential tools for developers aiming to create successful games on the Vara Network.
+The success of such games depends on the right game mechanics established by the developers. The Gear Protocol offers a tool for developing such games and running them on [Vara](https://vara.network/). Features such as [delayed messages](/docs/build/gstd/delayed-messages.md), [gasless and signless transactions](/docs/api/vouchers.md), and [gas reservation](/docs/build/gstd/gas-reservation.md) become essential tools for developers aiming to create successful games on the Vara Network.
 
 Here are a few of the many examples where such functionality would be useful:
 

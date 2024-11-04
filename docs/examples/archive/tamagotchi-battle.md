@@ -1,6 +1,6 @@
 ---
 sidebar_label: Tamagotchi Battle
-sidebar_position: 9
+sidebar_position: 15
 ---
 
 # Tamagotchi Battle

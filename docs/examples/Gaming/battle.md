@@ -13,7 +13,7 @@ This project introduces unique features, such as [gas reservations](/docs/build/
 
 
 The source code, developed using the [Sails](../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/battle).
-The [frontend application](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/battle) facilitates gameplay and interacts with the smart program.
+The [frontend application](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/web3-warriors-battle) facilitates gameplay and interacts with the smart program.
 This article describes the program interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios.
 
 Everyone can play the game via this link - [Play Battle](https://w3w-battle.vara.network/) (VARA tokens are requred for gas fees).

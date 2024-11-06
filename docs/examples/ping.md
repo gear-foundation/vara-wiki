@@ -8,7 +8,7 @@ sidebar_position: 2
 Explore the simplicity of coding with Vara through a minimal program that demonstrates a [Ping-Pong](https://github.com/gear-foundation/dapps/tree/master/contracts/ping-pong) service.
 
 :::tip
-The project code is developed using the [Sails](../../build/sails/sails.mdx) framework.
+The project code is developed using the [Sails](/docs/build/sails/sails.mdx) framework.
 ::: 
 
 ## Implementation details

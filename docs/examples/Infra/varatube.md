@@ -41,17 +41,17 @@ The VaraTube consists of two programs:
 
 ### ⚒️ Build program
 
-- Get the source code of [VaraTube program](https://github.com/gear-foundation/dapps/tree/master/contracts/varatube/src) and [Fungible Token contract](https://github.com/gear-foundation/dapps/tree/master/contracts/fungible-token)
-- Build programs as described in [README.md](https://github.com/gear-foundation/dapps/tree/master/contracts/fungible-token#readme).
+- Get the source code of [VaraTube program](https://github.com/gear-foundation/dapps/tree/master/contracts/varatube) and [Fungible Token contract](https://github.com/gear-foundation/standards/tree/master/extended-vft)
+- Build programs as described in [README.md](https://github.com/gear-foundation/standards/tree/master/extended-vft#readme).
 
 ### 🏗️ Upload program
 
 1. Deploy a program using [idea.gear-tech.io](https://idea.gear-tech.io/)
 2. In the network selector choose `Vara Network Testnet` or `Development` if you have running a local node
 3. Upload program `varatube.opt.wasm` from `/target/wasm32-unknown-unknown/release/`
-4. Upload metadata file `meta.txt`
+4. Upload idl file `varatube.idl` from `varatube/wasm`
 5. Specify `init payload` and calculate gas!
-6. Repeat steps #3-5 for uploading Fungible Token contract `fungible_token.opt.wasm`...
+6. Repeat steps #3-5 for uploading Fungible Token contract `extended_vft.opt.wasm`...
 
 ### 🖥️ Run UI
 

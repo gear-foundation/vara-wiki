@@ -5,100 +5,51 @@ sidebar_position: 2
 
 # PING-PONG
 
-Vara is very easy to write code for! Let's look at the [minimal program](https://github.com/gear-foundation/dapps/tree/master/contracts/ping).
+Explore the simplicity of coding with Vara through a minimal program that demonstrates a [Ping-Pong](https://github.com/gear-foundation/dapps/tree/master/contracts/ping-pong) service.
 
-The code of the program is in the `src/lib.rs` file. The program replies with `Pong` string if the sender sent `Ping` message to it. It also saves how many times a user sent a ping message to the program.
-So, the program contains:
-- message log definition:
-```rust title="ping/src/lib.rs"
-static mut MESSAGE_LOG: Vec<String> = vec![];
-```
-- entry point `handle`:
-```rust title="ping/src/lib.rs"
-#[no_mangle]
-extern fn handle() {
-    let new_msg: String = msg::load().expect("Unable to create string");
+:::tip
+The project code is developed using the [Sails](/docs/build/sails/sails.mdx) framework.
+::: 
 
-    if new_msg == "PING" {
-        msg::reply_bytes("PONG", 0).expect("Unable to reply");
-    }
+## Implementation details
 
-    unsafe {
-        MESSAGE_LOG.push(new_msg);
+The Ping-Pong program is found in the `app/src/lib.rs` file and responds with a *"Pong!"* message every time it receives a `ping` request. Additionally, it keeps a count of the pings received, allowing users to track their interactions with the service.
 
-        debug!("{:?} total message(s) stored: ", MESSAGE_LOG.len());
+The code below defines a basic `PingPongService` using the `sails` framework:
 
-        for log in &MESSAGE_LOG {
-            debug!("{log:?}");
+```rust title="app/src/lib.rs"
+#[sails_rs::service]
+impl PingPongService {
+    fn init() -> Self {
+        unsafe {
+            PING_COUNTER = Some(U256::zero());
         }
+        Self(())
     }
-}
-```
-- `state` function that allows to read the program state:
-```rust title="ping/src/lib.rs"
-#[no_mangle]
-extern fn state() {
-    msg::reply(unsafe { MESSAGE_LOG.clone() }, 0)
-        .expect("Failed to encode or reply with `<AppMetadata as Metadata>::State` from `state()`");
-}
-```
+    // Service's method (command)
+    pub fn ping(&mut self) -> String {
+        let ping_counter = self.get_mut();
+        *ping_counter += U256::one();
+        "Pong!".to_string()
+    }
 
-The `io` crate defines the program metadata.
-```rust title="ping/io/src/lib.rs"
-#![no_std]
-
-use gmeta::{InOut, Metadata, Out};
-use gstd::prelude::*;
-
-pub struct DemoPingMetadata;
-
-impl Metadata for DemoPingMetadata {
-    type Init = ();
-    type Handle = InOut<String, String>;
-    type Others = ();
-    type Reply = ();
-    type Signal = ();
-    type State = Out<Vec<String>>;
-}
-```
-The `DemoPingMetadata` struct is used in `build.rs` in order to generate `meta.txt` file:
-```rust title="ping/build.rs"
-use ping_io::DemoPingMetadata;
-
-fn main() {
-    gear_wasm_builder::build_with_metadata::<DemoPingMetadata>();
+    // Service's query
+    pub fn get_ping_count(&self) -> U256 {
+        *self.get()
+    }    
 }
 ```
 
-The `state` is the independent crate for reading the program state. It depends on the `ping-io` crate where the type of the program state is defined:
-```rust title="ping/state/src/lib.rs"
-#![no_std]
+This code outlines the `PingPongService` with the `sails_rs::service` macro and includes the following core functions:
 
-use gstd::prelude::*;
+- `init()`: This initializes the `PingPongService` by setting a global `PING_COUNTER` to zero, preparing it for tracking future pings.
+- `ping(&mut self) -> String`: This command method increments the ping counter on each call and returns the response *"Pong!"*.
+- `get_ping_count(&self) -> U256`: This query method provides the current count of pings without altering the state, allowing external users to view the interaction count.
 
-#[gmeta::metawasm]
-pub mod metafns {
-    pub type State = Vec<String>;
+## Source code
 
-    pub fn get_first_message(state: State) -> String {
-        state.first().expect("Message log is empty!").to_string()
-    }
+The source code of this example of Ping-Pong program and the example of an implementation of its testing is available on [gear-foundation/dapp/contracts/ping-pong](https://github.com/gear-foundation/dapps/tree/master/contracts/ping-pong).
 
-    pub fn get_last_message(state: State) -> String {
-        state.last().expect("Message log is empty!").to_string()
-    }
+See also an example of the smart contract testing implementation based on `gtest`: [gear-foundation/dapps/vara-man/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/ping-pong/tests).
 
-    pub fn get_messages_len(state: State) -> u64 {
-        state.len() as u64
-    }
-
-    pub fn get_message(state: State, index: u64) -> String {
-        state
-            .get(index as usize)
-            .expect("Invalid index!")
-            .to_string()
-    }
-}
-```
-
-In the tests directory, you can see an example of testing the program using `gclient` and `gtest`. For more details about testing Vara programs, refer to the [Program Testing](/docs/build/testing.md) article.
+For more details about testing programs written on Gear, refer to the [Program Testing](/docs/build/testing) article.

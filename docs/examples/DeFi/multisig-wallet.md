@@ -13,7 +13,7 @@ To illustrate, think of a bank vault that demands multiple keys to unlock; this 
 
 Advocates of multisignature wallets argue that they offer the most secure and fail-proof method for storing cryptocurrency. Even if a thief were to obtain one of the wallet keys, they would still be unable to access the account without the keys associated with the other wallets in the setup.
 
-This article provides an explanation of the programming interface, data structure, basic functions, and their respective purposes. It can be used as-is or customized to fit specific needs. Anyone can create an application and deploy it on the Gear Network. The source code is accessible on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/multisig-wallet).
+This article provides an explanation of the programming interface, data structure, basic functions, and their respective purposes. It can be used as-is or customized to fit specific needs. Anyone can create an application and deploy it on the Gear Network. The source code, developed using the [Sails](../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/multisig-wallet).
 
 ## Logic
 
@@ -35,55 +35,103 @@ The transaction approval logic is complex, for example:
 
 ## Interface
 
-### Init Config
+### Program description
 
-```rust title="multisig-wallet/io/src/lib.rs"
-pub struct MWInitConfig {
-    pub owners: Vec<ActorId>,
+The program contains the following information
+
+```rust title="multisig-wallet/app/src/utils.rs"
+pub struct MultisigWallet {
+    pub transactions: HashMap<TransactionId, Transaction>,
+    pub confirmations: HashMap<TransactionId, HashSet<ActorId>>,
+    pub owners: HashSet<ActorId>,
     pub required: u32,
+    pub transaction_count: U256,
 }
 ```
 
-Describes the initial state of the wallet.
-- `owners` - a list of owners of the new wallet
-- `required` - required confirmations count to approve and execute the transaction
+* `transactions` - a mapping of `TransactionId` to `Transaction` that stores all transactions in the wallet
+* `confirmations` - a mapping of `TransactionId` to a set of `ActorIds`, representing confirmations by each owner for specific transactions
+* `owners` - a set of `ActorIds` representing the authorized owners of the wallet
+* `required` - the number of confirmations required to execute a transaction
+* `transaction_count` - a counter tracking the number of transactions
+
+Where `Transaction` is defined as follows:
+
+```rust title="multisig-wallet/app/src/utils.rs"
+pub struct Transaction {
+    pub destination: ActorId,
+    pub payload: Vec<u8>,
+    pub value: u128,
+    pub description: Option<String>,
+    pub executed: bool,
+}
+```
+
+* `destination` - the account where the transaction funds or actions are directed
+* `payload` - data related to the transaction, potentially containing specific instructions or actions
+* `value` - the amount of funds or value to transfer
+* `description` - an optional description providing context for the transaction
+* `executed` - a boolean indicating if the transaction has been executed
+
+### Initialization
+
+During program initialization, the following variables are set: the list of wallet owners and the minimum number of confirmations required to execute a transaction.
+
+```rust title="multisig-wallet/app/src/lib.rs"
+fn init(owners: Vec<ActorId>, required: u32) -> Self {
+    let owners_count = owners.len();
+
+    validate_requirement(owners_count, required);
+
+    let mut wallet = MultisigWallet::default();
+
+    for owner in &owners {
+        if wallet.owners.contains(owner) {
+            panic!("The same owner contained twice")
+        } else {
+            wallet.owners.insert(*owner);
+        }
+    }
+
+    wallet.required = required;
+
+    unsafe { STORAGE = Some(wallet) };
+    Self(())
+}
+```
 
 ### Actions
 
-```rust title="multisig-wallet/io/src/lib.rs"
-pub enum MWAction {
-    AddOwner(ActorId),
-    RemoveOwner(ActorId),
-    ReplaceOwner {
-        old_owner: ActorId,
-        new_owner: ActorId,
-    },
-    ChangeRequiredConfirmationsCount(u32),
-    SubmitTransaction {
-        destination: ActorId,
-        data: Vec<u8>,
-        value: u128,
-        description: Option<String>,
-    },
-    ConfirmTransaction(U256),
-    RevokeConfirmation(U256),
-    ExecuteTransaction(U256),
-}
+```rust title="multisig-wallet/app/src/lib.rs"
+pub fn add_owner(&mut self, owner: ActorId);
+pub fn remove_owner(&mut self, owner: ActorId);
+pub fn replace_owner(&mut self, old_owner: ActorId, new_owner: ActorId);
+pub fn change_required_confirmations_count(&mut self, count: u32);
+pub fn submit_transaction(
+    &mut self,
+    destination: ActorId,
+    data: Vec<u8>,
+    value: u128,
+    description: Option<String>,
+);
+pub fn confirm_transaction(&mut self, transaction_id: U256);
+pub fn revoke_confirmation(&mut self, transaction_id: U256);
+pub fn execute_transaction(&mut self, transaction_id: U256);
 ```
 
-- `AddOwner` is an action to add a new owner. The action has to be used through `SubmitTransaction`.
-- `RemoveOwner` is an action to remove an owner. The action has to be used through `SubmitTransaction`.
-- `ReplaceOwner` is an action to replace an owner with a new owner. The action has to be used through `SubmitTransaction`.
-- `ChangeRequiredConfirmationsCount` is an action to change the number of required confirmations. The action has to be used through `SubmitTransaction`.
-- `SubmitTransaction` is an action that allows an owner to submit and automatically confirm a transaction.
-- `ConfirmTransaction` is an action that allows an owner to confirm a transaction. If this is the last confirmation, the transaction is automatically executed.
-- `RevokeConfirmation` is an action that allows an owner to revoke a confirmation for a transaction.
-- `ExecuteTransaction` is an action that allows anyone to execute a confirmed transaction.
+- `add_owner` is an action to add a new owner. The action has to be used through `submit_transaction`.
+- `remove_owner` is an action to remove an owner. The action has to be used through `submit_transaction`.
+- `replace_owner` is an action to replace an owner with a new owner. The action has to be used through `submit_transaction`.
+- `change_required_confirmations_count` is an action to change the number of required confirmations. The action has to be used through `submit_transaction`.
+- `submit_transaction` is an action that allows an owner to submit and automatically confirm a transaction.
+- `confirm_transaction` is an action that allows an owner to confirm a transaction. If this is the last confirmation, the transaction is automatically executed.
+- `revoke_confirmation` is an action that allows an owner to revoke a confirmation for a transaction.
+- `execute_transaction` is an action that allows anyone to execute a confirmed transaction.
 
 ### Events
 
-```rust title="multisig-wallet/io/src/lib.rs"
-pub enum MWEvent {
+```rust title="multisig-wallet/app/src/lib.rs"
+pub enum Event {
     Confirmation {
         sender: ActorId,
         transaction_id: U256,
@@ -121,150 +169,22 @@ pub enum MWEvent {
 - `OwnerReplace` is an event that occurs when the wallet uses the `ReplaceOwner` action successfully.
 - `RequirementChange` is an event that occurs when the wallet uses the `ChangeRequiredConfirmationsCount` action successfully.
 
-### Program Metadata and State
+### Query
 
-Metadata interface description:
-
-```rust title="multisig-wallet/io/src/lib.rs"
-pub struct ContractMetadata;
-
-impl Metadata for ContractMetadata {
-    type Init = In<MWInitConfig>;
-    type Handle = InOut<MWAction, MWEvent>;
-    type Reply = ();
-    type Others = ();
-    type Signal = ();
-    type State = Out<State>;
+```rust title="multisig-wallet/app/src/lib.rs"
+pub fn get_state(&self) -> State {
+    self.get().clone().into()
 }
 ```
-To display the full contract state information, the `state()` function is used:
+Where `State` is defined as follows:
 
-```rust title="multisig-wallet/src/lib.rs"
-#[no_mangle]
-extern fn state() {
-    let contract = unsafe { WALLET.take().expect("Unexpected error in taking state") };
-    msg::reply::<State>(contract.into(), 0)
-        .expect("Failed to encode or reply with `State` from `state()`");
-}
-```
-To display only specific values from the state, write a separate crate. In this crate, specify functions that will return the desired values from the `State` struct. For example, see [gear-foundation/dapps/multisig-wallet/state](https://github.com/gear-foundation/dapps/tree/master/contracts/multisig-wallet/state):
-
-```rust title="multisig-wallet/state/src/lib.rs"
-#[gmeta::metawasm]
-pub mod metafns {
-    pub type State = multisig_wallet_io::State;
-
-    /// Returns number of confirmations of a transaction.
-    /// `transaction_id` Transaction ID.
-    /// Number of confirmations.
-    pub fn confirmations_count(state: State, transaction_id: TransactionId) -> Option<u32> {
-        common_confirmations_count(&state, transaction_id)
-    }
-
-    /// Returns total number of transactions after filters are applied.
-    /// `pending` Include pending transactions.
-    /// `executed` Include executed transactions.
-    /// Total number of transactions after filters are applied.
-    pub fn transactions_count(state: State, pending: bool, executed: bool) -> u32 {
-        state
-            .transactions
-            .into_iter()
-            .filter(|(_, tx)| (pending && !tx.executed) || (executed && tx.executed))
-            .count() as _
-    }
-
-    /// Returns list of owners.
-    /// List of owner addresses.
-    pub fn owners(state: State) -> Vec<ActorId> {
-        state.owners
-    }
-
-    /// Returns array with owner addresses, which confirmed transaction.
-    /// `transaction_id` Transaction ID.
-    /// Returns array of owner addresses.
-    pub fn confirmations(state: State, transaction_id: TransactionId) -> Option<Vec<ActorId>> {
-        state
-            .confirmations
-            .into_iter()
-            .find_map(|(tx_id, confirmations)| (tx_id == transaction_id).then_some(confirmations))
-    }
-
-    /// Returns list of transaction IDs in defined range.
-    /// `from` Index start position of transaction array.
-    /// `to` Index end position of transaction array (not included).
-    /// `pending` Include pending transactions.
-    /// `executed` Include executed transactions.
-    /// `Returns` array of transaction IDs.
-    pub fn transaction_ids(
-        state: State,
-        from: u32,
-        to: u32,
-        pending: bool,
-        executed: bool,
-    ) -> Vec<TransactionId> {
-        state
-            .transactions
-            .into_iter()
-            .filter(|(_, tx)| (pending && !tx.executed) || (executed && tx.executed))
-            .map(|(
-
-id, _)| id)
-            .take(to as _)
-            .skip(from as _)
-            .collect()
-    }
-
-    /// Returns the confirmation status of a transaction.
-    /// `transaction_id` Transaction ID.
-    pub fn is_confirmed(state: State, transaction_id: TransactionId) -> bool {
-        let required = state.required;
-
-        if let Some(count) = common_confirmations_count(&state, transaction_id) {
-            count >= required
-        } else {
-            false
-        }
-    }
-
-    /// Returns the description of a transaction.
-    /// `transaction_id` Transaction ID.
-    pub fn transaction_description(
-        state: State,
-        transaction_id: TransactionId,
-    ) -> Option<Option<String>> {
-        state
-            .transactions
-            .into_iter()
-            .find_map(|(tx_id, tx)| (tx_id == transaction_id).then_some(tx.description))
-    }
-}
-```
-
-- `ConfirmationsCount` returns the number of confirmations of a transaction whose ID is a parameter.
-- `TransactionsCount` returns the total number of transactions after filters are applied. `pending` includes transactions that have not been executed yet, `executed` includes transactions that have been completed.
-- `Owners` returns the list of owners.
-- `Confirmations` returns an array with owner addresses that confirmed the transaction whose ID is a parameter.
-- `TransactionIds` returns a list of transaction IDs in a defined range.
-  - `from` index start position of the transaction array.
-  - `to` index end position of the transaction array (not included).
-  - `pending` include pending transactions.
-  - `executed` include executed transactions.
-- `IsConfirmed` returns the confirmation status of the transaction whose ID is a parameter.
-- `Description` returns the description of the transaction whose ID is a parameter.
-
-Each state request has a corresponding reply with the same name.
-
-*Replies:*
-
-```rust
-pub enum StateReply {
-    ConfirmationCount(u64),
-    TransactionsCount(u64),
-    Owners(Vec<ActorId>),
-    Confirmations(Vec<ActorId>),
-    TransactionIds(Vec<U256>),
-    IsConfirmed(bool),
-    Description(Option<String>)
+```rust title="multisig-wallet/app/src/utils.rs"
+pub struct State {
+    pub transactions: Vec<(TransactionId, Transaction)>,
+    pub confirmations: Vec<(TransactionId, Vec<ActorId>)>,
+    pub owners: Vec<ActorId>,
+    pub required: u32,
+    pub transaction_count: U256,
 }
 ```
 

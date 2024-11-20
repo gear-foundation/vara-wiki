@@ -11,50 +11,27 @@ NFT marketplace is a program where anyone can buy and sell non-fungible tokens f
 
 The following are program examples available on GitHub: 
 
-- [Vara Non-Fungible Token](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/non-fungible-token).
-- [NFT marketplace](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/nft-marketplace).
+- [Vara Non-Fungible Token](https://github.com/gear-foundation/standards/tree/master/extended-vnft).
+- [Vara Fungible Token](https://github.com/gear-foundation/standards/tree/master/extended-vft).
+- [NFT marketplace](https://github.com/gear-foundation/dapps/tree/master/contracts/nft-marketplace).
 - Marketplace UI available on [Github](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/nft-marketplace)
 
 Anyone can easily create their own NFT marketplace application and run it on Vara Network. 
+
+:::tip
+The project code is developed using the [Sails](../../build/sails/sails.mdx) framework.
+::: 
 
 ## How to run
 
 ### ⚒️ Build programs
 
-- Build [NFT contract](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/non-fungible-token) as described in `README.md`
+- Build [NFT contract](https://github.com/gear-foundation/standards/tree/master/extended-vnft) as described in `README.md`
 - Build [Marketplace program](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/nft-marketplace) as described in `README.md`
 
 ### 🏗️ Upload programs
 
 A program can be deployed to the network using [idea.gear-tech.io](https://idea.gear-tech.io/). In the network selector, choose `Vara Network Testnet` or `Development` (in this case, the application will connect to a locally running Vara node).
-
-**Non-Fungible Token**
-
-1. Upload program `nft.opt.wasm` from `/target/wasm32-unknown-unknown/release/`
-2. Upload metadata file `meta.txt`
-3. Specify `init payload` and calculate gas!
-
-:::info
-Init payload:
-- name `Str` - NFT collection name
-- symbol `Str` - NFT collection symbol
-- base_uri `Str` - NFT collection base URI
-- royalties `Option<Royalties>` - Optional param to specify accounts to pay royalties
-:::
-
-**Marketplace**
-
-1. Upload program `marketplace.opt.wasm` from `/target/wasm32-unknown-unknown/release/`
-2. Upload metadata file `meta.txt`
-3. Specify `init payload` and calculate gas!
-
-:::info
-InitMarket payload:
-
-- admin_id (ActorId) -  marketplace admin
-- treasury_id (ActorId) - an account that receives a commission from sales on the marketplace
-- treasury_fee (U16) -  sales commission
-:::
 
 ### 🖥️ Run UI
 
@@ -92,44 +69,30 @@ yarn start
 
 This article explains the programming interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios.
 
-<!-- You can watch a video on how to get the NFT Marketplace application up and running and its capabilities here: **https://youtu.be/4suveOT3O-Y**.
--->
-
 ## Logic
 The program state:
-```rust title="nft-marketplace/io/src/lib.rs"
+```rust title="nft-marketplace/app/src/utils.rs"
 pub struct Market {
     pub admin_id: ActorId,
-    pub treasury_id: ActorId,
-    pub treasury_fee: u16,
-    pub items: BTreeMap<(ContractId, TokenId), Item>,
-    pub approved_nft_contracts: BTreeSet<ActorId>,
-    pub approved_ft_contracts: BTreeSet<ActorId>,
-    pub tx_id: TransactionId,
+    pub items: HashMap<(ContractId, TokenId), Item>,
+    pub approved_nft_contracts: HashSet<ActorId>,
+    pub approved_ft_contracts: HashSet<ActorId>,
 }
 ```
 - `admin_id` - an account who has the right to approve non-fungible-token and fungible-tokens contracts that can be used in the marketplace program;
-- `treasury_id` - an account to which sales commission will be credited;
-- `treasury_fee` - commission percentage (from 1 to 5 percent)
-
-The marketplace program is initialized with the following fields;
-
 - `items` - listed NFTs;
 - `approved_nft_contracts` - NFT contracts accounts that can be listed on the marketplace;
 - `approved_ft_contracts` - fungible token accounts for which it is possible to buy marketplace items;
-- `tx_id` - the id for tracking transactions in the fungible and non-fungible contracts (See the description of [fungible token](/examples/Standards/vft.md) and [non-fungible token](/examples/Standards/vnft.md)).
-
 
 The marketplace item has the following struct:
-```rust title="nft-marketplace/io/src/lib.rs"
+```rust title="nft-marketplace/app/src/utils.rs"
 pub struct Item {
     pub token_id: TokenId,
     pub owner: ActorId,
     pub ft_contract_id: Option<ContractId>,
     pub price: Option<Price>,
     pub auction: Option<Auction>,
-    pub offers: BTreeMap<(Option<ContractId>, Price), ActorId>,
-    pub tx: Option<(TransactionId, MarketTx)>,
+    pub offers: HashMap<(Option<ContractId>, Price), ActorId>,
 }
 ```
 - `token_id` is the ID of the NFT within its contract.
@@ -138,82 +101,76 @@ pub struct Item {
 - `price` - the item price. `None` field means that the item is not on the sale;
 - `auction` - a field containing information on the current auction. `None` field means that there is no current auction on the item;
 - `offers` - purchase offers made on that item;
-- `tx` - a pending transaction on the item. `None` means that there are no pending transactions.
 
-`MarketTx` is an enum of possible transactions that can occur with NFT:
+### Listing NFTs, changing the price or stopping the sale.
 
-```rust title="nft-marketplace/io/src/lib.rs"
-#[derive(Debug, Encode, Decode, TypeInfo, Clone, PartialEq, Eq)]
-pub enum MarketTx {
-    CreateAuction,
-    Bid {
-        account: ActorId,
-        price: Price,
-    },
-    SettleAuction,
-    Sale {
-        buyer: ActorId,
-    },
-    Offer {
-        ft_id: ContractId,
-        price: Price,
-        account: ActorId,
-    },
-    AcceptOffer,
-    Withdraw {
-        ft_id: ContractId,
-        price: Price,
-        account: ActorId,
-    },
-}
+To list NFTs on the marketplace or modify the terms of sale, invoke the following function:
+
+```rust title="nft-marketplace/app/src/lib.rs"
+    /// Adds data on market item.
+    /// If the item of that NFT does not exist on the marketplace then it will be listed.
+    /// If the item exists then that action is used to change the price or suspend the sale.
+    ///
+    /// # Requirements
+    /// * [`msg::source()`](gstd::msg::source) must be the NFT owner
+    /// * `nft_contract_id` must be added to `approved_nft_contracts`
+    /// * if item already exists, then it cannot be changed if there is an active auction
+    ///
+    /// On success triggers the event [`MarketEvent::MarketDataAdded`].
+    pub async fn add_market_data(&mut self, nft_contract_id: ContractId, ft_contract_id: Option<ContractId>, token_id: TokenId, price: Option<Price>) {
+        let market = self.get_mut();
+        add_market_data(market, nft_contract_id, ft_contract_id, token_id, price).await;
+        self.notify_on(MarketEvent::MarketDataAdded { nft_contract_id, token_id, price })
+            .expect("Notification Error");
+    }
 ```
 
 ### Listing NFTs, changing the price or stopping the sale.
 
-To list NFTs on the marketplace or modify the terms of sale, send the following message:
+To withdraw an item from the marketplace and reclaim the associated token, invoke the following function:
 
-```rust title="nft-marketplace/io/src/lib.rs"
-/// Adds data on market item.
-/// If the item of that NFT does not exist on the marketplace then it will be listed.
-/// If the item exists then that action is used to change the price or suspend the sale.
-///
-/// # Requirements
-/// * [`msg::source()`](gstd::msg::source) must be the NFT owner
-/// * `nft_contract_id` must be added to `approved_nft_contracts`
-/// * if item already exists, then it cannot be changed if there is an active auction
-///
-/// On success replies [`MarketEvent::MarketDataAdded`].
-AddMarketData {
-    /// the NFT contract address
-    nft_contract_id: ContractId,
-    /// the fungible token contract address (If it is `None` then the item is traded for the native value)
-    ft_contract_id: Option<ContractId>,
-    /// the NFT id
-    token_id: TokenId,
-    /// the NFT price (if it is `None` then the item is not on the sale)
-    price: Option<Price>,
-}
+```rust title="nft-marketplace/app/src/lib.rs"
+    /// Removes data on market item.
+    ///
+    /// # Requirements
+    /// * [`msg::source()`](gstd::msg::source) must be the  item.owner
+    /// * There must be no open auction on the item.
+    ///
+    /// On success triggers the event [`MarketEvent::MarketDataRemoved`].
+    pub async fn remove_market_data(&mut self, nft_contract_id: ContractId, token_id: TokenId) {
+        let market = self.get_mut();
+        let msg_src = msg::source();
+        remove_market_data(market, &nft_contract_id, token_id, msg_src).await;
+        self.notify_on(MarketEvent::MarketDataRemoved {
+            owner: msg_src,
+            nft_contract_id,
+            token_id,
+        })
+        .expect("Notification Error");
+    }
 ```
+
 ### NFT purchase.
 
-To buy NFTs, send the following message:
+To buy NFTs, invoke the following function:
 
-```rust title="nft-marketplace/io/src/lib.rs"
-/// Sells the NFT.
-///
-/// # Requirements:
-/// * The NFT item must exist and be on sale.
-/// * If the NFT is sold for a native Vara token, then a buyer must attach a value equal to the price.
-/// * If the NFT is sold for fungible tokens then a buyer must have enough tokens in the fungible token contract.
-/// * There must be no open auction on the item.
-///
-/// On success replies [`MarketEvent::ItemSold`].
-BuyItem {
-    /// NFT contract address
-    nft_contract_id: ContractId,
-    /// the token ID
-    token_id: TokenId,
-}
+```rust title="nft-marketplace/app/src/lib.rs"
+    /// Sells the NFT.
+    ///
+    /// # Requirements:
+    /// * The NFT item must exist and be on sale.
+    /// * If the NFT is sold for a native Vara token, then a buyer must attach a value equal to the price.
+    /// * If the NFT is sold for fungible tokens then a buyer must have enough tokens in the fungible token contract.
+    /// * There must be no open auction on the item.
+    ///
+    /// On success triggers the event [`MarketEvent::ItemSold`].
+    pub async fn buy_item(&mut self, nft_contract_id: ContractId, token_id: TokenId) {
+        let market = self.get_mut();
+        let msg_src = msg::source();
+        buy_item(market, &nft_contract_id, token_id, msg_src).await;
+        self.notify_on(MarketEvent::ItemSold { owner: msg_src, nft_contract_id, token_id })
+            .expect("Notification Error");
+    }
 ```
 
 ### NFT auction.
@@ -221,207 +178,180 @@ BuyItem {
 The marketplace program includes the *English auction*. *English auction* is an open auction at an increasing price, where participants openly bid against each other, with each subsequent bid being greater than the previous one.
 
 The auction has the following struct:
-```rust title="nft-marketplace/io/src/lib.rs"
+```rust title="nft-marketplace/app/src/utils.rs"
 pub struct Auction {
-    pub bid_period: u64,
     pub started_at: u64,
     pub ended_at: u64,
     pub current_price: Price,
     pub current_winner: ActorId,
 }
 ```
-- `bid_period` - the time interval. If the auction ends before `exec::blocktimestamp() + bid_period` then the auction end time is delayed for `bid_period`;
 - `started_at` - auction start time;
 - `ended_at` - auction end time;
 - `current_price` - the current offered price for the NFT;
 - `current_winner` - the current auction winner
 
-The auction is started with the following message:
+The auction is started with the following function:
 
-```rust title="nft-marketplace/io/src/lib.rs"
-/// Creates an auction for selected item.
-/// If the NFT item doesn't exist on the marketplace then it will be listed
-///
-/// Requirements:
-/// * Only the item owner can start the auction.
-/// * `nft_contract_id` must be in the list of `approved_nft_contracts`
-/// *  There must be no active auction
-///
-/// On success replies [`MarketEvent::AuctionCreated`].
-CreateAuction {
-    /// the NFT contract address
-    nft_contract_id: ContractId,
-    /// the fungible token contract address (If it is `None` then the item is traded for the native value)
-    ft_contract_id: Option<ContractId>,
-    /// the NFT id
-    token_id: TokenId,
-    /// the starting price
-    min_price: Price,
-    /// the time interval the auction is extended if bid is made if the auction ends before `exec::blocktimestamp() + bid_period`
-    bid_period: u64,
-    /// the auction duration
-    duration: u64,
-},
+```rust title="nft-marketplace/app/src/lib.rs"
+    /// Creates an auction for selected item.
+    /// If the NFT item doesn't exist on the marketplace then it will be listed
+    ///
+    /// Requirements:
+    /// * Only the item owner can start the auction.
+    /// * `nft_contract_id` must be in the list of `approved_nft_contracts`
+    /// *  There must be no active auction
+    ///
+    /// On success triggers the event [`MarketEvent::AuctionCreated`].
+    pub async fn create_auction(&mut self, nft_contract_id: ContractId, ft_contract_id: Option<ContractId>, token_id: TokenId, min_price: u128, duration: u64) {
+        let market = self.get_mut();
+        create_auction(market, &nft_contract_id, ft_contract_id, token_id, min_price, duration).await;
+        self.notify_on(MarketEvent::AuctionCreated {
+            nft_contract_id,
+            token_id,
+            price: min_price,
+        }).expect("Notification Error");
+    }
 ```
 
-Send the following message to add a bid to the currency auction:
-```rust title="nft-marketplace/io/src/lib.rs"
-/// Adds a bid to an ongoing auction.
-///
-/// # Requirements:
-/// * The item must exist.
-/// * The auction must exist on the item.
-/// * If the NFT is sold for a native Vara token, then a buyer must attach a value equal to the price indicated in the arguments.
-/// * If the NFT is sold for fungible tokens then a buyer must have   enough tokens in the fungible token contract.
-/// * `price` must be greater than the current offered price for that item.
-///
-/// On success replies [`MarketEvent::BidAdded`].
-AddBid {
-    /// the NFT contract address
-    nft_contract_id: ContractId,
-    /// * `token_id`: the NFT id
-    token_id: TokenId,
-    /// the offered price
-    price: Price,
-},
+Use the following function to add a bid to the currency auction:
+```rust title="nft-marketplace/app/src/lib.rs"
+    /// Adds a bid to an ongoing auction.
+    ///
+    /// # Requirements:
+    /// * The item must exist.
+    /// * The auction must exist on the item.
+    /// * If the NFT is sold for a native Vara token, then a buyer must attach a value equal to the price indicated in the arguments.
+    /// * If the NFT is sold for fungible tokens then a buyer must have   enough tokens in the fungible token contract.
+    /// * `price` must be greater than the current offered price for that item.
+    ///
+     /// On success triggers the event [`MarketEvent::BidAdded`].
+    pub async fn add_bid(&mut self, nft_contract_id: ContractId, token_id: TokenId, price: u128) {
+        let market = self.get_mut();
+        add_bid(market, &nft_contract_id, token_id, price).await;
+        self.notify_on(MarketEvent::BidAdded {
+            nft_contract_id,
+            token_id,
+            price,
+        }).expect("Notification Error");
+    }
 ```
 
 If the auction period is over, anyone can send the message `SettleAuction` that will send the NFT to the winner and pay the owner:
 
-```rust title="nft-marketplace/io/src/lib.rs"
-/// Settles the auction.
-///
-/// Requirements:
-/// * The auction must be over.
-///
-/// On successful auction replies [`MarketEvent::AuctionSettled`].
-/// If no bids were made replies [`MarketEvent::AuctionCancelled`].
-SettleAuction {
-    /// the NFT contract address
-    nft_contract_id: ContractId,
-    /// the NFT id
-    token_id: TokenId,
-}
+```rust title="nft-marketplace/app/src/lib.rs"
+    /// Settles the auction.
+    ///
+    /// Requirements:
+    /// * The auction must be over.
+    ///
+    /// On successful auction triggers the event [`MarketEvent::AuctionSettled`].
+    /// If no bids were made triggers the event [`MarketEvent::AuctionCancelled`].
+    pub async fn settle_auction(&mut self, nft_contract_id: ContractId, token_id: TokenId) {
+        let market = self.get_mut();
+        let event = settle_auction(market, &nft_contract_id, token_id).await;
+        self.notify_on(event).expect("Notification Error");
+    }
 ```
 
 ### Offers.
 
-Send the following message to make an offer on the marketplace item:
+Use the following function to make an offer on the marketplace item:
 
-```rust title="nft-marketplace/io/src/lib.rs"
-/// Adds a price offer to the item.
-///
-/// Requirements:
-/// * NFT items must exist and be listed on the marketplace.
-/// * There must be no ongoing auction on the item.
-/// * If a user makes an offer in native Vara token, then he must attach a value equal to the price indicated in the arguments.
-/// * If a user makes an offer in fungible tokens then he must have  enough tokens in the fungible token contract.
-/// * The price can not be equal to 0.
-/// * There must be no identical offers on the item.
-///
-/// On success replies [`MarketEvent::OfferAdded`].
-AddOffer {
-    /// the NFT contract address
-    nft_contract_id: ContractId,
-    /// the FT contract address (if it is `None, the offer is made for the native value)
-    ft_contract_id: Option<ContractId>,
-    /// the NFT id
-    token_id: TokenId,
-    /// the offer price
-    price: Price,
-},
+```rust title="nft-marketplace/app/src/lib.rs"
+    /// Adds a price offer to the item.
+    ///
+    /// Requirements:
+    /// * NFT items must exist and be listed on the marketplace.
+    /// * There must be no ongoing auction on the item.
+    /// * If a user makes an offer in native Vara token, then he must attach a value equal to the price indicated in the arguments.
+    /// * If a user makes an offer in fungible tokens then he must have  enough tokens in the fungible token contract.
+    /// * The price can not be equal to 0.
+    /// * There must be no identical offers on the item.
+    ///
+    /// On success triggers the event [`MarketEvent::OfferAdded`].
+    pub async fn add_offer(&mut self, nft_contract_id: ContractId, ft_contract_id: Option<ContractId>, token_id: TokenId, price: u128) {
+        let market = self.get_mut();
+        add_offer(market, &nft_contract_id, ft_contract_id, token_id, price).await;
+        self.notify_on(MarketEvent::OfferAdded {
+            nft_contract_id,
+            ft_contract_id,
+            token_id,
+            price,
+        }).expect("Notification Error");
+    }
 ```
 
 The item owner can accept the offer:
 
-```rust title="nft-marketplace/io/src/lib.rs"
-/// Accepts an offer.
-///
-/// Requirements:
-/// * NFT items must exist and be listed on the marketplace.
-/// * Only the owner can accept the offer.
-/// * There must be no ongoing auction.
-/// * The offer with indicated hash must exist.
-///
-/// On success replies [`MarketEvent::OfferAccepted`].
-AcceptOffer {
-    /// the NFT contract address
-    nft_contract_id: ContractId,
-    /// the NFT id
-    token_id: TokenId,
-    /// the fungible token contract address
-    ft_contract_id: Option<ContractId>,
-    /// the offer price
-    price: Price,
-}
+```rust title="nft-marketplace/app/src/lib.rs"
+    /// Accepts an offer.
+    ///
+    /// Requirements:
+    /// * NFT items must exist and be listed on the marketplace.
+    /// * Only the owner can accept the offer.
+    /// * There must be no ongoing auction.
+    /// * The offer with indicated hash must exist.
+    ///
+    /// On success triggers the event [`MarketEvent::OfferAccepted`].
+    pub async fn accept_offer(&mut self, nft_contract_id: ContractId, ft_contract_id: Option<ContractId>, token_id: TokenId, price: u128) {
+        let market = self.get_mut();
+        let new_owner = accept_offer(market, &nft_contract_id, ft_contract_id, token_id, price).await;
+        self.notify_on(MarketEvent::OfferAccepted {
+            nft_contract_id,
+            token_id,
+            new_owner,
+            price,
+        }).expect("Notification Error");
+    }
 ```
 
 The user who made the offer can also withdraw their tokens:
 
-```rust title="nft-marketplace/io/src/lib.rs"
-/// Withdraws tokens.
-///
-/// Requirements:
-/// * NFT items must exist and be listed on the marketplace.
-/// * Only the offer creator can withdraw his tokens.
-/// * The offer with indicated hash must exist.
-///
-/// On success replies [`MarketEvent::TokensWithdrawn`].
-Withdraw {
-    /// the NFT contract address
-    nft_contract_id: ContractId,
-    /// the FT contract address (if it is `None, the offer is made for the native value)
-    ft_contract_id: Option<ContractId>,
-    /// the NFT id
-    token_id: TokenId,
-    /// The offered price (native value)
-    price: Price,
-},
+```rust title="nft-marketplace/app/src/lib.rs"
+    /// Withdraws tokens.
+    ///
+    /// Requirements:
+    /// * NFT items must exist and be listed on the marketplace.
+    /// * Only the offer creator can withdraw his tokens.
+    /// * The offer with indicated hash must exist.
+    ///
+    /// On success triggers the event [`MarketEvent::TokensWithdrawn`].
+    pub async fn withdraw(&mut self, nft_contract_id: ContractId, ft_contract_id: Option<ContractId>, token_id: TokenId, price: u128) {
+        let market = self.get_mut();
+        withdraw(market, &nft_contract_id, ft_contract_id, token_id, price).await;
+        self.notify_on(MarketEvent::Withdraw {
+            nft_contract_id,
+            token_id,
+            price,
+        }).expect("Notification Error");
+    }
 ```
 ## Consistency of program states
 
 The `market` program interfaces with both `fungible` and `non-fungible` token contracts. Each transaction that alters the states of multiple programs is temporarily stored until its completion. Whenever a user engages with an item, the marketplace program verifies any pending transactions. If there is one, it prompts the user to finalize it, preventing the initiation of a new transaction. The idempotency inherent in the token contracts enables the restarting of a transaction without redundant changes, ensuring the consistent state of all three programs.
 
-## Program metadata and state
+## Query
 
-Metadata interface description:
-
-```rust title="nft-marketplace/io/src/lib.rs"
-pub struct MarketMetadata;
-
-impl Metadata for MarketMetadata {
-    type Init = In<InitMarket>;
-    type Handle = InOut<MarketAction, MarketEvent>;
-    type Others = ();
-    type Reply = ();
-    type Signal = ();
-    type State = Out<Market>;
-}
-```
-
-To display the full program state information, the `state()` function is used:
-
-```rust title="nft-marketplace/src/lib.rs"
-#[no_mangle]
-extern fn state() {
-    let market = unsafe { MARKET.as_ref().expect("Uninitialized market state") };
-    msg::reply(market, 0).expect("Failed to share state");
-}
-```
-
-To display only necessary certain values from the state, write a separate crate. In this crate, specify functions that will return the desired values from the `Market` state. For example - [gear-foundation/dapps-nft-marketplace/state](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/nft-marketplace/state):
-
-```rust title="nft-marketplace/state/src/lib.rs"
-#[gmeta::metawasm]
-pub mod metafns {
-    pub type State = Market;
-
-    pub fn all_items(state: State) -> Vec<Item> {
-        nft_marketplace_io::all_items(state)
+```rust title="nft-marketplace/app/src/lib.rs"
+    pub fn get_market(&self) -> MarketState {
+        self.get().clone().into()
     }
-
-    pub fn item_info(state: State, args: ItemInfoArgs) -> Option<Item> {
-        nft_marketplace_io::item_info(state, &args)
-    }
-}
 ```
+
+```rust title="nft-marketplace/app/src/utils.rs"
+    pub struct MarketState {
+        pub admin_id: ActorId,
+        pub items: Vec<((ContractId, TokenId), ItemState)>,
+        pub approved_nft_contracts: Vec<ActorId>,
+        pub approved_ft_contracts: Vec<ActorId>,
+    }
+```
+
+## Source code
+
+The source code of this example of VaraMan Game program and the example of an implementation of its testing is available on [gear-foundation/dapp/contracts/nft-marketplace](https://github.com/gear-foundation/dapps/tree/master/contracts/nft-marketplace).
+
+See also an example of the smart contract testing implementation based on `gtest`: [gear-foundation/dapps/vara-man/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/nft-marketplace/tests).
+
+For more details about testing programs written on Gear, refer to the [Program Testing](/docs/build/testing) article.

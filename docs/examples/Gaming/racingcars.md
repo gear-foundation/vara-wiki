@@ -152,6 +152,7 @@ service CarRacesService {
 
   events {
     RoundInfo: RoundInfo;
+    GameFinished: struct { player: actor_id };
     Killed: struct { inheritor: actor_id };
   }
 };
@@ -274,7 +275,7 @@ pub async fn player_move(
         game.current_turn = (game.current_turn + 1) % num_of_cars;
 
         let mut round_info: Option<RoundInfo> = None;
-
+        let mut game_finished = false;
         // Continue processing car turns until the player can act or the game finishes.
         while !game.is_player_action_or_finished() {
             game.process_car_turn().await?;
@@ -293,14 +294,24 @@ pub async fn player_move(
                 // If the game is finished, a delayed message is sent to remove the game instance.
                 if game.state == GameState::Finished {
                     send_msg_to_remove_game_instance(player);
+                    game_finished = true;
                 }
             }
         }
 
         // Return the round info as an event or handle an unexpected state.
         match round_info {
-            Some(info) => Ok(Event::RoundInfo(info)),
-            None => Err(Error::UnexpectedState),
+            Some(info) => {
+                self.notify_on(Event::RoundInfo(info))
+                    .expect("Notification Error");
+                if game_finished {
+                    self.notify_on(Event::GameFinished { player: msg_src })
+                        .expect("Notification Error");
+                }
+            }
+            None => {
+                panic(Error::UnexpectedState);
+            }
         }
     })
 }

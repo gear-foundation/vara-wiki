@@ -19,7 +19,7 @@ The following are program examples available on GitHub:
 Anyone can easily create their own NFT marketplace application and run it on Vara Network. 
 
 :::tip
-The project code is developed using the [Sails](../../build/sails/sails.mdx) framework.
+The project code is developed using the [Sails](../../../build/sails/sails.mdx) framework.
 ::: 
 
 ## How to run

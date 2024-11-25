@@ -6,224 +6,233 @@ sidebar_position: 3
 # Gear Dynamic Non-Fungible Token
 
 ### Introduction
-This is an extension of standard [Non-Fungible token](/docs/examples/Standards/vnft.md). It proposes an additional dynamic part that can change or evolve over time. The source code of the Gear NFT smart contract example is available on [GitHub](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dynamic-nft).
+This is an extension of standard [Vara Non-Fungible token](/docs/examples/Standards/vnft.md). It proposes an additional dynamic part that can change or evolve over time. The source code of the Gear NFT smart contract example is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/dynamic-nft).
 
 ### Motivation
 
 Unlike traditional NFTs that represent a static digital asset, dynamic NFTs can have various attributes, properties, or behaviors that can be modified based on certain conditions or user interactions. These changes can be triggered by external factors such as market demand, user preferences, or even real-world events. For example, a dynamic NFT representing a digital artwork may change its appearance or color scheme based on the time of day or weather conditions.
 
-This example demonstrates Gear Protocol's unique features enabling the new user experience for totally on-chain, truly decentralized applications that do not require centralized components. [Delayed messages](/build/gstd/delayed-messages.md) allows the contract to wake itself after a specified period of time. It is acheived via [gas reservation](/build/gstd/gas-reservation.md) feature, which allows for the creation of gas pools that can be used by programs for further execution.
+This example demonstrates Gear Protocol's unique features enabling the new user experience for totally on-chain, truly decentralized applications that do not require centralized components. [Delayed messages](/build/gstd/delayed-messages.md) allows the contract to wake itself after a specified period of time. 
 
-### Details
+:::tip
+The project code is developed using the [Sails](../../build/sails/sails.mdx) framework.
+:::
 
-The default implementation of the NFT contract is provided in the Gear library: [/gear-lib/src/tokens/non_fungible.rs](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/gear-lib/src/tokens/non_fungible.rs).
+:::note
+This contract is an extended version of the standard [vNFT](/docs/examples/Standards/vnft.md). This article focuses solely on the additional features and fields that differentiate it from the basic implementation.
+:::
 
-To use the default implementation you should include the packages into your *Cargo.toml* file:
+## Token Metadata changes
 
-```toml
-gear-lib = { git = "https://github.com/gear-foundation/dapps.git" }
-gear-lib-derive = { git = "https://github.com/gear-foundation/dapps.git" }
-```
+The metadata of a token is defined by the TokenMetadata structure:
 
-Dynamic NFT contains regular [NFT](/docs/examples/Standards/vnft.md) and additional field  `dynamic_data`:
-
-```rust title="dynamic-nft/src/lib.rs"
-#[derive(Debug, Default, NFTStateKeeper, NFTCore, NFTMetaState)]
-pub struct DynamicNft {
-    #[NFTStateField]
-    pub token: NFTState,
-    pub token_id: TokenId,
-    pub owner: ActorId,
-    pub transactions: HashMap<H256, NFTEvent>,
-    pub collection: Collection,
-    pub config: Config,
-    pub dynamic_data: Vec<u8>,
+```rust title="dynamic-nft/app/src/services/dynamic_nft/mod.rs"
+pub struct TokenMetadata {
+    pub name: String,
+    pub description: String,
+    pub current_media_index: u64,
+    pub media: Vec<String>,
+    pub reference: String,
 }
 ```
-In all other cases, everything also corresponds to the usual [non-fungible-token](/docs/examples/Standards/vnft.md) contract, except additional specific actions:
+- `name`: A descriptive name for the token
+- `description`: A detailed explanation or context for the token
+- `current_media_index`: Indicates the currently active media in the media list
+- `media`: A collection of URLs pointing to associated media, ideally stored in decentralized, content-addressed storage like IPFS
+- `reference`: A URL to an off-chain JSON file containing additional information about the token
 
-```rust title="dynamic-nft/io/src/lib.rs"
-pub enum NFTAction {
-    // ... like a usual NFT contract
-    UpdateDynamicData {
-        transaction_id: u64,
-        data: Vec<u8>,
-    },
-}
+As the metadata updates, the `current_media_index` will increment, cycling through the list of media URLs in the media field. This dynamic behavior enables the token to evolve visually or contextually over time, enhancing its interactivity and adaptability.
+
+## Additional Functions
+
 ```
-And features specific events:
-
-```rust title="dynamic-nft/io/src/lib.rs"
-pub enum NFTEvent {
-    // ... like a usual NFT contract
-    Updated {
-        data_hash: H256,
-    },
-}
+  StartMetadataUpdate(updates_count, update_period_in_blocks, token_id)
+  UpdateMetadata(token_id, owner, update_period, updates_count)
 ```
 
-## Examples
+## Additional Events
 
-For an example, look at this [Auto-changed NFT](https://github.com/gear-foundation/dapps/tree/master/contracts/auto-changed-nft) contract. This is a modified dynamic contract in which own dynamic data changes over time periods. We slightly changed the logic of the dynamic NFT contract to suit our needs.
-
-To illustrate, examine this [Auto-changed NFT](https://github.com/gear-foundation/dapps/tree/master/contracts/auto-changed-nft) contract. It's a dynamic contract with changing data over time. The logic has been adjusted to meet the requirements. 
-
-First, change the contract name and introduce new fields:
-- `rest_updates_count` - indicating periodic updates
-- `update_period` - representing the interval between automatic updates
-
-```rust title="auto-changed-nft/src/lib.rs"
-pub struct AutoChangedNft {
-    #[NFTStateField]
-    pub token: NFTState,
-    pub token_id: TokenId,
-    pub owner: ActorId,
-    pub transactions: HashMap<H256, NFTEvent>,
-    pub collection: Collection,
-    pub config: Config,
-    pub urls: HashMap<TokenId, Vec<String>>,
-    pub rest_updates_count: u32,
-    pub update_period: u32,
-}
+```
+    MetadataStartedUpdaing(updates_count, update_period_in_blocks, token_id);
+    MetadataUpdated(token_id, current_media_index);
 ```
 
-Next, change the `handle()` function and add the required business logic:
+## Additional Methods
 
-```rust title="auto-changed-nft/src/lib.rs"
-#[no_mangle]
-unsafe extern fn handle() {
-    /// ...
-    NFTAction::Update {
-        rest_updates_count,
-        token_ids,
-    } => {
-        gstd::debug!(
-            "Update rest_updates_count: {}, token_ids: {:?}",
-            rest_updates_count,
-            token_ids
-        );
-        nft.rest_updates_count = rest_updates_count - 1;
-        nft.update_media(&token_ids);
-        if nft.rest_updates_count == 0 {
-            return;
+### `Start Metadata Update`
+
+This function starts a scheduled process to update the metadata of a specific token periodically. It validates the request, checks the token's ownership, and then initializes the metadata update sequence. If multiple updates are required, it schedules delayed messages to execute subsequent updates automatically.
+
+```rust title="dynamic-nft/app/src/services/dynamic_nft/mod.rs"
+pub fn start_metadata_update(
+        &mut self,
+        updates_count: u32,
+        update_period_in_blocks: u32,
+        token_id: TokenId,
+    ) {
+        let msg_src = msg::source();
+        if updates_count == 0 {
+            panic!("Updates count cannot be zero")
         }
-        let action = NFTAction::Update {
-            rest_updates_count: nft.rest_updates_count,
-            token_ids,
-        };
-        let gas_available = exec::gas_available();
-        gstd::debug!("Update. gas_available: {}", gas_available);
-        if gas_available <= GAS_FOR_UPDATE {
-            let reservations = unsafe { &mut RESERVATION };
-            let reservation_id = reservations.pop().expect("Need more gas");
-            send_delayed_from_reservation(
-                reservation_id,
-                exec::program_id(),
-                action,
-                0,
-                nft.update_period,
+        if update_period_in_blocks == 0 {
+            panic!("Updates period cannot be zero")
+        }
+        services::utils::panicking(|| {
+            funcs::start_metadata_update(
+                self.get().gas_for_one_time_updating,
+                Storage::owner_by_id(),
+                &mut self.get_mut().token_metadata_by_id,
+                token_id,
+                msg_src,
+                updates_count,
+                update_period_in_blocks,
             )
-            .expect("Can't send delayed from reservation");
-        } else {
-            send_delayed(exec::program_id(), action, 0, nft.update_period)
-                .expect("Can't send delayed");
-        }
+        });
+        self.notify_on(Event::MetadataStartedUpdaing {
+            updates_count,
+            update_period_in_blocks,
+            token_id,
+        })
+        .expect("Notification Error");
     }
-    NFTAction::StartAutoChanging {
-        updates_count,
-        update_period,
-        token_ids,
-    } => {
-        nft.rest_updates_count = updates_count;
-        nft.update_period = update_period;
-
-        nft.update_media(&token_ids);
-
-        let payload = NFTAction::Update {
-            rest_updates_count: updates_count,
-            token_ids: token_ids.clone(),
-        };
-        let message_id = send_delayed(exec::program_id(), &payload, 0, update_period)
-            .expect("Can't send delayed");
-        nft.reserve_gas();
-        gstd::debug!(
-            "send_delayed payload: message_id: {:?}, {:?}, update_period: {} token_ids: {:?}",
-            message_id,
-            payload,
-            update_period,
-            token_ids
-        );
-    }
-};
 
 ```
 
-With everything ready, confirm whether it works using the test below:
-```rust title="auto-changed-nft/tests/nft_tests.rs"
-#[test]
-fn auto_change_success() {
-    let sys = System::new();
-    init_nft(&sys);
-    let nft = sys.get_program(1);
-    let transaction_id: u64 = 0;
-    assert!(!mint(&nft, transaction_id, USERS[0]).main_failed());
+```rust title="dynamic-nft/app/src/services/dynamic_nft/funcs.rs"
+pub fn start_metadata_update(
+    gas_for_one_time_updating: u64,
+    owner_by_id: &mut HashMap<TokenId, ActorId>,
+    token_metadata_by_id: &mut HashMap<TokenId, TokenMetadata>,
+    token_id: TokenId,
+    msg_src: ActorId,
+    updates_count: u32,
+    update_period: u32,
+) -> Result<()> {
+    let owner = owner_by_id.get(&token_id).ok_or(Error::TokenDoesNotExist)?;
 
-    let link1 = "link 1";
-    let link2 = "link 2";
-    let link3 = "link 3";
-    let link4 = "link 4";
+    if *owner != msg_src {
+        return Err(Error::DeniedAccess);
+    }
+    let metadata = token_metadata_by_id
+        .get_mut(&token_id)
+        .ok_or(Error::TokenDoesNotExist)?;
+    metadata.current_media_index =
+        metadata.current_media_index.saturating_add(1) % metadata.media.len() as u64;
+    if updates_count.saturating_sub(1) != 0 {
+        let request = [
+            "DynamicNft".encode(),
+            "UpdateMetadata".to_string().encode(),
+            (token_id, msg_src, update_period, updates_count - 1).encode(),
+        ]
+        .concat();
+        msg::send_bytes_with_gas_delayed(
+            exec::program_id(),
+            request,
+            gas_for_one_time_updating.saturating_mul(updates_count.into()),
+            0,
+            update_period,
+        )
+        .expect("Error in sending message");
+    }
 
-    let token_id = TokenId::default();
-    assert!(!add_url(&nft, token_id, link1, USERS[0]).main_failed());
-    assert!(!add_url(&nft, token_id, link2, USERS[0]).main_failed());
-    assert!(!add_url(&nft, token_id, link3, USERS[0]).main_failed());
-    assert!(!add_url(&nft, token_id, link4, USERS[0]).main_failed());
-
-    let updates_count = 8;
-    let updates_period = 5;
-    assert!(!start_auto_changing(
-        &nft,
-        vec![token_id],
-        updates_count,
-        updates_period,
-        USERS[0]
-    )
-    .main_failed());
-
-    // Start update
-    assert_eq!(current_media(&nft, token_id), link1);
-    sys.spend_blocks(updates_period);
-    assert_eq!(current_media(&nft, token_id), link4);
-
-    sys.spend_blocks(updates_period);
-    assert_eq!(current_media(&nft, token_id), link3);
-
-    sys.spend_blocks(updates_period);
-    assert_eq!(current_media(&nft, token_id), link2);
-
-    // Media rotation happens
-    sys.spend_blocks(updates_period);
-    assert_eq!(current_media(&nft, token_id), link1);
-
-    sys.spend_blocks(updates_period);
-    assert_eq!(current_media(&nft, token_id), link4);
-
-    sys.spend_blocks(updates_period);
-    assert_eq!(current_media(&nft, token_id), link3);
-
-    sys.spend_blocks(updates_period);
-    assert_eq!(current_media(&nft, token_id), link2);
+    Ok(())
 }
 ```
 
-Similarly, you can implement other logic, for example, periodically request data from the Oracle.
+**Key Steps**:
 
-## Conclusion
+- Validation: Ensures updates_count and update_period_in_blocks are greater than zero
+- Ownership Check: Confirms that the caller is the token's owner
+- Metadata Update: Updates the `current_media_index` of the token's metadata
+- Scheduling Updates: If more updates are needed, schedules delayed messages to handle the remaining updates
 
-Gear provides a reusable [library](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/gear-lib/src/tokens/non_fungible.rs) with core functionality for the `gNFT-4907` protocol. By using object composition, the library can be utilized within a custom NFT contract implementation in order to minimize duplication of community available code.
+### `Update Metadata`
 
-A source code of the Gear NFT smart contract example based on `gear-lib` is available on GitHub: [gear-foundation/dapps/non-fungible-token](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dynamic-nft).
+This function handles the actual metadata update for a token. It cycles through available metadata options and triggers further updates if required. Ownership verification ensures that only authorized requests proceed.
 
-See also an example of the smart contract testing implementation based on `gtest`: [gear-foundation/dapps/non-fungible-token/tests](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dynamic-nft/tests).
+```rust title="dynamic-nft/app/src/services/dynamic_nft/mod.rs"
+    pub fn update_metadata(
+        &mut self,
+        token_id: TokenId,
+        owner: ActorId,
+        update_period: u32,
+        updates_count: u32,
+    ) {
+        if msg::source() != exec::program_id() {
+            panic!("This message can only be sent by the programme")
+        }
 
-For more details about testing smart contracts written on Gear, refer to this article: [Program Testing](/docs/build/testing).
+        let current_media_index = services::utils::panicking(|| {
+            funcs::update_metadata(
+                Storage::owner_by_id(),
+                &mut self.get_mut().token_metadata_by_id,
+                token_id,
+                owner,
+                update_period,
+                updates_count,
+            )
+        });
+        self.notify_on(Event::MetadataUpdated { token_id, current_media_index })
+            .expect("Notification Error");
+    }
+```
+
+```rust title="dynamic-nft/app/src/services/dynamic_nft/funcs.rs"
+pub fn update_metadata(
+    owner_by_id: &mut HashMap<TokenId, ActorId>,
+    token_metadata_by_id: &mut HashMap<TokenId, TokenMetadata>,
+    token_id: TokenId,
+    owner: ActorId,
+    update_period: u32,
+    updates_count: u32,
+) -> Result<u64> {
+    let current_owner = owner_by_id.get(&token_id).ok_or(Error::TokenDoesNotExist)?;
+
+    if owner != *current_owner {
+        return Err(Error::DeniedAccess);
+    }
+
+    let metadata = token_metadata_by_id
+        .get_mut(&token_id)
+        .ok_or(Error::TokenDoesNotExist)?;
+    metadata.current_media_index =
+        metadata.current_media_index.saturating_add(1) % metadata.media.len() as u64;
+
+    if updates_count.saturating_sub(1) != 0 {
+        let request = [
+            "DynamicNft".encode(),
+            "UpdateMetadata".to_string().encode(),
+            (token_id, owner, update_period, updates_count - 1).encode(),
+        ]
+        .concat();
+
+        msg::send_bytes_with_gas_delayed(
+            exec::program_id(),
+            request,
+            exec::gas_available().saturating_sub(1_000_000_000),
+            0,
+            update_period,
+        )
+        .expect("Error in sending message");
+    }
+
+    Ok(metadata.current_media_index )
+}
+```
+
+**Key Steps**:
+
+- Validation: Confirms that the message source is the contract itself (enforcing controlled execution)
+- Ownership Check: Verifies that the provided owner matches the token's registered owner
+- Metadata Update: Cycles to the next metadata option by incrementing `current_media_index`
+- Scheduling Updates: If additional updates are pending, schedules the next update via a delayed message
+
+## Source code
+
+The source code of this example program and the example of an implementation of its testing is available on [gear-foundation/dapp/contracts/dynamic-nft](https://github.com/gear-foundation/dapps/tree/master/contracts/dynamic-nft).
+
+See also an example of the smart contract testing implementation based on `gtest`: [gear-foundation/dapps/vara-man/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/dynamic-nft/tests).
+
+For more details about testing programs written on Gear, refer to the [Program Testing](/docs/build/testing) article.
+
+

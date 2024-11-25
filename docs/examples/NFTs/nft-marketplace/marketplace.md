@@ -87,6 +87,7 @@ pub struct Market {
 The marketplace item has the following struct:
 ```rust title="nft-marketplace/app/src/utils.rs"
 pub struct Item {
+    pub frozen: bool,
     pub token_id: TokenId,
     pub owner: ActorId,
     pub ft_contract_id: Option<ContractId>,
@@ -95,12 +96,13 @@ pub struct Item {
     pub offers: HashMap<(Option<ContractId>, Price), ActorId>,
 }
 ```
-- `token_id` is the ID of the NFT within its contract.
-- `owner` - an NFT item owner;
-- `ft_contract_id` - a contract of fungible tokens for which that item can be bought. If that field is `None` then the item can be sold for native Vara tokens;
-- `price` - the item price. `None` field means that the item is not on the sale;
-- `auction` - a field containing information on the current auction. `None` field means that there is no current auction on the item;
-- `offers` - purchase offers made on that item;
+- `frozen` is freeze indicator (required for asynchronous messages)
+- `token_id` is the ID of the NFT within its contract
+- `owner` - an NFT item owner
+- `ft_contract_id` - a contract of fungible tokens for which that item can be bought. If that field is `None` then the item can be sold for native Vara tokens
+- `price` - the item price. `None` field means that the item is not on the sale
+- `auction` - a field containing information on the current auction. `None` field means that there is no current auction on the item
+- `offers` - purchase offers made on that item
 
 ### Listing NFTs, changing the price or stopping the sale.
 
@@ -125,7 +127,7 @@ To list NFTs on the marketplace or modify the terms of sale, invoke the followin
     }
 ```
 
-### Listing NFTs, changing the price or stopping the sale.
+### Withdrawal of an item from market
 
 To withdraw an item from the marketplace and reclaim the associated token, invoke the following function:
 

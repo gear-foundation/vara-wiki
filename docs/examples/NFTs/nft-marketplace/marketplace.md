@@ -47,15 +47,15 @@ For proper application functioning, one needs to adjust an environment variable 
 
 ```sh
 REACT_APP_NODE_ADDRESS=wss://testnet.vara.network:443
-REACT_APP_IPFS_ADDRESS=https://ipfs.gear-tech.io/api/v0
-REACT_APP_IPFS_GATEWAY_ADDRESS=https://ipfs-gw.gear-tech.io/ipfs
-REACT_APP_MARKETPLACE_CONTRACT_ADDRESS=0xf8e5add537887643f8aa1ee887754d9b2d8c20d4efd062d6c1dc673cbe390d6f
-REACT_APP_NFT_CONTRACT_ADDRESS=0xa7874ff27e9bac10bf7fd43f4908bb1e273018e15325c16fb35c71966c0c4033
+REACT_APP_IPFS_ADDRESS=https://stg-pinata-proxy.vara.network/files/upload
+REACT_APP_IPFS_GATEWAY_ADDRESS=https://gear.mypinata.cloud/ipfs
+REACT_APP_MARKETPLACE_CONTRACT_ADDRESS=0xe33f5124f1200f6cd728acc14f7dfcd6e59d584271415f15dbe9106af7e2d1e6
+REACT_APP_NFT_CONTRACT_ADDRESS=0x3d3d0b5c597d6d767294cc93e0a3489d848ae32cbf851fa40756800d28e4cd37
 ```
 
 - `REACT_APP_NODE_ADDRESS` is Vara Network address (for testnet it is - `wss://testnet.vara.network`)
-- `REACT_APP_IPFS_ADDRESS` is address of IPFS to store NFT assets (https://ipfs.gear-tech.io/api/v0 that was used for this implementation)
-- `REACT_APP_IPFS_GATEWAY_ADDRESS` is IPFS Gateway address (https://ipfs-gw.gear-tech.io/ipfs)
+- `REACT_APP_IPFS_ADDRESS` is address of IPFS to store NFT assets (https://stg-pinata-proxy.vara.network/files/upload that was used for this implementation)
+- `REACT_APP_IPFS_GATEWAY_ADDRESS` is IPFS Gateway address (https://gear.mypinata.cloud/ipfs)
 - `REACT_APP_MARKETPLACE_CONTRACT_ADDRESS` is NFT Marketplace program address in Vara Network
 - `REACT_APP_NFT_CONTRACT_ADDRESS` is Vara Non-Fungible Token contract address in Vara Network
 

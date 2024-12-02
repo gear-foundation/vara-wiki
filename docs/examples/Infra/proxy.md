@@ -42,7 +42,7 @@ pub async fn execute_msg(&mut self, bytes: Vec<u8>) -> Vec<u8> {
 ```
 2. **State Queries**
 The `read_state` function handles read-only queries, forwarding requests to the logic program without modifying its state.
-```rust
+```rust title="proxy-example/proxy/app/src/lib.rs"
 pub async fn read_state(&self, bytes: Vec<u8>) -> Vec<u8> {
     msg::send_bytes_for_reply(self.get().logic_address, bytes, 0, 0)
         .expect("Error during message sending")
@@ -52,7 +52,7 @@ pub async fn read_state(&self, bytes: Vec<u8>) -> Vec<u8> {
 ```
 ### Logic Program Upgrades
 The proxy includes an `update_logic` function that allows the admin to change the logic program address.
-```rust
+```rust title="proxy-example/proxy/app/src/lib.rs"
 pub fn update_logic(&mut self, new_logic_address: ActorId, msg_source: Option<ActorId>) {
     self.check_if_proxy();
     let msg_source = self.get_msg_source(msg_source);
@@ -70,7 +70,7 @@ The program must allow an admin to set the address of the proxy, which is respon
 2. Forwarded Sender (`msg_source()`):
 
     When the proxy forwards a message, it includes the original sender's address (`msg_source()`). The program verifies this sender and distinguishes between direct and proxied calls.
-```rust
+```rust title="proxy-example/counter/app/src/lib.rs"
 fn get_msg_source(&self, msg_source: Option<ActorId>) -> ActorId {
     if self.get().proxy_address.is_some() {
         msg_source.expect("msg_source must be set through proxy")
@@ -86,7 +86,7 @@ fn get_msg_source(&self, msg_source: Option<ActorId>) -> ActorId {
 The proxy forwards the `ActorId` of the original sender, and `msg_source` will be `Some(ActorId)`.
     - If the program is called directly:
 `msg_source` will be `None`, and the program defaults to using `msg::source()` to determine the sender.
-```rust 
+```rust title="proxy-example/counter/app/src/lib.rs"
 pub fn contribute(&mut self, msg_source: Option<ActorId>) -> u128 {
     self.check_if_proxy();
     let msg_source = self.get_msg_source(msg_source); 
@@ -105,7 +105,7 @@ pub fn contribute(&mut self, msg_source: Option<ActorId>) -> u128 {
 State migration allows the transfer of critical program data from an old program to a new one, enabling smooth upgrades while preserving important state variables. In this example, the migration involves exporting specific fields (`value`, `limit`, and `contributions`) and importing them into a new instance of the program.
 1. Exporting State
 The `export_migration_state` function serializes only the necessary fields from the program's state and encodes them for transfer.
-```rust
+```rust title="proxy-example/counter/app/src/lib.rs"
 /// Exports the essential state for migration.
 /// Only includes `value`, `limit`, and `contributions` fields.
 pub fn export_migration_state(&self) -> Vec<u8> {
@@ -116,7 +116,7 @@ pub fn export_migration_state(&self) -> Vec<u8> {
 ```
 2. Importing State
 The `import_migration_state` function allows a new program to decode and load the state exported from the old program.
-```rust
+```rust title="proxy-example/counter/app/src/lib.rs"
 /// Imports the state from the previous program.
 /// Decodes and applies `value`, `limit`, and `contributions` fields.
 pub fn import_migration_state(&mut self, encoded_state: Vec<u8>) {
@@ -133,7 +133,7 @@ pub fn import_migration_state(&mut self, encoded_state: Vec<u8>) {
 ```
 ### Kill Function
 The kill function is used to stop the execution of the current program and transfer its remaining balance to a specified inheritor (e.g., a newly deployed program). This function is typically invoked by the admin as part of an upgrade process.
-```rust
+```rust title="proxy-example/counter/app/src/lib.rs"
 /// Stops the execution of the current program and transfers its remaining balance
 /// to the specified inheritor (e.g., a new program).
 pub async fn kill(&mut self, inheritor: ActorId, msg_source: Option<ActorId>) {

@@ -21,7 +21,7 @@ This design also supports logic program upgrades, ensuring flexibility and compa
 ### Message Forwarding
 1. **State-Modifying Messages**
 The `execute_msg` function forwards a state-modifying message to the logic program. It includes the original sender's address (`msg::source()`) in the payload for transparency and accountability.
-```rust
+```rust title="proxy-example/proxy/app/src/lib.rs"
 pub async fn execute_msg(&mut self, bytes: Vec<u8>) -> Vec<u8> {
     let original_sender = Some(msg::source());
     let sender_encoded = original_sender.encode();

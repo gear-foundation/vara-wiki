@@ -10,7 +10,7 @@ sidebar_position: 7
 
 Proxy programs are a well-known design pattern in blockchain development, enabling the delegation of function calls to a separate logic program. This pattern separates business logic from the program's state and address, making it possible to upgrade or modify the logic without impacting the existing state or deployed address.
 
-In this [example](https://github.com/gear-foundation/dapps/tree/master/contracts/proxy-example), we explore a practical implementation of a proxy program that forwards user interactions to a logic program. The proxy manages two main responsibilities:
+This [example](https://github.com/gear-foundation/dapps/tree/master/contracts/proxy-example) demonstrates a practical implementation of a proxy program designed to forward user interactions to a logic program. The proxy handles two primary responsibilities:
 
 1. Forwarding state-modifying messages while preserving the original sender's address.
 2. Handling state queries to retrieve data from the logic program.
@@ -62,7 +62,7 @@ pub fn update_logic(&mut self, new_logic_address: ActorId, msg_source: Option<Ac
 ```
 
 ### Creating a Proxy-Compatible Program
-To make a program compatible with a proxy, you need to implement certain features that allow the proxy to forward messages effectively while preserving the original sender's address. Below is an explanation of the key adjustments and features added to the [`Counter` program](https://github.com/gear-foundation/dapps/tree/master/contracts/proxy-example/counter) to support a proxy.
+Making a program compatible with a proxy requires implementing specific features that enable the proxy to forward messages effectively while preserving the original sender's address. The following outlines the key adjustments and features incorporated into the [`Counter` program](https://github.com/gear-foundation/dapps/tree/master/contracts/proxy-example/counter) to support a proxy.
 
 #### Key Features of a Proxy-Compatible Program
 1. Proxy Address Registration:

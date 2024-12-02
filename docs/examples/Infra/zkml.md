@@ -1,5 +1,5 @@
 ---
-sidebar_label: ZKML utility
+sidebar_label: ZKML Utility
 sidebar_position: 5
 ---
 

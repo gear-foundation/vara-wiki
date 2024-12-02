@@ -1,14 +1,17 @@
 ---
-sidebar_label: Proxy example
+sidebar_label: Programs Update (Proxy)
 sidebar_position: 7
 ---
 
-# Decentralized subscription management and auto-renewal
-
+# Proxy-Based Program Update Approach
 
 ## About
 
-Proxy programs are a well-known design pattern in blockchain development, enabling the delegation of function calls to a separate logic program. This pattern separates business logic from the program's state and address, making it possible to upgrade or modify the logic without impacting the existing state or deployed address.
+A program uploaded to the blockchain from specific source code represents a unique instance with a clearly defined on-chain address. A program uploaded from the same source code will become a separate instance with its own unique address, even if the logic remains identical. While the program’s state can change according to the defined business logic, there is no technical way to directly update the logic of an already uploaded program while preserving its unique address in the network.
+
+Programs often require updates to add new functionality or fix errors, making the ability to update a program’s business logic essential. Updating a program involves modifying the on-chain program in a way that avoids mandatory updates to other components or dependencies, such as the frontend, backend, external links, and more.
+
+**Proxy programs** are a well-known design pattern in blockchain development that address upgrade challenges. This approach enables the delegation of function calls to a separate logic program. The pattern separates business logic from the program’s state and address, allowing upgrades or modifications to the logic without affecting the existing state or deployed address.
 
 This [example](https://github.com/gear-foundation/dapps/tree/master/contracts/proxy-example) demonstrates a practical implementation of a proxy program designed to forward user interactions to a logic program. The proxy handles two primary responsibilities:
 

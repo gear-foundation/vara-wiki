@@ -15,7 +15,9 @@ In this [example](https://github.com/gear-foundation/dapps/tree/master/contracts
 1. Forwarding state-modifying messages while preserving the original sender's address.
 2. Handling state queries to retrieve data from the logic program.
 This design also supports logic program upgrades, ensuring flexibility and compatibility while maintaining administrative control.
-
+:::tip
+The project code is developed using the [Sails](../../build/sails/sails.mdx) framework.
+:::
 ## Program logic
 
 ### Message Forwarding

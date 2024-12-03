@@ -5,7 +5,7 @@ sidebar_position: 2
 
 # NFT Frontend Application
 
-This guide explains how to create a `React` application and connect it to an [NFT smart contract](/docs/examples/Standards/vnft.md) running in the blockchain.
+This guide explains how to create a `React` application and connect it to an [extended NFT smart contract](/docs/examples/Standards/vnft.md#extended-vnft-implementation) running in the blockchain.
 
 ### Preparation
 
@@ -85,12 +85,12 @@ import { IPFSProvider } from '@/context';
 const providers = [..., IPFSProvider];
 ```
 
-6. Upload the contract to the chain and set up the address in the `.env` file. 
+6. Build and upload the [contract](https://github.com/gear-foundation/standards/tree/master/extended-vnft#%EF%B8%8F-building) to the chain and set up the address in the `.env` file. 
 
-Place the `vnft.idl` file in the `api/sails` folder and run sails-cli command:
+Place the `extended_vnft.idl` file in the `api/sails` folder and run sails-cli command:
 
 ```shell
-npx sails-js-cli generate src/api/sails/nft.idl -o src/api/sails --no-project
+npx sails-js-cli generate src/api/sails/extended_vnft.idl -o src/api/sails --no-project
 ```
 
 Check the newly created lib.ts file and add the following two lines at the top:

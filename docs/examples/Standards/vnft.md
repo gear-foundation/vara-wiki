@@ -235,6 +235,13 @@ Returns a list of all actors who have the admin role.
 pub fn admins(&self) -> Vec<ActorId> 
 ```
 
+#### `tokens for owner`
+
+Returns a list of all tokens with metadata that the owner holds.
+```rust
+pub fn tokens_for_owner(&self, owner: ActorId) -> Vec<(TokenId, TokenMetadata)>
+```
+
 ### Contract Interface
 
 The extended service incorporates the following interface:
@@ -268,6 +275,7 @@ service Vnft {
   query Minters : () -> vec actor_id;
   query TokenId : () -> u256;
   query TokenMetadataById : (token_id: u256) -> opt TokenMetadata;
+  query TokensForOwner : (owner: actor_id) -> vec struct { u256, TokenMetadata };
   query BalanceOf : (owner: actor_id) -> u256;
   query GetApproved : (token_id: u256) -> actor_id;
   query Name : () -> str;

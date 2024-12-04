@@ -1,35 +1,46 @@
 ---
-sidebar_label: NFT frontend application
+sidebar_label: NFT Frontend Application
 sidebar_position: 2
 ---
 
-# NFT frontend application
+# NFT Frontend Application
 
-This article explains how to create a `React` application and connect it to an [NFT smart contract](/docs/examples/Standards/vnft.md) running in the blockchain.
+This guide explains how to create a `React` application and connect it to an [extended NFT smart contract](/docs/examples/Standards/vnft.md#extended-vnft-implementation) running in the blockchain.
 
 ### Preparation
 
-1. First install one of the [templates](https://github.com/gear-foundation/dapps/tree/master/frontend/templates). Install [NodeJs](https://nodejs.org/en/download/) and [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). Make sure the latest LTS version of the NodeJs is installed. 
+1. First install one of the [templates](https://github.com/gear-foundation/dapps/tree/master/frontend/templates). Install [NodeJs](https://nodejs.org/en/download/) and [NPM](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). Make sure the latest LTS version of the NodeJs is installed.
 
-2. Then install yarn:
-    ```shell
-    yarn install
-    ```
+2. Then install dependencies:
+
+```shell
+yarn install
+```
 
 3. There is an `.env.example` file. Create your own `.env` file and copy the contents of `.env.example` to your `.env` file. It contains the following variables:
-    - `VITE_NODE_ADDRESS`: This variable defines the node we'll be working on.
 
-    You have to add next varibles as well:
+   - `VITE_NODE_ADDRESS`: This variable defines the node we'll be working on.
 
-    - `VITE_CONTRACT_ADDRESS`: The address of the contract uploaded to the chain.
-    - `VITE_IPFS_ADDRESS` and `VITE_IPFS_GATEWAY_ADDRESS`: These variables are needed when uploading media files to IPFS
+   You have to add next varibles as well:
+
+   - `VITE_CONTRACT_ADDRESS`: The address of the contract uploaded to the chain.
+   - `VITE_IPFS_ADDRESS` and `VITE_IPFS_GATEWAY_ADDRESS`: These variables are needed when uploading and reading media files to IPFS
+
+An example of environment variables is shown below:
+
+```sh
+VITE_NODE_ADDRESS=wss://testnet.vara.network
+VITE_CONTRACT_ADDRESS=0x3d3d0b5c597d6d767294cc93e0a3489d848ae32cbf851fa40756800d28e4cd37
+VITE_IPFS_ADDRESS=http://localhost:5001/api/v0
+VITE_IPFS_GATEWAY_ADDRESS=https://ipfs.io/ipfs
+```
 
 4. In a root `consts.ts` file, specify newly added environment variables:
-    
+
 ```typescript
 const ADDRESS = {
   NODE: import.meta.env.VITE_NODE_ADDRESS as string,
-  CONTRACT_ADDRESS: import.meta.env.VITE_CONTRACT_ADDRESS as HexString,
+  CONTRACT_ADDRESS: import.meta.env.VITE_CONTRACT_ADDRESS as `0x${string}`,
   IPFS_ADDRESS: import.meta.env.VITE_IPFS_ADDRESS as string,
   IPFS_GATEWAY_ADDRESS: import.meta.env.VITE_IPFS_GATEWAY_ADDRESS as string,
 };
@@ -37,717 +48,524 @@ const ADDRESS = {
 
 5. Install `kubo-rpc-client` library to handle IPFS requests:
 
-    ```shell
-    yarn add kubo-rpc-client
-    ```
+```shell
+yarn add kubo-rpc-client
+```
 
-    Let's create a context to utilize it in a React way. Create `index.tsx` file in a `context` folder, and write the following code:
+Next, create a context to integrate IPFS in a React-friendly way. In the `context` folder, create a file named `index.tsx` and add the following code:
 
-    ```jsx
-    import { create, KuboRPCClient } from 'kubo-rpc-client';
-    import { createContext, ReactNode, useContext, useRef } from 'react';
+```tsx
+import { create, KuboRPCClient } from "kubo-rpc-client";
+import { createContext, ReactNode, useContext, useRef } from "react";
+import { ADDRESS } from "@/consts";
 
-    type Props = {
-      children: ReactNode;
-    };
+type Props = {
+  children: ReactNode;
+};
 
-    const IPFSContext = createContext({} as KuboRPCClient);
+const IPFSContext = createContext({} as KuboRPCClient);
 
-    function IPFSProvider({ children }: Props) {
-      const ipfsRef = useRef(create({ url: process.env.REACT_APP_IPFS_ADDRESS as string }));
-      const { Provider } = IPFSContext;
+function IPFSProvider({ children }: Props) {
+  const ipfsRef = useRef(create({ url: ADDRESS.IPFS_ADDRESS }));
+  const { Provider } = IPFSContext;
 
-      return <Provider value={ipfsRef.current}>{children}</Provider>;
-    }
+  return <Provider value={ipfsRef.current}>{children}</Provider>;
+}
 
-    const useIPFS = () => useContext(IPFSContext);
+const useIPFS = () => useContext(IPFSContext);
 
-    export { IPFSProvider, useIPFS };
-    ```
+export { IPFSProvider, useIPFS };
+```
 
-    Add `IPFSProvider` to a providers array in a `hocs/index.tsx` file:
+Include `IPFSProvider` in the providers array in the `hocs/index.tsx` file:
 
-    ```typescript
-        import { IPFSProvider } from '@/context';
+```typescript
+import { IPFSProvider } from '@/context';
 
-        const providers = [..., IPFSProvider];
-    ```
+const providers = [..., IPFSProvider];
+```
 
-6. Upload the contract to the chain and set up the address in the `.env` file. Place the `meta.txt` file in the `assets/meta` folder and the `nft_state.meta.wasm` file in the `assets/wasm` folder.
+6. Build and upload the [contract](https://github.com/gear-foundation/standards/tree/master/extended-vnft#%EF%B8%8F-building) to the chain and set up the address in the `.env` file. 
+
+Place the `extended_vnft.idl` file in the `api/sails` folder and run sails-cli command:
+
+```shell
+npx sails-js-cli generate src/api/sails/extended_vnft.idl -o src/api/sails --no-project
+```
+
+Check the newly created lib.ts file and add the following two lines at the top:
+
+```ts
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+```
 
 7. Run the application:
-    ```shell
-    yarn start
-    ```
-8. The main file `App.tsx` is simple:
 
-    ```typescript
-    import { useApi, useAccount } from '@gear-js/react-hooks';
-    import { Routing } from 'pages';
-    import { Header, Footer, ApiLoader } from 'components';
-    import { withProviders } from 'hocs';
-    import 'App.scss';
+```shell
+yarn start
+```
 
-    function Component() {
-    const { isApiReady } = useApi();
-    const { isAccountReady } = useAccount();
+8. The main file `App.tsx` is simple.
 
-    const isAppReady = isApiReady && isAccountReady;
+It checks whether the application is connected to the chain:
 
-    return (
-        <>
-        <Header isAccountVisible={isAccountReady} />
-        <main>{isAppReady ? <Routing /> : <ApiLoader />}</main>
-        <Footer />
-        </>
-    );
-    }
+```typescript
+const { isApiReady } = useApi();
+```
 
-    export const App = withProviders(Component);
-    ```
+It checks whether the account is connected to the application through the web extension:
 
-    It checks whether the application is connected to the chain:
+```typescript
+const { isAccountReady } = useAccount();
+```
 
-    ```typescript
-    const { isApiReady } = useApi();
-    ```
-
-    It checks whether the account is connected to the application through the web extension:
-
-    ```typescript
-    const { isAccountReady } = useAccount();
-    ```
-
-9. If the `api` is ready and the `account` is connected, it displays the application's pages. Navigate to the pages folder. The project has only one page `Home`. The `index.tsx` file is also simple:
-
-    ```typescript
-    import { Route, Routes } from 'react-router-dom';
-    import { Home } from './home/Home';
-
-    const routes = [
-    { path: '/', Page: Home },
-    ];
-
-    export function Routing() {
-    const getRoutes = () => routes.map(({ path, Page }) => 
-    <Route key={path} path={path} element={<Page />} />
-    );
-
-    return <Routes>{getRoutes()}</Routes>;
-    }
-    ```
+9. If the `api` is ready and the `account` is connected, it displays the application's pages. Navigate to the pages folder. The project has only one page `Home`. The routing configuration is located in the `pages/index.tsx` file.
 
 ### Create-NFT page
 
 1. Create a page for NFT creation using the code below:
-    ```shell
-    mkdir src/pages/create-nft
-    touch src/pages/create-nft/CreateNft.tsx
-    ```
 
-2. Then move the file with styles from `assets` folder to the `create-nft` folder:
-    ```shell
-    mv src/assets/styles/CreateNft.module.scss src/pages/create-nft 
-    ```
+```shell
+mkdir src/pages/create-nft
+touch src/pages/create-nft/CreateNft.tsx
+```
 
-3. Start writing the `CreateNft.tsx`:
+2. Start writing the `CreateNft.tsx`:
 
-    ```typescript 
-    import styles from 'CreateNft.module.scss'
+```tsx
+export function CreateNft() {
+  return <div>Create NFT</div>;
+}
+```
 
-    export function CreateNft() {
-        return (
-            <div>Create NFT</div>
-        )
-    }
-    ```
+3. Declare this page in the `index.tsx` file and also add the route for it:
 
-4. Declare this page in the `index.tsx` file and also add the route for it::
+```tsx
+import { CreateNft } from "./create-nft/CreateNft";
 
-    ```typescript 
-    import { Route, Routes } from 'react-router-dom';
-    import { CreateNft } from './create-nft/CreateNft';
-    import { Home } from './home/Home';
+const routes = [
+  { path: "/", Page: Home },
+  { path: "/create-nft", Page: CreateNft },
+];
+```
 
-    const routes = [
-    { path: '/', Page: Home },
-    { path: '/create-nft', Page: CreateNft },
-    ];
+4. Create a link to the `CreateNft` page from the `Header` component. In the `src\components\layout\header\Header.tsx` file, write:
 
-    export function Routing() {
-    const getRoutes = () => routes.map(({ path, Page }) => 
-    <Route key={path} path={path} element={<Page />} />
-    );
+```tsx
+import { Link } from "react-router-dom";
+...
 
-    return <Routes>{getRoutes()}</Routes>;
-    }
-    ```
-
-5. Create a link to the `CreateNft` page from the `Home` page. In the `Home.tsx` file, write:
-
-    ```typescript 
-    import { Link } from "react-router-dom";
-
-    function Home() {
-    return (
-        <Link to="/create-nft">
+function Header() {
+  return (
+    <header className={styles.header}>
+      <Logo />
+      <Link to="/create-nft">
         <h3>Create NFT</h3>
-        </Link>
-    )
-    }
-    export { Home };
-    ```
+      </Link>
+      ...
+    </header>
+  );
+}
 
-6. Go back to the `CreateNft` page. Create a form that includes the NFT `title`, `description`, and `image`:
+export { Header };
+```
 
-    ```typescript 
-    import { Button, FileInput, Input } from '@gear-js/ui'
-    import styles from './CreateNft.module.scss'
+5. Go back to the `CreateNft` page. Create a form that includes the NFT `title`, `description`, and `image`:
 
-    export function CreateNft() {
-        return (
-            <>
-                <h2 className={styles.heading}> Create NFT</h2>
-                <div className={styles.main}>
-                    <form className={styles.from}>
-                        <div className={styles.item}>
-                            <Input label="Name" className={styles.input} required/>
-                        </div>
-                        <div className={styles.item}>
-                            <Input label="Description" className={styles.input} required/>
-                        </div>
-                        <div className={styles.item}>
-                            <FileInput label="Image" className={styles.input}  required/>
-                        </div>
-                        <Button type="submit" text="Create" className={styles.button}/>
-                    </form>
-                </div>
-            </>
-        )
-    }
-    ```
+```tsx
+import { Button, FileInput, Input } from "@gear-js/ui";
 
-7. Create a state that will store the NFT's title, description, and image, and add the functions `handleInputChange` and `handleImageChange` that will update this state:
+export function CreateNft() {
+  return (
+    <>
+      <h2>Create NFT</h2>
+      <div>
+        <form>
+          <Input label="Name" required />
+          <Input label="Description" required />
+          <FileInput label="Image" required />
+          <Button type="submit" text="Create" />
+        </form>
+      </div>
+    </>
+  );
+}
+```
 
-    ```typescript 
-    import { Button, FileInput, Input } from '@gear-js/ui'
-    import { useState } from 'react'
-    import styles from './CreateNft.module.scss'
+6. Create a state that will store the NFT's title, description, and image, and add the functions `handleInputChange` and `handleImageChange` that will update this state:
 
-    const NftInitialState = {
-        title: "",
-        description: "",
-    }
+```tsx
+import { Button, FileInput, Input } from "@gear-js/ui";
+import { useState } from "react";
 
-    export function CreateNft() {
-        const [nftForm, setNftForm] = useState(NftInitialState);
-        const [image, setImage] = useState<File | null>(null)
-        const { title, description } = nftForm;
+const NftInitialState = {
+  title: "",
+  description: "",
+};
 
-        const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-            const { name, value } = e.target;        
-            setNftForm(prevForm => ({...prevForm , [name]: value}))
-        }
+export function CreateNft() {
+  const [nftForm, setNftForm] = useState(NftInitialState);
+  const [image, setImage] = useState<File | null>();
+  const { title, description } = nftForm;
 
-        return (
-            <>
-                <h2 className={styles.heading}> Create NFT</h2>
-                <div className={styles.main}>
-                    <form className={styles.from}>
-                        <div className={styles.item}>
-                            <Input label="Name" className={styles.input} required name="title" value={title} onChange={handleInputChange}/>
-                        </div>
-                        <div className={styles.item}>
-                            <Input label="Description" className={styles.input} required name="description" value={description} onChange={handleInputChange}/>
-                        </div>
-                        <div className={styles.item}>
-                            <FileInput label="Image" className={styles.input} onChange={setImage}/>
-                        </div>
-                        <Button type="submit" text="Create" className={styles.button}/>
-                    </form>
-                </div>
-            </>
-        )
-    }
-    ```
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNftForm((prevForm) => ({ ...prevForm, [name]: value }));
+  };
 
-8. Add the image preview for the uploaded image:
+  return (
+    <>
+      <h2>Create NFT</h2>
+      <div>
+        <form>
+          <Input label="Name" required name="title" value={title} onChange={handleInputChange} />
+          <Input label="Description" required name="description" value={description} onChange={handleInputChange} />
+          <FileInput label="Image" onChange={setImage} />
+          <Button type="submit" text="Create" />
+        </form>
+      </div>
+    </>
+  );
+}
+```
 
-    ```typescript
-    ...
-    export function CreateNft() {
-        ...
-        return (
-            <>
-                <h2 className={styles.heading}> Create NFT</h2>
-                <div className={styles.main}>
-                    <form className={styles.from}>
-                        ...
-                        <div className={styles.item}>
-                            <FileInput label="Image" className={styles.input} onChange={setImage}/>
-                            { image ? (
-                                <div className="image-preview">
-                                    <img src={URL.createObjectURL(image)} alt="nft" style={{width: 100, height: 100}}/>
-                                </div> 
-                            ): (
-                                <p>No image set for this NFT</p>
-                            )}
-                        </div>
-                        <Button type="submit" text="Create" className={styles.button}/>
-                    </form>
-                </div>
-            </>
-        )
-    }
-    ```
+7. Add the image preview for the uploaded image:
+
+```tsx
+...
+export function CreateNft() {
+  ...
+  return (
+    <>
+      <h2>Create NFT</h2>
+      <div>
+        <form>
+          ...
+          <FileInput label="Image" onChange={setImage} />
+          {image ? (
+            <div>
+              <img
+                src={URL.createObjectURL(image)}
+                alt="nft"
+                style={{ width: 200, height: 200 }}
+              />
+            </div>
+          ) : (
+            <p>No image set for this NFT</p>
+          )}
+          <Button type="submit" text="Create" />
+        </form>
+      </div>
+    </>
+  );
+}
+```
 
 ### Upload image and mint NFT
 
 1. Next, upload the image to IPFS and send a `Mint` message to the contract.
 
-Upload the image to IPFS and send a `Mint` message to the contract. Install the [IPFS Desktop App](http://docs.ipfs.tech.ipns.localhost:8080/install/ipfs-desktop/#windows).
+Install the [IPFS Desktop App](https://docs.ipfs.tech/install/ipfs-desktop/#windows).
 
-2. Navigate to `Settings`:
-![](../../img/ssgQSvY.jpg)
-Locate `IPFS config`:
-![](../../img/nn82YO3.png)
-and configure the `API` of your node:
+2.  Navigate to `Settings`:
+    ![](../../img/ssgQSvY.jpg)
+    Locate `IPFS config`:
+    ![](../../img/nn82YO3.png)
+    and configure the `API` of your node:
 
-    ```
-    "API": {
-            "HTTPHeaders": {
-                "Access-Control-Allow-Methods": [
-                    "PUT",
-                    "GET",
-                    "POST"
-                ],
-                "Access-Control-Allow-Origin": [
-                    "*", 
-                    "https://webui.ipfs.io",
-                    "http://webui.ipfs.io.ipns.localhost:8080",
-                    "http://127.0.0.1:5001"
-                ]
-            }
-        },
-    ```
-
-3. Now you can upload the files from the application. Start writing the function:
-
-    ```typescript
-    ...
-    import { useIPFS } from '@/context';
-    ...
-    export function CreateNft() {
-        ...
-
-        const ipfs = useIPFS();
-        
-        const createNft = async (e: React.FormEvent<HTMLFormElement>) => {
-            e.preventDefault();
-
-            let cid;
-            if (image) {
-            try {
-                cid = await ipfs.add(image as File)
-            } catch (error) {
-                    alert(error)
-            }
-            }
-        }
-        ...
+```json
+"API": {
+    "HTTPHeaders": {
+        "Access-Control-Allow-Methods": [
+            "PUT",
+            "GET",
+            "POST"
+        ],
+        "Access-Control-Allow-Origin": [
+            "*",
+            "https://webui.ipfs.io",
+            "http://webui.ipfs.io.ipns.localhost:8080",
+            "http://127.0.0.1:5001"
+        ]
     }
-
-    ```
-
-4. Next, send the message to the contract. But first, establish the required hooks. Generate a file called `api.ts` in the `hooks` folder.
-
-```shell
-touch src/hooks/api.ts
+},
 ```
 
-5. Define the hook `useNFTMetadata` and `useSendNFTMessage`:
+3.  Now you can upload the files from the application. Start writing the function:
 
-    ```typescript
-    import { useSendMessage } from '@gear-js/react-hooks';
-    import metaTxt from 'assets/meta/meta.txt'
-    import { ADDRESS } from 'consts';
-    import { useMetadata } from "./useMetadata";
+```tsx
+...
+import { useIPFS } from "@/context";
+...
+export function CreateNft() {
+  ...
+  const ipfs = useIPFS();
+  const createNft = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-    function useNFTMetadata() {
-        return useMetadata(metaTxt)
+    if (image) {
+      try {
+        const cid = await ipfs.add(image);
+      } catch (error) {
+        console.error(error);
+      }
     }
+  };
+  ...
+}
+```
 
-    function useSendNFTMessage() {
-        const meta = useNFTMetadata()
-        return useSendMessage(ADDRESS.CONTRACT_ADDRESS, meta)
+4. Continue writing the `createNft` function. Create the `payload` message and send it to the contract. The complete code of the `CreateNft` page is as follows:
+
+```tsx
+import { useAccount, useProgram, useSendProgramTransaction } from "@gear-js/react-hooks";
+import { Button, FileInput, Input } from "@gear-js/ui";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { Program } from "@/api/sails/lib";
+import { ADDRESS } from "@/consts";
+import { useIPFS } from "@/context";
+
+const NftInitialState = {
+  title: "",
+  description: "",
+};
+
+export function CreateNft() {
+  const [nftForm, setNftForm] = useState(NftInitialState);
+  const [image, setImage] = useState<File | null>();
+  const ipfs = useIPFS();
+  const { account } = useAccount();
+  const navigate = useNavigate();
+
+  const { data: program } = useProgram({ library: Program, id: ADDRESS.CONTRACT_ADDRESS });
+  const { sendTransactionAsync } = useSendProgramTransaction({
+    program,
+    serviceName: "vnft",
+    functionName: "mint",
+  });
+
+  const { title, description } = nftForm;
+
+  const resetForm = () => {
+    setNftForm(NftInitialState);
+    setImage(null);
+  };
+
+  const createNft = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!account?.decodedAddress) return;
+
+    if (image) {
+      try {
+        const cid = await ipfs.add(image);
+
+        const tokenMetadata = {
+          name: title,
+          description,
+          media: cid?.cid.toString(),
+          reference: "",
+        };
+
+        await sendTransactionAsync({
+          args: [account.decodedAddress, tokenMetadata],
+        });
+
+        resetForm();
+        navigate("/");
+      } catch (error) {
+        console.error(error);
+      }
     }
+  };
 
-    export {useNFTMetadata, useSendNFTMessage}
-    ```
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNftForm((prevForm) => ({ ...prevForm, [name]: value }));
+  };
 
-6. Continue writing the `CreateNft` function. Create the `payload` message and send it to the contract.
-    ```typescript 
-    ...
-    import { useAccount } from '@gear-js/react-hooks';
-    import { useSendNFTMessage } from 'hooks/api';
-    import { useNavigate } from 'react-router-dom';
-    ...
-
-    export function CreateNft() {
-        ...
-        const ipfs = useIPFS();
-        const { account }= useAccount();
-        const navigate = useNavigate();
-        const sendMessage = useSendNFTMessage();
-
-        const resetForm = () => {
-            setNftForm(NftInitialState);
-            setImage(null)
-        }
-
-        const createNft = async (e: React.FormEvent<HTMLFormElement>) => {
-            e.preventDefault();
-
-            let cid;
-            if (image) {
-            try {
-                cid = await ipfs.add(image as File)
-            } catch (error) {
-                    alert(error)
-            }
-            }
-            const tokenMetadata = {
-                name: title,
-                description,
-                media: cid?.cid.toString(),
-                reference: "",
-            }
-            
-            const payload = {
-                Mint: {
-                    to: account?.decodedAddress,
-                    tokenMetadata,
-                }
-            };
-
-            sendMessage(
-                payload,
-                {
-                    onSuccess: () => {
-                        resetForm();
-                        navigate('/')
-                    },
-                },
-            );
-        }
-        ...
-    }
-    ```
-
-7. The `CreateNft` page is ready. The complete code is as follows:
-
-    ```typescript 
-    import { useAccount } from '@gear-js/react-hooks';
-    import { Button, FileInput, Input } from '@gear-js/ui'
-    import { useIPFS } from '@/context';
-    import { useSendNFTMessage } from 'hooks/api';
-    import { useState } from 'react'
-    import { useNavigate } from 'react-router-dom';
-    import styles from './CreateNft.module.scss'
-
-    const NftInitialState = {
-        title: "",
-        description: "",
-    }
-
-    export function CreateNft() {
-        const [nftForm, setNftForm] = useState(NftInitialState);
-        const [image, setImage] = useState<File | null>(null)
-        const { title, description } = nftForm;
-
-        const handleInputChange = (e: {target: {name: any, value: any }}) => {
-            const { name, value } = e.target;
-            setNftForm({...nftForm, [name]: value})
-        }
-
-        const ipfs = useIPFS();
-        const { account }= useAccount();
-        const navigate = useNavigate();
-        const sendMessage = useSendNFTMessage();
-
-        const resetForm = () => {
-            setNftForm(NftInitialState);
-            setImage(null)
-        }
-
-        const createNft = async (e: React.FormEvent<HTMLFormElement>) => {
-            e.preventDefault();
-
-            let cid;
-            if (image) {
-            try {
-                cid = await ipfs.add(image as File)
-            } catch (error) {
-                    alert(error)
-            }
-            }
-            const tokenMetadata = {
-                name: title,
-                description,
-                media: cid?.cid.toString(),
-                reference: "",
-            }
-            
-            const payload = {
-                Mint: {
-                    to: account?.decodedAddress,
-                    tokenMetadata,
-                }
-            };
-
-            sendMessage(
-                payload,
-                {
-                    onSuccess: () => {
-                        resetForm();
-                        navigate('/')
-                    },
-                },
-            );
-        }
-        return (
-            <>
-                <h2 className={styles.heading}> Create NFT</h2>
-                <div className={styles.main}>
-                    <form className={styles.from} onSubmit={createNft}>
-                        <div className={styles.item}>
-                            <Input label="Name" className={styles.input} required name="title" value={title} onChange={handleInputChange}/>
-                        </div>
-                        <div className={styles.item}>
-                            <Input label="Description" className={styles.input} required name="description" value={description} onChange={handleInputChange}/>
-                        </div>
-                        <div className={styles.item}>
-                            <FileInput label="Image" className={styles.input} onChange={setImage}/>
-                            { image ? (
-                                <div className="image-preview">
-                                    <img src={URL.createObjectURL(image)} alt="nft" style={{width: 100, height: 100}}/>
-                                </div> 
-                            ): (
-                                <p>No image set for this NFT</p>
-                            )}
-                        </div>
-                        <Button type="submit" text="Create" className={styles.button}/>
-                    </form>
-                </div>
-            </>
-        )
-    }
-    ```
+  return (
+    <>
+      <h2>Create NFT</h2>
+      <div>
+        <form onSubmit={createNft}>
+          <Input label="Name" required name="title" value={title} onChange={handleInputChange} />
+          <Input label="Description" required name="description" value={description} onChange={handleInputChange} />
+          <FileInput label="Image" onChange={setImage} />
+          {image ? (
+            <div className="image-preview">
+              <img
+                src={URL.createObjectURL(image)}
+                alt="nft"
+                style={{ width: 200, height: 200 }}
+              />
+            </div>
+          ) : (
+            <p>No image set for this NFT</p>
+          )}
+          <Button type="submit" text="Create" />
+        </form>
+      </div>
+    </>
+  );
+}
+```
 
 The next section covers the creation of the `Home` page for reading and displaying the minted NFTs.
 
 ### Home page
 
-In the `api.ts` file, add hooks for reading the contract state.
+1. Start writing the `Home` page:
 
-1. First, add `useNFTState<T>`, where `T` is the type expected to be read (for example, `Token`). It’ll accept the function name and payload if required for the specified function:
+```tsx
+import { useAccount, useProgram, useProgramQuery } from "@gear-js/react-hooks";
 
-    ```typescript
-    import stateMetaWasm from 'assets/wasm/nft_state.meta.wasm'
-    import { useMetadata, useWasmMetadata } from './useMetadata'
-    import metaTxt from 'assets/meta/meta.txt'
-    import { useAccount, useReadWasmState, useSendMessage } from '@gear-js/react-hooks';
-    import { ADDRESS } from 'consts';
+import { Program } from "@/api/sails/lib";
+import { Loader } from "@/components";
+import { ADDRESS } from "@/consts";
 
-    function useNFTMetadata() {
-        return useMetadata(metaTxt);
-    }
+function Home() {
+  const { account } = useAccount();
+  const { data: program } = useProgram({ library: Program, id: ADDRESS.CONTRACT_ADDRESS });
 
-    function useNFTState<T>(functionName: string, payload?: any) {
-        const { buffer } = useWasmMetadata(stateMetaWasm);
-        return useReadWasmState<T>(
-            ADDRESS.CONTRACT_ADDRESS,
-            buffer,
-            functionName,
-            payload
-        )
-    }
-    ```
+  // Read nfts from the contract
+  const { data: nfts, isFetched: isNftStateRead } = useProgramQuery({
+    program,
+    serviceName: "vnft",
+    functionName: "tokensForOwner",
+    args: [account!.decodedAddress],
+  });
 
-2. To read all the tokens in the contract, create the type for a token in a separate folder called `types`:
-    ```shell
-    mkdir types
-    touch types/index.ts
-    ```
+  // Check whether the contract has tokens
+  const isAnyNft = !!nfts?.length;
 
-    and add the `Token` description to the `index.ts` file:
-
-    ```typescript
-    import { HexString } from "@polkadot/util/types";
-
-    type Token = {
-        approvedAccountIds: HexString[];
-        description: string;
-        id: string;
-        media: string;
-        name: string;
-        ownerId: HexString;
-        reference: string;
-    };
-
-    export type { Token };
-    ```
-
-3. Then write the `useNFTs` hook:
-
-    ```typescript
-    ...
-    import { Token } from 'types';
-
-    ...
-    function useNFTs() {
-        const { state, isStateRead } = useNFTState<Token[]>("all_tokens", null);
-        return { nfts: state, isNftStateRead: isStateRead };
-    }
-    ```
-
-4. Start writing the `Home` page:
-
-    ```typescript
-
-    import { Loader } from 'components';
-    import { useNFTs } from 'hooks/api';
-    import styles from './Home.module.scss'
-
-    function Home() {
-
-    const { nfts: state, isNftStateRead: isStateRead } = useNFTs();
-    const isAnyNft = !!nfts?.length;
-
-    return (
+  return (
+    <>
+      <header>
+        <h2>NFTs</h2>
+      </header>
+      {isNftStateRead ? (
         <>
-        <header className={styles.header}>
-            <h2 className={styles.heading}>NFTs</h2>
-        </header>
-        {isNftStateRead ? (
-            <>
-            {isAnyNft && <ul className={styles.list}>Display NFTs here</ul>}
-            {!isAnyNft && <h2>There are no NFTs at the moment</h2>}
-            </>
-        ) : (
-            <Loader />
-        )}
+          {isAnyNft && <ul>Display NFTs here</ul>}
+          {!isAnyNft && <h2>There are no NFTs at the moment</h2>}
         </>
-    )
-    }
-    export { Home };
-    ```
+      ) : (
+        <Loader />
+      )}
+    </>
+  );
+}
 
-5. `nfts` are read using the previously written hook `useNFTs`.
+export { Home };
+```
 
-    ```typescript
-    const nfts = useNFTs();
-    ```
+2. Create a component that will display the NFT:
 
-6. Check whether the contract has tokens: 
+```shell
+mkdir src/pages/home/nft
+touch src/pages/home/nft/Nft.tsx
+```
 
-    ```typescript
-    const isAnyNft = !!nfts?.length;
-    ```
+Write the component:
 
-7. Create a component that will display the NFT:
+```tsx
+import { Link } from "react-router-dom";
 
-    ```
-    mkdir pages/home/nft
-    touch pages/home/nft/nft.tsx
-    ```
+import { ADDRESS } from "@/consts";
 
-    and write the component:
+type Props = {
+  id: string;
+  name: string;
+  media: string;
+};
 
-    ```typescript
-    import { Link } from "react-router-dom";
-    import { getIpfsAddress } from "utils";
-    import styles from './nft.module.scss'
+function NFT({ id, name, media }: Props) {
+  const to = `/nft/${id}`;
+  const src = `${ADDRESS.IPFS_GATEWAY_ADDRESS}/${media}`;
+  const text = `#${id}`;
 
-    type Props = {
-        id: string;
-        name: string;
-        media: string
-    }
+  return (
+    <Link to={to}>
+      <img src={src} alt={name} />
+      <h3>{name}</h3>
+      <p>{text}</p>
+    </Link>
+  );
+}
 
-    function NFT( {id, name, media }: Props) {
-        const to = `/nft/${id}`;
-        const src = getIpfsAddress(media)
-        const text = `#${id}`
-        return (
-            <Link to={to} className={styles.nft}>
-                <img src={src} alt={name}/>
-                <h3 className={styles.heading}>{name}</h3>
-                <p className={styles.text}>{text}</p>
-            </Link>
-        )
-    }
+export { NFT };
+```
 
-    export { NFT };
-    ```
+3. Write a function for retrieving all NFTs from the contract in the `Home.tsx` file:
 
-8. Write a function for retrieving all NFTs from the contract in the `Home.tsx` file:
+```tsx
+...
+import { NFT } from './nft/Nft';
 
-    ```typescript 
-    ...
-    import { NFT } from './nft/nft';
+function Home() {
+  ...
+  const getNFTs = () =>
+    nfts?.map(([id, { name, media }]) => (
+      <li key={id}>
+        <NFT id={id} name={name} media={media} />
+      </li>
+    ));
+...
+}
+...
+```
 
-    function Home() {
+The whole code of the `Home` page:
 
-    const { nfts: state, isNftStateRead: isStateRead } = useNFTs();
-    const isAnyNft = nfts?.length;
+```tsx
+import { useAccount, useProgram, useProgramQuery } from "@gear-js/react-hooks";
 
-    const getNFTs = () => 
-        nfts?.map( ({name, id, media}) => (
-        <li key={id}>
-            <NFT id = {id} name = {name} media = {media} />
-        </li>
-        ))
-        
-    ...
-    }
-    export { Home };
-    ```
-    The whole code of the `Home` page:
-    ```typescript
-    import { Loader } from 'components';
-    import { useNFTs } from 'hooks/api';
-    import styles from './Home.module.scss'
-    import { NFT } from './nft/nft';
+import { Program } from "@/api/sails/lib";
+import { Loader } from "@/components";
+import { ADDRESS } from "@/consts";
 
-    function Home() {
+import { NFT } from "./nft/Nft";
 
-    const { nfts: state, isNftStateRead: isStateRead } = useNFTs();
-    const isAnyNft = nfts?.length;
+function Home() {
+  const { data: program } = useProgram({
+    library: Program,
+    id: ADDRESS.CONTRACT_ADDRESS,
+  });
+  const { account } = useAccount();
+  const { data: nfts, isFetched: isNftStateRead } = useProgramQuery({
+    program,
+    serviceName: "vnft",
+    functionName: "tokensForOwner",
+    args: [account!.decodedAddress],
+  });
 
-    const getNFTs = () => 
-        nfts?.map( ({name, id, media}) => (
-        <li key={id}>
-            <NFT id = {id} name = {name} media = {media} />
-        </li>
-        ))
-        
-       
-    return (
+  const isAnyNft = Boolean(nfts?.length);
+
+  const getNFTs = () =>
+    nfts?.map(([id, { name, media }]) => (
+      <li key={id}>
+        <NFT id={id} name={name} media={media} />
+      </li>
+    ));
+
+  return (
+    <>
+      <header>
+        <h2>NFTs</h2>
+      </header>
+      {isNftStateRead ? (
         <>
-        <header className={styles.header}>
-            <h2 className={styles.heading}>NFTs</h2>
-        </header>
-        {isNftStateRead ? (
-            <>
-            {isAnyNft && <ul className={styles.list}>{getNFTs()}</ul>}
-            {!isAnyNft && <h2>There are no NFTs at the moment</h2>}
-            </>
-        ) : (
-            <Loader />
-        )}
+          {isAnyNft && <ul>{getNFTs()}</ul>}
+          {!isAnyNft && <h2>There are no NFTs at the moment</h2>}
         </>
-    )
-    }
-    export { Home };
-    ```
+      ) : (
+        <Loader />
+      )}
+    </>
+  );
+}
+
+export { Home };
+```

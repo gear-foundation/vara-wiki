@@ -46,7 +46,7 @@ yarn install
 For proper application functioning, one needs to adjust an environment variable parameters. An example is available [here](https://github.com/gear-foundation/dapps/blob/master/frontend/apps/nft-marketplace/.env.example).
 
 ```sh
-REACT_APP_NODE_ADDRESS=wss://testnet.vara.network:443
+REACT_APP_NODE_ADDRESS=wss://testnet.vara.network
 REACT_APP_IPFS_ADDRESS=https://stg-pinata-proxy.vara.network/files/upload
 REACT_APP_IPFS_GATEWAY_ADDRESS=https://gear.mypinata.cloud/ipfs
 REACT_APP_MARKETPLACE_CONTRACT_ADDRESS=0xe33f5124f1200f6cd728acc14f7dfcd6e59d584271415f15dbe9106af7e2d1e6

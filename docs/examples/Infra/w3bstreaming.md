@@ -75,6 +75,7 @@ pub struct Profile {
     pub name: Option<String>,
     pub surname: Option<String>,
     pub img_link: Option<String>,
+    pub time_zone: Option<String>,
     pub stream_ids: Vec<String>,
     pub subscribers: Vec<ActorId>,
     pub subscriptions: Vec<Subscription>,
@@ -84,6 +85,7 @@ pub struct Profile {
 * `name` - user name
 * `surname` - user surname
 * `img_link` - user logo link
+* `time_zone` - time zone
 * `stream_ids` - list of all stream identifiers of the user
 * `subscribers` - list of all subscribers of a user
 * `subscriptions` - list of all subscribed users
@@ -117,6 +119,7 @@ pub fn edit_profile(
     name: Option<String>,
     surname: Option<String>,
     img_link: Option<String>,
+    time_zone: Option<String>,
 );
 pub fn add_admin(&mut self, new_admin_id: ActorId);
 pub async fn kill(&mut self, inheritor: ActorId);
@@ -146,6 +149,7 @@ pub fn edit_profile(
     name: Option<String>,
     surname: Option<String>,
     img_link: Option<String>,
+    time_zone: Option<String>,
 ) {
     let storage = self.get_mut();
 
@@ -156,11 +160,13 @@ pub fn edit_profile(
             profile.name.clone_from(&name);
             profile.surname.clone_from(&surname);
             profile.img_link.clone_from(&img_link);
+            profile.time_zone.clone_from(&img_link);
         })
         .or_insert_with(|| Profile {
             name,
             surname,
             img_link,
+            time_zone,
             stream_ids: Vec::new(),
             subscribers: Vec::new(),
             subscriptions: Vec::new(),

@@ -12,7 +12,8 @@ P2P streaming is an example of a decentralized application, akin to the widely p
 In this example of the application, a user creates a schedule for an upcoming stream broadcast at a designated time in advance. Other users can view a list of scheduled streams and subscribe to one or more. At the appointed time, the streamer commences the broadcast, and other users join it.
 
 The application comprises three primary components:
-- On-chain program: This component is responsible for storing the stream schedule and managing user subscriptions ([GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/w3bstreaming)).
+- On-chain program: This component is responsible for storing the stream schedule and managing user subscriptions  
+The source code, developed using the [Sails](../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/w3bstreaming).
 - Frontend: This component serves as the application's user interface ([GitHub](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/w3bstreaming))
 - Signaling server: This component is responsible for establishing peer-to-peer (P2P) connections between the streamer and viewers ([GitHub](https://github.com/gear-foundation/dapps/tree/master/backend/w3bstreaming)).
 
@@ -34,18 +35,22 @@ Also, anyone can test the application using this link: [P2P Streaming](https://w
 
 The P2P streaming program contains the following information:
 
-```rust title="w3bstreaming/io/src/lib.rs"
+```rust title="w3bstreaming/app/src/lib.rs"
 pub struct Program {
-    pub streams: BTreeMap<String, Stream>,
-    pub users: BTreeMap<ActorId, Profile>,
+    pub streams: HashMap<String, Stream>,
+    pub users: HashMap<ActorId, Profile>,
+    pub admins: Vec<ActorId>,
+    pub dns_info: Option<(ActorId, String)>,
 }
 ```
 * `streams` - contains a pair of values such as identifier and stream information 
 * `users` - contains a pair of values such as user address and profile information
+* `admins` - admins addresses
+* `dns_info` - optional field that stores the [dDNS](../Infra/dein.md) address and the program name
 
 Сonsider in detail the information about the `Stream` 
 
-```rust title="w3bstreaming/io/src/lib.rs"
+```rust title="w3bstreaming/app/src/utils.rs"
 pub struct Stream {
     pub broadcaster: ActorId,
     pub start_time: u64,
@@ -53,7 +58,6 @@ pub struct Stream {
     pub title: String,
     pub img_link: String,
     pub description: Option<String>,
-    pub watchers: Vec<ActorId>,
 }
 ```
 
@@ -66,11 +70,12 @@ pub struct Stream {
 
 `Profile` information is as follows:
 
-```rust title="w3bstreaming/io/src/lib.rs"
+```rust title="w3bstreaming/app/src/utils.rs"
 pub struct Profile {
     pub name: Option<String>,
     pub surname: Option<String>,
     pub img_link: Option<String>,
+    pub time_zone: Option<String>,
     pub stream_ids: Vec<String>,
     pub subscribers: Vec<ActorId>,
     pub subscriptions: Vec<Subscription>,
@@ -80,106 +85,118 @@ pub struct Profile {
 * `name` - user name
 * `surname` - user surname
 * `img_link` - user logo link
+* `time_zone` - time zone
 * `stream_ids` - list of all stream identifiers of the user
 * `subscribers` - list of all subscribers of a user
 * `subscriptions` - list of all subscribed users
 
 ### Action
 
-The streaming program contains the following actions:
+The streaming program contains the following functions:
 
-```rust title="w3bstreaming/io/src/lib.rs"
-pub enum Action {
-    NewStream {
-        title: String,
-        description: Option<String>,
-        start_time: u64,
-        end_time: u64,
-        img_link: String,
-    },
-    DeleteStream {
-        stream_id: String,
-    },
-    EditStream {
-        stream_id: String,
-        start_time: Option<u64>,
-        end_time: Option<u64>,
-        title: Option<String>,
-        img_link: Option<String>,
-        description: Option<String>,
-    },
-    Subscribe {
-        account_id: ActorId,
-    },
-    EditProfile {
-        name: Option<String>,
-        surname: Option<String>,
-        img_link: Option<String>,
-    },
-}
+```rust title="w3bstreaming/app/src/lib.rs"
+pub fn new_stream(
+    &mut self,
+    title: String,
+    description: Option<String>,
+    start_time: u64,
+    end_time: u64,
+    img_link: String,
+);
+pub fn delete_stream(&mut self, stream_id: String);
+pub fn edit_stream(
+    &mut self,
+    stream_id: String,
+    start_time: Option<u64>,
+    end_time: Option<u64>,
+    title: Option<String>,
+    img_link: Option<String>,
+    description: Option<String>,
+);
+pub fn subscribe(&mut self, account_id: ActorId);
+pub fn edit_profile(
+    &mut self,
+    name: Option<String>,
+    surname: Option<String>,
+    img_link: Option<String>,
+    time_zone: Option<String>,
+);
+pub fn add_admin(&mut self, new_admin_id: ActorId);
+pub async fn kill(&mut self, inheritor: ActorId);
 ```
 
 ### Event
 
-```rust title="w3bstreaming/io/src/lib.rs"
+```rust title="w3bstreaming/app/src/lib.rs"
 pub enum Event {
     StreamIsScheduled { id: String },
     StreamDeleted { id: String },
     StreamEdited,
     Subscribed,
     ProfileEdited,
+    AdminAdded { new_admin_id: ActorId },
+    Killed { inheritor: ActorId },
 }
 ```
 
 ### Logic
 
-Before starting the stream, it is necessary to register a profile, this can be done using the `Action::EditProfile` (this action also allows to edit the profile )
+Before starting the stream, it is necessary to register a profile, this can be done using the `edit_profile` function (this function also allows to edit the profile)
 
-```rust title="w3bstreaming/src/lib.rs"
-Action::EditProfile {
-    name,
-    surname,
-    img_link,
-} => {
-    program
+```rust title="w3bstreaming/app/src/lib.rs"
+pub fn edit_profile(
+    &mut self,
+    name: Option<String>,
+    surname: Option<String>,
+    img_link: Option<String>,
+    time_zone: Option<String>,
+) {
+    let storage = self.get_mut();
+
+    storage
         .users
         .entry(msg::source())
         .and_modify(|profile| {
-            profile.name = name.clone();
-            profile.surname = surname.clone();
-            profile.img_link = img_link.clone();
+            profile.name.clone_from(&name);
+            profile.surname.clone_from(&surname);
+            profile.img_link.clone_from(&img_link);
+            profile.time_zone.clone_from(&img_link);
         })
         .or_insert_with(|| Profile {
             name,
             surname,
             img_link,
+            time_zone,
             stream_ids: Vec::new(),
             subscribers: Vec::new(),
             subscriptions: Vec::new(),
         });
 
-    msg::reply(Event::ProfileEdited, 0).expect("Unable to send reply");
+    self.notify_on(Event::ProfileEdited)
+        .expect("Notification Error");
 }
 ```
 
 After successfully registering a profile, a stream can be scheduled. In order to create a stream it is necessary to enter the following information: title name, stream description, start time, end time and stream picture link
 
-```rust title="w3bstreaming/src/lib.rs"
-Action::NewStream {
-    title,
-    description,
-    start_time,
-    end_time,
-    img_link,
-} => {
+```rust title="w3bstreaming/app/src/lib.rs"
+pub fn new_stream(
+    &mut self,
+    title: String,
+    description: Option<String>,
+    start_time: u64,
+    end_time: u64,
+    img_link: String,
+) {
     let stream_id = exec::block_timestamp().to_string() + &title;
     let msg_src = msg::source();
-    if let Some(profile) = program.users.get_mut(&msg_src) {
+    let storage = self.get_mut();
+    if let Some(profile) = storage.users.get_mut(&msg_src) {
         profile.stream_ids.push(stream_id.clone());
     } else {
         panic!("Account is no registered");
     }
-    program.streams.insert(
+    storage.streams.insert(
         stream_id.clone(),
         Stream {
             broadcaster: msg_src,
@@ -190,8 +207,8 @@ Action::NewStream {
             description,
         },
     );
-    msg::reply(Event::StreamIsScheduled { id: stream_id }, 0)
-        .expect("Unable to send reply");
+    self.notify_on(Event::StreamIsScheduled { id: stream_id })
+        .expect("Notification Error");
 }
 ```
 The unique stream identifier is composed of the time stamp of the current block and the title name. After successful stream creation the program sends a reply where the identifier is specified.
@@ -200,48 +217,48 @@ This program also allows deleting information about a scheduled stream or editin
 
 In case of stream deletion, a number of checks are performed to ensure that only the stream creator can delete the stream and the stream with the given identifier exists.
 
-```rust title="w3bstreaming/src/lib.rs"
-Action::DeleteStream { stream_id } => {
+```rust title="w3bstreaming/app/src/lib.rs"
+pub fn delete_stream(&mut self, stream_id: String) {
+    let storage = self.get_mut();
     let msg_src = msg::source();
-    if let Some(profile) = program.users.get_mut(&msg_src) {
-        if let Some(index) = profile.stream_ids.iter().position(|x| *x == stream_id) {
-            profile.stream_ids.remove(index);
-        } else {
-            panic!("Id is not exist");
-        }
-    } else {
-        panic!("Account is no registered");
-    }
+    let profile = storage
+        .users
+        .get_mut(&msg_src)
+        .expect("Account is no registered");
+    let index = profile
+        .stream_ids
+        .iter()
+        .position(|x| *x == stream_id)
+        .expect("Id is not exist");
+    profile.stream_ids.remove(index);
 
-    if let Some(stream) = program.streams.get(&stream_id) {
-        if stream.broadcaster == msg_src {
-            program.streams.remove(&stream_id);
-        } else {
-            panic!("You are not broadcaster");
-        }
+    let stream = storage.streams.get(&stream_id).expect("Id is not exist");
+    if stream.broadcaster == msg_src {
+        storage.streams.remove(&stream_id);
     } else {
-        panic!("Id is not exist");
+        panic!("You are not broadcaster");
     }
-
-    msg::reply(Event::StreamDeleted { id: stream_id }, 0)
-        .expect("Unable to send reply");
+    self.notify_on(Event::StreamDeleted { id: stream_id })
+        .expect("Notification Error");
 }
 ```
 
 Stream data fields can be modified selectively and only the creator of the stream can do that.
 
-```rust title="w3bstreaming/src/lib.rs"
-Action::EditStream {
-    stream_id,
-    start_time,
-    end_time,
-    title,
-    img_link,
-    description,
-} => {
+```rust title="w3bstreaming/app/src/lib.rs"
+pub fn edit_stream(
+    &mut self,
+    stream_id: String,
+    start_time: Option<u64>,
+    end_time: Option<u64>,
+    title: Option<String>,
+    img_link: Option<String>,
+    description: Option<String>,
+) {
+    let storage = self.get_mut();
     let msg_src = msg::source();
 
-    if let Some(stream) = program.streams.get_mut(&stream_id) {
+    if let Some(stream) = storage.streams.get_mut(&stream_id) {
         if stream.broadcaster == msg_src {
             if let Some(start_time) = start_time {
                 stream.start_time = start_time;
@@ -263,65 +280,50 @@ Action::EditStream {
         panic!("Id is not exist");
     }
 
-    msg::reply(Event::StreamEdited, 0).expect("Unable to send reply");
+    self.notify_on(Event::StreamEdited)
+        .expect("Notification Error");
 }
 ```
 
-To subscribe to another account it is necessary to send a message `Action::Subscribe { account_id }` to the program. Subscription may fail if registration has not been completed or the specified account does not exist in the registered accounts
+To subscribe to another account it is necessary to send a message `subscribe` to the program. Subscription may fail if registration has not been completed or the specified account does not exist in the registered accounts
 
-```rust title="w3bstreaming/src/lib.rs"
-Action::Subscribe { account_id } => {
-    if program.users.get(&account_id).is_none() {
+```rust title="w3bstreaming/app/src/lib.rs"
+pub fn subscribe(&mut self, account_id: ActorId) {
+    let storage = self.get_mut();
+    if !storage.users.contains_key(&account_id) {
         panic!("The user is not found");
     }
 
     let msg_src = msg::source();
 
-    if program.users.get(&msg_src).is_none() {
+    if !storage.users.contains_key(&msg_src) {
         panic!("You are not registered");
     }
 
-    program
+    storage
         .users
         .entry(account_id)
         .and_modify(|profile| profile.subscribers.push(msg_src));
 
-    program.users.entry(msg_src).and_modify(|profile| {
+    storage.users.entry(msg_src).and_modify(|profile| {
         profile.subscriptions.push(Subscription {
             account_id,
             sub_date: exec::block_timestamp(),
         })
     });
 
-    msg::reply(Event::Subscribed, 0).expect("Unable to send reply");
+    self.notify_on(Event::Subscribed)
+        .expect("Notification Error");
 }
 ```
 
-## Program metadata and state
+## Query
 
-Metadata interface description:
+The `get_state` function returns all program information:
 
-```rust title="w3bstreaming/io/src/lib.rs"
-pub struct ProgramMetadata;
-
-impl Metadata for ProgramMetadata {
-    type Init = ();
-    type Handle = InOut<Action, Event>;
-    type Reply = ();
-    type Others = ();
-    type Signal = ();
-    type State = Out<State>;
-}
-
-```
-
-To display the program state information, the `state()` function is used:
-
-```rust title="w3bstreaming/src/lib.rs"
-#[no_mangle]
-extern fn state() {
-    let program = unsafe { PROGRAM.take().expect("Unexpected error in taking state") };
-    msg::reply::<State>(program.into(), 0).expect("Failed to share state");
+```rust title="w3bstreaming/app/src/lib.rs"
+pub fn get_state(&self) -> ProgramState {
+    self.get().clone().into()
 }
 ```
 

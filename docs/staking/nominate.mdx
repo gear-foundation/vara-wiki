@@ -12,14 +12,18 @@ Nominators are passive participants in any `Proof of Stake (PoS)` consensus mech
 
 Being a nominator does not require running your own node or worrying about online uptime.
 
-## How to set up as a nominator
+## Start Nominating
+
+:::note
+The minimum amount of VARA required to start nominating validators directly and earning rewards is 50 VARA. This is the minimum balance needed to qualify for rewards. If your balance is less than 50 VARA, consider joining [Nomnation Pools](#join-nomination-pools).
+:::
 
 ### Via Vara Staking Dashboard
 
-Vara offers a user-friendly staking dashboard, inspired by the Polkadot staking dashboard, that simplifies the process of staking and nominating validators.
+Vara offers a user-friendly staking **[application](https://staking.vara.network/)**, inspired by the Polkadot's staking app, that simplifies the process of staking and nominating validators.
 
-1. To begin your VARA token staking journey, visit our staking dashboard at **[staking.vara.network](https://staking.vara.network/)**.
-2. Once on the staking dashboard, connect your account and navigate to the "Nominate" section.
+1. To begin your VARA token staking journey, visit Vara staking at **[staking.vara.network](https://staking.vara.network/)**.
+2. Connect your account and navigate to the "Nominate" section.
 3. Click the `Start Nominating` button.
 
 ![setup dashboard](./img/dashboard-1.png)
@@ -94,12 +98,32 @@ Your nominations will take effect in the next era.
 
 ## Nomination pools
 
-Vara Staking Pools empower users to actively participate in the network's development and receive rewards, regardless of their token holdings. With Staking Pools, even if a user has only 1 VARA token, they can start earning rewards by staking natively on Vara. Additionally, anyone who has 50 VARA tokens or more can create their own pool.
+Vara Staking Pools empower users to actively participate in the network's development and receive rewards, regardless of their token holdings. With Staking Pools, even if a user has only 1 VARA token, they can start earning rewards by staking natively on Vara. Additionally, anyone who has at least 50 VARA tokens can create their own pool.
 
 These pools enable users to join forces by pooling their VARA tokens together on-chain. Through this collaborative effort, participants can nominate validators and collectively stake their tokens, significantly enhancing the network's scalability and security.
 
+### Create Nomination Pool
 
-### Via Vara Staking Dashboard
+#### Via Vara Staking Dashboard
+
+1.	To create your own pool, go to the Pools tab and click the Create Pool button.
+![create pool vara](./img/create_pool_1.jpg)
+2.	Set a custom name for your pool and click Continue.
+![create pool vara](./img/create_pool_2.jpg)
+3.	Select the validators to nominate with the pool’s funds. You can choose automatically from the suggested options or manually.
+![create pool vara](./img/create_pool_3.jpg)
+4.	Assign addresses for the Root, Nominator, and Bouncer roles. By default, these are all set to your currently connected account.
+![create pool vara](./img/create_pool_4.jpg)
+5.	Specify the amount to bond initially to the pool (minimum 50 VARA).
+![create pool vara](./img/create_pool_5.jpg)
+6.	Review the entered parameters, and if everything is correct, click Create Pool and sign the transaction.
+![create pool vara](./img/create_pool_6.jpg)
+7.	Done! Your pool has been created. You can now invite other nominators to nominate through your pool.
+![create pool vara](./img/create_pool_7.jpg)
+
+### Join Nomination Pools
+
+#### Via Vara Staking Dashboard
 
 1. Navigate to the 'Pools' section in the [Vara Staking Dashboard](https://staking.vara.network/#/pools) and click the `Join` button:
 
@@ -129,7 +153,7 @@ It's advisable not to stake the maximum amount of tokens, but rather keep a smal
 Pool staking rewards are not claimed automatically by default. You have to periodically check for available rewards and claim them.
 :::
 
-### Via Polkadot.js app using SubWallet browser as an example
+#### Via Polkadot.js app using SubWallet browser as an example
 
 1. If you have some VARA tokens in your account in the SubWallet mobile application, click **[this link](https://mobile.subwallet.app/browser?url=https%3A%2F%2Fslink.subwallet.app%2Fpolkadot-vara)** to open the Polkadot.js application directly in the wallet's browser.
 

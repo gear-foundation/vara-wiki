@@ -18,7 +18,7 @@ Moreover, oracles allow the creation of lending/DEX protocols, which form an imp
 
 This article provides an example of the native implementation of a randomness oracle, which provides the ability to use random numbers in programs. It can be used as is or modified to suit specific scenarios. Anyone can easily create their own oracle and run it on the Vara Network.  
 
-The source code, developed using the [Sails](../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/oracle).
+The source code, developed using the [Sails](../../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/oracle).
 
 ## Storage Structure
 

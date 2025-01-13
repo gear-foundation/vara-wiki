@@ -16,44 +16,63 @@ These programs can obtain external data which can't exist in blockchain space. I
 
 Moreover, oracles allow the creation of lending/DEX protocols, which form an important part of DeFi.
 
-This article provides an example of the native implementation of a randomness oracle, which provides the ability to use random numbers in programs. It can be used as is or modified to suit specific scenarios. Anyone can easily create their own oracle and run it on the Vara Network. The source code is available on [GitHub](https://github.com/gear-foundation/dapps-oracle).
+This article provides an example of the native implementation of a randomness oracle, which provides the ability to use random numbers in programs. It can be used as is or modified to suit specific scenarios. Anyone can easily create their own oracle and run it on the Vara Network.  
+
+The source code, developed using the [Sails](../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/oracle).
 
 ## Storage Structure
 
-```rust
-#[derive(Debug, Default)]
-pub struct RandomnessOracle {
-    pub owner: ActorId,
-    pub values: BTreeMap<u128, state::Random>,
-    pub last_round: u128,
-    pub manager: ActorId,
+The `Oracle` structure defines the storage for the program, including the owner, the manager responsible for operations, and optional [dDNS](../dein.md) information.
+
+```rust title="oracle/app/src/lib.rs"
+pub struct Oracle {
+    owner: ActorId,
+    manager: ActorId,
+    dns_info: Option<(ActorId, String)>,
 }
 ```
 
-### `Action` and `Event`
+### `Action` 
 
-`Event` is generated when `Action` is triggered. The `Action` enum wraps various `Input` structs, and `Event` wraps `Reply`.
+The oracle exposes methods to interact with its state and fetch randomness values from the designated manager.
 
-```rust
-#[derive(Debug, Encode, Decode, TypeInfo)]
-pub enum Action {
-    RequestValue,
-    ChangeManager(ActorId),
-}
+```rust title="oracle/app/src/lib.rs"
+pub async fn request_value(&mut self) -> u128;
+pub fn change_manager(&mut self, new_manager: ActorId);
 ```
+- `request_value`: Asynchronously retrieves the latest random value from the manager and emits a `NewValue` event.
+- `change_manager`: Updates the manager responsible for providing randomness values, ensuring operational flexibility.
 
-```rust
+The oracle also provides accessors to retrieve its internal state:
+
+```rust title="oracle/app/src/lib.rs"
+    pub fn get_owner(&self) -> ActorId;
+    pub fn get_manager(&self) -> ActorId;
+    pub fn get_dns_info(&self) -> Option<(ActorId, String)>;
+```
+- `get_owner`: Returns the oracle owner's ActorId.
+- `get_manager`: Returns the current manager's ActorId.
+- `get_dns_info`: Retrieves the DNS integration details.
+
+
+### `Event`
+
+The `Event` enum captures significant actions within the oracle, enabling better system monitoring and interaction.
+
+```rust title="oracle/app/src/lib.rs"
 #[derive(Debug, Encode, Decode, TypeInfo)]
 pub enum Event {
     NewValue { value: u128 },
     NewManager(ActorId),
 }
 ```
+- `NewValue`: Emitted when a new random value is fetched and stored.
+- `NewManager`: Triggered when the manager is changed, indicating a shift in operational responsibility.
 
 ## Conclusion
 
-The source code of this example of a Vara Oracle program is available on GitHub: [oracle/oracle/src/contract.rs](https://github.com/gear-foundation/dapps-oracle/blob/wip/oracle/src/contract.rs).
+The source code of this example of a Vara Oracle program is available on GitHub: (https://github.com/gear-foundation/dapps/tree/master/contracts/oracle).
 
-See also an example of the program testing implementation based on `gtest` and `gclient`: [oracle/oracle/tests](https://github.com/gear-foundation/dapps-oracle/tree/wip/oracle/tests).
+See also an example of the program testing implementation based on `gtest`: [oracle/tests](https://github.com/gear-foundation/dapps-oracle/tree/wip/oracle/tests).
 
 For more details about testing programs written on Vara, refer to this article: [Program Testing](/docs/build/testing).

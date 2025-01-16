@@ -71,8 +71,8 @@ pub enum Event {
 
 ## Conclusion
 
-The source code of this example of a Vara Oracle program is available on GitHub: (https://github.com/gear-foundation/dapps/tree/master/contracts/oracle).
+The source code of this example of a Vara Oracle program is available on GitHub: [gear-foundation/dapps/contracts/oracle](https://github.com/gear-foundation/dapps/tree/master/contracts/oracle).
 
-See also an example of the program testing implementation based on `gtest`: [oracle/tests](https://github.com/gear-foundation/dapps-oracle/tree/wip/oracle/tests).
+See also an example of the program testing implementation based on `gtest`: [gear-foundation/dapps/contracts/oracle](https://github.com/gear-foundation/dapps-oracle/tree/wip/oracle/tests).
 
 For more details about testing programs written on Vara, refer to this article: [Program Testing](/docs/build/testing).

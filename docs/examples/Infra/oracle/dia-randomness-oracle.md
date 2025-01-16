@@ -74,7 +74,7 @@ The `Event` enum defines key events: updating the manager, adding a new random v
 
 The `init` method initializes the oracle with the given manager and sets up its default state, defining ownership and control.
 
-```rust
+```rust title="oracle/randomness/app/src/lib.rs"
     pub async fn init(manager: ActorId) -> Self {
         unsafe {
             RANDOMNESS_ORACLE = Some(RandomnessOracle {
@@ -89,8 +89,8 @@ The `init` method initializes the oracle with the given manager and sets up its 
 
 ## Conclusion
 
-The source code of this example of a Dia Randomness Oracle program is available on GitHub: [oracle/randomness/](https://github.com/gear-foundation/dapps/blob/master/contracts/oracle/randomness).
+The source code of this example of a Dia Randomness Oracle program is available on GitHub: [gear-foundation/dapps/contracts/oracle/randomness](https://github.com/gear-foundation/dapps/blob/master/contracts/oracle/randomness).
 
-See also an example of the program testing implementation based on `gtest`: [oracle/randomness/tests/gtest.rs](https://github.com/gear-foundation/dapps/blob/master/contracts/oracle/randomness/tests/gtest.rs).
+See also an example of the program testing implementation based on `gtest`: [gear-foundation/dapps/contracts/oracle/randomness/tests/gtest.rs](https://github.com/gear-foundation/dapps/blob/master/contracts/oracle/randomness/tests/gtest.rs).
 
 For more details about testing programs written on Vara, refer to this article: [Program Testing](/docs/build/testing).

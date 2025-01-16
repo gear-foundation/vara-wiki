@@ -486,6 +486,6 @@ pub fn skip(
 
 The source code of this example of Tic-Tac-Toe Game program and the example of an implementation of its testing is available on [gear-foundation/dapp/contracts/tic-tac-toe](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe).
 
-See also an example of the smart contract testing implementation based on `gtest`: [gear-foundation/dapps/vara-man/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe/app/tests).
+See also an example of the smart contract testing implementation based on `gtest`: [gear-foundation/dapps/contracts/tic-tac-toe/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe/tests).
 
 For more details about testing programs written on Gear, refer to the [Program Testing](/docs/build/testing) article.

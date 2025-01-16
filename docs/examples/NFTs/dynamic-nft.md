@@ -231,7 +231,7 @@ pub fn update_metadata(
 
 The source code of this example program and the example of an implementation of its testing is available on [gear-foundation/dapp/contracts/dynamic-nft](https://github.com/gear-foundation/dapps/tree/master/contracts/dynamic-nft).
 
-See also an example of the smart contract testing implementation based on `gtest`: [gear-foundation/dapps/vara-man/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/dynamic-nft/tests).
+See also an example of the smart contract testing implementation based on `gtest`: [gear-foundation/contracts/dynamic-nft/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/dynamic-nft/tests).
 
 For more details about testing programs written on Gear, refer to the [Program Testing](/docs/build/testing) article.
 

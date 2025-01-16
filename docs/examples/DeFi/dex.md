@@ -6,6 +6,7 @@ sidebar_position: 4
 # Decentralized Exchange (DEX)
 
 ## Introduction
+
 A decentralized exchange (DEX) is a peer-to-peer marketplace where transactions occur directly between cryptocurrency traders. Unlike centralized exchanges like Binance, DEXs exclusively trade cryptocurrency tokens for other cryptocurrency tokens, without allowing exchanges between fiat and cryptocurrencies.
 
 Decentralized exchanges are essentially a set of smart contracts. They establish the prices of various cryptocurrencies algorithmically and use "liquidity pools," in which investors lock funds in exchange for interest-like rewards, to facilitate trades.
@@ -14,224 +15,574 @@ While transactions on a centralized exchange are recorded in that exchange's int
 
 DEXs are usually built on open-source code, allowing anyone interested to see exactly how they work. This also means that developers can adapt existing code to create new competing projects, as seen with Uniswap's code being adapted by various DEXs like Sushiswap and Pancakeswap.
 
-The exchange uses [Vara fungible tokens (VFT)](/docs/examples/Standards/vft) for the tokens and the [Gear-lib FT wrapper](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/gear-lib-old/src/fungible_token) for the pair to track liquidity.
+The source code, developed using the [Sails](../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe). The exchange uses [Vara fungible tokens (VFT)](/docs/examples/Standards/vft).
+
+This article describes the program interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios.
+
 
 ### Math
-All prices are algorithmically calculated. Investors provide funds to the liquidity pools, and the price is calculated according to the amount of tokens in the reserves using the following formula:
-$$reserve0 * reserve1 = K$$
-where $$reserve0$$ and $$reserve1$$ are the reserves of token0 and token1, respectively, provided by the investors, and $$K$$ is the constant.
-All prices/amounts are calculated so that $$K$$ **MUST** remain constant. This means that the more token0 in the pool, the lower the price of token1 will be when performing a swap.
 
-## Factory Program Description
-Given the potential large number of trading pairs, there should be a way to monitor and deploy new pairs. This is where a factory comes into play. The factory helps to create new pairs and monitor all existing pairs.
+DEXs use an automated market maker (AMM) model to manage trades. The pricing and liquidity mechanism is governed by the following formula:
 
-### Actions
+$$
+reserve_0 \cdot reserve_1 = K
+$$
 
-All actions are straightforward. There is an action to initialize a factory, create a pair, and modify fee-related parameters.
+where:
+- **reserve_0**: The reserve of token A in the liquidity pool.
+- **reserve_1**: The reserve of token B in the liquidity pool.
+- **K**: A constant that must remain unchanged during swaps.
 
-```rust
-pub type TokenId = ActorId;
+#### Swap Mechanics
 
-/// Initializes a factory.
-///
-#[derive(Debug, Encode, Decode, TypeInfo)]
-pub struct InitFactory {
-    /// The address that can set the fee.
-    pub fee_to_setter: ActorId,
-    /// Code hash to successfully deploy a pair with this program.
-    pub pair_code_hash: [u8; 32],
-}
+When a user swaps token A for token B, the following process occurs:
 
-#[derive(Debug, Encode, Decode, TypeInfo)]
-pub enum FactoryAction {
-    /// Creates an exchange pair
-    ///
-    /// Deploys a pair exchange program and saves the info about it.
-    /// # Requirements:
-    /// * both `TokenId` MUST be non-zero addresses and represent the actual fungible-token contracts
-    ///
-    /// On success returns `FactoryEvery::PairCreated`
-    CreatePair(TokenId, TokenId),
+1. **Input Token Addition**: The user deposits a certain amount of token A \( in\_amount \) into the pool, increasing \( reserve_0 \).  
+2. **Output Token Calculation**: The output amount of token B \( out\_amount \) is calculated using the formula:
 
-    /// Sets fee_to variable
-    ///
-    /// Sets an address where the fees will be sent.
-    /// # Requirements:
-    /// * `fee_to` MUST be a non-zero address
-    /// * action sender MUST be the same as `fee_to_setter` in this program
-    ///
-    /// On success returns `FactoryEvery::FeeToSet`
-    SetFeeTo(ActorId),
+   $$
+   out\_amount = \frac{in\_amount \cdot reserve_1}{reserve_0 + in\_amount}
+   $$
 
-    /// Sets fee_to_setter variable
-    ///
-    /// Sets an address that will be able to change fee_to
-    /// # Requirements:
-    /// * `fee_to_setter` MUST be a non-zero address
-    /// * action sender MUST be the same as `fee_to_setter` in this program
-    ///
-    /// On success returns `FactoryEvery::FeeToSetterSet`
-    SetFeeToSetter(ActorId),
+3. **Reserve Updates**: The reserves are updated after the swap:
+   - `reserve_0` increases by `in_amount`.
+   - `reserve_1` decreases by `out_amount`.
 
-    /// Returns a `fee_to` variable.
-    ///
-    /// Returns the `fee_to` variable from the state.
-    ///
-    /// On success returns `FactoryEvery::FeeTo`
-    FeeTo,
-}
+4. **Constant Product**: The product `reserve_0 * reserve_1` remains unchanged during the swap, ensuring the AMM's balance and proper token pricing.
+
+## Implementation details
+
+The core state of the DEX is encapsulated in the `Storage` structure. This data structure is central to the DEX's operations and tracks all essential information about reserves, liquidity, and tokens.
+
+```rust title="dex/app/src/lib.rs"
+    pub struct Storage {
+        pub admin: ActorId,
+        pub reserve_a: U256,
+        pub reserve_b: U256,
+        pub total_liquidity: U256,
+        pub liquidity_providers: HashMap<ActorId, U256>,
+        pub token_a: ActorId,
+        pub token_b: ActorId,
+        pub k_last: U256,
+        pub dns_info: Option<(ActorId, String)>,
+        pub liquidity_action_gas: u64,
+        pub swap_status: SwapStatus,
+    }
 ```
+
+- **admin**: The administrator of the DEX.
+- **reserve_a** and **reserve_b**: Current reserves of token A and token B.
+- **total_liquidity**: Total liquidity in the pool.
+- **liquidity_providers**: A mapping of liquidity providers and their respective contributions.
+- **token_a** and **token_b**: The identifiers (ActorId) for token A and token B.
+- **k_last**: The product of reserves \( reserve_a \cdot reserve_b \), updated after liquidity changes.
+- **dns_info**: Optional information for domain name system ([dDNS](../Infra/dein.md)) integration.
+- **liquidity_action_gas**: Gas required for liquidity-related actions.
+- **swap_status**: Status of the current swap operation.
 
 ### Events
 
-All actions above have corresponding events:
-```rust
-#[derive(Debug, Encode, Decode, TypeInfo)]
-pub enum FactoryEvent {
-    PairCreated {
-        /// The first token address
-        token_a: TokenId,
-        /// The second token address
-        token_b: TokenId,
-        /// Pair address (the pair exchange program).
-        pair_address: ActorId,
-        /// The number of pairs deployed through this factory.
-        pairs_length: u32,
-    },
-    FeeToSet(ActorId),
-    FeeToSetterSet(ActorId),
-    FeeTo(ActorId),
-}
+Events are emitted to notify external observers about significant actions on the DEX. The following events are defined:
+
+```rust title="dex/app/src/lib.rs"
+    pub enum Event {
+        AddedLiquidity {
+            sender: ActorId,
+            amount_a: U256,
+            amount_b: U256,
+            liquidity: U256,
+        },
+        RemovedLiquidity {
+            sender: ActorId,
+            amount_a: U256,
+            amount_b: U256,
+            to: ActorId,
+        },
+        Swap {
+            kind: SwapKind,
+            sender: ActorId,
+            in_amount: U256,
+            out_amount: U256,
+        },
+        Sync {
+            reserve_a: U256,
+            reserve_b: U256,
+        },
+        Killed {
+            inheritor: ActorId,
+        },
+    }
 ```
 
-### Program Metadata and State
-Metadata interface description:
+### Initialization
 
-```rust
-pub struct ContractMetadata;
+The initialization function sets up the DEX, defining its key parameters such as the tokens it will handle and optional DNS registration. This function ensures that the DEX is in a consistent state before operations begin.
 
-impl Metadata for ContractMetadata {
-    type Init = In<InitFactory>;
-    type Handle = InOut<FactoryAction, FactoryEvent>;
-    type Reply = ();
-    type Others = ();
-    type Signal = ();
-    type State = Out<State>;
-}
-```
-To display the full program state information, the `state()` function is used:
+```rust title="dex/app/src/lib.rs"
+    async fn init(
+        token_a: ActorId,
+        token_b: ActorId,
+        liquidity_action_gas: u64,
+        dns_id_and_name: Option<(ActorId, String)>,
+    ) -> Self {
+        unsafe {
+            STORAGE = Some(Storage {
+                admin: msg::source(),
+                reserve_a: U256::zero(),
+                reserve_b: U256::zero(),
+                total_liquidity: U256::zero(),
+                liquidity_providers: HashMap::new(),
+                token_a,
+                token_b,
+                k_last: U256::zero(),
+                dns_info: dns_id_and_name.clone(),
+                liquidity_action_gas,
+                swap_status: SwapStatus::Ready,
+            });
+        }
 
-```rust
-#[no_mangle]
-extern "C" fn state() {
-    reply(common_state())
-        .expect("Failed to encode or reply with `<ContractMetadata as Metadata>::State` from `state()`");
-}
-```
-To display only specific values from the state, write a separate crate. In this crate, specify functions that will return the desired values from the `State` struct. For example, see [gear-foundation/dapps/dex/factory/state](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dex/factory/state):
+        if let Some((id, name)) = dns_id_and_name {
+            let request = [
+                "Dns".encode(),
+                "AddNewProgram".to_string().encode(),
+                (name, exec::program_id()).encode(),
+            ]
+            .concat();
 
-```rust
-#[metawasm]
-pub trait Metawasm {
-    type State = dex_factory_io::State;
+            msg::send_bytes_with_gas_for_reply(id, request, 5_000_000_000, 0, 0)
+                .expect("Error in sending message")
+                .await
+                .expect("Error in `AddNewProgram`");
+        }
 
-    fn fee_to(state: Self::State) -> ActorId {
-        state.fee_to
+        Self(())
     }
-
-    fn fee_to_setter(state: Self::State) -> ActorId {
-        state.fee_to_setter
-    }
-
-    fn pair_address(pair: Pair, state: Self::State) -> ActorId {
-        state.pair_address(pair.0, pair.1)
-    }
-
-    fn all_pairs_length(state: Self::State) -> u32 {
-        state.all_pairs_length()
-    }
-
-    fn owner(state: Self::State) -> ActorId {
-        state.owner_id
-    }
-}
-
-type Pair = (FungibleId, FungibleId);
 ```
 
-### Interfaces
-Functions to cover all interfaces are based on the list of actions:
-```rust
-/// Sets a fee_to address
-/// `fee_to` MUST be a non-zero address
-/// Message source MUST be a fee_to_setter of the program
-/// Arguments:
-/// * `fee_to` is a new fee_to address
-fn set_fee_to(&mut self, fee_to: ActorId);
+### Adding Liquidity
 
-/// Sets a fee_to_setter address
-/// `fee_to_setter` MUST be a non-zero address
-/// Message source MUST be a fee_to_setter of the program
-/// Arguments:
-/// * `fee_to_setter` is a new fee_to_setter address
-fn set_fee_to_setter(&mut self, fee_to_setter: ActorId);
+Adding liquidity allows users to contribute tokens to the pool, increasing its reserves and enabling more robust trading. This process involves updating the reserves and minting liquidity tokens proportional to the user's contribution.
 
-/// Creates and deploys a new pair
-/// Both token addresses MUST be different and non-zero
-/// The pair MUST not be created already
-/// Arguments:
-/// * `token_a` is the first token address
-/// * `token_b` is the second token address
-async fn create_pair(&mut self, mut token_a: ActorId, mut token_b: ActorId);
+```rust title="dex/app/src/lib.rs"
+    pub async fn add_liquidity(&mut self, amount_a: U256, amount_b: U256) -> bool {
+        let storage = self.get_mut();
+
+        if storage.swap_status != SwapStatus::Ready {
+            panic!("Swap status is incorrect");
+        }
+        if exec::gas_available() < storage.liquidity_action_gas {
+            panic!("Not enough gas; requires a least: {:?}", storage.liquidity_action_gas);
+        }
+
+        let sender = msg::source();
+        let program_id = exec::program_id();
+
+        if amount_a.is_zero() || amount_b.is_zero() {
+            panic!("Amounts must be greater than zero");
+        }
+        let first_time = storage.reserve_a.is_zero() && storage.reserve_b.is_zero();
+    
+        let liquidity = if first_time {
+            // Initial liquidity
+            let liquidity = (amount_a * amount_b).integer_sqrt();
+            if liquidity < MINIMUM_LIQUIDITY.into() {
+                panic!("Liquidity is low");
+            }
+            liquidity
+        } else {
+            // Ensure tokens are added in correct proportions
+            let expected_b = (amount_a * storage.reserve_b) / storage.reserve_a;
+            let expected_a = (amount_b * storage.reserve_a) / storage.reserve_b;
+    
+            if amount_b != expected_b && amount_a != expected_a {
+                panic!("Tokens must be provided in correct proportions");
+            }
+    
+            let liquidity = U256::min(
+                (amount_a * storage.total_liquidity) / storage.reserve_a,
+                (amount_b * storage.total_liquidity) / storage.reserve_b,
+            );
+    
+            if liquidity.is_zero() {
+                panic!("Insufficient liquidity minted");
+            }
+            liquidity
+        };
+
+        storage.swap_status = SwapStatus::Paused; 
+
+        // Transfer tokens to contract
+        let request_a = vft_io::TransferFrom::encode_call(sender, program_id, amount_a);
+        msg::send_bytes_with_gas_for_reply(storage.token_a, request_a, 5_000_000_000, 0, 5_000_000_000)
+            .expect("Error in async message to vft contract")
+            .up_to(Some(5))
+            .expect("Reply timeout")
+            .handle_reply(|| {
+                let reply_bytes = msg::load_bytes().expect("Unable to load bytes");
+                let result = vft_io::TransferFrom::decode_reply(reply_bytes);
+                if result.is_err() {
+                    let storage = unsafe { STORAGE.as_mut().expect("Dex is not initialized") };
+                    storage.swap_status = SwapStatus::Ready;
+                }
+            })
+            .expect("Reply hook error")
+            .await
+            .expect("Error getting answer from the vft contract");
+    
+        let request_b = vft_io::TransferFrom::encode_call(sender, program_id, amount_b);
+        if let Err(_e) = msg::send_bytes_with_gas_for_reply(storage.token_b, request_b, 5_000_000_000, 0, 0)
+            .expect("Error in async message to vft contract")
+            .await
+        {
+            let request = vft_io::Transfer::encode_call(sender, amount_a);
+            msg::send_bytes_with_gas_for_reply(storage.token_a, request, 5_000_000_000, 0, 0)
+                .expect("Error in async message to vft contract")
+                .await
+                .expect("Error getting answer from the vft contract");
+            storage.swap_status = SwapStatus::Ready;
+            false
+        } else {
+            if first_time {
+                let liquidity_to_mint = liquidity - MINIMUM_LIQUIDITY;
+                storage.reserve_a = amount_a;
+                storage.reserve_b = amount_b;
+                storage.total_liquidity = liquidity_to_mint;
+                storage.liquidity_providers.insert(sender, liquidity_to_mint);
+            } else {
+                storage.reserve_a += amount_a;
+                storage.reserve_b += amount_b;
+                storage.total_liquidity += liquidity;
+                let user_liquidity = storage
+                    .liquidity_providers
+                    .entry(sender)
+                    .or_insert(U256::zero());
+                *user_liquidity += liquidity;
+            }
+            storage.k_last = storage.reserve_a * storage.reserve_b;
+            storage.swap_status = SwapStatus::Ready; 
+    
+            self.notify_on(Event::AddedLiquidity {
+                sender,
+                amount_a,
+                amount_b,
+                liquidity: storage.total_liquidity,
+            })
+            .expect("Notification Error");
+            true
+        }
+    }     
 ```
 
-### Source Code
-The source code of this DEX factory program example and its testing implementation is available on [gear-foundation/dapps/dex/factory](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dex/factory).
+- Proportional Contribution: Users must provide both tokens in the same ratio as the current reserves to maintain balance.
+- Initial Liquidity: When the pool is empty, the first user to provide liquidity sets the initial reserves and creates the baseline price.
 
-See also an example of the program testing implementation based on `gtest`: [tests/utils/factory.rs](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/dex/tests/utils/factory.rs).
+### Removing Liquidity
+
+Removing liquidity allows users to withdraw their contributed tokens along with a proportional share of the trading fees collected in the pool.
+
+```rust title="dex/app/src/lib.rs"
+pub async fn remove_liquidity(&mut self, amount: U256) {
+        let storage = self.get_mut();
+
+        if storage.swap_status != SwapStatus::Ready {
+            panic!("Swap status is incorrect");
+        }
+
+        if exec::gas_available() < storage.liquidity_action_gas {
+            panic!("Not enough gas; requires a least: {:?}", storage.liquidity_action_gas);
+        }
+        let sender = msg::source();
+
+        let user_liquidity = storage
+            .liquidity_providers
+            .get_mut(&sender)
+            .expect("No liquidity");
+
+        if *user_liquidity < amount {
+            panic!("Insufficient liquidity");
+        }
+
+        let amount_a = (amount * storage.reserve_a) / storage.total_liquidity;
+        let amount_b = (amount * storage.reserve_b) / storage.total_liquidity;
+
+        if storage.reserve_a < amount_a || storage.reserve_b < amount_b {
+            panic!("Insufficient contract balance for token transfer");
+        }
+        storage.swap_status = SwapStatus::Paused;
+
+        // Transfer tokens back to the user
+        let request_a = vft_io::Transfer::encode_call(sender, amount_a);
+        msg::send_bytes_with_gas_for_reply(storage.token_a, request_a, 5_000_000_000, 0, 0)
+            .expect("Error in async message to vft contract")
+            .await
+            .expect("Error getting answer from the vft contract");
+
+        let request_b = vft_io::Transfer::encode_call(sender, amount_b);
+        msg::send_bytes_with_gas_for_reply(storage.token_b, request_b, 5_000_000_000, 0, 0)
+            .expect("Error in async message to vft contract")
+            .await
+            .expect("Error getting answer from the vft contract");
+
+        storage.reserve_a -= amount_a;
+        storage.reserve_b -= amount_b;
+        storage.total_liquidity -= amount;
+        *user_liquidity -= amount;
+
+        storage.k_last = storage.reserve_a * storage.reserve_b;
+        storage.swap_status = SwapStatus::Ready;
+
+        self.notify_on(Event::RemovedLiquidity {
+            sender,
+            amount_a,
+            amount_b,
+            to: sender,
+        })
+        .expect("Notification Error");
+    }
+```
+
+- Proportional Withdrawal: The amount of tokens a user receives is proportional to their liquidity share.
+- Updating Reserves: The reserves are reduced to reflect the tokens removed from the pool.
+
+### Token Swapping
+
+Token swapping is the core feature of a DEX, enabling users to exchange one token for another while maintaining the constant product formula.
+
+```rust title="dex/app/src/lib.rs"
+    pub async fn swap(&mut self, in_amount: U256, out_is_a: bool) {
+        let storage = self.get_mut();
+        let sender = msg::source();
+        let program_id = exec::program_id();
+        if storage.swap_status != SwapStatus::Ready {
+            panic!("Swap status is incorrect");
+        }
+        let (in_token, out_token, in_reserve, out_reserve) = if out_is_a {
+            (
+                storage.token_b,
+                storage.token_a,
+                &mut storage.reserve_b,
+                &mut storage.reserve_a,
+            )
+        } else {
+            (
+                storage.token_a,
+                storage.token_b,
+                &mut storage.reserve_a,
+                &mut storage.reserve_b,
+            )
+        };
+
+        // Ensure the input amount is greater than zero
+        if in_amount == U256::zero() {
+            panic!("Input amount must be greater than zero");
+        }
+
+        // Ensure reserves are sufficient for the swap
+        if *in_reserve == U256::zero() || *out_reserve == U256::zero() {
+            panic!("Insufficient reserves for swap");
+        }
+
+        let out_amount = (in_amount * *out_reserve) / (*in_reserve + in_amount);
+
+        // Ensure the reserves are sufficient to cover the output
+        if out_amount > *out_reserve {
+            panic!("Insufficient output reserves");
+        }
+
+        storage.swap_status = SwapStatus::Paused;
+
+        // Transfer the input tokens to the contract
+        let request_in = vft_io::TransferFrom::encode_call(sender, program_id, in_amount);
+        msg::send_bytes_with_gas_for_reply(in_token, request_in, 5_000_000_000, 0, 5_000_000_000)
+            .expect("Error in async message to vft contract")
+            .up_to(Some(5))
+            .expect("Reply timeout")
+            .handle_reply(|| {
+                let reply_bytes = msg::load_bytes().expect("Unable to load bytes");
+                let result = vft_io::TransferFrom::decode_reply(reply_bytes);
+                if result.is_err() {
+                    let storage = unsafe { STORAGE.as_mut().expect("Dex is not initialized") };
+                    storage.swap_status = SwapStatus::Ready;
+                }
+            })
+            .expect("Reply hook error")
+            .await
+            .expect("Error getting answer from the vft contract");
+        
+        // Transfer the output tokens to the user
+        let request_out = vft_io::TransferFrom::encode_call(program_id, sender, out_amount);
+        msg::send_bytes_with_gas_for_reply(out_token, request_out, 5_000_000_000, 0, 5_000_000_000)
+            .expect("Error in async message to vft contract")
+            .up_to(Some(5))
+            .expect("Reply timeout")
+            .handle_reply(move || handle_reply_hook_for_output_tokens(out_token, sender, in_amount, out_amount, out_is_a))
+            .expect("Reply hook error")
+            .await
+            .expect("Error getting answer from the vft contract");
+
+        *in_reserve += in_amount;
+        *out_reserve -= out_amount;
+        storage.swap_status = SwapStatus::Ready;
+
+        self.notify_on(Event::Swap {
+            kind: if out_is_a {
+                SwapKind::AForB
+            } else {
+                SwapKind::BForA
+            },
+            sender,
+            in_amount,
+            out_amount,
+        })
+        .expect("Notification Error");
+    }
+```
+
+- Dynamic Pricing: The price of tokens adjusts dynamically based on the trade size and pool reserves.
+- Constant Product Formula: Ensures that the product of reserves remains constant after every swap.
+- Reserve Updates: Updates the reserves to reflect the new state of the pool after the trade.
+
+### Continue Token Swapping
+
+The `continue_swap` function is designed to handle scenarios where a token swap operation encounters an intermediate error or requires additional steps to complete. This function ensures the swap process is resumed and finalized correctly.
+
+```rust title="dex/app/src/lib.rs"
+    pub async fn continue_swap(&mut self) {
+        let storage = self.get_mut();
+
+        let (to, in_amount, out_amount, out_is_a) = match storage.swap_status {
+            SwapStatus::TokenTransferError { out_token, to, in_amount, out_amount, out_is_a } => {
+                // Transfer the output tokens to the user
+                let request_out = vft_io::TransferFrom::encode_call(exec::program_id(), to, out_amount);
+                msg::send_bytes_with_gas_for_reply(out_token, request_out, 5_000_000_000, 0, 0)
+                    .expect("Error in async message to vft contract")
+                    .await
+                    .expect("Error getting answer from the vft contract");
+                (to, in_amount, out_amount, out_is_a)
+            }
+            SwapStatus::TokenTransferOk { to, in_amount, out_amount, out_is_a } => (to, in_amount, out_amount, out_is_a),
+            _ => panic!("Swap status is incorrect")
+
+        };
+        if out_is_a {
+            storage.reserve_b += in_amount;
+            storage.reserve_a -= out_amount;
+        } else {
+            storage.reserve_a += in_amount;
+            storage.reserve_b -= out_amount;
+        };
+
+        storage.swap_status = SwapStatus::Ready;
+
+        self.notify_on(Event::Swap {
+            kind: if out_is_a {
+                SwapKind::AForB
+            } else {
+                SwapKind::BForA
+            },
+            sender: to,
+            in_amount,
+            out_amount,
+        })
+        .expect("Notification Error");
+    }
+```
+Key Use Cases:
+- Error Recovery: Ensures the system can gracefully recover from temporary token transfer issues without disrupting the DEX's operation.
+- Swap Finalization: Provides a mechanism to finalize partially completed swaps, ensuring the reserves and state remain consistent.
+
+This function is critical for maintaining reliability in token swaps, especially in environments where asynchronous operations or network delays may cause transient errors. 
+
+### Synchronizing Reserves
+
+This function ensures that the reserves stored in the contract match the actual token balances held in the DEX. It is typically called to rectify discrepancies caused by external factors.
+
+```rust title="dex/app/src/lib.rs"
+    pub async fn sync(&mut self) {
+        let storage = self.get_mut();
+
+        // Fetch the current balance of token A in the contract
+        let request = vft_io::BalanceOf::encode_call(exec::program_id());
+        let bytes_reply_balances =
+            msg::send_bytes_for_reply(storage.token_a, request.clone(), 0, 0)
+                .expect("Error in async message to vft contract")
+                .await
+                .expect("Error getting answer from the vft contract");
+        let balances_a: U256 = vft_io::BalanceOf::decode_reply(bytes_reply_balances).unwrap();
+
+        // Fetch the current balance of token B in the contract
+        let bytes_reply_balances = msg::send_bytes_for_reply(storage.token_b, request, 0, 0)
+            .expect("Error in async message to vft contract")
+            .await
+            .expect("Error getting answer from the vft contract");
+        let balances_b: U256 = vft_io::BalanceOf::decode_reply(bytes_reply_balances).unwrap();
+
+        storage.reserve_a = balances_a;
+        storage.reserve_b = balances_b;
+
+        self.notify_on(Event::Sync {
+            reserve_a: storage.reserve_a,
+            reserve_b: storage.reserve_b,
+        })
+        .expect("Notification Error");
+    }
+```
+
+### Query
+
+```rust title="dex/app/src/lib.rs"
+
+    pub fn admin(&self) -> ActorId {
+        self.get().admin
+    }
+
+    pub fn reserve_a(&self) -> U256 {
+        self.get().reserve_a
+    }
+
+    pub fn reserve_b(&self) -> U256 {
+        self.get().reserve_b
+    }
+
+    pub fn total_liquidity(&self) -> U256 {
+        self.get().total_liquidity
+    }
+
+    pub fn liquidity_providers(&self) -> Vec<(ActorId, U256)> {
+        self.get().liquidity_providers.clone().into_iter().collect()
+    }
+
+    pub fn token_a(&self) -> ActorId {
+        self.get().token_a
+    }
+
+    pub fn token_b(&self) -> ActorId {
+        self.get().token_b
+    }
+    pub fn dns_info(&self) -> Option<(ActorId, String)> {
+        self.get().dns_info.clone()
+    }
+    pub fn swap_status(&self) -> SwapStatus {
+        self.get().swap_status
+    }
+    pub fn liquidity_action_gas(&self) -> u64 {
+        self.get().liquidity_action_gas
+    }
+```
+- `admin`: Returns the address of the DEX administrator.
+- `reserve_a`: Retrieves the current reserve of token A in the liquidity pool.
+- `reserve_b`: Retrieves the current reserve of token B in the liquidity pool.
+- `total_liquidity`: Provides the total liquidity available in the pool.
+- `liquidity_providers`: Returns a list of liquidity providers and their respective contributions.
+- `token_a`: Retrieves the identifier of token A used in the DEX.
+- `token_b`: Retrieves the identifier of token B used in the DEX.
+- `dns_info`: Returns optional DNS information for the DEX, if available.
+- `swap_status`: Provides the current status of the swap operation.
+- `liquidity_action_gas`: Retrieves the gas required for liquidity-related actions.
+
+## Source Code
+The source code of this DEX factory program example and its testing implementation is available on [gear-foundation/dapps/dex](https://github.com/gear-foundation/dapps/tree/master/contracts/dex).
+
+See also an example of the program testing implementation based on `gtest`: [gear-foundation/dapps/dex/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/dex/tests).
 
 For more details about testing programs written on Vara, refer to the [Program Testing](/docs/build/testing) article.
-
-## Pair Program Description
-The pair program is where all the exchange magic happens. Each pair program handles the liquidity provided to this pair only. All swap operations are performed using the formula in the Math section.
-
-### Actions
-```rust
-pub type TokenId = ActorId;
-
-/// Initializes a pair.
-///
-/// # Requirements:
-/// * both `TokenId` MUST be fungible token programs with non-zero addresses.
-/// * factory MUST be a non-zero address.
-#[derive(Debug, Encode, Decode, TypeInfo)]
-pub struct InitPair {
-    /// Factory address which deployed this pair.
-    pub factory: ActorId,
-    /// The first FT token address.
-    pub token0: TokenId,
-    /// The second FT token address.
-    pub token1: TokenId,
-}
-
-#[derive(Debug, Encode, Decode, TypeInfo)]
-pub enum PairAction {
-    /// Adds liquidity to the pair.
-    ///
-    /// Adds a specified amount of both tokens to the pair program.
-    /// # Requirements:
-    /// * all the values MUST be non-zero positive numbers.
-    /// * `to` MUST be a non-zero address.
-    ///
-    /// On success returns `PairEvent::AddedLiquidity`.
-    AddLiquidity {
-        /// The amount of token 0 desired by a user.
-        amount0_desired: u128,
-        /// The amount of token 1 desired by a user.
-        amount1_desired: u128,
-        /// The minimum amount of token 0 a user is willing to add.
-        amount0_min: u128,
-        /// The minimum amount of token 1 a user is willing to add.
-        amount1_min: u128,
-        /// Who is adding the liquidity.
-       

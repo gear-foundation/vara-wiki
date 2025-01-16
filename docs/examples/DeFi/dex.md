@@ -164,8 +164,12 @@ The initialization function sets up the DEX, defining its key parameters such as
 Adding liquidity allows users to contribute tokens to the pool, increasing its reserves and enabling more robust trading. This process involves updating the reserves and minting liquidity tokens proportional to the user's contribution.
 
 ```rust title="dex/app/src/lib.rs"
-    pub async fn add_liquidity(&mut self, amount_a: U256, amount_b: U256) {
+    pub async fn add_liquidity(&mut self, amount_a: U256, amount_b: U256) -> bool {
         let storage = self.get_mut();
+
+        if storage.swap_status != SwapStatus::Ready {
+            panic!("Swap status is incorrect");
+        }
         if exec::gas_available() < storage.liquidity_action_gas {
             panic!("Not enough gas; requires a least: {:?}", storage.liquidity_action_gas);
         }
@@ -176,18 +180,15 @@ Adding liquidity allows users to contribute tokens to the pool, increasing its r
         if amount_a.is_zero() || amount_b.is_zero() {
             panic!("Amounts must be greater than zero");
         }
+        let first_time = storage.reserve_a.is_zero() && storage.reserve_b.is_zero();
     
-        if storage.reserve_a.is_zero() && storage.reserve_b.is_zero() {
+        let liquidity = if first_time {
             // Initial liquidity
             let liquidity = (amount_a * amount_b).integer_sqrt();
             if liquidity < MINIMUM_LIQUIDITY.into() {
                 panic!("Liquidity is low");
             }
-            let liquidity_to_mint = liquidity - MINIMUM_LIQUIDITY;
-            storage.reserve_a = amount_a;
-            storage.reserve_b = amount_b;
-            storage.total_liquidity = liquidity_to_mint;
-            storage.liquidity_providers.insert(sender, liquidity_to_mint);
+            liquidity
         } else {
             // Ensure tokens are added in correct proportions
             let expected_b = (amount_a * storage.reserve_b) / storage.reserve_a;
@@ -205,41 +206,71 @@ Adding liquidity allows users to contribute tokens to the pool, increasing its r
             if liquidity.is_zero() {
                 panic!("Insufficient liquidity minted");
             }
-    
-            storage.reserve_a += amount_a;
-            storage.reserve_b += amount_b;
-            storage.total_liquidity += liquidity;
-    
-            let user_liquidity = storage
-                .liquidity_providers
-                .entry(sender)
-                .or_insert(U256::zero());
-            *user_liquidity += liquidity;
-        }
-    
-        storage.k_last = storage.reserve_a * storage.reserve_b;
+            liquidity
+        };
+
+        storage.swap_status = SwapStatus::Paused; 
 
         // Transfer tokens to contract
         let request_a = vft_io::TransferFrom::encode_call(sender, program_id, amount_a);
-        msg::send_bytes_with_gas_for_reply(storage.token_a, request_a, 5_000_000_000, 0, 0)
+        msg::send_bytes_with_gas_for_reply(storage.token_a, request_a, 5_000_000_000, 0, 5_000_000_000)
             .expect("Error in async message to vft contract")
+            .up_to(Some(5))
+            .expect("Reply timeout")
+            .handle_reply(|| {
+                let reply_bytes = msg::load_bytes().expect("Unable to load bytes");
+                let result = vft_io::TransferFrom::decode_reply(reply_bytes);
+                if result.is_err() {
+                    let storage = unsafe { STORAGE.as_mut().expect("Dex is not initialized") };
+                    storage.swap_status = SwapStatus::Ready;
+                }
+            })
+            .expect("Reply hook error")
             .await
             .expect("Error getting answer from the vft contract");
     
         let request_b = vft_io::TransferFrom::encode_call(sender, program_id, amount_b);
-        msg::send_bytes_with_gas_for_reply(storage.token_b, request_b, 5_000_000_000, 0, 0)
+        if let Err(_e) = msg::send_bytes_with_gas_for_reply(storage.token_b, request_b, 5_000_000_000, 0, 0)
             .expect("Error in async message to vft contract")
             .await
-            .expect("Error getting answer from the vft contract");
+        {
+            let request = vft_io::Transfer::encode_call(sender, amount_a);
+            msg::send_bytes_with_gas_for_reply(storage.token_a, request, 5_000_000_000, 0, 0)
+                .expect("Error in async message to vft contract")
+                .await
+                .expect("Error getting answer from the vft contract");
+            storage.swap_status = SwapStatus::Ready;
+            false
+        } else {
+            if first_time {
+                let liquidity_to_mint = liquidity - MINIMUM_LIQUIDITY;
+                storage.reserve_a = amount_a;
+                storage.reserve_b = amount_b;
+                storage.total_liquidity = liquidity_to_mint;
+                storage.liquidity_providers.insert(sender, liquidity_to_mint);
+            } else {
+                storage.reserve_a += amount_a;
+                storage.reserve_b += amount_b;
+                storage.total_liquidity += liquidity;
+                let user_liquidity = storage
+                    .liquidity_providers
+                    .entry(sender)
+                    .or_insert(U256::zero());
+                *user_liquidity += liquidity;
+            }
+            storage.k_last = storage.reserve_a * storage.reserve_b;
+            storage.swap_status = SwapStatus::Ready; 
     
-        self.notify_on(Event::AddedLiquidity {
-            sender,
-            amount_a,
-            amount_b,
-            liquidity: storage.total_liquidity,
-        })
-        .expect("Notification Error");
-    }   
+            self.notify_on(Event::AddedLiquidity {
+                sender,
+                amount_a,
+                amount_b,
+                liquidity: storage.total_liquidity,
+            })
+            .expect("Notification Error");
+            true
+        }
+    }     
 ```
 
 - Proportional Contribution: Users must provide both tokens in the same ratio as the current reserves to maintain balance.
@@ -250,14 +281,17 @@ Adding liquidity allows users to contribute tokens to the pool, increasing its r
 Removing liquidity allows users to withdraw their contributed tokens along with a proportional share of the trading fees collected in the pool.
 
 ```rust title="dex/app/src/lib.rs"
-    pub async fn remove_liquidity(&mut self, amount: U256) {
+pub async fn remove_liquidity(&mut self, amount: U256) {
         let storage = self.get_mut();
+
+        if storage.swap_status != SwapStatus::Ready {
+            panic!("Swap status is incorrect");
+        }
 
         if exec::gas_available() < storage.liquidity_action_gas {
             panic!("Not enough gas; requires a least: {:?}", storage.liquidity_action_gas);
         }
         let sender = msg::source();
-        let program_id = exec::program_id();
 
         let user_liquidity = storage
             .liquidity_providers
@@ -274,15 +308,16 @@ Removing liquidity allows users to withdraw their contributed tokens along with 
         if storage.reserve_a < amount_a || storage.reserve_b < amount_b {
             panic!("Insufficient contract balance for token transfer");
         }
+        storage.swap_status = SwapStatus::Paused;
 
         // Transfer tokens back to the user
-        let request_a = vft_io::TransferFrom::encode_call(program_id, sender, amount_a);
+        let request_a = vft_io::Transfer::encode_call(sender, amount_a);
         msg::send_bytes_with_gas_for_reply(storage.token_a, request_a, 5_000_000_000, 0, 0)
             .expect("Error in async message to vft contract")
             .await
             .expect("Error getting answer from the vft contract");
 
-        let request_b = vft_io::TransferFrom::encode_call(program_id, sender, amount_b);
+        let request_b = vft_io::Transfer::encode_call(sender, amount_b);
         msg::send_bytes_with_gas_for_reply(storage.token_b, request_b, 5_000_000_000, 0, 0)
             .expect("Error in async message to vft contract")
             .await
@@ -294,6 +329,7 @@ Removing liquidity allows users to withdraw their contributed tokens along with 
         *user_liquidity -= amount;
 
         storage.k_last = storage.reserve_a * storage.reserve_b;
+        storage.swap_status = SwapStatus::Ready;
 
         self.notify_on(Event::RemovedLiquidity {
             sender,

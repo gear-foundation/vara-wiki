@@ -1,5 +1,5 @@
 ---
-sidebar_label: Programs Update (Proxy)
+sidebar_label: Upgrade Proxy
 sidebar_position: 7
 ---
 
@@ -11,9 +11,9 @@ A program uploaded to the blockchain from specific source code represents a uniq
 
 Programs often require updates to add new functionality or fix errors, making the ability to update a program’s business logic essential. Updating a program involves modifying the on-chain program in a way that avoids mandatory updates to other components or dependencies, such as the frontend, backend, external links, and more.
 
-**Proxy programs** are a well-known design pattern in blockchain development that address upgrade challenges. This approach enables the delegation of function calls to a separate logic program. The pattern separates business logic from the program’s state and address, allowing upgrades or modifications to the logic without affecting the existing state or deployed address.
+**Upgrade Proxy programs** are a well-known design pattern in blockchain development that address upgrade challenges. This approach enables the delegation of function calls to a separate logic program. The pattern separates business logic from the program’s state and address, allowing upgrades or modifications to the logic without affecting the existing state or deployed address.
 
-This [example](https://github.com/gear-foundation/dapps/tree/master/contracts/proxy-example) demonstrates a practical implementation of a proxy program designed to forward user interactions to a logic program. The proxy handles two primary responsibilities:
+This [example](https://github.com/gear-foundation/dapps/tree/master/contracts/upgrade-proxy) demonstrates a practical implementation of an upgrade proxy program designed to forward user interactions to a logic program. The upgrade proxy handles two primary responsibilities:
 
 1. Forwarding state-modifying messages while preserving the original sender's address.
 2. Handling state queries to retrieve data from the logic program.
@@ -53,8 +53,8 @@ pub async fn read_state(&self, bytes: Vec<u8>) -> Vec<u8> {
         .expect("Error during getting the reply")
 }
 ```
-### Logic Program Upgrades
-The proxy includes an `update_logic` function that allows the admin to change the logic program address.
+### Program's Logic Upgrade
+The upgrade proxy includes an `update_logic` function that allows the admin to change the logic program address.
 ```rust title="proxy-example/proxy/app/src/lib.rs"
 pub fn update_logic(&mut self, new_logic_address: ActorId, msg_source: Option<ActorId>) {
     self.check_if_proxy();
@@ -68,7 +68,7 @@ pub fn update_logic(&mut self, new_logic_address: ActorId, msg_source: Option<Ac
 Making a program compatible with a proxy requires implementing specific features that enable the proxy to forward messages effectively while preserving the original sender's address. The following outlines the key adjustments and features incorporated into the [`Counter` program](https://github.com/gear-foundation/dapps/tree/master/contracts/proxy-example/counter) to support a proxy.
 
 #### Key Features of a Proxy-Compatible Program
-1. Proxy Address Registration:
+1. Upgrade Proxy Address Registration:
 The program must allow an admin to set the address of the proxy, which is responsible for forwarding messages.
 2. Forwarded Sender (`msg_source()`):
 
@@ -157,5 +157,5 @@ To address this, developers can implement partial migration, which enables the s
 
 ## Source code
 
-The source code of the proxy program including its testing is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/proxy-example).
+The source code of the proxy program including its testing is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/upgrade-proxy).
 For more details about testing programs written on Vara, refer to the [Program Testing](/docs/build/testing) article.

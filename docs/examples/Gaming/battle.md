@@ -799,6 +799,6 @@ pub fn start_next_fight(storage: &mut Storage) -> Result<Event, BattleError> {
 
 The source code of this example of Battle Game program and the example of an implementation of its testing is available on [gear-foundation/dapp/contracts/battle](https://github.com/gear-foundation/dapps/tree/master/contracts/battle).
 
-See also an example of the smart contract testing implementation based on `gtest`: [gear-foundation/dapps/vara-man/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/battle/tests).
+See also an example of the smart contract testing implementation based on `gtest`: [gear-foundation/dapps/contracts/battle/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/battle/tests).
 
 For more details about testing programs written on Gear, refer to the [Program Testing](/docs/build/testing) article.

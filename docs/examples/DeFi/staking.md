@@ -9,7 +9,9 @@ sidebar_position: 5
 
 Staking is an analogue of a bank deposit, providing passive earnings through the simple storage of cryptocurrency tokens. The percentage of income may vary depending on the term of the deposit.
 
-Anyone can create a Staking program and run it on the Gear Network. An example is available on [GitHub](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/staking).
+Anyone can create a Staking program and run it on the Gear Network. The source code, developed using the [Sails](../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/staking).
+
+The staking program interacts with the [Vara Fungible Token (VFT)](/docs/examples/Standards/vft.md) standard to handle token transfers seamlessly, enabling staking deposits, reward distributions, and withdrawals through secure and efficient transfer operations. These transfers are executed via asynchronous calls to the VFT contract, ensuring accurate state synchronization and error handling during token movements.
 
 This article explains the programming interface, data structure, basic functions, and their purposes. The program can be used as-is or modified to suit specific scenarios.
 
@@ -82,42 +84,33 @@ Based on that equation, the implementation in the program can be written as:
 
 ### Program Description
 
-The admin initializes the program by transmitting information about the staking token, reward token, and distribution time (`InitStaking` message).
+The staking program is initialized by the admin using the `StakingProgram::new` method, which sets up the reward token address, the distribution time, and the total reward to be distributed.
 
-The admin can view the Stakers list (`GetStakers` message) and update the reward that will be distributed (`UpdateStaking` message).
+The admin can view the list of stakers and their staking details using the `stakers()` method and can update the reward token address, distribution time, or total reward through the `update_staking` function.
 
-Users first stake tokens (`Stake` message), and then can receive rewards on demand (`GetReward` message). Users can withdraw part of the staked amount (`Withdraw` message).
-
-### Source Files
-
-1. `staking/src/lib.rs` - contains functions of the 'staking' program.
-2. `staking/io/src/lib.rs` - contains enums and structs that the program receives and sends in the reply.
+Users can participate in the program by staking tokens using the `stake` function, which transfers tokens from the user's account to the contract and updates their staking balance. Accumulated rewards can be claimed on demand via the `get_reward` function. Users can also partially or fully withdraw their staked tokens using the `withdraw` function, which adjusts their balance and returns the specified tokens to their account.
 
 ### Structs
 
 The program has the following structs:
 
-```rust title="staking/src/lib.rs"
-struct Staking {
-    owner: ActorId,
-    staking_token_address: ActorId,
-    reward_token_address: ActorId,
-    tokens_per_stake: u128,
-    total_staked: u128,
-    distribution_time: u64,
-    produced_time: u64,
-    reward_total: u128,
-    all_produced: u128,
-    reward_produced: u128,
-    stakers: HashMap<ActorId, Staker>,
-    transactions: BTreeMap<ActorId, Transaction<StakingAction>>,
-    current_tid: TransactionId,
-}
+```rust title="staking/app/src/lib.rs"
+    struct Staking {
+        owner: ActorId,
+        reward_token_address: ActorId,
+        tokens_per_stake: u128,
+        total_staked: u128,
+        distribution_time: u64,
+        produced_time: u64,
+        reward_total: u128,
+        all_produced: u128,
+        reward_produced: u128,
+        stakers: HashMap<ActorId, Staker>,
+    }
 ```
 where:
 
 - `owner` - the owner of the staking program
-- `staking_token_address` - address of the staking token program
 - `reward_token_address` - address of the reward token program
 - `tokens_per_stake` - the calculated value of tokens per stake
 - `total_staked` - total amount of deposits
@@ -127,31 +120,14 @@ where:
 - `all_produced` - the reward received before the update `reward_total`
 - `reward_produced` - the reward produced so far
 - `stakers` - map of the stakers
-- `transactions` - map of the transactions
-- `current_tid` - current transaction identifier
 
-```rust title="staking/io/src/lib.rs"
-pub struct InitStaking {
-    pub staking_token_address: ActorId,
-    pub reward_token_address: ActorId,
-    pub distribution_time: u64,
-    pub reward_total: u128,
-}
-```
-where:
-
-- `staking_token_address` - address of the staking token program
-- `reward_token_address` - address of the reward token program
-- `distribution_time` - time of distribution of reward
-- `reward_total` - the reward to be distributed within distribution time
-
-```rust title="staking/io/src/lib.rs"
-pub struct Staker {
-    pub balance: u128,
-    pub reward_allowed: u128,
-    pub reward_debt: u128,
-    pub distributed: u128,
-}
+```rust title="staking/app/src/lib.rs"
+    pub struct Staker {
+        pub balance: u128,
+        pub reward_allowed: u128,
+        pub reward_debt: u128,
+        pub distributed: u128,
+    }
 ```
 where:
 
@@ -160,240 +136,301 @@ where:
 - `reward_debt` - the reward that the depositor would have received if he had initially paid this amount
 - `distributed` - total remuneration paid
 
-### Enums
+### Event
 
-```rust title="staking/io/src/lib.rs"
-pub enum StakingAction {
-    Stake(u128),
-    Withdraw(u128),
-    UpdateStaking(InitStaking),
-    GetReward,
-}
-```
-
-```rust title="staking/io/src/lib.rs"
-pub enum StakingEvent {
-    StakeAccepted(u128),
-    Updated,
-    Reward(u128),
-    Withdrawn(u128),
-}
+```rust title="staking/app/src/lib.rs"
+    pub enum Event {
+        StakeAccepted(u128),
+        Updated,
+        Reward(u128),
+        Withdrawn(u128),
+    }
 ```
 
 ### Functions
 
-The staking program interacts with the fungible token contract through the function `transfer_tokens()`. This function sends a message (the action is defined in the enum `FTAction`) and gets a reply (the reply is defined in the enum `FTEvent`).
+Thе `produced` function determines the total rewards generated since the last update. It ensures the reward does not exceed the total defined by the `distribution_time`.
 
-```rust title="staking/src/lib.rs"
-/// Transfers `amount` tokens from `sender` account to `recipient` account.
-/// Arguments:
-/// * `token_address`: token address
-/// * `from`: sender account
-/// * `to`: recipient account
-/// * `amount_tokens`: amount of tokens
-async fn transfer_tokens(
-    &mut self,
-    token_address: &ActorId,
-    from: &ActorId,
-    to: &ActorId,
-    amount_tokens: u128,
-) -> Result<(), Error> {
-    let payload = LogicAction::Transfer {
-        sender: *from,
-        recipient: *to,
-        amount: amount_tokens,
-    };
+```rust title="staking/app/src/lib.rs"
+    fn produced(&mut self) -> u128 {
+        let mut elapsed_time = exec::block_timestamp() - self.produced_time;
 
-    let transaction_id = self.current_tid;
-    self.current_tid = self.current_tid.saturating_add(99);
+        if elapsed_time > self.distribution_time {
+            elapsed_time = self.distribution_time;
+        }
 
-    let payload = FTokenAction::Message {
-        transaction_id,
-        payload,
-    };
-
-    let result = msg::send_for_reply_as(*token_address, payload, 0, 0)?.await?;
-
-    if let FTokenEvent::Err = result {
-        Err(Error::TransferTokens)
-    } else {
-        Ok(())
+        self.all_produced
+            + self.reward_total.saturating_mul(elapsed_time as u128)
+                / self.distribution_time as u128
     }
-}
 ```
 
-Calculates the reward produced so far
+Thе `update_reward` function  updates the state to reflect the latest reward distribution and recalculates the `tokens_per_stake` based on new rewards and the total staked amount.
 
-```rust title="staking/src/lib.rs"
-fn produced(&mut self) -> u128
-```
+```rust title="staking/app/src/lib.rs"
+    fn update_reward(&mut self) {
+        let reward_produced_at_now = self.produced();
+        if reward_produced_at_now > self.reward_produced {
+            let produced_new = reward_produced_at_now - self.reward_produced;
+            if self.total_staked > 0 {
+                self.tokens_per_stake = self
+                    .tokens_per_stake
+                    .saturating_add((produced_new * DECIMALS_FACTOR) / self.total_staked);
+            }
 
-Updates the reward produced so far and calculates tokens per stake
-
-```rust title="staking
-
-/src/lib.rs"
-fn update_reward(&mut self)
-```
-
-Calculates the maximum possible reward. The reward that the depositor would have received if initially paid this amount
-
-```rust title="staking/src/lib.rs"
-fn get_max_reward(&self, amount: u128) -> u128
-```
-
-Calculates the reward of the staker that is currently available. The return value cannot be less than zero according to the algorithm
-
-```rust title="staking/src/lib.rs"
-fn calc_reward(&mut self) -> Result<u128, Error>
-```
-
-Updates the staking program. Sets the reward to be distributed within the distribution time
-
-```rust title="staking/src/lib.rs"
-fn update_staking(&mut self, config: InitStaking) -> Result<StakingEvent, Error>
-```
-
-Stakes the tokens
-
-```rust title="staking/src/lib.rs"
-async fn stake(&mut self, amount: u128) -> Result<StakingEvent, Error>
-```
-
-Sends reward to the staker
-
-```rust title="staking/src/lib.rs"
-async fn send_reward(&mut self) -> Result<StakingEvent, Error>
-```
-
-Withdraws the staked tokens
-
-```rust title="staking/src/lib.rs"
-async fn withdraw(&mut self, amount: u128) -> Result<StakingEvent, Error>
-```
-
-These functions are called in `async fn main()` through the enum `StakingAction`.
-
-This is the entry point to the program, and the program is waiting for a message in `StakingAction` format.
-
-```rust title="staking/src/lib.rs"
-#[gstd::async_main]
-async fn main() {
-    let staking = unsafe { STAKING.get_or_insert(Staking::default()) };
-
-    let action: StakingAction = msg::load().expect("Could not load Action");
-    let msg_source = msg::source();
-
-    let _reply: Result<StakingEvent, Error> = Err(Error::PreviousTxMustBeCompleted);
-    let _transaction_id = if let Some(Transaction {
-        id,
-        action: pend_action,
-    }) = staking.transactions.get(&msg_source)
-    {
-        if action != *pend_action {
-            msg::reply(_reply, 0)
-                .expect("Failed to encode or reply with `Result<StakingEvent, Error>`");
-            return;
+            self.reward_produced = self.reward_produced.saturating_add(produced_new);
         }
-        *id
-    } else {
-        let transaction_id = staking.current_tid;
-        staking.current_tid = staking.current_tid.saturating_add(1);
-        staking.transactions.insert(
-            msg_source,
-            Transaction {
-                id: transaction_id,
-                action: action.clone(),
-            },
-        );
-        transaction_id
-    };
-    let result = match action {
-        StakingAction::Stake(amount) => {
-            let result = staking.stake(amount).await;
-            staking.transactions.remove(&msg_source);
-            result
-        }
-        StakingAction::Withdraw(amount) => {
-            let result = staking.withdraw(amount).await;
-            staking.transactions.remove(&msg_source);
-            result
-        }
-        StakingAction::UpdateStaking(config) => {
-            let result = staking.update_staking(config);
-            staking.transactions.remove(&msg_source);
-            result
-        }
-        StakingAction::GetReward => {
-            let result = staking.send_reward().await;
-            staking.transactions.remove(&msg_source);
-            result
-        }
-    };
-    msg::reply(result, 0).expect("Failed to encode or reply with `Result<StakingEvent, Error>`");
-}
-```
-
-### Program Metadata and State
-
-Metadata interface description:
-
-```rust title="staking/io/src/lib.rs"
-pub struct StakingMetadata;
-
-impl Metadata for StakingMetadata {
-    type Init = In<InitStaking>;
-    type Handle = InOut<StakingAction, Result<StakingEvent, Error>>;
-    type Others = ();
-    type Reply = ();
-    type Signal = ();
-    type State = Out<IoStaking>;
-}
-```
-
-To display the full program state information, the `state()` function is used:
-
-```rust title="staking/src/lib.rs"
-#[no_mangle]
-extern fn state() {
-    let staking = unsafe { STAKING.take().expect("Unexpected error in taking state") };
-    msg::reply::<IoStaking>(staking.into(), 0)
-        .expect("Failed to encode or reply with `IoStaking` from `state()`");
-}
-```
-
-To display only necessary specific values from the state, write a separate crate. In this crate, specify functions that will return the desired values from the `IoStaking` state. For example, see [staking/state](https://github.com/gear-foundation/dapps/tree/master/contracts/staking/state):
-
-```rust title="staking/state/src/lib.rs"
-#[gmeta::metawasm]
-pub mod metafns {
-    pub type State = IoStaking;
-
-    pub fn get_stakers(state: State) -> Vec<(ActorId, Staker)> {
-        state.stakers
     }
+```
 
-    pub fn get_staker(state: State, address: ActorId) -> Option<Staker> {
-        state
+Thе `get_max_reward` function calculates the theoretical maximum reward for a given staked amount based on `tokens_per_stake`.
+
+```rust title="staking/app/src/lib.rs"
+    fn get_max_reward(&self, amount: u128) -> u128 {
+        (amount * self.tokens_per_stake) / DECIMALS_FACTOR
+    }
+```
+
+Thе `calc_reward` function the reward that a specific staker is eligible to claim. It factors in:
+- Current staked balance.
+- Rewards already allowed, debt, and previously distributed amounts.
+
+```rust title="staking/app/src/lib.rs"
+    fn calc_reward(&self, id: &ActorId) -> u128 {
+        match self.stakers.get(id) {
+            Some(staker) => {
+                self.get_max_reward(staker.balance) + staker.reward_allowed
+                    - staker.reward_debt
+                    - staker.distributed
+            }
+            None => panic!("Staker not found"),
+        }
+    }
+```
+
+Thе `update_staking` function allows the admin to modify key parameters like the reward token, distribution time, and total reward.  Resets reward tracking fields and recalculates staking-related variables. It ensures the program remains adaptable to changing requirements.
+
+```rust title="staking/app/src/lib.rs"
+    pub fn update_staking(
+        &mut self,
+        reward_token_address: ActorId,
+        distribution_time: u64,
+        reward_total: u128,
+    ) {
+        if reward_total == 0 {
+            panic!("Reward is zero");
+        }
+
+        if distribution_time == 0 {
+            panic!("Distribution time is zero");
+        }
+
+        let storage = self.get_mut();
+
+        if msg::source() != storage.owner {
+            panic!("Not owner");
+        }
+
+        storage.reward_token_address = reward_token_address;
+        storage.distribution_time = distribution_time;
+
+        storage.update_reward();
+        storage.all_produced = storage.reward_produced;
+        storage.produced_time = exec::block_timestamp();
+        storage.reward_total = reward_total;
+        self.notify_on(Event::Updated).expect("Notification Error");
+    }
+```
+
+The `stake` function enables users to deposit tokens into the staking program. Its operations include:
+
+- Transferring the specified amount of tokens from the user's account to the contract.
+- Updating the user's staking balance and associated reward debt in the program's state.
+
+```rust title="staking/app/src/lib.rs"
+    pub async fn stake(&mut self, amount: u128) {
+        if amount == 0 {
+            panic!("Amount is zero");
+        }
+        let storage = self.get_mut();
+        let msg_src = msg::source();
+
+        let request = vft_io::TransferFrom::encode_call(msg_src, exec::program_id(), amount.into());
+
+        msg::send_bytes_with_gas_for_reply(
+            storage.reward_token_address,
+            request,
+            5_000_000_000,
+            0,
+            0,
+        )
+        .expect("Error in sending a message")
+        .await
+        .expect("Error in transfer Fungible Token");
+
+        storage.update_reward();
+
+        let amount_per_token = storage.get_max_reward(amount);
+
+        storage
             .stakers
-            .iter()
-            .find(|(id, _staker)| address.eq(id))
-            .map(|(_, staker)| staker.clone())
+            .entry(msg_src)
+            .and_modify(|stake| {
+                stake.reward_debt = stake.reward_debt.saturating_add(amount_per_token);
+                stake.balance = stake.balance.saturating_add(amount);
+            })
+            .or_insert(Staker {
+                reward_debt: amount_per_token,
+                balance: amount,
+                ..Default::default()
+            });
+        storage.total_staked = storage.total_staked.saturating_add(amount);
+        self.notify_on(Event::StakeAccepted(amount))
+            .expect("Notification Error");
     }
-}
 ```
 
-## Consistency of Program States
+The `get_reward` function enables users to claim their accumulated rewards. Its operations include:
 
-The `Staking` program interacts with the `fungible` token contract. Each transaction that changes the states of Staking and the fungible token is stored in the state until it is completed. A user can complete a pending transaction by sending a message exactly the same as the previous one, indicating the transaction id. The idempotency of the fungible token contract allows restarting a transaction without duplicate changes, ensuring the state consistency of these two programs.
+- Calculating the eligible reward amount using the `calc_reward` method.
+- Transferring the calculated reward to the user's account.
+- Updating the program's state to reflect the distribution of the reward.
+
+```rust title="staking/app/src/lib.rs"
+    pub async fn get_reward(&mut self) {
+        let storage = self.get_mut();
+        storage.update_reward();
+
+        let msg_src = msg::source();
+
+        let reward = storage.calc_reward(&msg_src);
+        if reward == 0 {
+            panic!("Zero reward")
+        }
+
+        let request = vft_io::Transfer::encode_call(msg_src, reward.into());
+
+        msg::send_bytes_with_gas_for_reply(
+            storage.reward_token_address,
+            request,
+            5_000_000_000,
+            0,
+            0,
+        )
+        .expect("Error in sending a message")
+        .await
+        .expect("Error in transfer Fungible Token");
+
+        storage
+            .stakers
+            .entry(msg::source())
+            .and_modify(|stake| stake.distributed = stake.distributed.saturating_add(reward));
+
+        self.notify_on(Event::Reward(reward))
+            .expect("Notification Error");
+    }
+```
+
+The `withdraw` function enables users to withdraw their staked tokens, either partially or in full. Its operations include:
+
+- Validating the requested withdrawal amount to ensure it does not exceed the user’s available balance.
+- Transferring the specified amount of tokens back to the user’s account.
+- Updating the user’s staking balance and associated reward debt in the program's state.
+
+```rust title="staking/app/src/lib.rs"
+    pub async fn withdraw(&mut self, amount: u128) {
+        if amount == 0 {
+            panic!("Amount is zero");
+        }
+        let storage = self.get_mut();
+        storage.update_reward();
+        let amount_per_token = storage.get_max_reward(amount);
+        let msg_src = msg::source();
+
+        let staker = storage.stakers.get_mut(&msg_src).expect("Staker not found");
+
+        if staker.balance < amount {
+            panic!("Insufficent balance");
+        }
+
+        let request = vft_io::Transfer::encode_call(msg_src, amount.into());
+
+        msg::send_bytes_with_gas_for_reply(
+            storage.reward_token_address,
+            request,
+            5_000_000_000,
+            0,
+            0,
+        )
+        .expect("Error in sending a message")
+        .await
+        .expect("Error in transfer Fungible Token");
+
+        staker.reward_allowed = staker.reward_allowed.saturating_add(amount_per_token);
+        staker.balance = staker.balance.saturating_sub(amount);
+        storage.total_staked = storage.total_staked.saturating_sub(amount);
+
+        self.notify_on(Event::Withdrawn(amount))
+            .expect("Notification Error");
+    }
+```
+
+Query
+
+The following functions are provided to read the current state of the staking program. These queries allow both administrators and users to retrieve information about the program's configuration, status, and individual staking details without modifying its state:
+
+```rust title="tic-tac-toe/app/services/game/mod.rs"
+    pub fn owner(&self) -> ActorId {
+        self.get().owner
+    }
+    pub fn reward_token_address(&self) -> ActorId {
+        self.get().reward_token_address
+    }
+    pub fn tokens_per_stake(&self) -> u128 {
+        self.get().tokens_per_stake
+    }
+    pub fn total_staked(&self) -> u128 {
+        self.get().total_staked
+    }
+    pub fn distribution_time(&self) -> u64 {
+        self.get().distribution_time
+    }
+    pub fn produced_time(&self) -> u64 {
+        self.get().produced_time
+    }
+    pub fn reward_total(&self) -> u128 {
+        self.get().reward_total
+    }
+    pub fn all_produced(&self) -> u128 {
+        self.get().all_produced
+    }
+    pub fn reward_produced(&self) -> u128 {
+        self.get().reward_produced
+    }
+    pub fn stakers(&self) -> Vec<(ActorId, Staker)> {
+        self.get().stakers.clone().into_iter().collect()
+    }
+    pub fn calc_reward(&self, id: ActorId) -> u128 {
+        self.get().calc_reward(&id)
+    }
+```
+
+- `owner`: Returns the `ActorId` of the staking program's owner.  
+- `reward_token_address`: Retrieves the `ActorId` of the reward token associated with the staking program.  
+- `tokens_per_stake`: Returns the number of reward tokens allocated per unit of stake, adjusted dynamically.  
+- `total_staked`: Provides the total amount of tokens currently staked in the program.  
+- `distribution_time`: Returns the time period (in milliseconds) over which rewards are distributed.  
+- `produced_time`: Retrieves the timestamp of the last reward calculation or update.  
+- `reward_total`: Returns the total reward allocated for the entire distribution period.  
+- `all_produced`: Provides the cumulative rewards generated before the most recent reward update.  
+- `reward_produced`: Returns the total rewards produced up to the current moment.  
+- `stakers`: Retrieves a list of all stakers, including their `ActorId` and corresponding staking details.  
+- `calc_reward`: Calculates and returns the reward amount available for a specific staker identified by their `ActorId`.  
 
 ## Conclusion
 
-The source code of this example of a staking program is available on GitHub: [`staking/src/lib.rs`](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/staking/src/lib.rs).
+The source code of this example of a staking program is available on GitHub: [gear-foundation/dapp/contracts/staking](https://github.com/gear-foundation/dapps/tree/master/contracts/staking).
 
-See also examples of the program testing implementation based on gtest:
-
-- [`simple_test.rs`](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/staking/tests/simple_test.rs).
-- [`panic_test.rs`](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/staking/tests/panic_test.rs).
+See also an example of the smart contract testing implementation based on `gtest`: [gear-foundation/dapps/contracts/staking/tests](https://github.com/gear-foundation/dapps/tree/master/contracts/staking/tests).
 
 For more details about testing programs written on Vara, refer to this article: [Program testing](/docs/build/testing).

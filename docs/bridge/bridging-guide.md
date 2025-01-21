@@ -17,7 +17,7 @@ This page provides a guide on bridging supported VFT tokens from Vara Network to
 ## Bridging from Vara Network to Ethereum
 
 :::tip
-This tutorial uses Vara's Testnet and **VARAT** tokens. You can acquire a test balance by following the steps [here](docs/idea/account.md#get-test-balance).
+This tutorial uses Vara's Testnet and **TVARA** tokens. You can acquire a test balance by following the steps [here](docs/idea/account.md#get-test-balance).
 :::
 
 ![vara-bridge](img/vara_bridge_tutorial_snap01.png)
@@ -26,7 +26,7 @@ This tutorial uses Vara's Testnet and **VARAT** tokens. You can acquire a test b
    Connect your Substrate wallet to the Vara Bridge.
 
 2. **Select the Token to Transfer**  
-   Choose **VARAT** from the dropdown menu and specify the number of tokens to transfer.
+   Choose **TVARA** from the dropdown menu and specify the number of tokens to transfer.
 
 3. **Enter the Receiving Ethereum Address**  
    In the next field, provide a valid ERC-20 address on Ethereum Holesky where you want the tokens sent.
@@ -54,7 +54,7 @@ After sending tokens from Vara to Ethereum, you may need to manually add the **V
 ## Bridging from Ethereum to Vara Network
 
 :::tip
-This walkthrough also uses Vara’s Testnet and **VARAT** tokens. To start bridging to the Vara Testnet, you will need a small **ETH** balance on Ethereum Holesky.
+This walkthrough also uses Vara’s Testnet and **TVARA** tokens. To start bridging to the Vara Testnet, you will need a small **ETH** balance on Ethereum Holesky.
 :::
 
 ![vara-bridge](img/vara_bridge_tutorial_snap05.png)

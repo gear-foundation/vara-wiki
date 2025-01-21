@@ -32,7 +32,7 @@ The Vara Bridge consists of several distinct parts, including on-chain component
 
 - **ERC20Manager**: Implements the `IMessageQueueReceiver` interface and functions as a vault for ERC-20 tokens, permitting users to deposit tokens and manage withdrawals. It processes messages relayed by the `MessageQueue` and accepts only properly formatted and authorized messages.
 
-- **MessageQueue**: Verifies proofs of message inclusion in a Merkle trie, whose root is stored in the `Relayer`. It ensures each message is processed exactly once by storing nonces for all of the processed messages. After successful verification, it calls the target `IMessageQueueReceiver` contract (e.g., `ERC20Treasury`).
+- **MessageQueue**: Verifies proofs of message inclusion in a Merkle trie, whose root is stored in the `Relayer`. It ensures each message is processed exactly once by storing nonces for all of the processed messages. After successful verification, it calls the target `IMessageQueueReceiver` contract (e.g., `ERC20Manager`).
 
 - **Relayer**: Receives a Merkle trie root proof from the Prover and submits it to the `Verifier` for validation using `PlonkVerifier`. Once the proof is confirmed, the `Relayer` records the validated Merkle trie root and block number, so the `MessageQueue` can authenticate messages.
 
@@ -68,7 +68,7 @@ Proof creation relies on **proof composition**, in which proofs are generated an
 ## Token Transfer Workflows
 ### From Vara Network to Ethereum
 
-From a broad standpoint, the user starts a bridging request in the frontend, giving the bridge permission to spend the specified tokens. After deducting any necessary fees, the bridging process leads to the burning of tokens on Vara Network, producing a message. This message is relayed by the Built-in actor and stored in Vara’s storage. Subsequently, an off-chain relayer forwards this message to the Ethereum relayer contract. Once the Merkle proof is validated, the ERC-20 treasury releases the corresponding funds to the user on Ethereum.
+From a broad standpoint, the user starts a bridging request in the frontend, giving the bridge permission to spend the specified tokens. After deducting any necessary fees, the bridging process leads to the burning of tokens on Vara Network, producing a message. This message is relayed by the Built-in actor and stored in Vara’s storage. Subsequently, an off-chain relayer forwards this message to the Ethereum relayer contract. Once the Merkle proof is validated, the ERC-20 Manager releases the corresponding funds to the user on Ethereum.
 
 ```mermaid
 flowchart LR
@@ -92,7 +92,7 @@ flowchart LR
     subgraph ETH["Ethereum"]
         direction TB
         RL["Relayer contract"]:::varaStyle;
-        MQ["MessageQueue contract"]:::varaStyle--> EM["ERC20Treasury contract"]:::varaStyle;
+        MQ["MessageQueue contract"]:::varaStyle--> EM["ERC20Manager contract"]:::varaStyle;
         RL--"Submits Merkle trie root<br>proof for validation"-->VF["Verifier contract"]:::varaStyle;
         VF--"Confirms/rejects proof"-->RL
 
@@ -121,10 +121,10 @@ classDef plain stroke:#FFFFFF;
    The `Vara→Ethereum relayer` reads from `pallet-gear-eth-bridge` storage and produces a zero-knowledge (ZK) proof indicating that the message is included in a finalized Vara block. The relayer submits this proof to Ethereum, storing it in the `Relayer` contract.
 
 5. **Proof Verification on Ethereum**  
-   Prompted by the `Vara→Ethereum Token Relayer`, the `MessageQueue` contract retrieves the Merkle root from the `Relayer` contract. It verifies the Merkle proof and, if successful, passes the message on to the `ERC20Treasury`.
+   Prompted by the `Vara→Ethereum Token Relayer`, the `MessageQueue` contract retrieves the Merkle root from the `Relayer` contract. It verifies the Merkle proof and, if successful, passes the message on to the `ERC20Manager`.
 
 6. **Release of Funds**  
-   The `ERC20Treasury` releases the tokens to the user’s account on Ethereum.
+   The `ERC20Manager` releases the tokens to the user’s account on Ethereum.
 
 ### From Ethereum to Vara Network
 
@@ -134,7 +134,7 @@ In brief, the user submits a bridging request in the frontend, allowing the brid
    The user initiates a bridging request in the Bridge frontend. They authorize the `bridging-payment` contract to spend their ERC-20 tokens by calling `approve` on the relevant ERC-20 contract on Ethereum.
 
 2. **Token Locking/Burning on Ethereum**  
-   After receiving the request, the `bridging-payment` instructs the `ERC20Treasury` to lock or burn the ERC-20 tokens. The resulting event signals that these tokens are removed from circulation or escrowed for bridging.
+   After receiving the request, the `bridging-payment` instructs the `ERC20Manager` to lock or burn the ERC-20 tokens. The resulting event signals that these tokens are removed from circulation or escrowed for bridging.
 
 3. **Block Checkpoint and Event Submission**  
    Once the event is emitted, the `Ethereum→Vara Protocol relayer` (or a similar entity) provides a newer Ethereum block reference (at a block number beyond the burn/lock event) to the `checkpoint-light-client` on Vara. Then, the relayer forwards the event to the `historical-proxy`, which supervises the on-chain validation.

@@ -9,8 +9,8 @@ This page provides a guide on bridging supported VFT tokens from Vara Network to
 
 ## Prerequisites
 
-- A Substrate wallet (for example, **SubWallet**)
-- An Ethereum wallet (for example, **MetaMask**)
+- A Substrate wallet (for example, [**SubWallet**](https://www.subwallet.app/))
+- An Ethereum wallet (for example, [**MetaMask**](https://metamask.io/))
 
 ---
 

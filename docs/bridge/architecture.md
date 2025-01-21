@@ -18,13 +18,13 @@ The Vara Bridge consists of several distinct parts, including on-chain component
 
 - **VFT programs**: Deployments of the [VFT token standard](/docs/build/standards/vft), capable of transferring, burning, and minting VFT tokens. Each unique token has its own VFT deployment on Vara.
 
-- **VFT Manager**: A single application that receives VFT tokens from users, burns them, and emits a message to the `pallet-gear-eth-bridge` Built-in actor. This message indicates which token is being bridged, the token amount, and the intended Ethereum recipient.
+- **VFT Manager**: A single program that receives VFT tokens from users, burns them, and emits a message to the `pallet-gear-eth-bridge` Built-in actor. This message indicates which token is being bridged, the token amount, and the intended Ethereum recipient.
 
 - **Bridging Built-in Actor**: A new Built-in Actor serving as the entry point for the generic bridging protocol. It takes messages from any actor on the Vara Network and forwards them to the Bridging pallet.
 
 - **Bridging Pallet**: Accepts messages from the Bridge Built-in Actor and stores them in specialized data structure (a binary Merkle trie).
 
-- **Ethereum-Event-Client**: A program on Vara that can verify whether a specific event was included in a particular block. It consults the `checkpoint-light-client` to confirm the validity of that block.
+- **Ethereum-Event-Client**: A program on Vara that verifies whether a specific event emitted by an Ethereum smart contract was included in a particular block. It consults the `checkpoint-light-client` to confirm the validity of that block.
 
 - **Historical-Proxy**: A program on Vara that maintains historical `ethereum-event-client` program addresses and routes requests to the `ethereum-event-client` instance responsible for processing the requested transaction.
 

@@ -36,7 +36,7 @@ The Vara Bridge consists of several distinct parts, including on-chain component
 
 - **Relayer**: Receives a Merkle trie root proof from the Prover and submits it to the `Verifier` for validation using `PlonkVerifier`. Once the proof is confirmed, the `Relayer` records the validated Merkle trie root and block number, so the `MessageQueue` can authenticate messages.
 
-- **Verifier**: Uses a `PlonkVerifier` to check zero-knowledge proofs demonstrating that a Merkle trie root belongs to a finalized Vara block. By verifying the Merkle trie root’s integrity, it ensures the data that arrives at the `Relayer` is genuine, facilitating the rest of the bridging process.
+- **Verifier**: Uses a `PlonkVerifier` to check gnark proofs demonstrating that a Merkle trie root belongs to a finalized Vara block. By verifying the Merkle trie root’s integrity, it ensures the data that arrives at the `Relayer` is genuine, facilitating the rest of the bridging process.
 
 ### Components on Both Networks
 

@@ -78,6 +78,6 @@ This walkthrough also uses Vara’s Testnet and **TVARA** tokens. To start bridg
 
 ![vara-bridge](img/vara_bridge_tutorial_snap07.png)
 
-After the transaction is submitted, your bridging request appears in the transaction list. When the bridging is complete, its status changes from **pending** to **completed**.
+After the transaction is submitted, your bridging request appears in the transaction list. When the bridging is complete, its status changes from **pending** to **completed**. This can take up to 20 minutes.
 
 ![vara-bridge](img/vara_bridge_tutorial_snap08.png)

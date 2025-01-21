@@ -16,7 +16,7 @@ The Vara Bridge consists of several distinct parts, including on-chain component
 
 ### Components on Vara Network
 
-- **VFT programs**: Deployments of the VFT token standard, capable of transferring, burning, and minting VFT tokens. Each unique token has its own VFT standard deployment on Vara.
+- **VFT programs**: Deployments of the [VFT token standard](/docs/build/standards/vft), capable of transferring, burning, and minting VFT tokens. Each unique token has its own VFT deployment on Vara.
 
 - **VFT Manager**: A single application that receives VFT tokens from users, burns them, and emits a message to the `pallet-gear-eth-bridge` Built-in actor. This message indicates which token is being bridged, the token amount, and the intended Ethereum recipient.
 

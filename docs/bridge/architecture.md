@@ -32,7 +32,7 @@ The Vara Bridge consists of several distinct parts, including on-chain component
 
 - **ERC20Manager**: Implements the `IMessageQueueReceiver` interface and functions as a vault for ERC-20 tokens, permitting users to deposit tokens and manage withdrawals. It processes messages relayed by the `MessageQueue` and accepts only properly formatted and authorized messages.
 
-- **MessageQueue**: Verifies proofs of message inclusion in a Merkle trie, whose root is stored in the `Relayer`. It ensures each message is processed exactly once by comparing the computed Merkle root with the root kept in the `Relayer`. After successful verification, it calls the target `IMessageQueueReceiver` contract (e.g., `ERC20Treasury`).
+- **MessageQueue**: Verifies proofs of message inclusion in a Merkle trie, whose root is stored in the `Relayer`. It ensures each message is processed exactly once by storing nonces for all of the processed messages. After successful verification, it calls the target `IMessageQueueReceiver` contract (e.g., `ERC20Treasury`).
 
 - **Relayer**: Receives a Merkle trie root proof from the Prover and submits it to the `Verifier` for validation using `PlonkVerifier`. Once the proof is confirmed, the `Relayer` records the validated Merkle trie root and block number, so the `MessageQueue` can authenticate messages.
 

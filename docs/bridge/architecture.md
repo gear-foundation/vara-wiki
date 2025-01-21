@@ -22,7 +22,7 @@ The Vara Bridge consists of several distinct parts, including on-chain component
 
 - **Bridging Built-in Actor**: A new Built-in Actor serving as the entry point for the generic bridging protocol. It takes messages from any actor on the Vara Network and forwards them to the Bridging pallet.
 
-- **Bridging Pallet**: Accepts messages from the Bridge Built-in Actor and stores them in specialized data (a binary Merkle trie).
+- **Bridging Pallet**: Accepts messages from the Bridge Built-in Actor and stores them in specialized data structure (a binary Merkle trie).
 
 - **Ethereum-Event-Client**: A program on Vara that can verify whether a specific event was included in a particular block. It consults the `checkpoint-light-client` to confirm the validity of that block.
 

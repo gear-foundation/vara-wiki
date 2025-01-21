@@ -28,13 +28,15 @@ The Vara Bridge consists of several distinct parts, including on-chain component
 
 - **Historical-Proxy**: A program on Vara that maintains historical `ethereum-event-client` program addresses and routes requests to the `ethereum-event-client` instance responsible for processing the requested transaction.
 
+- **Checkpoint-Light-Client**: A lazy Ethereum light client that keeps track of the `sync committee` validator set and confirms block headers using it.
+
 ### Components on Ethereum
 
 - **ERC20Manager**: Implements the `IMessageQueueReceiver` interface and functions as a vault for ERC-20 tokens, permitting users to deposit tokens and manage withdrawals. It processes messages relayed by the `MessageQueue` and accepts only properly formatted and authorized messages.
 
 - **MessageQueue**: Verifies proofs of message inclusion in a Merkle trie, whose root is stored in the `Relayer`. It ensures each message is processed exactly once by storing nonces for all of the processed messages. After successful verification, it calls the target `IMessageQueueReceiver` contract (e.g., `ERC20Manager`).
 
-- **Relayer**: Receives a Merkle trie root proof from the Prover and submits it to the `Verifier` for validation using `PlonkVerifier`. Once the proof is confirmed, the `Relayer` records the validated Merkle trie root and block number, so the `MessageQueue` can authenticate messages.
+- **Relayer**: Although historically referred to as the `Relayer`, this component is actually an on-chain contract on Ethereum. It receives a Merkle trie root proof from the Prover and submits it to the `Verifier` for validation via `PlonkVerifier`. Once the proof is confirmed, the contract records the validated Merkle trie root and block number, enabling the `MessageQueue` to authenticate messages.
 
 - **Verifier**: Uses a `PlonkVerifier` to check gnark proofs demonstrating that a Merkle trie root belongs to a finalized Vara block. By verifying the Merkle trie root’s integrity, it ensures the data that arrives at the `Relayer` is genuine, facilitating the rest of the bridging process.
 
@@ -52,10 +54,6 @@ In addition to the on-chain components, there are relayer nodes responsible for 
 - **Ethereum→Vara Protocol relayer**: Tracks `sync committee` changes and the blocks they sign on Ethereum. It then updates the `checkpoint-light-client` state on Vara.
 
 - **Ethereum→Vara Token relayer** and **Vara→Ethereum Token relayer**: Monitor events from `bridging-payment` services and handle cross-chain actions to ensure messages are delivered correctly.
-
-For transfers from Ethereum to the Vara Network, there is also a lazy Ethereum light client:
-
-- **Checkpoint-Light-Client**: A lazy Ethereum light client that keeps track of the `sync committee` validator set and confirms block headers using it.
 
 ## Proof Generation and Verification
 The Ethereum smart contracts handle messages and their proofs originating from Vara Network. On Vara, each message is kept in a binary Merkle trie. The Merkle root of this trie—a concise, verifiable representation of all messages—is recorded in the `pallet-gear-eth-bridge` storage. This setup guarantees that messages can be thoroughly verified when they reach Ethereum. The `Prover` component generates a zero-knowledge proof (ZK proof) indicating that a given Merkle trie root is stored in the pallet’s storage at a particular finalized block. This proof is then sent to Ethereum.

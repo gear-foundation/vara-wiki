@@ -41,7 +41,7 @@ There are two ways to upload the game onto the chain:
     - Vara Network Testnet - wss://testnet.vara.network;
     - Local node - ws://localhost:9944
 - Upload Master and Player programs:
-    - Click the `Upload Program` button and specify `x.opt.wasm` file of the program, also specify the `*.txt` file with metadata for Master and Palyer programs accordingly.
+    - Click the `Upload Program` button and specify `x.opt.wasm` file of the program, also specify the `*.idl` file for Master and Palyer programs accordingly.
     - Save the addresses of the uploaded programs.
 - Make gas reservations to ensure continuous game execution.
     - Find your uploaded Master program and click the `Send message` button:
@@ -55,7 +55,7 @@ It allows sending transactions to the Gear node based on `yaml` file:
     ```
     cd ./syndote-upload-game/
     ```
-- Upload previously built files into `/programs` folder (replace if necessary): `player.meta.txt`, `syndote.meta.txt`, `player.opt.wasm`, `syndote.opt.wasm`
+- Upload previously built files into `/programs` folder (replace if necessary): `sydnote_player.idl`, `syndote.idl`, `sydnote_player.opt.wasm`, `syndote.opt.wasm`
 
 - Install `gear-js/cli`:
     ```

@@ -107,7 +107,7 @@ It allows sending transactions to the Gear node based on `yaml` file:
 - You will see the players addresses:
     ![img alt](../img/players.png)
 
-- Additionally, you can write your own player program, build it, and place the `.opt.wasm` and `.meta.txt` files into the `upload-game/programs` folder.
+- Additionally, you can write your own player program, build it, and place the `.opt.wasm` and `.idl` files into the `upload-game/programs` folder.
     To deploy your player, specify the necessary files in the `players.yaml` file instead of any existing player.
     ![img alt](../img/my_player.png)
 
@@ -118,10 +118,11 @@ It allows sending transactions to the Gear node based on `yaml` file:
 ```sh
 yarn install
 ```
-3. Declare environment variables, go to `/frontend/` foler, create new `.env` file, check `.env.example` file to get necessary variables:
-    - `REACT_APP_SYNDOTE_NODE_ADDRESS` - in this parameter specify the address of the node on which you deployed the programs.
-    - `REACT_APP_CONTRACT_ADDRESS` - in this parameter specify the address of the deployed master program.
-4. Put the latest version of the `syndote.meta.txt` file locally in `src/assets/wasm/` folder, replace if necessary.
+3. Declare environment variables, go to `/frontend/` foler, create a new `.env` file, and check `.env.example` file to get the necessary variables:
+    - `VITE_NODE_ADDRESS` - specify the address of the node where you deployed the programs.
+    - `VITE_DNS_API_URL` - specify the address of the dDNS API (https://dns-explorer.gear.foundation/api).
+    - `VITE_DNS_NAME` - specify the dDNS name of the deployed program (add the dDNS name for your program in the [IDEA dDNS section](https://idea.gear-tech.io/dns?node=wss%3A%2F%2Ftestnet.vara.network)).
+4. Put the latest version of the `syndote.idl` file in the `src\app\utils\sails` folder locally, replacing the existing file if necessary. Then, [generate the client library](https://github.com/gear-tech/sails/blob/master/js/cli/README.md#generate-typescript-client-library-using-the-idl-file) and place it in `src\app\utils\sails\syndote.ts`.
 
 :::note
 In order for all features to work as expected, the node and its runtime version should be chosen based on the current `@gear-js/api` version. In case of issues with the application, try to switch to another network or run your own local node and specify its address in the `.env` file. When applicable, make sure the program(s) wasm files are uploaded and running in this network accordingly.

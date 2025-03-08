@@ -150,6 +150,7 @@ const config: Config = {
 };
 
 async function pluginLlmsTxt(context) {
+  const baseURL = "https://wiki.vara.network/docs";
   return {
     name: "llms-txt-plugin",
     loadContent: async () => {
@@ -190,7 +191,10 @@ async function pluginLlmsTxt(context) {
               }
 
               // Generate source URL and prepend to content
-              const sourceLine = `<!-- Source: https://wiki.vara.network/docs/${relativePath.replace(/\.(md|mdx)$/, "")} -->`;
+              const sourcePath = sanitizePath(
+                relativePath.replace(/\.(md|mdx)$/, ""),
+              );
+              const sourceLine = `<!-- Source: ${baseURL}/${sourcePath} -->`;
 
               // Insert source line after first heading
               const modifiedContent = `${sourceLine}\n\n${content}\n\n`;
@@ -242,8 +246,8 @@ async function pluginLlmsTxt(context) {
         );
 
         for (const doc of sectionDocs) {
-          const urlPath = doc.path.replace(/\.(md|mdx)$/, "");
-          llmsTxt += `- [${doc.title}](https://wiki.vara.network/docs/${urlPath})\n`;
+          const urlPath = sanitizePath(doc.path.replace(/\.(md|mdx)$/, ""));
+          llmsTxt += `- [${doc.title}](${baseURL}/${urlPath})\n`;
         }
 
         llmsTxt += "\n";
@@ -260,6 +264,22 @@ async function pluginLlmsTxt(context) {
       }
     },
   };
+}
+
+function sanitizePath(base) {
+  // Split path segments
+  const segments = base.split("/");
+
+  // Remove last segment if last two are identical
+  if (
+    segments.length >= 2 &&
+    segments[segments.length - 1] === segments[segments.length - 2]
+  ) {
+    segments.pop();
+  }
+
+  // Rebuild URL with query parameters
+  return segments.join("/");
 }
 
 export default config;

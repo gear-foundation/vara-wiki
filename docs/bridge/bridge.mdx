@@ -1,0 +1,76 @@
+---
+title: Vara Bridge
+sidebar_position: 3
+sidebar_label: Vara Bridge
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Vara Bridge
+
+:::important
+The Vara Bridge is now live for testing between the Vara Testnet and the Ethereum Holesky Testnet. You can try it out [here](https://zk-bridge-stg.vara.network/).
+For updates on the upcoming Vara Bridge mainnet launch, follow [Vara Network on X](https://x.com/VaraNetwork) or check out the [Vara Blog](https://vara.network/news).
+:::
+
+## Introduction
+**Vara Bridge** is a trustless, ZK-based cross-chain bridge designed to transfer tokens and data securely between Ethereum and the Vara Network. It leverages **Plonky2** circuits and zero-knowledge proofs (ZK proofs) to validate transactions without revealing sensitive information. By doing so, Vara Bridge minimizes the risk of manipulation or fraud while delivering efficient cross-chain transfers. 
+
+In short, the bridge unites **Ethereum’s** liquidity and established ecosystem with **Vara Network’s** speed and scalability. This integration expands token liquidity, enables new utilities, and facilitates cross-chain interactions for **VARA** and other tokens deployed on Vara.
+
+---
+
+## Supported Tokens
+We're actively working to add more assets to the bridge, so expect the list of supported tokens to grow in the near future.
+
+<Tabs>
+  <TabItem value="Testnet" label="Testnet" default>
+- **VARA** ([wVARA](https://holesky.etherscan.io/token/0x1ebbdad5274735fd2651d872a25abb19d6b025f0) on Ethereum Holesky)  
+- **WETH** ([WETH](https://idea.gear-tech.io/programs/0x3ddd2d4f64f54926aaf4ca1c75297cac52828c52cd3a4690cc1342606a67d86c?node=wss%3A%2F%2Ftestnet.vara.network) on Vara Testnet)
+
+You can acquire a test balance on Vara Testnet by following the steps [here](docs/idea/account.md#get-test-balance).
+</TabItem>
+  <TabItem value="Mainnet" label="Mainnet" default>
+  Coming soon.
+  </TabItem>
+</Tabs>
+
+## Key Benefits of Vara Bridge
+
+### For the VARA Token
+By enabling **wrapped VARA (wVARA)** on Ethereum, the bridge introduces a critical avenue for growth and utility:
+
+- **Enhanced Liquidity**  
+  - Listing wVARA on popular Ethereum DEX platforms (e.g., Uniswap, Balancer, SushiSwap, HyperLiquid).  
+  - Potential listings on centralized exchanges that support Ethereum-based assets.  
+  - Broader exposure to Ethereum’s DeFi infrastructure.
+
+- **New Utility**  
+  - **Staking/Restaking:** Users can stake or restake wVARA (e.g., in Symbiotic) to earn rewards while helping secure Gear.exe computations.  
+  - **Operator Rewards:** Node operators running Gear.exe gain additional incentives, creating a more robust and high-performance network.
+
+Ultimately, bridging VARA to Ethereum expands the token’s financial flexibility, market visibility, and collaborative opportunities.
+
+### For Projects on Vara
+Projects and dApps built on Vara benefit significantly from tapping into Ethereum’s user base and liquidity:
+
+- **Access to New Users and Capital**  
+  - Instantly reach Ethereum’s extensive DeFi ecosystem, liquidity pools, and yield-farming platforms.
+
+- **Cross-Chain Opportunities**  
+  - Deploy dApps that communicate seamlessly between Vara and Ethereum (e.g., Invariant, Guardian Protocol, VarSwap).  
+  - Create Vara-based tokens that can also be listed or traded on Ethereum DEXs.
+
+- **Simplified Token Listings**  
+  - Project tokens originating on Vara can leverage top-tier Ethereum DEXs and existing tooling with minimal friction.  
+
+By bridging to Ethereum, Vara-based projects gain broader user engagement, increased capital flow, and enhanced cross-chain functionality.
+
+## Next Steps
+
+### How to Bridge
+For a step-by-step guide on transferring tokens between Vara and Ethereum, see the [**Use Vara Bridge**](/docs/bridge/bridging-guide.md) page.
+
+### Technical Architecture
+For a deeper dive into how the bridge works under the hood, check out the [**Bridge Architecture**](/docs/bridge/architecture.md) page.

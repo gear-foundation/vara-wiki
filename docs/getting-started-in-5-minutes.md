@@ -54,7 +54,7 @@ To get started, install the `sails-cli` tool using the following command:
 After installation, you can create a new Vara project named `vara-app` by running:
 
     ```bash
-    cargo sails new-program vara-app
+    cargo sails program vara-app
     ```
 
 Your `vara-app` directory tree should look like this:

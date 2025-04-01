@@ -1,5 +1,4 @@
 import { themes as prismThemes } from "prism-react-renderer";
-
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { type Config } from "@docusaurus/types";
@@ -46,7 +45,7 @@ const config: Config = {
         docs: {
           sidebarPath: "./sidebars.js",
           editUrl: "https://github.com/gear-foundation/vara-wiki/edit/master",
-          remarkPlugins: [remarkMath],
+          remarkPlugins: [remarkMath,],
           rehypePlugins: [rehypeKatex],
         },
         blog: false,

@@ -45,7 +45,7 @@ const config: Config = {
         docs: {
           sidebarPath: "./sidebars.js",
           editUrl: "https://github.com/gear-foundation/vara-wiki/edit/master",
-          remarkPlugins: [remarkMath,],
+          remarkPlugins: [remarkMath],
           rehypePlugins: [rehypeKatex],
         },
         blog: false,

@@ -1,0 +1,34 @@
+---
+sidebar_label: Sails verifier
+sidebar_position: 7
+---
+
+# Sails Verifier
+
+Sails Verifier is a tool that verifies whether a compiled program matches the required versions of `Sails`, `Rust`, and system dependencies. This ensures compatibility with the Vara network and guarantees predictable behavior during execution.
+
+`Sails programs` must be compiled in a very specific environment. Even a small difference in Rust version, dependencies, or build flags can lead to different binary output — and different behavior.
+
+Sails Verifier helps to:
+
+	- ✅ Ensure your program was built in the correct environment
+	- ✅ Guarantee determinism: same code = same binary = same behavior
+	- ✅ Speed up audits and integration with other tools
+
+## How to use it
+
+If you’re building on `Sails` — Sails Verifier should be part of your standard workflow. It helps you build safer, more reliable applications that everyone can trust.
+
+First, compile your program using the official Docker image:
+
+```bash
+docker run -v $(pwd):/app --entrypoint /bin/bash ghcr.io/gear-tech/sails-program-builder:<version> -c 'cargo build --release'
+```
+
+👉 Browse available Docker image versions here:
+[gear-tech/sails-program-builder](https://github.com/gear-tech/sails-program-builder/pkgs/container/sails-program-builder)
+
+Then, upload your binary and source code for verification using:
+
+- Web interface: [gear-tech.io/verif](https://https.gear-tech.io/verify)
+- Technical README & API: [Github](https://github.com/gear-tech/sails-program-verifier)

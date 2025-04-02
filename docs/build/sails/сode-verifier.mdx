@@ -1,14 +1,14 @@
 ---
-sidebar_label: Sails verifier
+sidebar_label: Code verifier
 sidebar_position: 7
 ---
 
-# Sails Verifier
+# Code Verifier
 
-`Sails Verifier` is a tool that checks whether a compiled program was built from the claimed source code using a trusted, reproducible environment.
+`Code Verifier` is a tool that checks whether a compiled program was built from the claimed source code using a trusted, reproducible environment.
 It also ensures compatibility with the Vara network by verifying that the binary matches the required versions of `Sails`, `Rust`, and system dependencies — guaranteeing predictable behavior and provable code integrity.
 
-Sails Verifier helps to:
+Code Verifier helps to:
 
 	- ✅ Ensure your program was built in the correct environment
 	- ✅ Guarantee determinism: same code = same binary = same behavior
@@ -18,7 +18,7 @@ Whether you’re a <u>developer</u>, <u>auditor</u>, or <u>simple user</u> — y
 
 ## How to use it
 
-If you’re building on `Sails` — Sails Verifier should be part of your standard workflow. It helps you build safer, more reliable applications that everyone can trust.
+If you’re building on `Sails` — Code Verifier should be part of your standard workflow. It helps you build safer, more reliable applications that everyone can trust.
 
 First, compile your program using the official Docker image:
 
@@ -26,8 +26,8 @@ First, compile your program using the official Docker image:
 docker run -v $(pwd):/app --entrypoint /bin/bash ghcr.io/gear-tech/sails-program-builder:<version> -c 'cargo build --release'
 ```
 
-```info
-**Important:** Make sure to choose the Docker image version that matches the Sails version used in your project.
+```note
+Important: Make sure to choose the Docker image version that matches the Sails version used in your project.
 ```
 
 👉 Browse available Docker image versions here:
@@ -35,7 +35,7 @@ docker run -v $(pwd):/app --entrypoint /bin/bash ghcr.io/gear-tech/sails-program
 
 Then, upload your binary and source code for verification using:
 
-![img alt](../img/sails-verifier.png)
+![img alt](../img/code-verifier.png)
 
 - Web interface: [gear-tech.io/verify](https.gear-tech.io/verify)
 - Technical README & API: [Github](https://github.com/gear-tech/sails-program-verifier)

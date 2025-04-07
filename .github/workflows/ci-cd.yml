@@ -1,0 +1,32 @@
+name: Build and Deploy Vara Wiki via ArgoCD
+
+on:
+  push:
+    branches: ["master", "main", "staging", "stg", "develop", "dev", "**"]
+    paths:
+      - "**"
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Target k8s environment
+        required: false
+        options:
+          - dev
+          - stg
+          - prod
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    uses: gear-foundation/argocd-workflow/.github/workflows/build-and-deploy-via-argocd.yaml@main
+    with:
+      environment: ${{ inputs.environment }}
+      app_name: vara-wiki
+      component_name: app
+      dockerfile_path: ./Dockerfile
+      docker_context: ./
+    secrets: inherit

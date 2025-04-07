@@ -1,65 +1,69 @@
 ---
-title: The easiest way to bridge from Vara to Ethereum (and back)
-sidebar_position: 2
+title: The Easiest Way to Bridge from Vara to Ethereum (and Back)
+sidebar_position: 3
 sidebar_label: Bridge guideline
 ---
 
-One of the primary (but not single) implementations of the Vara-Ethereum Bridge is **EitherWay** – the officially supported bridge interface designed for asset transfers between Ethereum and Vara.
+:::note
+The Vara Bridge is currently in public test mode between the Vara Testnet and Ethereum’s Holesky Testnet. Stay updated on the mainnet launch by following [Vara Network on X](https://x.com/VaraNetwork) or visiting the [Vara Blog](https://vara.network/news).
+:::
+
+[**EitherWay**](https://zk-bridge-stg.vara.network/) – the officially supported bridge interface designed for asset transfers between Ethereum and Vara.
 
 **EitherWay** currently supports transfers for the following assets:
 
-- **VARA ↔ wVARA** (on Ethereum)  
-- **USDC (Ethereum) ↔ wUSDC** (on Vara)  
-- **ETH (Ethereum) ↔ Wrapped ETH (wETH)** (on Vara)
+- **VARA (Vara Native) ↔ wVARA** (on Ethereum) 
+- **ETH (Ethereum Native) ↔ wETH** (on Vara)
+- **USDT (on Ethereum) ↔ wUSDT** (on Vara)  
+- **USDC (on Ethereum) ↔ wUSDC** (on Vara) 
 
-You can access the official EitherWay interface [here](https://www.varabridge.tech/)
+You can access the official EitherWay interface [here](https://zk-bridge-stg.vara.network/)
 
 ---
 
 ## Quick Guide: Bridging Assets via EitherWay
 
-### Step 1: Connect Your Wallet
+### Wallet Requirements
 
-**From Vara → Ethereum**  
-Connect your Vara wallet by choosing from [supported wallets](https://vara.network/ecosystem?tags=6382654c-162d-4ed7-9215-b9504b60e72c).
+**From Vara → Ethereum**
+Connect your Vara wallet by selecting one of [the supported wallets](https://vara.network/ecosystem?tags=6382654c-162d-4ed7-9215-b9504b60e72c).
 
-**From Ethereum → Vara**  
-Connect your Ethereum wallet (e.g., [MetaMask](https://metamask.io/)).
+**From Ethereum → Vara**
+Connect your Ethereum-compatible wallet (e.g., [MetaMask](https://metamask.io/))
 
 ---
 
-### Step 2: Select Asset & Amount
+### Step 1: Select Asset & Amount
 
-- Pick the asset you want to transfer (**VARA**, **USDC**, **ETH**).
+- Pick the asset you want to transfer (**VARA**, **USDC**, **USDT** or **ETH**).
 - Specify the **exact amount** you want to bridge.
 
 ---
 
-### Step 3: Enter Destination Address
+### Step 2: Enter Destination Address
 
 - Provide the **receiving wallet address** on the **target network**.
 
 ---
 
-### Step 4: Confirm and Initiate Swap
+### Step 3: Confirm and Initiate Swap
 
-- Carefully **review transaction details**.
-- Click the **“Swap”** button to begin bridging.
-- Approve and **sign the transaction** in your wallet.
+- If your wallet is not already connected, click **Connect Wallet**
+- Click **Transfer** to start the process  
+- Review the **transaction details**
+- Approve and **sign the transactios** 
+
 ---
 
-### Step 5: Track Your Transaction
+### Step 4: Track Your Transaction
 
-Monitor your transaction’s progress via:
+The **Transactions** tab lets you check the status of current and past transfers without leaving the interface.
 
-- [Etherscan](https://etherscan.io)  
-- [Vara Network Explorer](https://vara.subscan.io)
-
-Transfers usually complete within **~20 minutes**.
+Transfers usually complete within **~30 minutes**.
 
 :::note
 ### Who Pays the Transfer Fees?
 
 - **Vara → Ethereum**: You only need **VARA** tokens to pay the fee. *(No ETH required.)*  
-- **Ethereum → Vara**: You need **ETH** to pay the fee, **plus** the asset you’re bridging.
+- **Ethereum → Vara**: You need **ETH** to pay the fee, **regardless** of the asset you’re bridging.
 :::

@@ -4,19 +4,19 @@ sidebar_position: 2
 sidebar_label: Technical Overview
 ---
 
-# Vara ↔ Ethereum Bridge Tecnical Overview
+# Vara ↔ Ethereum Bridge Technical Overview
 
 :::success
 **Security First**  
 The bridge architecture has been reviewed through a professional security audit. All critical findings, including edge cases — have been addressed in the final implementation.
 
 The audit confirmed that all core components — including message validation, token logic, and relayer incentives — operate correctly and safely under real-world conditions.  
-[📄 Security Audit Report (PDF)](link-to-pdf)
+[📄 Security Audit Report (PDF)](https://github.com/gear-tech/gear-bridges/blob/main/audits/ethernal.pdf)
 :::
 
 :::important
 To explore the code navigate to:  
-[🔗 Bridge Implementation Repository](link-to-repo)
+[🔗 Bridge Implementation Repository](https://github.com/gear-tech/gear-bridges/blob/main/audits/ethernal.pdf)
 :::
 
 ## The Tech Behind the Bridge
@@ -68,8 +68,8 @@ Once Vara accepts the block as finalized, any relevant event emitted on Ethereum
 
 Let’s walk through an end-to-end example:
 
-1. A user wants to move VARA to Ethereum. wVara as erc20 analogue: VFT
-2. They lock 100 VARA via the VFT Manager (Gear program).
+1. A user wants to move VARA to Ethereum.
+2. They lock 100 VARA via the VFT Manager on Vara side.
 3. This action generates a message, stored in the outbound queue.
 4. After finality, the `gear_eth_bridge` takes a new Merkle root.
 5. A relayer generates a zk-proof and submits it to the Ethereum `Proof Verification Contract`.

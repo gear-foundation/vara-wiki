@@ -73,7 +73,7 @@ Let’s walk through an end-to-end example:
 3. This action generates a message, stored in the outbound queue.
 4. After finality, the `gear_eth_bridge` takes a new Merkle root.
 5. A relayer generates a zk-proof and submits it to the Ethereum `Proof Verification Contract`.
-6. The root is accepted, and the user can now submit their message (with Merkle proof). Also on relayers.
+6. The root is accepted, and the message can now be submitted — typically by a relayer — along with a Merkle proof.
 7. The `wVARA Manager ERC-20 contract` mints 100 wVARA to the user's address.
 
 The reverse flow (burn wVARA on Ethereum → unlock VARA on Vara) follows the same structure in reverse, with checkpoints, events, and proofs flowing through Ethereum light clients and message verifiers on Vara.
@@ -189,11 +189,11 @@ The bridge was built to be extensible and permissionless. Developers can:
 - Build their own token managers or message handlers
 - Extend the bridge with custom asset (NFTs, game assets, or DeFi primitives)
 
-Integration can happen through the governance process (DAO), allowing the community to review, approve, and add new logic to the bridge registry
+Integration is subject to DAO governance — allowing the community to review, approve, and add new logic to the bridge registry
 
 This ensures the bridge is not limited to any specific asset type and can adapt to the needs of the evolving ecosystem.
 
-## Governance layer
+## Governance Layer
 
 The governance system ensures that the bridge remains secure, upgradeable, and adaptable to ecosystem needs — all without requiring disruptive hard forks.
 
@@ -217,3 +217,9 @@ What Does This Means for Users?
 
 Governance makes the bridge resilient and future-proof. Any community member can propose improvements — and once approved, they’re implemented seamlessly, with no downtime or manual intervention.
 :::
+
+---
+
+## Further Reading
+
+

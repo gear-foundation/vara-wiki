@@ -16,7 +16,7 @@ The audit confirmed that all core components — including message validation, t
 
 :::important
 To explore the code navigate to:  
-[🔗 Bridge Implementation Repository](https://github.com/gear-tech/gear-bridges/blob/main/audits/ethernal.pdf)
+[🔗 Bridge Implementation Repository](https://github.com/gear-tech/gear-bridges)
 :::
 
 ## The Tech Behind the Bridge
@@ -156,7 +156,7 @@ They are **replaceable, stateless, and independent by design** — if one stops,
 
 To incentivize relayers, the system optionally supports bridging payment mechanisms on both sides.
 The user automatically pays a small fee when initiating a cross-chain message, which the relayer can later claim. These bridging payment flows are not strictly mandatory — users can also relay messages manually without paying an automatic fee, but in practice, relayers typically require an incentive.
-::
+:::
 
 :::info
 **What happens if relayers go offline?**
@@ -207,13 +207,13 @@ Through proposals the bridge allows:
 - **Emergency control** - Pause or restrict bridge activity in response to critical threats, based on transparent community consensus.
 
 :::info
-Governance in Practice
+**Governance in Practice**
 
 The bridge’s DAO logic is fully integrated with its transport layer. Administrative messages sent through governance are recognized by smart contracts and pallets, allowing for controlled updates without compromising on-chain security.
 :::
 
 :::note
-What Does This Means for Users?
+**What Does This Means for Users?**
 
 Governance makes the bridge resilient and future-proof. Any community member can propose improvements — and once approved, they’re implemented seamlessly, with no downtime or manual intervention.
 :::

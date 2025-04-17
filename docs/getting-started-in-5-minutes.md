@@ -8,9 +8,7 @@ sidebar_position: 4
 This guide provides a general overview of running programs on the [Vara Network](https://vara.network/). It guides you through how to write a program, compile it to Wasm and deploy it to the network.
 
 :::important
-Want to take your blockchain development skills to the next level? Join **[Gear Academy's](https://academy.gear.foundation/)** free courses. Start from scratch with our [Beginner Course](https://academy.gear.foundation/courses/basic_course) or explore the implementation of programs using Gear technologies with the [Intermediate Course](https://academy.gear.foundation/courses/intermediate-course). More courses are being developed.
-
-Don't miss this opportunity to become a pro Vara blockchain developer. Enroll now in Gear Academy's courses!
+Want to take your blockchain development skills to the next level? Don't miss this opportunity to become a pro Vara blockchain developer. 🔥 Try out the interactive [Sails tutorial](https://sails-tutorials.vara.network/hello-world/hello-world).
 :::
 
 ## Prerequisites

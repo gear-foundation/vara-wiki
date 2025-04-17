@@ -51,7 +51,7 @@ All code, libraries, and tools are available on [GitHub](https://github.com/gear
 
 1. Learn program development using the [developer documentation](/docs/build/build.mdx).
 2. Explore and try a batch of ready-made programs on [GitHub](https://github.com/gear-foundation).
-3. Take a free developer course at [Gear Academy](https://academy.gear.foundation/).
+3. Try out the interactive [Sails tutorial](https://sails-tutorials.vara.network/hello-world/hello-world).
 
 ## How to engage with the Vara community
 

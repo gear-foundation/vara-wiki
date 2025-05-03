@@ -8,6 +8,10 @@ Welcome to Vara Network’s documentation portal. This is the primary source of 
 
 This Wiki outlines foundational information, provides general technology overviews, and highlights key advantages of Vara’s technology. It includes guidance on implementing and running your programs, setting up a Vara node, and becoming a nominator or validator. Additionally, it offers full API details and examples.
 
+:::info
+Stay up to date with the latest releases and updates from the development team by subscribing to [@GearVaraDev](https://t.me/GearVaraDev) Telegram channel.
+:::
+
 ## What is the Vara Network?
 
 **[Vara Network](https://vara.network/)** is a stand-alone layer-1 decentralized network built and running on top of **[Gear Protocol](https://gear-tech.io/)**.

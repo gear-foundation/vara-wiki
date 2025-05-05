@@ -1,0 +1,229 @@
+---
+title: Vara-Ethereum Bridge - Technical Overview
+sidebar_position: 2
+sidebar_label: Technical Overview
+---
+
+# Vara ↔ Ethereum Bridge Technical Overview
+
+:::success
+**Security First**  
+The bridge architecture has been reviewed through a professional security audit. All critical findings, including edge cases — have been addressed in the final implementation.
+
+The audit confirmed that all core components — including message validation, token logic, and relayer incentives — operate correctly and safely under real-world conditions.  
+[📄 Security Audit Report (PDF)](https://github.com/gear-tech/gear-bridges/blob/main/audits/ethernal.pdf)
+:::
+
+:::important
+To explore the code navigate to:  
+[🔗 Bridge Implementation Repository](https://github.com/gear-tech/gear-bridges)
+:::
+
+## The Tech Behind the Bridge
+
+The Vara ↔ Ethereum Bridge is the product of deep technical architecture and real-world experience in cross-chain interoperability and cryptography. It brings together a set of purpose-built technologies that prioritize <u>security, scalability, and trustless execution</u> — all while remaining compatible with existing Ethereum infrastructure.
+
+At the foundation of the bridge lies a modern cryptographic stack, including `Plonky2` for high-speed recursive zero-knowledge proofs and `GNARK` for zk-proof verification inside Ethereum contracts. These tools allow the bridge to verify validator consensus and message authenticity without revealing sensitive data — a critical feature for decentralized networks.
+
+To ensure minimal gas costs and maximum verifiability, the system relies on `Merkle Trees` for compact message commitments, and integrates `Ethereum’s Beacon Chain` API and `Sync Committee` to independently validate Ethereum block finality on the Vara side. On Vara, the bridge logic is powered by the **Gear runtime** and a set of specialized programs and pallets that coordinate message queues, validator sets, and light client behavior.
+
+This combined stack allows the bridge to operate without trusted intermediaries — every proof, message, and block is cryptographically verifiable on-chain, laying the groundwork for a secure and extensible messaging system between Ethereum and Vara.
+
+## Conceptual Flow: How the Bridge Works
+
+From a user’s point of view, bridging tokens or data between Vara and Ethereum may feel like a simple operation — click, confirm, done. But under the hood, the system follows a strict flow that ensures only finalized, verified information is ever transmitted across chains.
+
+### From Vara to Ethereum
+
+The process begins with finalized blocks. When a user performs an action that generates a message to Ethereum — such as locking VARA tokens. These messages are collected by the `gear_eth_bridge` pallet and stored in an outbound queue.
+
+Every time a block is produced on Vara, a new Merkle root of the message queue is calculated. Relayers — permissionless, decentralized actors — then take over. They generate a zero-knowledge proof that this Merkle root was signed by the active validator set on Vara. This proof, along with metadata such as the block number and validator snapshot, is submitted to a `Proof Verification Contract` on Ethereum. This contract uses `gnark` to check the validity of the proof.
+
+If the zk-proof is valid, Ethereum records the Merkle root and considers it an approved source of truth.
+
+After that, any individual message from Vara can be submitted to Ethereum through the `Bridge Message Contract`, along with a Merkle proof of inclusion. The contract checks that the message:
+
+- Belongs to an approved Merkle root.
+- Has not already been processed.
+
+If both conditions are met, the message is marked as used, and the corresponding action (e.g., minting tokens) is triggered.
+
+### From Ethereum to Vara
+
+In the reverse direction, the system does not use zk-proofs. Instead, it relies on Ethereum’s native finality mechanism and event logs.
+
+Relayers continuously monitor Ethereum’s **Beacon Chain and Sync Committee** — a rotating group of Ethereum validators that sign finalized block headers. Once a block is finalized, a relayer submits the block header and associated sync-committee signatures to Vara.
+
+On the Vara side, a `checkpoint light client` program verifies that the submitted block was indeed finalized, using the aggregated BLS signatures from the `sync committee`.
+
+Once Vara accepts the block as finalized, any relevant event emitted on Ethereum (e.g., a Burn event from the wVARA Manager contract) can be proven via a Merkle proof. These proofs are then consumed on the Vara side, such as the VFT Manager program, which performs the appropriate on-chain logic, like minting VARA tokens.
+
+:::note
+**VFT Manager**, in simple terms, is the contract that interacts with the bridge and sends commands to the token contract to trigger the corresponding actions — such as minting or unlocking tokens.
+:::
+
+:::note
+
+**Example Transaction Flow**
+
+Let’s walk through an end-to-end example:
+
+1. A user wants to move VARA to Ethereum.
+2. They lock 100 VARA via the VFT Manager on Vara side.
+3. This action generates a message, stored in the outbound queue.
+4. After finality, the `gear_eth_bridge` takes a new Merkle root.
+5. A relayer generates a zk-proof and submits it to the Ethereum `Proof Verification Contract`.
+6. The root is accepted, and the message can now be submitted — typically by a relayer — along with a Merkle proof.
+7. The `wVARA Manager ERC-20 contract` mints 100 wVARA to the user's address.
+
+The reverse flow (burn wVARA on Ethereum → unlock VARA on Vara) follows the same structure in reverse, with checkpoints, events, and proofs flowing through Ethereum light clients and message verifiers on Vara.
+
+1. The user sends wVARA to the wVARA Manager contract on Ethereum and triggers a Burn event.
+2. The burn is recorded in a block finalized by Ethereum’s Beacon Chain.
+3. A relayer submits the finalized header and signatures to Vara’s light client.
+4. Vara accepts the block and processes the event via the VFT Manager.
+5. Native VARA are minted or unlocked to the user’s account on Vara.
+
+This dual-model architecture — zk-proofs in one direction, consensus/event-based validation in the other — ensures both efficiency and robustness.
+
+:::
+
+## Transport Layer
+
+The transport layer is the core of the bridge — responsible for ensuring that messages are collected, verified, and delivered correctly across both networks. These components make sure each side of the system speaks the same language — securely and consistently.
+
+### Vara Side Components
+
+The main actor here is the `gear_eth_bridge pallet`. It serves as the orchestrator for <u>outbound</u> and <u>inbound</u> messages:
+
+- Maintains the current validator set
+- Tracks finalized blocks and outbound message queue
+- Computes the Merkle root for finalized message batches
+- Stores metadata necessary for ZK-proof generation
+
+Other important modules are programs:
+
+`Checkpoint Light Client` — A minimal Ethereum Beacon Chain client that stores finalized block headers and Sync Committee sets. It:
+
+- Accepts newly finalized headers and stores them after verification.
+- Enables trustless validation of Ethereum-side data.
+
+`Ethereum Event Client` — This program processes Ethereum-side events by:
+
+- Cross-checking data with the Checkpoint Light Client
+- Verifying Merkle Patricia proofs that confirm a transaction is part of a block
+- Decoding transaction receipts and events
+
+`Historical Proxy` — A routing layer between users and multiple versions of the Ethereum Event Client. It chooses the correct version of the event client to handle a given request based on Ethereum’s slot number.
+
+:::info
+Why is Historical Proxy needed?
+
+Ethereum evolves over time, and the structure of data and clients may change. Historical Proxy helps manage this smoothly — it always picks the right client version based on the block’s slot.
+:::
+
+### Ethereum Side Components
+
+Ethereum hosts a few key contracts that handle the bridge logic. Each of these components plays a focused role in message handling and state verification:
+
+`Proof Verification Contract` — Verifies zk-proofs submitted by relayers using the `gnark` proof system.
+
+`Relayer Contract` — Accepts proofs and Merkle roots from relayers and emits events when they’re accepted.
+
+`MessageQueue Contract` — Verifies messages included in a Merkle root and ensures they haven't been used before.
+
+`ProxyUpdater Contract` — Processes system-level updates, such as governance-approved changes to bridge components.
+
+`Event Submission Interface` — A helper contract for relayers to submit finalized Ethereum blocks and event data, used when sending messages from Ethereum to Vara.
+
+## Relayers
+
+Relayers play a crucial role in the bridge’s cross-chain communication model. These are independent, permissionless actors that deliver messages, block headers, and proofs between Ethereum and Vara.
+
+Relayers do not validate or interpret the data they carry. Instead, they act as messengers that:
+
+- Submit zk-proofs and Merkle roots from Vara to Ethereum
+- Submit finalized Ethereum headers and transaction data to Vara
+
+Because the bridge is **fully permissionless**, anyone can run a relayer — no special access is required. This ensures decentralization and availability across different network conditions.
+
+Relayers may also be economically incentivized. Each successful message delivery or header submission can result in a reward, ensuring that relayers are motivated to stay online and maintain service availability.
+
+They are **replaceable, stateless, and independent by design** — if one stops, another can continue without any coordination. Many can run simultaneously.
+
+:::info
+**Bridging Payment Contracts**
+
+To incentivize relayers, the system optionally supports bridging payment mechanisms on both sides.
+The user automatically pays a small fee when initiating a cross-chain message, which the relayer can later claim. These bridging payment flows are not strictly mandatory — users can also relay messages manually without paying an automatic fee, but in practice, relayers typically require an incentive.
+:::
+
+:::info
+**What happens if relayers go offline?**
+
+Because all data is stored on-chain (and in Merkle Trees), nothing is lost. Once the relayer or any new relayer returns, it can pick up the proofs and continue transmitting. This design ensures liveness without central points of failure.
+:::
+
+## Smart Contract Layer: Token Logic & Extensibility
+
+On top of the transport and validation infrastructure lies the token logic layer — responsible for handling tokens and business logic on both chains.
+
+On both sides of the bridge, the architecture is built around two elements:
+
+- Asset managers (e.g., ERC20Manager, VFT Manager)
+- Asset contracts (e.g., ERC-20 tokens or FT programs)
+
+**Managers** are responsible for:
+
+- Coordinating token logic — minting, burning, locking, or unlocking
+- Validating and processing verified bridge messages
+
+These managers coordinate with multiple components in the system — such as `gear_eth_bridge` on Vara, or `MessageQueue` on Ethereum — to ensure that only verified and authorized operations take place.
+
+The asset contracts are independent and modular.
+
+### Developer Extensibility
+
+The bridge was built to be extensible and permissionless. Developers can:
+
+- Build their own token managers or message handlers
+- Extend the bridge with custom asset (NFTs, game assets, or DeFi primitives)
+
+Integration is subject to DAO governance — allowing the community to review, approve, and add new logic to the bridge registry
+
+This ensures the bridge is not limited to any specific asset type and can adapt to the needs of the evolving ecosystem.
+
+## Governance Layer
+
+The governance system ensures that the bridge remains secure, upgradeable, and adaptable to ecosystem needs — all without requiring disruptive hard forks.
+
+At its core, the bridge uses a customized version of **Substrate’s OpenGov pallet**, adapted specifically for cross-chain infrastructure. This system allows the community to submit and vote on proposals that can directly influence the bridge’s behavior through on-chain execution.
+
+Through proposals the bridge allows:
+
+- **Expanding bridge functionality** - Add new tokens, assets, or modules without interrupting operations.
+- **Smart contract upgrades** - Seamlessly upgrade Ethereum contracts using a proxy pattern, and update logic on Vara via trusted admin messages.
+- **Tuning economic parameters** - Adjust fees, relayer incentives, and operational limits through proposals.
+- **Emergency control** - Pause or restrict bridge activity in response to critical threats, based on transparent community consensus.
+
+:::info
+**Governance in Practice**
+
+The bridge’s DAO logic is fully integrated with its transport layer. Administrative messages sent through governance are recognized by smart contracts and pallets, allowing for controlled updates without compromising on-chain security.
+:::
+
+:::note
+**What Does This Means for Users?**
+
+Governance makes the bridge resilient and future-proof. Any community member can propose improvements — and once approved, they’re implemented seamlessly, with no downtime or manual intervention.
+:::
+
+---
+
+## Further Reading
+
+- [Plonky2 – Recursive SNARKs](https://github.com/0xPolygonZero/plonky2)
+- [Gnark – zkSNARKs on Go](https://github.com/ConsenSys/gnark)
+- [Ethereum Beacon Chain – Consensus Specification](https://github.com/ethereum/consensus-specs/tree/dev/specs/bellatrix)
+- [Merkle Trees Explained](https://ethereum.org/en/developers/docs/data-structures-and-encoding/patricia-merkle-trie/)
+- [Substrate OpenGov – Governance Pallet](https://docs.polkadot.com/polkadot-protocol/onchain-governance/overview/)

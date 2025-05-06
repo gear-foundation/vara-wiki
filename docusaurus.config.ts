@@ -97,7 +97,7 @@ const config: Config = {
     announcementBar: {
       id: "varathon",
       content:
-        'Ready to build on the edge of Web3? Join Vara online hackathon - <a target="_blank" href="https://varathon.io/?utm_source=wiki&utm_medium=banner&utm_campaign=vara"> Gear Up</a>',
+        'Introducing the Vara ↔️ Ethereum Bridge. Testnet is now LIVE 👉 <a target="_blank" href="https://bridge.vara.network/?utm_source=wiki&utm_medium=banner&utm_campaign=vara">Start Bridging</a>',
       isCloseable: false,
     },
     prism: {

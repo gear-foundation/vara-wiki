@@ -5,12 +5,12 @@ sidebar_position: 4
 
 # Bridge
 
-**The Bridge Built-in Actor** enables Gear programs to communicate with Ethereum by sending outbound messages via a standardized interface. It accepts messages of type `Request`, processes them internally, and queues them for relay to the Ethereum network. This actor provides programs with the capability to initiate cross-chain interactions securely and efficiently without requiring additional deployment logic. It is accessible at a fixed address within the Vara runtime.
-
-## Actor Address
-
-**Testnet ActorId (32 bytes):**  
+:::note
+**ActorId (32 bytes):**  
 `0xf2816ced0b15749595392d3a18b5a2363d6fefe5b3b6153739f218151b7acdbf`
+:::
+
+**The Bridge Built-in Actor** enables Gear programs to communicate with Ethereum by sending outbound messages via a standardized interface. It accepts messages of type `Request`, processes them internally, and queues them for relay to the Ethereum network. This actor provides programs with the capability to initiate cross-chain interactions securely and efficiently without requiring additional deployment logic. It is accessible at a fixed address within the Vara runtime.
 
 ## Interface
 

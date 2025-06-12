@@ -5,6 +5,11 @@ sidebar_position: 2
 
 # Staking
 
+:::note
+**ActorId (32 bytes):**  
+`0x77f65ef190e11bfecb8fc8970fd3749e94bed66a23ec2f7a3623e785d0816761`
+:::
+
 The [Staking Built-in Actor](https://github.com/gear-tech/gear/blob/master/gbuiltins/staking/src/lib.rs) serves as an intermediary that allows Gear programs to interact with the [Staking pallet](https://paritytech.github.io/polkadot-sdk/master/pallet_staking/index.html) by translating staking-related requests into dispatchable calls. The actor receives messages in the form of a `Request` and executes staking actions accordingly. This actor provides programs with the capability to perform staking operations like bonding, unbonding, nominating, and managing staking rewards.
 
 The `RewardAccount` enum is used to specify where staking rewards should be accumulated when bonding or managing payouts. It is a mirror of the staking pallet's `RewardDestination` type and offers flexibility for staking reward management.

@@ -5,7 +5,7 @@ sidebar_label: AI Code Generator
 
 # AI Code Generator
 
-AI Code Generator is an experimental web-based tool for generating and auditing smart contracts, as well as creating frontend and backend components for Web3 applications. Designed specifically for the Vara Network, it leverages AI models trained on a large corpus of Rust-based projects developed within the ecosystem — spanning both contract logic and user interface layers.
+AI Code Generator is an experimental web-based tool for generating and auditing Gear programs, as well as creating frontend and backend components for Web3 applications. Designed specifically for the Vara Network, it leverages AI models trained on a large corpus of Rust-based projects developed within the ecosystem — spanning both contract logic and user interface layers.
 
 The training dataset includes a wide variety of applications: from simple token contracts and NFT minting to complex decentralized games and advanced use cases involving zero-knowledge (ZK) technologies. This deep contextual training allows the tool to assist users in rapidly prototyping and deploying feature-rich dApps tailored for Vara.
 

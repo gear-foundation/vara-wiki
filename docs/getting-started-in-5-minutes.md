@@ -179,7 +179,7 @@ If everything has been executed successfully, your working directory should now 
     ├── ...
     ├── target
         ├── ...
-        └── wasm32v1-none
+        └── wasm32-gear
             └── release
                 ├── vara_app.wasm       <---- this is our built .wasm file
                 ├── vara_app.opt.wasm   <---- this is optimized .wasm file

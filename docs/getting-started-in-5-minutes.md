@@ -13,31 +13,36 @@ Want to take your blockchain development skills to the next level? Don't miss th
 
 ## Prerequisites
 
-1. Linux users should generally install `GCC` and `Clang` according to their distribution’s documentation.
+1. Linux users should generally install `GCC` and `Clang` according to their distribution's documentation.
 
-    For example, on Ubuntu use:
+For example, on Ubuntu use:
 
-    ```bash
-    sudo apt install -y build-essential clang cmake curl
-    ```
+```bash
+sudo apt install -y build-essential clang cmake curl
+```
 
-    On macOS, you can get a compiler toolset by running:
+On macOS, you can get a compiler toolset by running:
 
-    ```bash
-    xcode-select --install
-    ```
+```bash
+xcode-select --install
+```
 
 2. Make sure you have installed all the tools required to build a program in Rust. [Rustup](https://rustup.rs/) will be used to get Rust compiler ready:
 
-    ```bash
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-    ```
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
 
 3. A Wasm compiler is necessary for compiling a Rust program to Wasm, add it to the toolchain.
 
-    ```bash
-    rustup target add wasm32-unknown-unknown
-    ```
+```bash
+rustup target add wasm32v1-none
+```
+
+:::note
+Since Gear release 1.8.0, the new target `wasm32v1-none` is required for building programs for the Vara Network.  
+The old target `wasm32-unknown-unknown` is only needed for legacy projects.
+:::
 
 **_Note:_** If you use Windows, download and install [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/?q=build+tools).
 
@@ -91,21 +96,21 @@ In `Cargo.toml`, the essential libraries required for building your first projec
     [package]
     name = "vara-app"
     version = "0.1.0"
-    edition = "2021"
+    edition = "2024"
 
     [dependencies]
     vara-app-app = { path = "app" }
 
     [build-dependencies]
     vara-app-app = { path = "app" }
-    sails-rs = { version = "0.5.0", features = ["wasm-builder"] }
-    sails-idl-gen = "0.5.0"
+    sails-rs = { version = "0.8.1", features = ["wasm-builder"] }
+    sails-idl-gen = "0.8.1"
 
     [dev-dependencies]
     vara-app = { path = ".", features = ["wasm-binary"] }
     vara-app-client = { path = "client" }
-    sails-rs = { version = "0.5.0", features = ["gtest"] }
-    tokio = { version = "1.39", features = ["rt", "macros"] }
+    sails-rs = { version = "0.8.1", features = ["gtest"] }
+    tokio = { version = "1.41", features = ["rt", "macros"] }
 
     [features]
     wasm-binary = []
@@ -174,7 +179,7 @@ If everything has been executed successfully, your working directory should now 
     ├── ...
     ├── target
         ├── ...
-        └── wasm32-unknown-unknown
+        └── wasm32-gear
             └── release
                 ├── vara_app.wasm       <---- this is our built .wasm file
                 ├── vara_app.opt.wasm   <---- this is optimized .wasm file
@@ -184,7 +189,7 @@ If everything has been executed successfully, your working directory should now 
 - `vara_app.wasm` is the output Wasm binary built from source files
 - `vara_app.opt.wasm` is the optimized Wasm aimed to be uploaded to the blockchain  
 (Optimization include reducing the file size and improving performance)
-- `vara_app.idl` is the Interface Definition Language (IDL) file that describes the application's interface, defining the structure and methods callable on the `vara_app` program. It’s essential for interacting with the application on the blockchain, specifying available functions and their inputs and outputs. This file is crucial for developers and clients to ensure they use the correct method signatures and data types when interacting with the deployed program.
+- `vara_app.idl` is the Interface Definition Language (IDL) file that describes the application's interface, defining the structure and methods callable on the `vara_app` program. It's essential for interacting with the application on the blockchain, specifying available functions and their inputs and outputs. This file is crucial for developers and clients to ensure they use the correct method signatures and data types when interacting with the deployed program.
 
 ## Deploy your program to the Testnet
 

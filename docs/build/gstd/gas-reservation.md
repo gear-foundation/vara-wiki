@@ -12,14 +12,14 @@ One of the key advantages of this feature is the ability to send [messages delay
 
 A program developer can provide a special function in the program's code that takes a defined amount of gas from the amount available to the program and reserves it. A reservation gets a unique identifier that can be used by the program to retrieve this reserved gas and use it later.
 
-To reserve the amount of gas for future use, use the [`ReservationId::reserve`](https://docs.gear.rs/gstd/struct.ReservationId.html#method.reserve) function:
+To reserve the amount of gas for future use, use the [`ReservationId::reserve`](https://docs.rs/gstd/latest/gstd/trait.ReservationIdExt.html#tymethod.reserve) function:
 
 ```rust
 let reservation_id = ReservationId::reserve(RESERVATION_AMOUNT, TIME)
     .expect("Reservation across executions");
 ```
 
-The block count within which the reserve must be used also has to be specified. Gas reservation is not free; reserving gas for one block costs some gas. The `reserve` function returns a [`ReservationId`](https://docs.gear.rs/gstd/struct.ReservationId.html), which can be used for sending a message with that gas. To send a message using the reserved gas:
+The block count within which the reserve must be used also has to be specified. Gas reservation is not free; reserving gas for one block costs some gas. The `reserve` function returns a [`ReservationId`](https://docs.rs/gstd/latest/gstd/struct.ReservationId.html), which can be used for sending a message with that gas. To send a message using the reserved gas:
 
 ```rust
 msg::send_from_reservation(reservation_id, program, payload, value)

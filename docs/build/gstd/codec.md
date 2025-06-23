@@ -28,9 +28,9 @@ enum MyType {
 
 :::info
 
-The `Encode` and `Decode` traits are needed when using wrapped methods from `gstd`, such as: [`msg::load`](https://docs.gear.rs/gstd/msg/fn.load.html), [`msg::send`](https://docs.gear.rs/gstd/msg/fn.send.html), [`msg::reply`](https://docs.gear.rs/gstd/msg/fn.reply.html), [`msg::send_for_reply`](https://docs.gear.rs/gstd/msg/fn.send_for_reply.html), etc.
+The `Encode` and `Decode` traits are needed when using wrapped methods from `gstd`, such as: [`msg::load`](https://docs.rs/gstd/latest/gstd/msg/fn.load.html), [`msg::send`](https://docs.rs/gstd/latest/gstd/msg/fn.send.html), [`msg::reply`](https://docs.rs/gstd/latest/gstd/msg/fn.reply.html), [`msg::send_for_reply`](https://docs.rs/gstd/latest/gstd/msg/fn.send_for_reply.html), etc.
 
-In methods like [`msg::load_bytes`](https://docs.gear.rs/gstd/msg/fn.load_bytes.html), [`msg::send_bytes`](https://docs.gear.rs/gstd/msg/fn.send_bytes.html), or [`msg::reply_bytes`](https://docs.gear.rs/gstd/msg/fn.reply_bytes.html), operations are performed with a set of bytes, so nothing needs to be decoded/encoded.
+In methods like [`msg::load_bytes`](https://docs.rs/gstd/latest/gstd/msg/fn.load_bytes.html), [`msg::send_bytes`](https://docs.rs/gstd/latest/gstd/msg/fn.send_bytes.html), or [`msg::reply_bytes`](https://docs.rs/gstd/latest/gstd/msg/fn.reply_bytes.html), operations are performed with a set of bytes, so nothing needs to be decoded/encoded.
 
 :::
 

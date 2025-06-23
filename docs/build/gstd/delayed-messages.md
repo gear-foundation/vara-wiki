@@ -11,7 +11,7 @@ The external transaction serves as a "poke" to activate the smart contract and i
 
 Gear Protocol solves this issue by introducing delayed messaging functionality. Programs in Vara Network can execute themselves an **unlimited** number of blocks, as long as enough gas for execution is kept available. The [gas reservation](/docs/build/gstd/gas-reservation.md) option ensures this. As a result, the need for including centralized components in dApps is eliminated, allowing them to function **totally on-chain**.
 
-The [`msg::send_delayed`](https://docs.gear.rs/gstd/msg/fn.send_delayed.html) function allows sending a message after a specified delay. The function takes the following parameters:
+The [`msg::send_delayed`](https://docs.rs/gstd/latest/gstd/msg/fn.send_delayed.html) function allows sending a message after a specified delay. The function takes the following parameters:
 
 - `program` - the program (or user) to which the message will be sent
 - `payload` - the payload of the message
@@ -20,6 +20,6 @@ The [`msg::send_delayed`](https://docs.gear.rs/gstd/msg/fn.send_delayed.html) fu
 
 The delayed message will be executed after the specified `delay` measured in blocks. For example, on a network with a block production time of 3 seconds, a delay of 20 blocks is equal to 1 minute.
 
-Gear Protocol enables the message processing to be paid with reserved gas by using the [`msg::send_delayed_from_reservation`](https://docs.gear.rs/gstd/msg/fn.send_delayed_from_reservation.html) function, which takes a reservation ID as the first parameter.
+Gear Protocol enables the message processing to be paid with reserved gas by using the [`msg::send_delayed_from_reservation`](https://docs.rs/gstd/latest/gstd/msg/fn.send_delayed_from_reservation.html) function, which takes a reservation ID as the first parameter.
 
 Considering the auction example, the auction can be started by sending a message to the auction program. After completing all the necessary logic, the auction program will send a delayed message to itself, which will settle the auction after the indicated time.

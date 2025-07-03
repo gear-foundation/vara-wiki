@@ -1,51 +1,73 @@
 ---
 sidebar_position: 5
-sidebar_label: Vara Wallet Connect
+sidebar_label: React Wallet Connect
 ---
 
-# Vara Wallet Connect
+# Gear-JS Wallet Connect
 
-## Connecting Substrate-Based Wallets in React Applications Using Vara Wallet Connect
+# Description
 
-**Vara Wallet Connect** is an open-source library designed to easily integrate Substrate-based wallets into React applications. This module is part of the Gear.js utilities and can be used by any developer who wants to add wallet functionality to their dApp without building from scratch.
+A React library to connect supported Substrate-based wallets in a standardized and consistent way across decentralized applications.
 
-**Features**
+# Installation
 
-- **Multiple Wallet Support**: The library supports connecting to various Substrate-based wallets such as [SubWallet](https://www.subwallet.app/), [Talisman](https://www.talisman.xyz/), [Nova Wallet](https://novawallet.io/), [Polkadot.js extension](https://polkadot.js.org/extension/) and others.
-- **Ease of Use**: It provides a simple interface to connect and interact with wallets using standard Web3 APIs.
-- **Flexibility**: The module allows for full customization and integration into different React applications, making it suitable for diverse use cases.
+### npm
 
-### Installation
-
-To install the Vara Wallet Connect package, simply add it as a dependency to your React project via npm:
-
-```bash
-npm install @gear-js/wallet-connect
+```sh
+npm install @gear-js/wallet-connect @gear-js/react-hooks @gear-js/ui @gear-js/vara-ui
 ```
 
-Or via yarn:
+### yarn
 
-```bash
-yarn add @gear-js/wallet-connect
+```sh
+yarn add @gear-js/wallet-connect @gear-js/react-hooks @gear-js/ui @gear-js/vara-ui
 ```
 
-### Usage
+### pnpm
 
-The code example below follows the structure provided in the [GitHub README](https://github.com/gear-tech/gear-js/blob/main/utils/wallet-connect/README.md), which uses React components to manage the wallet connection and user account selection:
+```sh
+pnpm add @gear-js/wallet-connect @gear-js/react-hooks @gear-js/ui @gear-js/vara-ui
+```
 
-```tsx
+# Getting started
+
+## Configure API
+
+Before using `@gear-js/wallet-connect`, make sure to configure [`@gear-js/react-hooks`](https://github.com/gear-tech/gear-js/tree/main/utils/gear-hooks#readme) in your project according to its documentation. This setup is required for API connection and account management.
+
+## Configure UI
+
+Depending on your chosen theme, you must also install and configure the corresponding UI library styles:
+
+- For the **`vara`** theme (default), follow the [`@gear-js/vara-ui`](https://github.com/gear-tech/gear-js/tree/main/utils/vara-ui#readme) documentation to set up global styles.
+- For the **`gear`** theme, follow the [`@gear-js/ui`](https://github.com/gear-tech/gear-js/tree/main/utils/gear-ui#readme) documentation to set up global styles (typically via your `index.scss`).
+
+# Components
+
+## Wallet
+
+A React component that displays the current account or wallet connection button, and (optionally) the account’s total balance. It uses [`useAccount`](https://github.com/gear-tech/gear-js/tree/main/utils/gear-hooks#useaccount) from `@gear-js/react-hooks` to manage account state and modal visibility for wallet actions.
+
+> **Note:**  
+> This is a generic component that provides ready-to-use behavior for wallet management, including connection, account display, and modal handling. For most use cases, you can simply use this component to integrate wallet functionality into your app.
+
+### Props
+
+- `theme` (`'gear' | 'vara'`, optional): UI theme for the wallet controls. Defaults to `'vara'`.
+- `displayBalance` (`boolean`, optional): Whether to show the account’s total balance. Defaults to `true`.
+
+### Usage Example
+
+```jsx
 import { Wallet } from '@gear-js/wallet-connect';
+
 import Logo from './logo.svg?react';
 
 function Header() {
   return (
     <header>
       <Logo />
-
-      <Wallet
-        theme="vara" // 'vara' (default) or 'gear' theme variation
-        displayBalance={true} // true (default) or false
-      />
+      <Wallet />
     </header>
   );
 }
@@ -53,54 +75,24 @@ function Header() {
 export { Header };
 ```
 
-### Customization and Advanced Usage
+## WalletModal
 
-The package is available in light (Vara-styled) and dark (Gear-styled) themes.
+A React modal component for managing wallet connections and account selection. It provides a user interface for connecting to supported wallets, switching between accounts, copying addresses, and logging out. This component is used internally by the [Wallet](#wallet) component.
 
-#### Vara UI Theme
+> **Note:**  
+> Use this component if you need to open the wallet modal programmatically, or if you want to create a custom wallet or account button that triggers wallet or account management actions. It gives you more control over when and how the modal appears, compared to the generic `Wallet` component.
 
-Be aware that in order for `vara` theme to work as expected, `@gear-js/vara-ui` package should be installed with configured global styles:
+### Props
 
-```jsx
-import { Wallet } from '@gear-js/wallet-connect';
-import '@gear-js/vara-ui/dist/style.css';
+- `theme` (`'gear' | 'vara'`, optional): UI theme for the modal. Defaults to `'vara'`.
+- `close` (`() => void`): Function to close the modal.
 
-function VaraWallet() {
-  return <Wallet theme="vara" />;
-}
-
-export { VaraWallet };
-```
-
-#### Gear UI Theme
-
-In order for `gear` theme to work as expected, `@gear-js/ui` package should be installed with configured global `index.scss`:
-
-```scss
-@use '@gear-js/ui/resets';
-@use '@gear-js/ui/typography';
-```
+### Usage Example
 
 ```jsx
-import { Wallet } from '@gear-js/wallet-connect';
-import './index.scss';
-
-function GearWallet() {
-  return <Wallet theme="gear" />;
-}
-
-export { GearWallet };
-```
-
-#### Wallet Modal
-
-Package exports the raw `WalletModal` component. It can be useful if you want to programmatically call the modal from any place in your application.
-
-```tsx
 import { WalletModal } from '@gear-js/wallet-connect';
-import { useState } from 'react';
 
-function WalletButton() {
+function CustomWalletButton() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
@@ -108,15 +100,10 @@ function WalletButton() {
 
   return (
     <>
-      <button type='submit' onClick={openModal}>
-        Open Wallet Modal
-      </button>
+      <button onClick={openModal}>Open Wallet Modal</button>
 
-      {/* 'vara' (default) or 'gear' theme variation */}
-      {isModalOpen && <WalletModal theme='vara' close={closeModal} />}
+      {isModalOpen && <WalletModal theme="vara" close={closeModal} />}
     </>
-  )
+  );
 }
-
-export { WalletButton }
 ```

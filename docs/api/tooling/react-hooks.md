@@ -598,6 +598,7 @@ Returns a mutation to sign and send a transaction to a program with minimal effo
   - `value` (`bigint`, optional): Value to send with the transaction. Defaults to 0.
   - `gasLimit` (`bigint | CalculateGasParameters`, optional): Gas limit for the transaction. If not provided, calculated automatically.
   - `voucherId` (`HexString`, optional): Voucher ID to use for the transaction. If not provided, the transaction will be sent without a voucher.
+  - `awaitFinalization` (`boolean`, optional): Flag indicating whether to wait for the transaction to be finalized. By default, if not specified, the transaction will be processed at the `inBlock` status.
 
 ### Usage Example
 
@@ -618,11 +619,11 @@ function SendTransaction() {
   });
 
   const handleClick = async () => {
-    const { awaited } = await sendTransactionAsync({
+    const { response } = await sendTransactionAsync({
       args: ['arg', 'anotherArg'],
     });
 
-    console.log('response: ', awaited.response);
+    console.log('response: ', response);
   };
 
   return (
@@ -660,16 +661,15 @@ function SendPreparedTransaction() {
   });
 
   const handleClick = async () => {
-    const preparedTx = await prepareTransactionAsync({
+    const { transaction, fee } = await prepareTransactionAsync({
       args: ['arg', 'anotherArg'],
     });
 
-    const { fee } = preparedTx.awaited;
     console.log('fee: ', fee);
 
-    const { awaited } = await sendTransactionAsync(preparedTx.transaction);
+    const { response } = await sendTransactionAsync({ transaction });
 
-    console.log('response: ', awaited.response);
+    console.log('response: ', response);
   };
 
   return (
@@ -721,11 +721,9 @@ function LogTransactionFeeButton() {
   });
 
   const handleClick = async () => {
-    const preparedTx = await prepareTransactionAsync({
+    const { fee } = await prepareTransactionAsync({
       args: ['arg', 'anotherArg'],
     });
-
-    const { fee } = preparedTx.awaited;
 
     console.log('fee: ', fee);
   };

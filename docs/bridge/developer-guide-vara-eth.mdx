@@ -6,13 +6,13 @@ sidebar_label: Vara ↔ Eth App guide
 
 # Introduction
 
-Cross-chain communication can seem complex, but at its core, it’s about securely moving messages and value between independent blockchains. To make this process clear and approachable, we’ll build a minimal “ping-pong” application on top of the **Vara ↔ Ethereum Bridge**.
+Cross-chain communication can seem complex, but at its core, it’s about securely moving messages and value between independent blockchains. To make this process clear and approachable, a simple Ping-Pong application is used as the most illustrative example, showing step by step how secure cross-chain messaging works on top of the **Vara ↔ Ethereum Bridge**.
 
 :::note
 The ping-pong pattern is a classic example used in distributed systems to demonstrate reliable message delivery: a simple “ping” sent from one chain and a “pong” received in response from the other.
 :::
 
-In this first part, we focus on the flow from Vara to Ethereum using the bridge’s built-in ZK-based mechanism. We’ll walk through how the protocol handles the heavy lifting—cryptographic proofs, relaying, and validation—while letting developers concentrate on the application logic. In future articles, we’ll explore the reverse direction (Ethereum to Vara) and additional cross-chain patterns.
+This guide focuses on the flow from Vara to Ethereum using the bridge’s built-in ZK-based mechanism. The protocol handles the heavy lifting—cryptographic proofs, relaying, and validation—allowing developers to concentrate on the application logic. Future articles will explore the reverse direction (Ethereum to Vara) and additional cross-chain patterns.
 
 ## High-Level Architecture
 
@@ -135,8 +135,9 @@ pub async fn send_ping(&mut self) -> Result<(), Error> {
 
 ### Implementation Notes
 
-- The destination contract address (on Ethereum) can be provided at initialization or hardcoded in the program logic.
-- Bridge actor addresses (and other relevant addresses for testnets/mainnet) are published in the official documentation.  
+- The destination contract address (on Ethereum) can be provided at initialization, hardcoded in the program logic, or even passed alongside the message itself.
+- The relayer  obtains the destination address from the event emitted by the Vara contract.
+- In this example, the contracts on both sides are pre-linked, but this is only one possible scenario—such coupling is entirely defined by the application logic. At the protocol level, nothing changes; the protocol remains agnostic to how the destination is set or discovered.
 - The payload is an arbitrary byte array (`Vec<u8>`)—it can carry any custom data you need for your use case and will be delivered to the destination contract on Ethereum.
 
 ### What Happens Under the Hood?
@@ -285,10 +286,10 @@ contract PingReceiver is IMessageQueueReceiver {
 ```
 
 **How it works:**  
-The MessageQueue contract will call `processVaraMessage(sender, payload)` on your contract whenever a valid message arrives.  
-You can then handle the payload in any way you wish (in this example, we simply emit a `PongEmitted` event).
+The MessageQueue contract calls `processVaraMessage(sender, payload)` on the destination contract whenever a valid message arrives.  
+The payload can be handled in any way required by the contract logic (in this example, a `PongEmitted` event is simply emitted).
 
-The sender comes from the original Vara program, and the payload can be any bytes you sent from Vara.
+The sender is set by the original Vara program, and the payload can contain any bytes sent from Vara.
 
 ### What you should know?
 

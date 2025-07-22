@@ -1,14 +1,14 @@
 ---
-sidebar_label: VFT Frontend guide
+sidebar_label: VFT Frontend Guide
 sidebar_position: 2
 ---
 
 # VFT Extended DApp Frontend Integration Guide
 
-This guide explains how to build a frontend application in React that interacts with the VFT Extended (VARA Fungible Token) contract, using sails-js React hooks. The document provides a step-by-step approach, code samples, and configuration tips for quickly integrating contract calls, queries, and event listeners.
+This guide explains how to build a frontend application in React that interacts with the VFT Extended (Vara Fungible Token) contract, using sails-js React hooks. The document provides a step-by-step approach, code samples, and configuration tips for quickly integrating contract calls, queries, and event listeners.
 
 **Who is this for?**
-- React developers integrating smart contract features into a DApp on the VARA blockchain.
+- React developers integrating smart contract features into a DApp on the Vara blockchain.
 - Anyone needing a working example and best practices for `sails-js hooks` with VFT contracts.
 
 **You will learn:**
@@ -26,20 +26,20 @@ Before starting, make sure your environment is ready:
 - **Node.js** (version 18+ recommended)
 - **Yarn** or **npm**
 - **Git**  
-- [**GEAR IDEA**](https://wiki.vara.network/docs/getting-started-in-5-minutes/) (for contract deployment, not needed for frontend only)
-- Access to **VARA network** (e.g., testnet node, test tokens to make transactions)
+- [**Gear IDEA**](idea.gear-tech.io) (for contract deployment, not needed for frontend only)
+- Access to **Vara network** (e.g., testnet node, test tokens to make transactions)
 - Installed browser wallet (e.g., [Polkadot.js extension](https://polkadot.js.org/extension/) or compatible with Substrate network)
 - **Basic knowledge** of React, TypeScript, and smart contract architecture
 
 :::note
-You need your contract uploaded to the VARA network and its address (ID) available before starting the frontend part.
+You need your contract uploaded to the Vara network and its address (ID) available before starting the frontend part.
 :::
 
 ## Project Setup
 
 ### Create Frontend App from Template
 
-Use the official VARA React app template.  
+Use the official Vara React app [template](/docs/api/tooling/create-gear-app.md).  
 Run in your terminal:
 
 ```bash
@@ -69,7 +69,7 @@ src/App.tsx      # Main app entry
 
 ### Deploy Your Contract
 
-Make sure your VFT contract is already deployed on VARA and you have its address (ProgramId).
+Make sure your VFT contract is already deployed on Vara testnet or mainnet (via [Gear IDEA](idea.gear-tech.io)) and you have its address (ProgramId).
 
 ### Generate Client Library
 

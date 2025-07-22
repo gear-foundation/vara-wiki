@@ -3,10 +3,9 @@ sidebar_label: VFT Frontend guide
 sidebar_position: 2
 ---
 
-## Introduction
+# VFT Extended DApp Frontend Integration Guide
 
-This guide explains how to build a frontend application in React that interacts with the VFT Extended (VARA Fungible Token) contract, using sails-js React hooks.  
-The document provides a step-by-step approach, code samples, and configuration tips for quickly integrating contract calls, queries, and event listeners.
+This guide explains how to build a frontend application in React that interacts with the VFT Extended (VARA Fungible Token) contract, using sails-js React hooks. The document provides a step-by-step approach, code samples, and configuration tips for quickly integrating contract calls, queries, and event listeners.
 
 **Who is this for?**
 - React developers integrating smart contract features into a DApp on the VARA blockchain.
@@ -18,9 +17,7 @@ The document provides a step-by-step approach, code samples, and configuration t
 - How to implement and use hooks for transactions, queries, and events
 - How to build UI components for interacting with the VFT contract
 
-:::info Reference
-- [VFT Standard](https://wiki.vara.network/docs/examples/Standards/vft)
-:::
+[See VFT Standard description](https://wiki.vara.network/docs/examples/Standards/vft)
 
 ## Prerequisites
 
@@ -29,7 +26,7 @@ Before starting, make sure your environment is ready:
 - **Node.js** (version 18+ recommended)
 - **Yarn** or **npm**
 - **Git**  
-- [**GEAR IDEA**](https://wiki.vara.network/docs/getting-started/gear-idea/) (for contract deployment, not needed for frontend only)
+- [**GEAR IDEA**](https://wiki.vara.network/docs/getting-started-in-5-minutes/) (for contract deployment, not needed for frontend only)
 - Access to **VARA network** (e.g., testnet node, test tokens to make transactions)
 - Installed browser wallet (e.g., [Polkadot.js extension](https://polkadot.js.org/extension/) or compatible with Substrate network)
 - **Basic knowledge** of React, TypeScript, and smart contract architecture
@@ -222,8 +219,6 @@ export function useTokenEvents(callbacks) {
 
 > **See [hooks/api.ts](https://github.com/gear-foundation/dapps/tree/master/frontend/apps) for full code**
 
----
-
 ## Making Transactions
 
 Use `useTokenActions()` for all write operations:
@@ -280,7 +275,6 @@ useTokenEvents({
 ```
 
 This ensures real-time UI updates after mint/burn operations.
-
 
 ## UI Example: Home Component
 

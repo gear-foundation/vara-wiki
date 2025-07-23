@@ -17,6 +17,7 @@ Links:
 - Block Explorer: [https://vara.subscan.io/](https://vara.subscan.io)
 - Vara Wiki: [https://wiki.vara.network/](https://wiki.vara.network)
 - Node Telemetry: [https://telemetry.rs/](https://telemetry.rs)
+- Vara Snapshots: https://snapshots.vara.network/
 - Tokenomics: [https://wiki.vara.network/docs/tokenomics/](/docs/tokenomics/tokenomics.mdx)
 - Whitepaper: [https://whitepaper.gear.foundation/](https://whitepaper.gear.foundation)
 - Gear Foundation: [https://gear.foundation/](https://gear.foundation)
@@ -106,6 +107,18 @@ or find more tags here: https://github.com/gear-tech/gear/pkgs/container/node
 ## How do I check if my node is validator or not?
 
 Navigate to https://polkadot.js.org/apps/?rpc=wss://rpc.vara.network#/staking, and you will find a list of the active validators
+
+
+## What is a snapshot and how do I use it?
+
+A **snapshot** is a compressed archive of the Vara blockchain database at a specific block. Instead of syncing from genesis, you can restore the state from a snapshot and dramatically reduce setup time.
+
+Why use a snapshot?
+- Fast validator or archive node bootstrapping
+- Quick disaster recovery (e.g., after disk failure)
+- Faster scaling of RPC or observer nodes
+
+For instructions on how to use it, check this [article](/docs/staking/validate/#-steps-to-use-a-snapshot).
 
 ## What is slashing?
 

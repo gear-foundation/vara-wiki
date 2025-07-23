@@ -76,15 +76,15 @@ function SendTransaction() {
   });
 
   const handleClick = async () => {
-    const result = await sendTransactionAsync({
+    const { response } = await sendTransactionAsync({
       args: ['arg', 'anotherArg'],
       account: { addressOrPair: '0x...' }, // Defaults to the connected account from the extension if not provided
       value: 1000000n, // Defaults to 0 if not provided
       gasLimit: 1000000000n, // Automatically calculated if not provided
       voucherId: '0x...', // If not provided, the transaction will be sent without a voucher
+      awaitFinalization: false // Defaults to false. If not provided, the transaction will be processed at the `inBlock` status 
     });
 
-    const response = await result.response;
     console.log('response: ', response);
   };
 
@@ -193,7 +193,7 @@ function LogTransactionFeeButton() {
   });
 
   const handleClick = async () => {
-    const transaction = await prepareTransactionAsync({
+    const { fee } = await prepareTransactionAsync({
       args: ['arg', 'anotherArg'],
       account: { addressOrPair: '0x...' }, 
       value: 1000000n, 
@@ -201,7 +201,6 @@ function LogTransactionFeeButton() {
       voucherId: '0x...',
     });
 
-    const fee = await transaction.transactionFee();
     console.log('fee: ', fee);
   };
 
@@ -242,7 +241,7 @@ function SendPreparedTransaction() {
   });
 
   const handleClick = async () => {
-    const transaction = await prepareTransactionAsync({
+    const { transaction, fee } = await prepareTransactionAsync({
       args: ['arg', 'anotherArg'],
       account: { addressOrPair: '0x...' }, 
       value: 1000000n, 
@@ -250,11 +249,9 @@ function SendPreparedTransaction() {
       voucherId: '0x...',
     });
 
-    const fee = await transaction.transactionFee();
     console.log('fee: ', fee);
 
-    const result = await sendTransactionAsync(transaction);
-    const response = await result.response;
+    const { response } = await sendTransactionAsync({ transaction });
 
     console.log('response: ', response);
   };

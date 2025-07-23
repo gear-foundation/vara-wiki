@@ -12,6 +12,8 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   --docusaurus-announcement-bar-height: auto !important;
 
+  --docsearch-hit-active-color: black !important;
+
   --brand: 0 255 196;
   --brand-500: 3 255 196;
   --brand-400: 100 255 219;
@@ -80,7 +82,6 @@
   .typo-title-1 {
     @apply font-semibold lg:font-medium text-[42px] md:text-[46px] lg:text-[52px] xl:text-[62px] 2xl:text-[72px] leading-[50px] md:leading-[55px] lg:leading-[62px] xl:leading-[74px] 2xl:leading-[86px];
   }
-
 }
 
 html {
@@ -113,7 +114,8 @@ h6 {
   background: #242526;
 }
 
-[data-theme='light'] .navbar__toggle {
+[data-theme='light'] .navbar__toggle,
+[data-theme='light'] .clean-btn {
   color: #ffffff;
 }
 
@@ -139,7 +141,7 @@ h6 {
   background: #444950 !important;
 }
 
-div[class^="announcementBar"][role="banner"] {
+[role="banner"].theme-announcement-bar {
   @apply bg-brand py-1.5 text-[18px] leading-[20px] font-bold text-black border-0 *:p-0;
 
   a {
@@ -243,7 +245,7 @@ div[class^="announcementBar"][role="banner"] {
 }
 
 .archive-category {
-  color: gray; 
+  color: gray;
   font-style: italic;
   opacity: 0.5;
 

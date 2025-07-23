@@ -26,7 +26,7 @@ Before starting, make sure your environment is ready:
 - **Node.js** (version 18+ recommended)
 - **Yarn** or **npm**
 - **Git**  
-- [**Gear IDEA**](idea.gear-tech.io) (for contract deployment, not needed for frontend only)
+- [**Gear IDEA**](https://idea.gear-tech.io) (for contract deployment, not needed for frontend only)
 - Access to **Vara network** (e.g., testnet node, test tokens to make transactions)
 - Installed browser wallet (e.g., [Polkadot.js extension](https://polkadot.js.org/extension/) or compatible with Substrate network)
 - **Basic knowledge** of React, TypeScript, and smart contract architecture
@@ -69,13 +69,11 @@ src/App.tsx      # Main app entry
 
 ### Deploy Your Contract
 
-Make sure your VFT contract is already deployed on Vara testnet or mainnet (via [Gear IDEA](idea.gear-tech.io)) and you have its address (ProgramId).
+Make sure your VFT contract is already deployed on Vara testnet or mainnet (via [Gear IDEA](https://idea.gear-tech.io)) and you have its address (ProgramId).
 
 ### Generate Client Library
 
 Follow the client generation instructions: [Client Generation Docs](https://wiki.vara.network/docs/sails-js/client-generation)
-
-Example:
 
 ```bash
 npx @gear-js/sails codegen --program <YOUR_PROGRAM_ID> --output src/hooks/lib.ts
@@ -118,7 +116,9 @@ export const ENV = {
 ## Implementing React Hooks for Contract Interaction
 
 :::info
-For detailed documentation on sails-js React Hooks, see:  [React Sails Hooks Documentation](https://wiki.vara.network/docs/sails-js/react-hooks)
+For detailed documentation on sails-js React Hooks and up-to-date API examples, see:  
+- [React Sails Hooks Documentation](https://wiki.vara.network/docs/sails-js/react-hooks)  
+- [Full hooks/api.ts source on GitHub](https://github.com/gear-foundation/dapps/blob/master/frontend/apps/vft-extended/src/hooks/api.ts)
 :::
 
 Your hooks (e.g., `hooks/api.ts`) wrap all main contract actions, queries, and event subscriptions.
@@ -143,18 +143,31 @@ export function useProgramInstance() {
 ```ts
 import { useSendProgramTransaction } from '@gear-js/react-hooks';
 
-export function useTokenActions() {
+export function useSendMintTransaction() {
   const { data: program } = useProgramInstance();
+  return useSendProgramTransaction({
+    program,
+    serviceName: 'vft',
+    functionName: 'mint',
+  });
+}
 
-  const { sendTransactionAsync: sendMintTransactionAsync, isPending: mintPending } =
-    useSendProgramTransaction({ program, serviceName: 'vft', functionName: 'mint' });
+export function useSendBurnTransaction() {
+  const { data: program } = useProgramInstance();
+  return useSendProgramTransaction({
+    program,
+    serviceName: 'vft',
+    functionName: 'burn',
+  });
+}
 
-  // You can add more: burn, transfer, etc.
-  const mint = async (to: `0x${string}`, value: string) => {
-    return sendMintTransactionAsync({ args: [to, value] });
-  };
-
-  return { mint, mintPending /*, burn, burnPending, transfer, transferPending */ };
+export function useSendTransferTransaction() {
+  const { data: program } = useProgramInstance();
+  return useSendProgramTransaction({
+    program,
+    serviceName: 'vft',
+    functionName: 'transfer',
+  });
 }
 ```
 
@@ -217,18 +230,18 @@ export function useTokenEvents(callbacks) {
 }
 ```
 
-> **See [hooks/api.ts](https://github.com/gear-foundation/dapps/tree/master/frontend/apps) for full code**
+> **See [hooks/api.ts](https://github.com/gear-foundation/dapps/blob/master/frontend/apps/vft-extended/src/hooks/api.ts) for full code**
 
 ## Making Transactions
 
-Use `useTokenActions()` for all write operations:
-
 ```ts
-const { mint, burn, transfer, mintPending, burnPending, transferPending } = useTokenActions();
+const { sendTransactionAsync: sendMint, isPending: mintPending } = useSendMintTransaction();
+const { sendTransactionAsync: sendBurn, isPending: burnPending } = useSendBurnTransaction();
+const { sendTransactionAsync: sendTransfer, isPending: transferPending } = useSendTransferTransaction();
 
-await mint(toAddress, amount);
-await burn(fromAddress, amount);
-await transfer(toAddress, amount);
+await sendMint({ args: [toAddress, amount] });
+await sendBurn({ args: [fromAddress, amount] });
+await sendTransfer({ args: [toAddress, amount] });
 ```
 
 Handle UI loading states and errors:
@@ -236,7 +249,7 @@ Handle UI loading states and errors:
 ```ts
 if (mintPending) { /* show spinner */ }
 try {
-  await mint(...);
+  await sendMint({ args: [account.decodedAddress, '1000'] });
   // show success
 } catch (e) {
   // show error
@@ -255,7 +268,6 @@ const balanceQuery = useBalanceOfQuery(someAddress);
 if (balanceQuery.isPending) { /* loading */ }
 else { /* show balanceQuery.data */ }
 ```
-
 
 ## Listening to Contract Events
 
@@ -278,37 +290,52 @@ This ensures real-time UI updates after mint/burn operations.
 
 ## UI Example: Home Component
 
-Full example of using hooks in a component:
+A minimal example of how to use the new transaction hooks and queries in a component:
 
 ```tsx
 import { useAccount, useAlert } from '@gear-js/react-hooks';
 import { useState } from 'react';
-
-import { useTokenActions, useTokenQueries, useTokenEvents, useBalanceOfQuery } from '../../hooks';
+import {
+  useSendMintTransaction,
+  useSendBurnTransaction,
+  useSendTransferTransaction,
+  useTokenQueries,
+  useTokenEvents,
+  useBalanceOfQuery,
+} from '../../hooks';
 
 function Home() {
   const { account } = useAccount();
   const { name, symbol, decimals, totalSupply, isLoading, refetchTotalSupply } = useTokenQueries();
-  const { mint, burn, mintPending, burnPending, transfer, transferPending } = useTokenActions();
   const alert = useAlert();
 
-  // ... (input state handlers)
+  const [transferTo, setTransferTo] = useState('');
+  const [transferValue, setTransferValue] = useState('');
+  const [balanceAddr, setBalanceAddr] = useState('');
+
+  const { sendTransactionAsync: sendMint, isPending: mintPending } = useSendMintTransaction();
+  const { sendTransactionAsync: sendBurn, isPending: burnPending } = useSendBurnTransaction();
+  const { sendTransactionAsync: sendTransfer, isPending: transferPending } = useSendTransferTransaction();
 
   useTokenEvents({
     onMinted: () => void refetchTotalSupply?.(),
     onBurned: () => void refetchTotalSupply?.(),
   });
 
-  // ... (handlers for mint, burn, transfer, balance)
+  // ...handlers for mint, burn, transfer, balance
 
-  // ... (render UI with all the actions, loading states, errors)
+  // ...render UI with all actions, inputs, loading states, errors
 }
 
 export { Home };
 ```
 
-> **See [Home.tsx full code above](#)**
+For the full and up-to-date example, see [**Home.tsx on GitHub**](https://github.com/gear-foundation/dapps/blob/master/frontend/apps/vft-extended/src/pages/home/Home.tsx)
 
+---
+
+For Vara UI Kit component details and usage, see  
+[vara-ui on GitHub](https://github.com/gear-tech/gear-js/tree/main/utils/vara-ui).
 
 ## Notes and Best Practices
 

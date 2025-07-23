@@ -318,8 +318,8 @@ function Home() {
   const { sendTransactionAsync: sendTransfer, isPending: transferPending } = useSendTransferTransaction();
 
   useTokenEvents({
-    onMinted: () => void refetchTotalSupply?.(),
-    onBurned: () => void refetchTotalSupply?.(),
+    onMinted: (data) => alert.info(`Mint event: ${JSON.stringify(data)}`),
+    onBurned: (data) => alert.info(`Burn event: ${JSON.stringify(data)}`),
   });
 
   // ...handlers for mint, burn, transfer, balance

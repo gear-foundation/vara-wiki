@@ -13,6 +13,8 @@ The Vara Fungible Token Standard outlines a unified API for implementing fungibl
 
 The subsequent section expands on how to leverage and extend this core service to develop a fully functional token application. It illustrates the process of adding advanced features like minting and burning, demonstrating how to build upon the core VFT service to create a comprehensive and customizable token system. This extension highlights the flexibility and potential of the core standard, providing a pathway to develop more sophisticated and tailored token solutions. The source code of the extended version is avaiable on the [GitHub](https://github.com/gear-foundation/standards/tree/master/extended-vft).
 
+A frontend guide showing how to use the `React Sails Hooks` with extended VFT program is available [here](/docs/examples/Standards/vft-frontend).
+
 :::tip
 The project code is developed using the [Sails](../../build/sails/sails.mdx) framework.
 ::: 

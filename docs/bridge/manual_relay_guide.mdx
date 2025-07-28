@@ -4,10 +4,11 @@ sidebar_position: 6
 sidebar_label: Manual Relay Guide
 ---
 
+import { eth, vara } from '@site/src/addresses/bridge-addresses.js';
+
 # Manual Message Bridging
 
-This guide describes how to manually push a message across the bridge between Vara test network and Ethereum test network (Hoodi) if the **Relayer is unavailable**.  
-All steps are illustrated for `USDT` tokens and can be adapted for similar scenarios.
+This guide describes how to manually push a message across the bridge between Vara network and Ethereum network if the **Relayer is unavailable**. All steps are illustrated for `USDT` token as an example, but the same process applies to any supported token or arbitrary cross-chain message.
 
 :::note
 If the Relayer is unavailable, any bridging message remains stored on-chain and can be relayed manually at any time. 
@@ -17,11 +18,9 @@ No message is lost; manual relay simply finalizes the process and completes deli
 :::important
 Always verify all contract addresses before bridging.
 
-Addresses in this guide are for current test deployments and may change with network updates.
+Addresses in this guide are for current test deployments.
 
-For the latest and most accurate contract addresses, see: [Vara Bridge Developer Hub – Contract Addresses](https://wiki.vara.network/docs/bridge/developer_hub)
-
-**Do not use addresses from this guide without cross-checking their relevance.**
+**The up-to-date addresses for your network (testnet or mainnet) can always be found in the [Vara Bridge Developer Hub](https://wiki.vara.network/docs/bridge/developer_hub).**
 :::
 
 ## Bridging Ethereum → Vara
@@ -30,30 +29,29 @@ For the latest and most accurate contract addresses, see: [Vara Bridge Developer
 
 ![Approve USDT for Bridging](./img/approve.png)
 
-- **Open** the [test USDT contract on Hoodi Etherscan](https://hoodi.etherscan.io/address/0xbc24436a5AF9b58431F6385703C15FdA8c60d1f5).
+- **Open** the <a href={`https://hoodi.etherscan.io/address/${eth.usdt}`}>test USDT contract on Hoodi Etherscan</a>.
 - Go to **Contract → Write Contract** tab.
 - Click **Connect to Web3** and select a wallet with sender’s account.
 - Use the `approve` method:
-  - **spender:** `0xCc1C2f83b40f1FAb06753Ea4e4119EB2083a5EFe` (Erc20Manager address on Hoodi)
+  - **spender:** <code>{eth.erc20Manager}</code> (Erc20Manager address on Hoodi)
   - **value:** Amount to transfer (USDT uses 6 decimals, so `1 USDT = 1_000_000`, `5 USDT = 5_000_000`)
-
 
 ### 2. Initiate Bridging
 
 ![Request Bridging](./img/request-bridging.png)
 
-- **Open** [Erc20Manager contract on Hoodi Etherscan](https://hoodi.etherscan.io/address/0xCc1C2f83b40f1FAb06753Ea4e4119EB2083a5EFe#writeProxyContract).
+- **Open** <a href={`https://hoodi.etherscan.io/address/${eth.erc20Manager}#writeProxyContract`}>Erc20Manager contract on Hoodi Etherscan</a>.
 - Go to **Contract → Write as Proxy**.
 - Connect wallet if needed.
 - Use the `requestBridging` method:
-  - **token:** `0xbc24436a5AF9b58431F6385703C15FdA8c60d1f5` (USDT address)
+  - **token:** <code>{eth.usdt}</code> (USDT address)
   - **amount:** Same as above or less (≤ approved amount)
-  - **to:** Recipient address on Vara (hex string, e.g., convert from SS58 on [ss58.org](https://ss58.org))
+  - **to:** Recipient address on Vara (hex string, e.g., convert from SS58 on <a href="https://ss58.org">ss58.org</a>)
 - **Send** the transaction.
 
 At this point, Erc20Manager emits a `BridgingRequested` event.
 
-### 3 Relay Event Data to Vara
+### 3. Relay Event Data to Vara
 
 The final step is to relay proof of the bridging event from Ethereum to the Vara network. This means providing evidence that the required Ethereum block was finalized and that a transaction containing the relevant event (`BridgingRequested`) was actually included and executed on-chain.
 
@@ -71,23 +69,23 @@ Next, run the Gear Bridge Relayer Docker container, providing it with the transa
 docker pull ghcr.io/gear-tech/bridge-relayer:latest
 ```
 
-> Latest Docker images for the Gear Bridge Relayer are published at:  
-> [https://github.com/gear-tech/gear-bridges/pkgs/container/bridge-relayer](https://github.com/gear-tech/gear-bridges/pkgs/container/bridge-relayer)
+> Latest Docker images for the Gear Bridge Relayer are published at: [https://github.com/gear-tech/gear-bridges/pkgs/container/bridge-relayer](https://github.com/gear-tech/gear-bridges/pkgs/container/bridge-relayer)
 
-```sh
-docker run --rm ghcr.io/gear-tech/bridge-relayer:latest eth-gear-manual \
-  --tx-hash 0x982430607dab916eb86e0c78afc4347803736fd0ac4591c3ffd507e61344f272 \
-  --checkpoint-light-client 0xdb7bbcaff8caa131a94d73f63c8f0dd1fec60e0d263e551d138a9dfb500134ca \
-  --historical-proxy 0x5d2a0dcfc30301ad5eda002481e6d0b283f81a1221bef8ba2a3fa65fd56c8e0f \
-  --receiver-program 0xa1497efdb24b1f08a5801b1c59610c389a5341b4db7367a7ec70fa6f9b9a2a1c \
-  --ethereum-rpc wss://hoodi-reth-rpc.gear-tech.io/ws \
-  --ethereum-beacon-rpc https://hoodi-nimbus-rpc.gear-tech.io \
-  --gear-domain wss://testnet.vara.network \
-  --gear-port 443 \
+<pre>
+{`docker run --rm ghcr.io/gear-tech/bridge-relayer:latest eth-gear-manual \\
+  --tx-hash <TX_HASH> \\
+  --checkpoint-light-client ${vara.checkpointLightClient} \\
+  --historical-proxy ${vara.historicalProxy} \\
+  --receiver-program ${vara.vftManager} \\
+  --ethereum-rpc wss://hoodi-reth-rpc.gear-tech.io/ws \\
+  --ethereum-beacon-rpc https://hoodi-nimbus-rpc.gear-tech.io \\
+  --gear-domain wss://testnet.vara.network \\
+  --gear-port 443 \\
   --gear-suri <SURI>
-```
+`}
+</pre>
 
-- Replace `<SURI>` with the Substrate account URI that pays for Vara network fees.
+Replace `<TX_HASH>` with your transaction hash and `<SURI>` with the Substrate account URI that pays for Vara network fees.
 
 :::note
 **After submitting the proof, the finalization (rewarding) process is not instant.**  
@@ -98,41 +96,42 @@ Once the cross-chain proof is accepted, the transferred tokens will appear on Va
 :::
 
 To confirm the result, check the state of the **wrapped USDT token program** on Vara using the `balanceOf` function.  
-This can be done on [IDEA](https://idea.gear-tech.io/programs/0x7288022b85e4e7563e4f3d3ae7f443477f8ce1342d204484a28818949e0371cd?node=wss%3A%2F%2Ftestnet-archive.vara.network):  
+This can be done on <a href={`https://idea.gear-tech.io/programs/${vara.wusdt}?node=wss%3A%2F%2Ftestnet-archive.vara.network`}>IDEA</a>:  
 - Click "Read state"
 - Select `balanceOf`
 - Enter the recipient address
 
 The updated balance will reflect the received tokens after successful bridging.
 
+---
 
 ## Bridging Vara → Ethereum
 
-The bridging procedure from Vara to Ethereum is **very similar** to the reverse direction described above.  
+The bridging procedure from Vara to Ethereum is **very similar** to the reverse direction described above.
 
 The user interacts with the **VftManager program** on Vara. The bridging flow consists of the following main steps:
 
 ### 0. (Optional) Tokenize TVARA to VFT
 
 If your tokens are not yet tokenized as VFT (Vara Fungible Tokens), you need to convert your TVARA using the `VftNativeExchange::Mint` message.  
-This will mint the desired amount of VFT in [TVARA token program](https://idea.gear-tech.io/programs/0x47cd3c611f9412f936dc60430b574b048cd211bdfac8259e2ad5af735b6059b4?node=wss%3A%2F%2Ftestnet-archive.vara.network)
+This will mint the desired amount of VFT in <a href={`https://idea.gear-tech.io/programs/${vara.tokenizedVara}?node=wss%3A%2F%2Ftestnet-archive.vara.network`}>TVARA token program</a>.
 
 ### 1. Approve VftManager to Spend Tokens
 
 ![Approve TVARA](./img/vara-approve.png)
 
-- Open the VFT token contract, e.g., [TVARA token program](https://idea.gear-tech.io/programs/0x47cd3c611f9412f936dc60430b574b048cd211bdfac8259e2ad5af735b6059b4?node=wss%3A%2F%2Ftestnet-archive.vara.network).
+- Open the VFT token contract, e.g., <a href={`https://idea.gear-tech.io/programs/${vara.tokenizedVara}?node=wss%3A%2F%2Ftestnet-archive.vara.network`}>TVARA token program</a>.
 - Use the `approve` function:
-  - **spender:** `0xa1497efdb24b1f08a5801b1c59610c389a5341b4db7367a7ec70fa6f9b9a2a1c` (VftManager address)
+  - **spender:** <code>{vara.vftManager}</code> (VftManager address)
   - **value:** Amount to transfer (TVARA uses 12 decimals, so `1 TVARA = 1_000_000_000_000`)
 
 ### 2. Request Bridging via VftManager
 
 ![Request TVARA Bridging](./img/vara-request-bridging.png)
 
-- Open the [VftManager program](https://idea.gear-tech.io/programs/0xa1497efdb24b1f08a5801b1c59610c389a5341b4db7367a7ec70fa6f9b9a2a1c?node=wss%3A%2F%2Ftestnet-archive.vara.network)
+- Open the <a href={`https://idea.gear-tech.io/programs/${vara.vftManager}?node=wss%3A%2F%2Ftestnet-archive.vara.network`}>VftManager program</a>
 - Call the `RequestBridging` function:
-  - **vara_token_id:** Address of the token contract (e.g., `0x47cd3c611f9412f936dc60430b574b048cd211bdfac8259e2ad5af735b6059b4`)
+  - **vara_token_id:** Address of the token contract (e.g., <code>{vara.tokenizedVara}</code>)
   - **amount:** Amount to bridge (must be ≤ approved value)
   - **receiver:** Ethereum recipient address (hex)
 
@@ -140,24 +139,27 @@ After successful execution of both the **approve** and **RequestBridging** steps
 the VftManager program emits a `BridgingRequested` event containing a `nonce` and `block` number.
 
 **How to find the event:**
-- Go to the [VftManager program](https://idea.gear-tech.io/programs/0xa1497efdb24b1f08a5801b1c59610c389a5341b4db7367a7ec70fa6f9b9a2a1c?node=wss%3A%2F%2Ftestnet-archive.vara.network)
+- Go to the <a href={`https://idea.gear-tech.io/programs/${vara.vftManager}?node=wss%3A%2F%2Ftestnet-archive.vara.network`}>VftManager program</a>
 - Switch to the **Events** tab to locate the relevant `BridgingRequested` event and copy the `nonce` and `block` values.
 
-
-### 2.5. Relay Proof to Ethereum
+### 3. Relay Proof to Ethereum
 
 Run the relayer Docker container with the `nonce` and `block` values from your `BridgingRequested` event:
 
-```sh
-docker run --rm ghcr.io/gear-tech/bridge-relayer:latest gear-eth-manual \
-  --gear-domain wss://testnet-archive.vara.network \
-  --gear-port 443 \
-  --ethereum-endpoint wss://hoodi-reth-rpc.gear-tech.io/ws \
-  --mq-address 0x91ED0D3519aCE35d0591989e28735Cb1f4791924 \
-  --message-nonce <MESSAGE_NONCE> \
-  --message-block <MESSAGE_BLOCK> \
-  --eth-fee-payer <PRIVATE_KEY>
-```
+<pre>
+{`docker run --rm ghcr.io/gear-tech/bridge-relayer:latest eth-gear-manual \\
+  --tx-hash <TX_HASH> \\
+  --checkpoint-light-client ${vara.checkpointLightClient} \\
+  --historical-proxy ${vara.historicalProxy} \\
+  --receiver-program ${vara.vftManager} \\
+  --ethereum-rpc wss://hoodi-reth-rpc.gear-tech.io/ws \\
+  --ethereum-beacon-rpc https://hoodi-nimbus-rpc.gear-tech.io \\
+  --gear-domain wss://testnet.vara.network \\
+  --gear-port 443 \\
+  --gear-suri <SURI>
+`}
+</pre>
+
 - Replace `<MESSAGE_NONCE>` and `<MESSAGE_BLOCK>` with your actual event data.
 - Replace `<PRIVATE_KEY>` with the Ethereum fee-payer's private key.
 
@@ -169,4 +171,3 @@ After relaying, the message will be processed and the wrapped tokens (e.g., WTVA
 :::
 
 ![See the result of TVARA Bridging](./img/vara-eth-res.png)
-

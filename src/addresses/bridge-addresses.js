@@ -1,26 +1,24 @@
-// src/addresses.js
-
 // Ethereum (Hoodi testnet) contract addresses
 export const eth = {
-    verifier: "0xC801bC5af5531A7EcF956741ed42ccF091686823",
-    messageQueue: "0x91ED0D3519aCE35d0591989e28735Cb1f4791924",
-    bridgingPayment: "0x3722A335F51aa638ce730F9E029FE44862ed6dc7",
-    usdc: "0x07fcAcC4d25F642482C2Ab7EBBEf1D9FE7F89E86",
-    usdt: "0xbc24436a5AF9b58431F6385703C15FdA8c60d1f5",
-    WETH: "0x6f47561Be156E185572B0eaDd1D11Bc66758E44e",
-    wtvara: "0xD07F9259C9D80935920Eed57071Cdd3F2026FD21",
-    erc20Manager: "0xCc1C2f83b40f1FAb06753Ea4e4119EB2083a5EFe",
-  };
-  
-  // Vara (Testnet) contract addresses
-  export const vara = {
-    checkpointLightClient: "0xdb7bbcaff8caa131a94d73f63c8f0dd1fec60e0d263e551d138a9dfb500134ca",
-    ethEventsElectra: "0x0e81a4201bdb78fb313aa01a7764aa2c6bd254463026dc700db9f657c54d47b1",
-    historicalProxy: "0x5d2a0dcfc30301ad5eda002481e6d0b283f81a1221bef8ba2a3fa65fd56c8e0f",
-    vftManager: "0xa1497efdb24b1f08a5801b1c59610c389a5341b4db7367a7ec70fa6f9b9a2a1c",
-    bridgingPayment: "0xa62a5bb70342147a67170777caa76ca2e0fe5fb413a9c687fbf8ee8002bde6b5",
-    wusdc: "0xf83bfe546c7115c403308faf5f33f4550c1ff4e429c6469ca33aa6740cf883c2",
-    wusdt: "0x7288022b85e4e7563e4f3d3ae7f443477f8ce1342d204484a28818949e0371cd",
-    weth: "0x27dd13d45898315524edbe3447f8473d83d91a2df5d06f205d27d86d58b71c41",
-    tokenizedVara: "0x47cd3c611f9412f936dc60430b574b048cd211bdfac8259e2ad5af735b6059b4",
-  };
+  verifier: "0x80c9a727fdeadfa48864a4fb9bf7bb3e4e40ca52",
+  messageQueue: "0x459dbec00b9577500d7830a31051174061c2818e",
+  bridgingPayment: "0x27370c574d4aE6B85A2F45a6899C0cD59E59B38E",
+  usdc: "0xb92e77de4e3f32116cf0d53b882c30a1f73b641e",
+  usdt: "0x09e1687c3512c8507bcca8bf55b131dfae9b68c7",
+  WETH: "0xdb7057418e9272216551a6ea07876a1e26d306f9",
+  wtvara: "0xD8B16a9bBA9AeBBe77F89528231083ED983c76fC",
+  erc20Manager: "0xc06450d5a251a9434571402472c6f4f3acb4521c",
+};
+
+// Vara (Testnet) contract addresses
+export const vara = {
+  checkpointLightClient: "0xdb7bbcaff8caa131a94d73f63c8f0dd1fec60e0d263e551d138a9dfb500134ca",
+  ethEventsElectra: "0x0e81a4201bdb78fb313aa01a7764aa2c6bd254463026dc700db9f657c54d47b1",
+  historicalProxy: "0x5d2a0dcfc30301ad5eda002481e6d0b283f81a1221bef8ba2a3fa65fd56c8e0f",
+  vftManager: "0x0cbd1f152bb47dcd0a95ca0dde194978b61b1faebe1df09b5e2a1f6e8e5f5fa1",
+  bridgingPayment: "0x2912fde38a646f627e31cde70307ca0006fae14520ff62ffed90b22c90a95a6c",
+  wusdc: "0x54ec9739ae960b250864644b1f9b9190838183df4d53fd6aba40173867f440f2",
+  wusdt: "0x5031bfe111a3bb1c53cb24b84070f8d506ab07c73f6a7e46c72e0ad38be4422b",
+  weth: "0xfe5890ea569b6b86e9226dce1cf6e9a714cad0fc0ea5f06375f1767e9a7e4083",
+  tokenizedVara: "0xee354b7cb70e31b45928f5a767025d10338181bd9a97a1524061cf33489c6bb1",
+};

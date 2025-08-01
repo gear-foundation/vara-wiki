@@ -10,9 +10,9 @@ It also ensures compatibility with the Vara network by verifying that the binary
 
 Code Verifier helps to:
 
-	- ✅ Ensure your program was built in the correct environment
-	- ✅ Guarantee determinism: same code = same binary = same behavior
-	- ✅ Speed up audits and integration with other tools
+- ✅ Ensure your program was built in the correct environment
+- ✅ Guarantee determinism: same code = same binary = same behavior
+- ✅ Speed up audits and integration with other tools
 
 Whether you’re a <u>developer</u>, <u>auditor</u>, or <u>simple user</u> — you can trust that the program behaves exactly as the source code says it will.
 
@@ -20,22 +20,210 @@ Whether you’re a <u>developer</u>, <u>auditor</u>, or <u>simple user</u> — y
 
 If you’re building on `Sails` — Code Verifier should be part of your standard workflow. It helps you build safer, more reliable applications that everyone can trust.
 
-First, compile your program using the official Docker image:
+1. **You compile your Sails program** with the provided Docker image (see below).
+2. **Upload your binary and source code** to the verification service (via web UI or API).
+3. The service **rebuilds** your project in the same environment and checks for a byte-for-byte match with your submitted binary.
+4. The result and metadata are available through a web interface and via REST API.
+
+## Compiling Your Program
+
+Always compile Sails programs with the official Docker images for reliable, reproducible results.
+
+### Basic Usage
 
 ```bash
-docker run -v $(pwd):/app --entrypoint /bin/bash ghcr.io/gear-tech/sails-program-builder:<version> -c 'cargo build --release'
+docker run -v $(pwd):/app --entrypoint /bin/bash \
+  --platform=linux/amd64 ghcr.io/gear-tech/sails-program-builder:<version> \
+  -c 'cargo build --release'
 ```
+
+- Replace `<version>` with the exact Sails builder version your project targets. [See all versions](https://github.com/gear-tech/sails-program-builder/pkgs/container/sails-program-builder)
+
+### For workspaces or subdirectories:
+
+- **Workspace package:**
+  ```bash
+  docker run -v $(pwd):/app --entrypoint /bin/bash \
+    --platform=linux/amd64 ghcr.io/gear-tech/sails-program-builder:<version> \
+    -c 'cargo build -p <project_name> --release'
+  ```
+
+- **Project in subdirectory:**
+  ```bash
+  docker run -v $(pwd):/app --entrypoint /bin/bash \
+    --platform=linux/amd64 ghcr.io/gear-tech/sails-program-builder:<version> \
+    -c 'cargo build --manifest-path <path/to/project/Cargo.toml> --release'
+  ```
 
 ```note
-Important: Make sure to choose the Docker image version that matches the Sails version used in your project.
+Make sure you have Docker installed.  
+- [Get Docker Desktop (Windows/Mac)](https://www.docker.com/products/docker-desktop/)  
+- [Install Docker Engine (Linux)](https://docs.docker.com/engine/install/)
 ```
 
-👉 Browse available Docker image versions here:
-[gear-tech/sails-program-builder](https://github.com/gear-tech/sails-program-builder/pkgs/container/sails-program-builder)
+## Troubleshooting: Docker Pull Issues
 
-Then, upload your binary and source code for verification using:
+If you get a `403 Forbidden` error pulling the Docker image (common on Mac with Apple Silicon):
 
-![img alt](../img/code-verifier.png)
+1. **Generate a GitHub Personal Access Token (PAT):**
+   - Go to GitHub → Settings → Developer settings → Personal access tokens → Generate new token.
+   - Grant `read:packages` permission.
 
-- Web interface: [gear-tech.io/verify](https.gear-tech.io/verify)
-- Technical README & API: [Github](https://github.com/gear-tech/sails-program-verifier)
+2. **Login to GitHub Container Registry:**
+   ```sh
+   echo YOUR_GITHUB_TOKEN | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+   ```
+   or
+   ```sh
+   docker login ghcr.io -u YOUR_GITHUB_USERNAME -p YOUR_GITHUB_TOKEN
+   ```
+
+3. **Retry pulling the image:**
+   ```sh
+   docker pull ghcr.io/gear-tech/sails-program-builder:<version>
+   ```
+
+## Verification Process
+
+After compiling, upload your binary and source code for verification:
+
+- **Web interface:** [gear-tech.io/verify](https://gear-tech.io/verify)
+- **Technical README & API:** [GitHub](https://github.com/gear-tech/sails-program-verifier)
+
+## API Reference
+
+The `sails-program-verifier` provides a public REST API for automated verification and querying.
+
+### 1. Get Verified Code
+
+**GET `/code`**  
+Retrieve a verified code entry by its ID.
+
+**Query Parameters:**
+- `id` *(string, required)* — Unique code identifier.
+
+**Response:**
+```json
+{
+  "id": "12345",
+  "idl_hash": "abcdef123456",
+  "name": "MyContract",
+  "repo_link": "https://github.com/user/repo"
+}
+```
+
+### 2. Get Multiple Verified Codes
+
+**GET `/codes`**  
+Fetch a list of verified code entries by IDs.
+
+**Query Parameters:**
+- `ids` *(array of strings, required)*
+
+**Response:**
+```json
+[
+  {
+    "id": "12345",
+    "code": {
+      "id": "12345",
+      "idl_hash": "abcdef123456",
+      "name": "MyContract",
+      "repo_link": "https://github.com/user/repo"
+    }
+  },
+  {
+    "id": "67890",
+    "code": null
+  }
+]
+```
+
+---
+
+### 3. Get IDL for Verified Code
+
+**GET `/idl`**  
+Retrieve the IDL (Interface Definition Language) for a verified contract.
+
+**Query Parameters:**
+- `id` *(string, required)*
+
+**Response:**
+```json
+{
+  "id": "12345",
+  "content": "IDL data here..."
+}
+```
+
+### 4. Get Supported Sails Versions
+
+**GET `/supported_versions`**  
+Returns a list of Sails versions supported by the verifier.
+
+**Response:**
+```json
+[
+  "0.8.0",
+  "0.8.1"
+]
+```
+
+### 5. Submit a Verification Request
+
+**POST `/verify`**  
+Submit a program for verification.
+
+**Request Body:**
+```json
+{
+  "repo_link": "https://github.com/user/repo",
+  "version": "0.8.1",
+  "network": "testnet",
+  "code_id": "0x12345",
+  "build_idl": true,
+  "base_path": null,
+  "project": "Root"
+}
+```
+
+- **Project options:**
+  - `"Root"` — Build from root directory
+  - `{"Package": "package_name"}` — Build specific package by name
+  - `{"ManifestPath": "path/to/Cargo.toml"}` — Build using specific manifest path
+
+**Response:**
+```json
+{
+  "id": "verification-request-id"
+}
+```
+
+### 6. Check Verification Status
+
+**GET `/verify/status`**  
+Check the status of a verification request.
+
+**Query Parameters:**
+- `id` *(string, required)*
+
+**Response:**
+```json
+{
+  "status": "completed",
+  "code_id": "0x12345",
+  "repo_link": "https://github.com/user/repo",
+  "version": "0.8.1",
+  "created_at": 1700000000,
+  "failed_reason": null,
+  "base_path": null,
+  "manifest_path": null,
+  "project_name": null
+}
+```
+
+**Possible status values:**
+- `"pending"` — Verification in progress
+- `"completed"` — Verification successful
+- `"failed"` — Verification failed (`failed_reason` will be set)

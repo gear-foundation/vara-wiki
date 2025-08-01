@@ -1,0 +1,96 @@
+---
+title: Vara ↔ Ethereum Bridge Developer Hub
+sidebar_position: 4
+sidebar_label: Developer Hub
+---
+
+# Developer Hub
+
+This page provides technical resources for developers and integrators working with the Vara ↔ Ethereum Bridge.  
+It includes the addresses of deployed smart contracts and on-chain programs on both Ethereum (Holesky testnet) and Vara Testnet.
+
+Use this section to:
+
+- Explore and verify bridge-related contracts
+- Begin building integrations with the bridge (e.g. relayers, token managers, custom assets)
+
+:::warning
+⚠️ **All listed addresses belong to testnet deployments**.  
+:::
+
+## Contract Addresses
+
+---
+
+## Ethereum (Holesky)
+
+**Core Components**
+
+- Verifier: [`0x650828F8900C8e5B2723349CFE54BF77A98a4eC1`](https://holesky.etherscan.io/address/0x650828F8900C8e5B2723349CFE54BF77A98a4eC1)
+
+- Relayer: [`0xD6977ED65227586e10449C2855E66b3A1B67Aed8`](https://holesky.etherscan.io/address/0xD6977ED65227586e10449C2855E66b3A1B67Aed8)
+
+- MessageQueue: [`0x122D0ADEAEF60857C5200f655a8e43Cdf1f6E222`](https://holesky.etherscan.io/address/0x122D0ADEAEF60857C5200f655a8e43Cdf1f6E222)
+
+- Bridging Payment: [`0x958D9213B7F94Dd46587B8B74Ab714BE9449116a`](https://holesky.etherscan.io/address/0x958D9213B7F94Dd46587B8B74Ab714BE9449116a)
+
+**Token Contracts**
+
+- USDC: [`0x17d9b16612D19cE0ff845f3eD00d6A69ecf89349`](https://holesky.etherscan.io/address/0x17d9b16612D19cE0ff845f3eD00d6A69ecf89349)
+
+- USDT: [`0x4850D51120e241ff24f60f34Fee5E96BF10cD72a`](https://holesky.etherscan.io/address/0x4850D51120e241ff24f60f34Fee5E96BF10cD72a)
+
+- Tokenized ETH: [`0xba86d50A4403Ae33AC44F21B652531bcDDd18609`](https://holesky.etherscan.io/address/0xba86d50A4403Ae33AC44F21B652531bcDDd18609)
+
+- WTVARA: [`0xCAda7e55B20B12b8981566A2F27A252b10962EE5`](https://holesky.etherscan.io/address/0xCAda7e55B20B12b8981566A2F27A252b10962EE5)
+
+**Proxy Contracts**
+
+- Relayer Proxy: [`0x026753529ca2c396b9081365db97d3c0d73Ae0d8`](https://holesky.etherscan.io/address/0x026753529ca2c396b9081365db97d3c0d73Ae0d8)
+
+- MessageQueue Proxy: [`0x787D31a0AFbD5306DbFdf38469f0768a7F1b7f75`](https://holesky.etherscan.io/address/0x787D31a0AFbD5306DbFdf38469f0768a7F1b7f75)
+
+- Relayer Proxy Updater: [`0x71f1eeFf4f73bBA61E73D31BF1420BE3FD7867a1`](https://holesky.etherscan.io/address/0x71f1eeFf4f73bBA61E73D31BF1420BE3FD7867a1)
+
+- MessageQueue Proxy Updater: [`0xaC96a39CcE0fD753497d7EbB77091dF357e67F71`](https://holesky.etherscan.io/address/0xaC96a39CcE0fD753497d7EbB77091dF357e67F71)
+
+**ERC20 Manager**
+
+- ERC20Manager: [`0x68aA13A99105d92ad58256A982B1807D5b652234`](https://holesky.etherscan.io/address/0x68aA13A99105d92ad58256A982B1807D5b652234)
+
+- ERC20Manager Proxy: [`0x9fCc8d0F489936DFf33c30A82b0b78bBEdC32A0f`](https://holesky.etherscan.io/address/0x9fCc8d0F489936DFf33c30A82b0b78bBEdC32A0f)
+
+- ERC20Manager Proxy Updater: [`0x5270706800329FB7982BA278D2103dF2d1E08DD5`](https://holesky.etherscan.io/address/0x5270706800329FB7982BA278D2103dF2d1E08DD5)
+
+---
+
+## Vara (Testnet)
+
+**Core Components**
+
+- checkpoint-light-client: [`0x90ac9f973e04e1571acc15f370a9ec9882b0478ac773d4adb58ca17052fed04e`](https://idea.gear-tech.io/programs/0x90ac9f973e04e1571acc15f370a9ec9882b0478ac773d4adb58ca17052fed04e?node=wss%3A%2F%2Ftestnet.vara.network)  
+  `git commit: 0a1842ab43bec83b7ec8737db3344b3a06ad7dcc`
+
+- eth-events-electra: [`0xaaa0cb91a88b20c8ada32f9778d03d3387a89e37494fbf7d8fa2240bcee820da`](https://idea.gear-tech.io/programs/0xaaa0cb91a88b20c8ada32f9778d03d3387a89e37494fbf7d8fa2240bcee820da?node=wss%3A%2F%2Ftestnet.vara.network)  
+  `git commit: 08a8f3fd8d459f2d920f44c33b85e3510717befb`
+
+- historical-proxy: [`0xb764ed461f78c54b464c8c1b5f35a27017906d78ce0e58c61ca47402cfc89ace`](https://idea.gear-tech.io/programs/0xb764ed461f78c54b464c8c1b5f35a27017906d78ce0e58c61ca47402cfc89ace?node=wss%3A%2F%2Ftestnet.vara.network)  
+  `git commit: 08a8f3fd8d459f2d920f44c33b85e3510717befb`
+
+- vft-manager: [`0x9251d8f487b7bb706d2c8b9ba8d0d9ff97978421c4baf3cb42b15d0163554860`](https://idea.gear-tech.io/programs/0x9251d8f487b7bb706d2c8b9ba8d0d9ff97978421c4baf3cb42b15d0163554860?node=wss%3A%2F%2Ftestnet.vara.network)  
+  `git commit: 184d6514fbd9c810a32a0e7e010652a7dfa10fca`
+
+- Bridging Payment: [`0x57eeeb1a55856c6b868834396dab06be8b83d17c85d22cd024779cb7377cd0a1`](https://idea.gear-tech.io/programs/0x57eeeb1a55856c6b868834396dab06be8b83d17c85d22cd024779cb7377cd0a1?node=wss%3A%2F%2Ftestnet.vara.network)
+  `git commit: 184d6514fbd9c810a32a0e7e010652a7dfa10fca`
+  
+**Token Contracts**
+
+- WUSDC: [`0x46896891852a364d9fe38b52e4061da85a00f6118415715c40d86a1f4ca00414`](https://idea.gear-tech.io/programs/0x46896891852a364d9fe38b52e4061da85a00f6118415715c40d86a1f4ca00414?node=wss%3A%2F%2Ftestnet.vara.network)
+
+- WUSDT: [`0x77e704ac1c6129d147ecc6b5ddadc80dd1945505bb9654b23e41153ed0737e49`](https://idea.gear-tech.io/programs/0x77e704ac1c6129d147ecc6b5ddadc80dd1945505bb9654b23e41153ed0737e49?node=wss%3A%2F%2Ftestnet.vara.network)
+
+- WETH: [`0x1f2af47fa11e08e9a7e9bf81d84d166e425e1f13104690b33f4fd4c4ddca6709`](https://idea.gear-tech.io/programs/0x1f2af47fa11e08e9a7e9bf81d84d166e425e1f13104690b33f4fd4c4ddca6709?node=wss%3A%2F%2Ftestnet.vara.network)
+
+- Tokenized VARA: [`0xd69223c8ce0e106b536df0bdbd1735a9aa64f3b207acc7272cbbd69012bf9a54`](https://idea.gear-tech.io/programs/0xd69223c8ce0e106b536df0bdbd1735a9aa64f3b207acc7272cbbd69012bf9a54?node=wss%3A%2F%2Ftestnet.vara.network)
+
+---

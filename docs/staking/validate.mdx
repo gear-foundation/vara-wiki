@@ -14,7 +14,7 @@ Holding such responsibility requires careful commitment from each validator beca
 
 Check out the [Vara Validators Dashboard](https://validators.vara.network/) that provides statistical information about the existing validators, including their status, installed node version, hardware details, staking info, slashing history, and more.
 
-## Hardware requirements
+## Hardware Requirements
 
 :::info
 Beginners can start their validator setup on Linux-based cloud servers. Select the VPS provider that best meets the requirements below to maximize performance and run securely.
@@ -96,7 +96,7 @@ gear 1.4.2-13d95cf3388
 </Tabs>
 ````
 
-### Run Vara node as service
+### Run Vara Node as a Service
 
 Copy the `gear` executable to the `/usr/bin` directory:
 
@@ -160,7 +160,7 @@ sudo journalctl --follow -u vara-node.service
 
 You can also see your running node in telemetry portal: https://telemetry.rs
 
-## Create Stash and Controller accounts
+## Create Stash and Controller Accounts
 
 Create two accounts: Stash and Controller, for security reasons. Ensure each of them has enough funds to pay the transaction fee. Store most of the funds on the Stash accounts, which are the optimal location for saving staking funds safely and securely.
 
@@ -174,7 +174,7 @@ Use the prompt to generate a new seed phrase:
 Save both seed phrases in a secure place. Skip the previous step if you intend to use your seed phrase. If you want to use your seed phrase, skip this step. You can use [Polkadot.\{js\}](https://polkadot.js.org/apps/#/accounts) or [Polkadot extension](https://polkadot.js.org/extension/)
 :::
 
-## Get session keys
+## Get Session Keys
 
 You need to tell the chain your Session keys. If you are on a remote server, it is easier to run this command on the same machine (while the node is running with the default HTTP RPC port configured):
 
@@ -227,3 +227,25 @@ sudo systemctl start vara-node.service
 ```
 
 👏👏👏 Congratulations! You’ve successfully set up your validator node. 👏👏👏 If you encounter challenges or need help — reach out in the [Validators Chat](https://discord.com/channels/891063355526217738/1014177678473035777)!
+
+## Using Snapshots to Speed Up Node Sync
+
+When initializing your Vara validator node, syncing from the genesis block can be slow — especially on machines with limited I/O or bandwidth. To accelerate the setup, Vara provides regularly updated **[snapshots](https://snapshots.vara.network)** of the blockchain state.
+
+Snapshots allow your node to start from a recent block instead of syncing the entire history, reducing setup time from hours to minutes.
+
+### 📦 Steps to Use a Snapshot
+
+1. **Stop the node** (if already running).
+2. **Download and extract the latest snapshot**:
+```bash
+curl -o - -L https://snapshots.vara-network.io/vara-mainnet-latest.tar.lz4
+  | lz4 -c -d -
+  | tar -x -C /home/ubuntu/gear-data/chains/vara_network/db
+```
+3. **Restart your node**:
+```bash
+gear --chain vara --base-path /home/ubuntu/gear-data/ --database rocksdb --pruning 256
+```
+
+📌 Note: Always use snapshots from the official Vara source to ensure trust and integrity: https://snapshots.vara.network.

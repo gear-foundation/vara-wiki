@@ -15,19 +15,19 @@ In this case, `Futures` remain in memory pages forever. Other messages are not a
 
 In case a message has been removed from the waitlist due to gas constraints, the system sends a system message (signal) that is baked by an amount of [reserved gas](/build/gstd/gas-reservation.md), which informs the program that it’s message was removed from the waitlist. Based on this info, a program can clean up its used system resources (`Futures`).
 
-The `gstd` library provides a separate [`exec::system_reserve_gas`](https://docs.gear.rs/gstd/exec/fn.system_reserve_gas.html) function for reserving gas specifically for system signal messages. It cannot be used for sending other regular cross-actor messages:
+The `gstd` library provides a separate [`exec::system_reserve_gas`](https://docs.rs/gstd/latest/gstd/exec/fn.system_reserve_gas.html) function for reserving gas specifically for system signal messages. It cannot be used for sending other regular cross-actor messages:
 
 ```rust
 exec::system_reserve_gas(1_000_000_000).expect("Error during system gas reservation");
 ```
 
-Even if this function hasn't been called, the system will reserve gas for system messages automatically with the [default amount](https://docs.gear.rs/gstd/struct.Config.html#structfield.system_reserve) of `1_000_000_000`.
+Even if this function hasn't been called, the system will reserve gas for system messages automatically with the [default amount](https://docs.rs/gstd/latest/gstd/struct.Config.html#method.system_reserve) of `1_000_000_000`.
 
 If a signal message appears, it uses gas specifically reserved for such kinds of messages. If no gas has been reserved for system messages, they are just skipped and the program will not receive them.
 
 If gas has been reserved but no system messages occur during the current execution, then this gas returns back from where it was taken. The same relates to gas reserved for non-system messages - gas returns back after a defined number of blocks or by the program’s command.
 
-`handle_signal` has a default implementation if the program has `async init` or/and `async main` functions (see [Asynchronous Programming](/docs/build/gstd/async-programing.md) for more details about async entry points). To define a custom signal handler, use the [`gstd::async_init`](https://docs.gear.rs/gstd/attr.async_init.html) or [`gstd::async_main`](https://docs.gear.rs/gstd/attr.async_main.html) macro with the specified `handle_signal` argument. For example:
+`handle_signal` has a default implementation if the program has `async init` or/and `async main` functions (see [Asynchronous Programming](/docs/build/gstd/async-programing.md) for more details about async entry points). To define a custom signal handler, use the [`gstd::async_init`](https://docs.rs/gstd/latest/gstd/attr.async_init.html) or [`gstd::async_main`](https://docs.rs/gstd/latest/gstd/attr.async_main.html) macro with the specified `handle_signal` argument. For example:
 
 ```rust
 #[gstd::async_main(handle_signal = my_handle_signal)]
@@ -48,8 +48,8 @@ Note that the custom signal handler derives its default behavior.
 
 Some useful functions that can be used in `handle_signal`:
 
-- [`msg::signal_from`](https://docs.gear.rs/gstd/msg/fn.signal_from.html) - returns an identifier of the message which caused the signal;
-- [`msg::signal_code`](https://docs.gear.rs/gstd/msg/fn.signal_code.html) - returns the reason code of the signal (see [`SignalCode`](https://docs.gear.rs/gstd/errors/enum.SignalCode.html) enum for more details).
+- [`msg::signal_from`](https://docs.rs/gstd/latest/gstd/msg/fn.signal_from.html) - returns an identifier of the message which caused the signal;
+- [`msg::signal_code`](https://docs.rs/gstd/latest/gstd/msg/fn.signal_code.html - returns the reason code of the signal (see [`SignalCode`](https://docs.rs/gstd/latest/gstd/errors/enum.SignalCode.html) enum for more details).
 
 It can be useful for a developer when writing communication between programs. Developer can define `my_handle_signal` function and implement some logic there. For example, `Program A` sent a message to `Program B`. `Program A` is waiting for a reply from `Program B` but `Program B` runs out of gas. The current execution will be interrupted, but the system will send a signal to `Program A` and indicates the message identifier during which the execution was interrupted.
 So, `Program A` sends a message and saves the message identifier:

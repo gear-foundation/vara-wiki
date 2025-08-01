@@ -37,4 +37,4 @@ extern "C" fn handle() {
 }
 ```
 
-More information about the `gstd::prog` module can be found at https://docs.gear.rs/gstd/prog/index.html.
+More information about the `gstd::prog` module can be found at https://docs.rs/gstd/latest/gstd/prog/index.html.

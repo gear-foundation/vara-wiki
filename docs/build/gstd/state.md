@@ -23,7 +23,7 @@ If you're programming in Rust or other object-oriented languages, you should be 
 
 :::info
 
-[`ActorId`](https://docs.gear.rs/gstd/struct.ActorId.html) is a special type that represents an 32 bytes array and defines any `ID` in Gear Protocol.
+[`ActorId`](https://docs.rs/gstd/latest/gstd/struct.ActorId.html) is a special type that represents an 32 bytes array and defines any `ID` in Gear Protocol.
 
 :::
 

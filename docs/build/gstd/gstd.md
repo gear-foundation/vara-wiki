@@ -10,7 +10,7 @@ The Gear Protocol’s library `gstd` provides all the necessary and sufficient f
 
 The `gstd` default prelude lists things that Rust automatically imports into every program. It re-imports default `std` modules and traits. `std` can be safely replaced with `gstd` in the Vara programs on Rust.
 
-See more details [here](https://docs.gear.rs/gstd/prelude/index.html).
+See more details [here](https://docs.rs/gstd/latest/gstd/prelude/index.html).
 
 ## Message handling
 
@@ -61,7 +61,7 @@ extern "C" fn handle() {
 }
 ```
 
-More cases of using the `msg` module can be found in the [documentation](https://docs.gear.rs/gstd/msg/index.html).
+More cases of using the `msg` module can be found in the [documentation](https://docs.rs/gstd/latest/gstd/msg/index.html).
 
 ## Execution info
 
@@ -100,7 +100,7 @@ extern "C" fn handle() {
 }
 ```
 
-More info about program syscalls can be found [here](https://docs.gear.rs/gstd/exec/index.html).
+More info about program syscalls can be found [here](https://docs.rs/gstd/latest/gstd/exec/index.html).
 
 ## Logging inside the programs
 

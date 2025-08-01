@@ -5,6 +5,11 @@ sidebar_position: 2
 
 # BLS12-381
 
+:::note
+**ActorId (32 bytes):**  
+`0x6b6e292c382945e80bf51af2ba7fe9f458dcff81ae6075c46f9095e1bbecdc37`
+:::
+
 [BLS12-381](https://github.com/gear-tech/gear/blob/master/pallets/gear-builtin/src/bls12_381.rs) is the first Built-in Actor integrated into the Vara runtime. It provides an interface that enables validators to perform native runtime computations of BLS cryptography methods.
 
 BLS cryptography facilitates efficient signature aggregation and verification at scale using Elliptic Curve cryptography. However, these operations are computationally intensive, and the Wasm VM used in Vara is not capable (without significant increase of minimal hardware requirements) of processing them quickly enough to fit within the single block time of Vara’s network (which is 3 seconds).

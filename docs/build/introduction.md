@@ -6,9 +6,7 @@ sidebar_position: 2
 # Attention developers!
 
 :::important
-Want to take your blockchain development skills to the next level? Join **[Gear Academy's](https://academy.gear.foundation/)** free courses. Start from scratch with our [Beginner Course](https://academy.gear.foundation/courses/basic_course) or explore the implementation of programs using Gear technologies with the [Intermediate Course](https://academy.gear.foundation/courses/intermediate-course). More courses are being developed.
-
-Don't miss this opportunity to become a pro Gear blockchain developer. Enroll now in Gear Academy's courses!
+Want to take your blockchain development skills to the next level? Don't miss this opportunity to become a pro Vara blockchain developer. 🔥 Try out the interactive [Sails tutorial](https://sails-tutorials.vara.network/hello-world/hello-world).
 :::
 
 ## What is a Vara program?
@@ -71,7 +69,7 @@ The reply message is similar to the ordinary message, but it has some difference
 
 ## API functions (imported functions)
 
-There are a lot of imported functions that can be used by the Vara program. They are called API functions. These functions are provided by the runtime that executes the Gear program. The most convenient way to use these functions is to use the Gear standard library called [`gstd`](https://docs.gear.rs/gstd/). It is a set of high-level functions that are implemented on top of the low-level API functions.
+There are a lot of imported functions that can be used by the Vara program. They are called API functions. These functions are provided by the runtime that executes the Gear program. The most convenient way to use these functions is to use the Gear standard library called [`gstd`](https://docs.rs/gstd/latest/gstd/). It is a set of high-level functions that are implemented on top of the low-level API functions.
 
 More details about the Gear Protocol's standard library can be found in the [Gear Library](/docs/build/gstd) section.
 
@@ -132,7 +130,7 @@ The program can be executed by sending a message to it. The message can be sent 
 
 ### 6. Terminate the program.
 
-The program can be terminated by calling the [`gstd::exec::exit`](https://docs.gear.rs/gstd/exec/fn.exit.html) function. Also, the program is paused if the rent is not paid.
+The program can be terminated by calling the [`gstd::exec::exit`](https://docs.rs/gstd/latest/gstd/exec/fn.exit.html) function. Also, the program is paused if the rent is not paid.
 
 The program can't be executed after termination.
 
@@ -163,7 +161,7 @@ More details about state functions can be found in the [State Functions](/docs/b
 
 In some cases, it is more convenient to express some concepts in an asynchronous programming style. For example, when you need to wait for a reply from another program or wait for a certain time.
 
-Under the hood, the `async`/`await` syntax is a kind of syntactic sugar that generates a state machine around [`gstd::exec::wait`](https://docs.gear.rs/gstd/exec/fn.wait.html) and [`gstd::exec::wake`](https://docs.gear.rs/gstd/exec/fn.wake.html) functions. The state machine is stored in the program's persistent memory.
+Under the hood, the `async`/`await` syntax is a kind of syntactic sugar that generates a state machine around [`gstd::exec::wait`](hhttps://docs.rs/gstd/latest/gstd/exec/fn.wait.html) and [`gstd::exec::wake`](https://docs.rs/gstd/latest/gstd/exec/fn.wake.html) functions. The state machine is stored in the program's persistent memory.
 
 Note that in case of using async functions, you are to declare the `async main()` function with `#[async_main]` attribute instead of the `handle()` function:
 
@@ -191,7 +189,7 @@ Both users and programs are actors in terms of the Gear programming model. There
 
 The only prerequisite is that the code of the program should be stored in the blockchain. This can be done by using the [`upload_code`](https://docs.gear.rs/pallet_gear/pallet/struct.Pallet.html#method.upload_code) extrinsic that returns an identifier of the uploaded code. The code can be uploaded only once, then it can be used for creating multiple programs.
 
-There are several helper functions for creating programs from programs in the [`gstd::prog`](https://docs.gear.rs/gstd/prog/) module.
+There are several helper functions for creating programs from programs in the [`gstd::prog`](https://docs.rs/gstd/latest/gstd/prog/index.html) module.
 
 More details about creating programs from programs can be found in the [Create Program](/docs/build/gstd/create.md) section.
 
@@ -205,7 +203,7 @@ You can find more details about gas reservation in the [Gas Reservation](/docs/b
 
 Vara's programs can send messages to other actors during the current execution and after some time. This mechanism can be used to implement deferred actions.
 
-Use functions with `*_delayed` suffix from [`gstd::msg`](https://docs.gear.rs/gstd/msg/index.html) module to send a delayed message to a program or user. The message will be sent after the specified number of blocks.
+Use functions with `*_delayed` suffix from [`gstd::msg`](https://docs.rs/gstd/latest/gstd/msg/index.html) module to send a delayed message to a program or user. The message will be sent after the specified number of blocks.
 
 More details about delayed messages can be found in the [Delayed Messages](/docs/build/gstd/delayed-messages.md) section.
 
@@ -227,6 +225,6 @@ You can find more details about system signals in the [System Signals](/docs/bui
 
 Usually, the reply sender pays a gas fee for the reply message execution. However, sometimes it is more convenient to shift this burden to the program that receives the reply. This can be done by using the reply deposit mechanism.
 
-The reply deposit is a part of the gas limit reserved during the current execution to be spent later. The reserved gas can be used to pay for the reply message execution. To do this, the program should call the [`gstd::exec::reply_deposit`](https://docs.gear.rs/gstd/exec/fn.reply_deposit.html) function. This function provides a gas deposit from the current message to handle the reply message on the given message ID. This message ID should be sent within the execution. Once the destination actor or system sends a reply to it, the gas limit is ignored; if the program provides a deposit, only it will be used for the execution of `handle_reply`.
+The reply deposit is a part of the gas limit reserved during the current execution to be spent later. The reserved gas can be used to pay for the reply message execution. To do this, the program should call the [`gstd::exec::reply_deposit`](https://docs.rs/gstd/latest/gstd/exec/fn.reply_deposit.html) function. This function provides a gas deposit from the current message to handle the reply message on the given message ID. This message ID should be sent within the execution. Once the destination actor or system sends a reply to it, the gas limit is ignored; if the program provides a deposit, only it will be used for the execution of `handle_reply`.
 
 More details about reply deposit can be found in the [Reply Deposit](/docs/build/gstd/reply-deposit.md) section. 

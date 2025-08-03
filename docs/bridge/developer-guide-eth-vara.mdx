@@ -132,7 +132,7 @@ The relayer is a permissionless off-chain service that delivers events and proof
     ```
 
 3. **Calculate the slot for the event:**  
-   Slot is calculated based on the **block timestamp** and Holesky genesis.
+   Slot is calculated based on the **block timestamp** and Hoodi genesis.
 
     ```js
     // Calculate slot number for an Ethereum event
@@ -140,7 +140,7 @@ The relayer is a permissionless off-chain service that delivers events and proof
         const block = await provider.getBlock(event.blockNumber);
         if (!block) throw new Error(`Block not found for number: ${event.blockNumber}`);
         const timestamp = block.timestamp;
-        const GENESIS = 1695902400; // Holesky genesis timestamp
+        const GENESIS = 1695902400; // Hoodi genesis timestamp
         const slot = Math.floor((timestamp - GENESIS) / 12);
         return slot;
     }

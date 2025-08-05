@@ -2,12 +2,14 @@
 export const eth = {
   verifier: "0x80c9a727fdeadfa48864a4fb9bf7bb3e4e40ca52",
   messageQueue: "0x459dbec00b9577500d7830a31051174061c2818e",
+  messageQueueProxy: "0x55B97F9229dc310837A880c7898f7d411528cC6d",
   bridgingPayment: "0x27370c574d4aE6B85A2F45a6899C0cD59E59B38E",
   usdc: "0xb92e77de4e3f32116cf0d53b882c30a1f73b641e",
   usdt: "0x09e1687c3512c8507bcca8bf55b131dfae9b68c7",
   WETH: "0xdb7057418e9272216551a6ea07876a1e26d306f9",
   wtvara: "0xD8B16a9bBA9AeBBe77F89528231083ED983c76fC",
   erc20Manager: "0xc06450d5a251a9434571402472c6f4f3acb4521c",
+  erc20ManagerProxy: "0xD2a0951DBCfdA8de36Ab315A57C30F0784d01342",
 };
 
 // Vara (Testnet) contract addresses

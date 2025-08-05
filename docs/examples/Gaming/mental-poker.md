@@ -93,3 +93,72 @@ verify_shuffle(alice_encrypted_deck, bob_encrypted_deck)
 :::note
 The pseudocode is simplified. Real implementations use cryptographic libraries and ZK-proofs, which will be explored later.
 :::
+
+## Modern Advances: ZK-Circuits and Smart Contracts
+
+The original SRA protocol provides a foundational concept for mental poker, but modern implementations significantly expand on these ideas by using advanced cryptographic methods such as ZKP, elliptic curve cryptography, and blockchain-based smart contracts. These advances address key limitations in the original RSA-based scheme, such as efficiency, verification complexity, and practical scalability.
+
+### ZKP’s Role
+
+In mental poker, Zero-Knowledge Proofs enable players to demonstrate the correctness and fairness of actions—such as shuffling and dealing cards—without revealing sensitive information like card identities or their order. For example, a **Zero-Knowledge Shuffle Proof** mathematically guarantees the fairness of shuffling without exposing the shuffled order.
+
+### Why zk-SNARKs?
+
+Mental poker demands cryptographic guarantees balanced with practical efficiency, making zk-SNARKs (Succinct Non-Interactive Arguments of Knowledge) particularly suitable due to:
+
+- **Compact Proofs**: zk-SNARK proofs are small, reducing on-chain verification costs.
+- **Rapid Verification**: Proofs verify quickly (milliseconds), essential for responsive gameplay.
+- **Off-chain Proof Generation**: Players perform complex proof generation off-chain, minimizing blockchain computational overhead.
+- **Privacy with Integrity**: zk-SNARKs provide robust privacy without sacrificing cryptographic soundness, crucial in competitive games.
+
+:::note
+These claims about zk-SNARKs are accurate and reflect real-world performance. Typical zk-SNARK proofs (such as Groth16) are extremely compact—approximately **200 bytes** per proof. Even more recent zk-SNARK systems like PLONK typically produce proofs rarely exceeding **400–600 bytes**. For comparison, other zero-knowledge systems such as **Bulletproofs** (used in Monero) usually generate proofs of **1–2 KB** or larger.  
+
+Additionally, the rapid verification claim is valid as well. zk-SNARK proofs generally verify within just a few milliseconds (often **1–10 ms**), even in constrained blockchain environments like Ethereum's EVM or WebAssembly-based runtimes.
+:::
+
+### Cryptographic Commitments with Elliptic Curves
+
+A core mechanism of mental poker is cryptographic commitments, analogous to locking a card in a secure box. Modern protocols often use **Pedersen Commitments**:
+
+$$
+C = m \cdot G + r \cdot H
+$$
+
+where:  
+- **m**: hidden card value (e.g., ace of spades),  
+- **r**: random value ensuring secrecy,  
+- **G, H**: publicly known elliptic curve points.
+
+Pedersen Commitments offer:
+
+- **Perfect hiding**: No leakage of card identity.
+- **Computational binding**: Ensures cards cannot be altered without detection.
+
+Elliptic curves provide computationally efficient arithmetic required by these commitments.
+
+### Elliptic Curves: Selecting Optimal Curves
+
+Elliptic curve selection critically influences ZKP efficiency. Two prominent curves stand out:
+
+- **Baby Jubjub (BN-254 Curve)**:
+  - Compatible with traditional zk-SNARK systems common in Ethereum-like blockchain environments.
+  - Optimized for frequent operations such as commitments, encrypting, and shuffling cards.
+  - Well-established tooling and library support.
+
+- **Bandersnatch (BLS12-381 Curve)**:
+  - Optimized for advanced zk-SNARK proving systems (Groth16, Plonk), providing faster arithmetic and smaller proofs.
+  - Ideal for high-frequency actions (multiple rounds of shuffling, dealing, frequent proof verification).
+  - Reduced gas costs due to smaller proofs and faster verification, making it optimal for scalable and interactive gameplay.
+
+### Key Performance Factors
+
+Practical online poker requires cryptographic efficiency and minimal latency. For zk-SNARK-based mental poker implementations, the most crucial performance metrics are:
+
+- **Off-chain Proof Generation Speed**: Proofs for shuffling and dealing must be rapidly computed by players, typically within seconds or milliseconds, to sustain seamless gameplay.
+
+- **On-chain Verification Latency and Cost**: zk-SNARK’s small proof size ensures minimal verification latency and lower gas fees, crucial for frequent blockchain interactions.
+
+- **Minimal Proof Size**: Smaller proofs reduce on-chain data storage requirements and network overhead, directly contributing to lower transaction fees and faster processing.
+
+In sum, zk-SNARK proofs utilizing elliptic curve cryptography deliver the ideal combination of privacy, fairness, and performance, establishing them as the optimal solution for decentralized mental poker.

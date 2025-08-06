@@ -1,3 +1,8 @@
+---
+sidebar_label: Mental Poker
+sidebar_position: 8
+---
+
 # Mental Poker on Vara Network
 
 :::note
@@ -162,3 +167,22 @@ Practical online poker requires cryptographic efficiency and minimal latency. Fo
 - **Minimal Proof Size**: Smaller proofs reduce on-chain data storage requirements and network overhead, directly contributing to lower transaction fees and faster processing.
 
 In sum, zk-SNARK proofs utilizing elliptic curve cryptography deliver the ideal combination of privacy, fairness, and performance, establishing them as the optimal solution for decentralized mental poker.
+
+## Mental Poker in the Vara Context
+
+As we know, Vara is a WASM-based blockchain platform that applies the actor model at its core. The combination of actor-based logic, message-driven design, and a secure WASM runtime enables modular, scalable games—each poker table, lobby, or supporting service is an independent actor. Global state or blocking limitations are avoided entirely: each actor maintains its own state, and all cross-component coordination is handled through explicit message passing and events. This allows thousands of games to run in parallel with no data conflicts, and naturally simplifies integration with front-ends and analytics.
+
+**Elliptic Curve Cryptography:**  
+All cryptographic operations—commitments, encryption, public keys (ElGamal keys for poker), and all arithmetic on encrypted cards—are performed over the Bandersnatch curve (on BLS12-381). This curve is natively supported by the underlying cryptographic libraries (`ark-ed-on-bls12-381-bandersnatch`) and by Vara’s built-in primitives for pairing-based cryptography, including efficient serialization and deserialization.
+
+**Pairing-Friendly Architecture:**  
+All verification logic relies on pairing-friendly cryptography using BLS12-381 and Bandersnatch, providing compatibility with modern proof systems such as Groth16 and Plonk.
+
+**Built-in Contracts for Verification:**  
+On-chain zk-SNARK proof verification (Groth16/Plonk) is always performed by a dedicated zk-verification contract, never inside the game contract itself. Vara exposes built-in contracts that provide highly optimized cryptographic operations—multi-scalar multiplication, pairing checks, and related primitives. This approach accelerates verification, minimizes gas usage, and isolates security-sensitive code.
+
+**Zero-Knowledge Proofs:**  
+ZK proofs are generated off-chain by players (typically on client device). Only the compact proof and required public inputs are sent on-chain, avoiding network congestion and keeping user experience responsive.
+
+**Gas Reservation:**  
+Gas reservation is explicitly used in all important phases (lobby creation, game start, zk verification, and so on), guaranteeing that no key operation is left incomplete or interrupted. The WASM runtime enforces atomic execution of each transition.

@@ -191,7 +191,16 @@ Gas reservation is explicitly used in all important phases (lobby creation, game
 
 The full source code is available in the public repository: [zk-mental-poker](https://github.com/gear-foundation/zk-mental-poker/tree/master)
 
+UI is available [here](https://github.com/gear-foundation/dapps/tree/vt-zk-poker/frontend/apps/zk-poker)
+
 The application consists of two main parts: on-chain smart contracts and the client-side UI.
+
+### Programs Overview
+
+- **Mental Poker Contract** – Core game state, commitments, shuffling, phase transitions.  
+- **Poker Factory** – Creates new game instances and manages lobbies.  
+- **ZK Verification Contract** – On-chain verification of zk-SNARK proofs (shuffle/deal).  
+- **PTS (Points/Token Service)** – Optional player balances/rewards tracking.
 
 ### Client-Side Responsibilities
 
@@ -213,43 +222,180 @@ In addition to handling the standard poker game logic (moves, turns, etc.), the 
 *ElGamal keys* are asymmetric cryptographic key pairs used to enable multi-party encryption and decryption of cards, so that the order and value of cards remain private until revealed.
 :::
 
-### Programs Overview
+## Detailed Workflow and Code Examples
 
-The implementation consists of several main contracts/programs:
+The following sequence describes how the zk-mental-poker DApp interacts with the backend and contracts, including real data formats and serialization logic.
 
-- **Mental Poker:**  
-  The core contract for managing the state of each game, player moves, commitments, shuffling, and phase transitions.
+### 1. ZK Key Generation
 
-- **Poker Factory:**  
-  The factory contract used for creating new game instances and keeping a registry of active games.
+Before joining a game, a zk-proof key pair is generated locally:
 
-- **ZK Verification Contract:**  
-  Specialized contract for verifying zk-SNARK proofs (such as shuffle and deal proofs) on-chain.
+```typescript
+let { sk, pk } = keyGen(numBits);
 
-- **PTS (Points/Token Service):**  
-  Optional utility for tracking player points, balances, or in-game rewards.
+// Public key format:
+{ X: bigint; Y: bigint; Z: bigint }
+```
 
-### Typical Workflow
+The private key (`sk`) must be stored locally (`localStorage` or `sessionStorage`) and never shared.  
+When registering in a game, the **public key** is sent to the smart contract in Little Endian format:
 
-1. **Game Creation:**  
-   The Poker Factory contract deploys a new game instance (Mental Poker contract) and handles player registration.
-
-2. **Player Registration:**  
-   Players join the lobby and are assigned to game instances.
-
-3. **Shuffling and Dealing:**  
-   Each player shuffles and encrypts the deck, generating a zk-SNARK proof (in-browser). The proof and updated deck are submitted on-chain for verification.
-
-4. **Proof Verification:**  
-   zk-SNARK proofs are verified by the ZK Verification contract before the next phase can proceed.
-
-5. **Gameplay:**  
-   All in-game actions (betting, card dealing, revealing) are orchestrated by the Mental Poker contract. Players continue to generate and submit zk-proofs as required by protocol.
-
-6. **UI Synchronization:**  
-   The client UI subscribes to events from the blockchain to update the game state in real-time.
+```rust
+type PublicKey = struct {
+  x: [u8; 32],
+  y: [u8; 32],
+  z: [u8; 32],
+};
+```
 
 ---
 
-**Try it now:**  
+### 2. Player Registration and Aggregate Key
+
+The backend listens to registration events and collects all public keys.  
+Once all are gathered, it computes the **aggregate public key** to encrypt the deck.
+
+If the contract status is `WaitingShuffleVerification`, the client requests a shuffle task:
+
+```http
+GET /get-task?lobby=0xLobbyAddress&player=0xPlayerAddress
+```
+
+**Example Response:**
+```json
+{
+  "aggPubkey": { "X": "...", "Y": "...", "Z": "..." },
+  "deck": [[ "...", "...", "..." ], ...]
+}
+```
+
+### 3. Deck Encryption and Shuffle Proof
+
+The client:
+
+1. Encrypts the deck using the aggregate key.
+2. Shuffles it.
+3. Generates a zk-proof of correct shuffle & encryption.
+4. Sends the proof + public signals to the backend.
+
+The backend collects all proofs and submits them to the contract.  
+If verification passes, encrypted cards are distributed to players.
+
+### 4. Partial Decryption of Player Cards
+
+Players must participate in partial decryption so that each card is eventually under only one encryption layer.
+
+Example for 3 players:
+
+| Player   | Must decrypt cards of |
+|----------|-----------------------|
+| Player 1 | Player 2 & Player 3   |
+| Player 2 | Player 1 & Player 3   |
+| Player 3 | Player 1 & Player 2   |
+
+When the status is `WaitingPartialDecryptionsForPlayersCards`, the client requests tasks:
+
+```http
+GET /get-task?lobby=0xLobbyAddress&player=0xPlayerAddress
+```
+
+**Example Response:**
+```json
+[
+  { "cardOwner": "0xPlayer2", "cardIndex": 0, "card": "CipherCard" },
+  { "cardOwner": "0xPlayer2", "cardIndex": 1, "card": "CipherCard" },
+  { "cardOwner": "0xPlayer3", "cardIndex": 0, "card": "CipherCard" },
+  { "cardOwner": "0xPlayer3", "cardIndex": 1, "card": "CipherCard" }
+]
+```
+
+For each card, the player computes:
+
+```typescript
+const dec_i = sk_i * c0;
+const { proof, publicSignals } = await groth16.fullProve(
+  { c0, sk: sk_i, expected: dec_i },
+  decryptWasmFile,
+  decryptZkeyFile
+);
+```
+
+### 5. Reading and Decrypting Cards
+
+Once cards are under a single encryption layer, a player reads them from the contract:
+
+```rust
+query PlayerCards : (player_id: actor_id) -> opt [EncryptedCard; 2];
+```
+
+The client decrypts them locally using their private key, converting coordinates from bytes (Little Endian) to `BigInt`.
+
+---
+
+### 6. Table Card Decryption
+
+When the stage is:
+
+- `WaitingTableCardsAfterPreFlop` → 3 cards
+- `WaitingTableCardsAfterFlop` → 1 card
+- `WaitingTableCardsAfterTurn` → 1 card
+
+Cards are decrypted in the same way as player cards:
+
+```typescript
+const c0 = card.c0;
+const skC0 = scalarMul(F, a, d, c0, sk);
+const dec: ECPoint = {
+  X: F.neg(skC0.X),
+  Y: skC0.Y,
+  Z: skC0.Z
+};
+
+const { proof, publicSignals } = await groth16.fullProve(
+  {
+    c0: [c0.X.toString(), c0.Y.toString(), c0.Z.toString()],
+    sk: sk.toString(),
+    expected: [dec.X.toString(), dec.Y.toString(), dec.Z.toString()]
+  },
+  decryptWasmFile,
+  decryptZkeyFile
+);
+```
+
+---
+
+### 7. Proof Serialization for On-Chain Submission
+
+Proofs must be encoded in the correct format before submission:
+
+```typescript
+function bigintToBytes48(x: string): Uint8Array {
+  const hex = BigInt(x).toString(16).padStart(96, "0");
+  return Uint8Array.from(Buffer.from(hex, "hex"));
+}
+
+function serializeG1Uncompressed([x, y]: string[]): Uint8Array {
+  return new Uint8Array([...bigintToBytes48(x), ...bigintToBytes48(y)]);
+}
+
+function serializeG2Uncompressed([[x0, x1], [y0, y1]]: string[][]): Uint8Array {
+  return new Uint8Array([
+    ...bigintToBytes48(x1),
+    ...bigintToBytes48(x0),
+    ...bigintToBytes48(y1),
+    ...bigintToBytes48(y0)
+  ]);
+}
+
+function encodeProof(proof: { pi_a: string[], pi_b: string[][], pi_c: string[] }) {
+  return {
+    a: serializeG1Uncompressed(proof.pi_a),
+    b: serializeG2Uncompressed(proof.pi_b),
+    c: serializeG1Uncompressed(proof.pi_c)
+  };
+}
+```
+
+- **Frontend zk Logic:** [zk-poker/src/features/zk](https://github.com/gear-foundation/dapps/tree/vt-zk-poker/frontend/apps/zk-poker/src/features/zk)
+
 You can play decentralized mental poker on Vara here: [zk-mental-poker DApp](https://zk-mental-poker.gear-tech.io)

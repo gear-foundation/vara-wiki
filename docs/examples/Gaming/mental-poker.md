@@ -200,7 +200,7 @@ The mental poker DApp consists of two main components:
 - **On-chain smart contracts** — handle game state, commitments, shuffles, and phase transitions.  
 - **Client-side application** — performs all sensitive cryptographic operations off-chain.
 
-**Source code:** [zk-mental-poker repository](https://github.com/gear-foundation/zk-mental-poker/tree/master)  
+**Source code:** [zk-mental-poker contracts and circuits](https://github.com/gear-foundation/dapps/tree/master/contracts/zk-mental-poker)  
 **UI:** [zk-poker frontend](https://github.com/gear-foundation/dapps/tree/vt-zk-poker/frontend/apps/zk-poker)
 
 ### Programs Overview
@@ -444,7 +444,7 @@ You can play decentralized mental poker on Vara here: [zk-mental-poker DApp](htt
 
 Mental poker combines decades-old cryptographic theory with cutting-edge blockchain and ZK technology to achieve trustless, fair, and efficient online gameplay. By leveraging elliptic curve cryptography, zk-SNARKs, and Vara’s actor-model WASM runtime (with Built-in Actors for heavy crypto), the system ensures **scalability**, **privacy**, and **verifiability**.
 
-- **Source code:** [zk-mental-poker repository](https://github.com/gear-foundation/zk-mental-poker/tree/master)  
+- **Source code:** [zk-mental-poker contracts and circuits](https://github.com/gear-foundation/dapps/tree/master/contracts/zk-mental-poker)  
 - **UI:** [zk-poker frontend](https://github.com/gear-foundation/dapps/tree/vt-zk-poker/frontend/apps/zk-poker)  
 - **Frontend zk Logic:** [zk-poker/src/features/zk](https://github.com/gear-foundation/dapps/tree/vt-zk-poker/frontend/apps/zk-poker/src/features/zk)  
 - **Built-in Actors (BLS):** [BLS12-381 Built-in Actor](https://wiki.vara.network/docs/build/builtinactors/bia-bls)

@@ -205,8 +205,8 @@ The mental poker DApp consists of two main components:
 
 ### Programs Overview
 
-- **Mental Poker Contract** — Core game state, commitments, shuffling, phase transitions.  
-- **Poker Factory** — Creates new game instances and manages lobbies.  
+- **Mental Poker Contract** — Manages the state of a single game instance (poker table/lobby): commitments, shuffling, and phase transitions. 
+- **Poker Factory** — Creates new poker tables (game instances/lobbies) and manages them.
 - **ZK Verification Contract** — On-chain verification of zk-SNARK proofs (shuffle/deal).  
 - **PTS (Points/Token Service)** — Optional player balances/rewards tracking.
 

@@ -20,9 +20,9 @@ At a high level, the cross-chain ping-pong app consists of three main parts, eac
 
 1. **On Vara:** a Gear Program on Rust acts as the Ping sender. It packages a simple payload and sends it using the built-in bridge API, specifying the destination contract on Ethereum.  
    [See Vara Program Code](https://github.com/gear-foundation/vara-eth-cross-ping/tree/main/cross-ping)
-2. **In the middle:** a permissionless relayer listens for events, retrieves the required Merkle root (which guarantees the message’s existence in the queue), obtains the necessary 'Merkle proof', and—at the right moment, when Ethereum’s state is updated—submits 'the message', 'root', and 'proof' to Ethereum.  
+2. **In the middle:** a permissionless relayer listens for events and—once the Merkle root for the message is submitted to Ethereum—relays the message for final delivery.  
    [See Relayer Code](https://github.com/gear-foundation/vara-eth-cross-ping/tree/main/relayer)
-3. **On Ethereum:** a specialized MessageQueue contract verifies the 'proof and root'. If the data is valid, it forwards the message to your destination contract, which emits a “pong” event to confirm delivery.  
+3. **On Ethereum:** a specialized MessageQueue contract verifies the root and proof. If valid, it forwards the message to your destination contract.  
    [See Ping Receiver Code](https://github.com/gear-foundation/vara-eth-cross-ping/tree/main/ping-receiver)
 
 ## What You Don’t Implement
@@ -156,31 +156,24 @@ await listenPingSent(async ({ nonce, blockNumber, messageHash }) => {
 });
 ```
 
-3. **Waits for Merkle root to appear on Ethereum:**
+3. **Relays the message with built-in wait mechanism:**
+
+In the latest version (`@gear-js/bridge@0.1.x`), the `relayVaraToEth` function accepts a `wait: true` flag that internally waits for the Merkle root to appear on Ethereum before relaying.
 
 ```ts
-const appeared = await waitForMerkleRootAppearedInMessageQueue(
-  blockNumber,
-  ethereumPublicClient,
-  MESSAGE_QUEUE_PROXY_ADDRESS
-);
-```
-
-4. **Relays the message to Ethereum:**
-
-```ts
-const result = await relayVaraToEth(
+const result = await relayVaraToEth({
   nonce,
   blockNumber,
   ethereumPublicClient,
   ethereumWalletClient,
-  account,
+  ethereumAccount: account,
   gearApi,
-  MESSAGE_QUEUE_PROXY_ADDRESS,
-  (status, details) => {
+  messageQueueAddress: MESSAGE_QUEUE_PROXY_ADDRESS,
+  wait: true,
+  statusCb: (status, details) => {
     console.log(`[Relay] [Status]`, status, details);
   }
-);
+});
 ```
 
 ---

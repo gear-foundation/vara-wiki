@@ -12,7 +12,7 @@ Cross-chain communication can seem complex, but at its core, it’s about secure
 The ping-pong pattern is a classic example used in distributed systems to demonstrate reliable message delivery: a simple “ping” sent from one chain and a “pong” received in response from the other.
 :::
 
-This guide focuses on the flow from Vara to Ethereum using the bridge’s built-in ZK-based mechanism. The protocol handles the heavy lifting—cryptographic proofs, relaying, and validation—allowing developers to concentrate on the application logic. Future articles will explore the reverse direction (Ethereum to Vara) and additional cross-chain patterns.
+This guide focuses on the flow from Vara to Ethereum using the bridge’s built-in ZK-based mechanism. The protocol handles the heavy lifting-cryptographic proofs, relaying, and validation-allowing developers to concentrate on the application logic. Future articles will explore the reverse direction (Ethereum to Vara) and additional cross-chain patterns.
 
 ## High-Level Architecture
 
@@ -20,7 +20,7 @@ At a high level, the cross-chain ping-pong app consists of three main parts, eac
 
 1. **On Vara:** a Gear Program on Rust acts as the Ping sender. It packages a simple payload and sends it using the built-in bridge API, specifying the destination contract on Ethereum.  
    [See Vara Program Code](https://github.com/gear-foundation/vara-eth-cross-ping/tree/main/cross-ping)
-2. **In the middle:** a permissionless relayer listens for events and—once the Merkle root for the message is submitted to Ethereum—relays the message for final delivery.  
+2. **In the middle:** a permissionless relayer listens for events and - once the Merkle root for the message is submitted to Ethereum - relays the message for final delivery.  
    [See Relayer Code](https://github.com/gear-foundation/vara-eth-cross-ping/tree/main/relayer)
 3. **On Ethereum:** a specialized MessageQueue contract verifies the root and proof. If valid, it forwards the message to your destination contract.  
    [See Ping Receiver Code](https://github.com/gear-foundation/vara-eth-cross-ping/tree/main/ping-receiver)
@@ -28,12 +28,12 @@ At a high level, the cross-chain ping-pong app consists of three main parts, eac
 ## What You Don’t Implement
 
 :::tip
-As a developer, you do **not implement** the transport layers. All Merkle root calculations, proof generation, ZK-inclusion proofs, and cross-chain state synchronization are handled by the protocol and bridge infrastructure—automatically, behind the scenes.
+As a developer, you do **not implement** the transport layers. All Merkle root calculations, proof generation, ZK-inclusion proofs, and cross-chain state synchronization are handled by the protocol and bridge infrastructure-automatically, behind the scenes.
 :::
 
 Your responsibility is **only your app’s custom logic**: how to format the message and how to process it on arrival.
 
-If you want a deep dive into the protocol’s internals—including proof generation, validator set management, and message processing—please see the official technical overview:  
+If you want a deep dive into the protocol’s internals - including proof generation, validator set management, and message processing-please see the official technical overview:  
 [**Vara ↔ Ethereum Bridge Technical Overview**](https://wiki.vara.network/docs/bridge/bridge_technical)
 
 The bridge’s protocol ensures that Ethereum can trust which messages were sent from Vara, so you never need to worry about the details of proof construction or on-chain validation.  

@@ -18,32 +18,7 @@ A permissionless relayer observes the beacon chain, builds receipt proofs for th
 
 This mechanism is fundamentally **event-based** and asynchronous. Application developers are not required to build the bridge or proof logic themselves — only to emit and handle events, while the trustless bridge and relayers manage the cross-chain transport.
 
-### Flow Overview
-
-At a high level, the cross-chain message flow from **Ethereum → Vara** is as follows:
-
-1. **A user calls `ping()` on the Ethereum contract.**  
-   The contract emits a `PingFromEthereum(address)` event.
-2. **A relayer (off-chain) observes the event.**  
-   The relayer generates a receipt proof and associates it with a chain slot (using beacon chain timestamp).
-3. **The relayer waits for a corresponding checkpoint on Vara.**  
-   Once the relevant checkpoint is available, it submits the proof to a bridge proxy program on Vara.
-4. **The bridge program on Vara verifies the proof.**  
-   If the proof is valid, it calls the custom program/contract on Vara, which can process the “ping” (emit a “pong”, trigger logic, etc.).
-5. **The Vara program receives the cross-chain message and acts.**  
-   The cycle is complete, with cryptographic auditability on both chains.
-
-## Implementation Scope
-
-No implementation of transport or synchronization logic between Ethereum and Vara is required at the application level.  
-All low-level mechanics — including slot synchronization, beacon chain tracking, and finality validation — are handled by the protocol.
-
-- **Slot synchronization** is fully managed by the Checkpoint Light Client contract on Vara.  
-  This smart contract keeps Vara up to date with finalized slots and checkpoints from Ethereum.
-
-**Summary:**  
-The only application-side focus is on emitting and listening for relevant events, and on writing application logic.  
-All cross-chain transport and slot-level synchronization are provided by the bridge infrastructure.
+For simplification, developers can now use the ready-made [**GearJS Bridge library**](https://github.com/gear-tech/gear-bridges/tree/main/js/bridge-js), which performs most of the heavy lifting: proof generation, slot synchronization, and submission to Vara. This allows application developers to focus purely on emitting events on Ethereum and writing the receiving logic on Vara.
 
 ---
 
@@ -53,36 +28,27 @@ All cross-chain transport and slot-level synchronization are provided by the bri
 
 The Ethereum → Vara cross-chain application consists of three core components:
 
-1. **Ethereum Smart Contract (Ping Emitter)**
-    - A simple contract (e.g., `EthPinger`) with a `ping()` method that emits a `PingFromEthereum` event.
+1. **Ethereum Smart Contract (Ping Emitter)**  
+   Minimal contract `EthPinger` with `ping()` that emits `PingFromEthereum(address indexed from)`.
 
-2. **Relayer Service (Off-chain)**
-    - Monitors specific events on Ethereum (such as `PingFromEthereum`).
-    - For each detected event:
-        - **Determines the corresponding Ethereum slot** using the beacon chain (calculating the slot number from the block timestamp).
-        - **Builds a cryptographic proof** (receipt inclusion proof) for the event, using libraries like `eth-proof`.
-        - **Prepares a message package** containing:
-            - The inclusion proof,
-            - The destination program address/route on Vara,
-            - The destination program API details and payload (i.e., the method/route to call, plus relevant data).
-        - **Waits for the slot to be finalized** on Vara, tracked by the Checkpoint Light Client contract.
-        - **Submits the package to the Historical Proxy** on Vara only when the slot has been finalized.
+2. **Relayer Service (Off-chain)**  
+   - Connects to Ethereum and Vara.  
+   - Subscribes to `PingFromEthereum` (Ethereum).  
+   - For each event: calls `relayEthToVara({ transactionHash, ... })`.  
+   - Optionally sets `wait: true` to block until the required checkpoint is finalized.
 
-3. **Vara Programs (Receiver & Bridge)**
-    - **Checkpoint Light Client**  
-      Tracks finalized Ethereum slots and is the root of trust for incoming proofs.
-    - **Historical Proxy**  
-      Receives the package from the relayer, validates the proof and slot against the Checkpoint Light Client, and if valid, forwards the payload to the specified application program.
-    - **Application Program (Ping Receiver)**  
-      Implements a required interface, receives the proof, slot, and payload, and processes them (for example, by emitting an event or updating state).
+3. **Vara Programs (Receiver & Bridge)**  
+   - **Checkpoint Light Client** — tracks finalized Ethereum checkpoints.  
+   - **Historical Proxy** — validates proofs and forwards messages.  
+   - **Ping Receiver** — your program exposing `SubmitReceipt(slot, transaction_index, receipt_rlp)`.
+
+---
 
 ## Implementation Details
 
 ### Ethereum Side
 
-On Ethereum, a simple contract is deployed that exposes a `ping()` function and emits a `PingFromEthereum` event:
-
-[Source code on GitHub](https://github.com/gear-foundation/eth-vara-cross-ping/tree/master/eth-pinger)
+A minimal contract that emits the event:
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -97,208 +63,127 @@ contract EthPinger {
 }
 ```
 
-#### Relayer Side Implementation Details
+Contract location:
+- [`eth-pinger/`](https://github.com/gear-foundation/eth-vara-cross-ping/tree/master/eth-pinger)
 
-The relayer is a permissionless off-chain service that delivers events and proofs from Ethereum to Vara.
+### Relayer Side (using the library)
 
-[Source code on GitHub](https://github.com/gear-foundation/eth-vara-cross-ping/tree/master/relayer)
+The relayer’s job can be summarized in **four steps**: connect to Ethereum, connect to Vara, listen for events, and relay them using the library.
 
-**Step-by-step breakdown:**
+Codebase:
+- [`relayer/`](https://github.com/gear-foundation/eth-vara-cross-ping/tree/master/relayer)
 
-1. **Connect to both Ethereum and Vara, create a keyring for Vara:**
+#### Create Ethereum clients (HTTP + WS)
 
-    ```js
-    await connectVara();
-    const ethApi = await connectEthereum();
-    const wallet = connectWallet(); // uses VARA_MNEMONIC_KEY
-    ```
+```ts
+// via viem
+export const ethereumPublicClient = createPublicClient({ ... });
+export const ethereumWalletClient = createWalletClient({ ... });
 
-2. **Listen for `PingFromEthereum` events on Ethereum:**  
-   The relayer subscribes to events from the `EthPinger` contract using ethers.js:
+// via ethers (for WS subscriptions)
+const ethWs = new ethers.WebSocketProvider(ETHEREUM_WS_RPC_URL);
+listenPingFromEthereum(ethWs, (from, event) => {
+  const txHash = event.transactionHash;
+  handleEvent(txHash);
+});
+```
 
-    ```js
-    function listenPingFromEthereum(provider, onPing) {
-        const contract = new ethers.Contract(ETH_CONTRACT_ADDRESS, ETH_PINGER_ABI, provider);
-        contract.on('PingFromEthereum', (from, payload) => {
-            onPing(from, payload.log);
-        });
-        console.log('Listening for PingFromEthereum events at:', ETH_CONTRACT_ADDRESS);
-    }
+#### Connect to Vara and initialize Sails + bridge events
 
-    // Usage:
-    listenPingFromEthereum(ethApi, async (from, event) => {
-        // see next steps
-    });
-    ```
+```ts
+varaProvider = await GearApi.create({ providerAddress: VARA_RPC_URL });
+sails = new Sails(parser);
+sails.parseIdl(CROSS_PING_IDL);
+sails.setApi(varaProvider);
+sails.setProgramId(CROSS_PING_PROGRAM_ID);
 
-3. **Calculate the slot for the event:**  
-   Slot is calculated based on the **block timestamp** and Hoodi genesis.
+listenPingSent((e) => {
+  console.log("Ping confirmed on Vara:", e);
+});
+```
 
-    ```js
-    // Calculate slot number for an Ethereum event
-    async function getSlotForEvent(event, provider) {
-        const block = await provider.getBlock(event.blockNumber);
-        if (!block) throw new Error(`Block not found for number: ${event.blockNumber}`);
-        const timestamp = block.timestamp;
-        const GENESIS = 1695902400; // Hoodi genesis timestamp
-        const slot = Math.floor((timestamp - GENESIS) / 12);
-        return slot;
-    }
-    ```
+#### Subscribe to Ethereum event
 
-4. **Build the proof for the event:**  
-   The relayer constructs a proof of event inclusion using `eth-proof and RLP`.
+```ts
+const contract = new ethers.Contract(ETH_CONTRACT_ADDRESS, ETH_PINGER_ABI, provider);
+contract.on("PingFromEthereum", (_, payload) => {
+  const txHash = payload.log.transactionHash;
+  handleEvent(txHash);
+});
+```
 
-    ```js
-    // Generate receipt inclusion proof for the txHash
-    async function generateProof(txHash) {
-        const proof = new GetProof(ETHEREUM_HTTPS_RPC_URL);
-        const result = await proof.receiptProof(txHash);
+#### Relay to Vara via GearJS Bridge
 
-        // Flatten and encode to hex using RLP
-        const headerArr = Array.from(result.header, h => Buffer.from(h));
-        const proofArr = Array.from(result.receiptProof, branch => Array.from(branch, b => Buffer.from(b)));
-        const txIndexBuf = Buffer.from(
-            typeof result.txIndex === "string" ? result.txIndex.replace(/^0x/, "") : [result.txIndex],
-            "hex"
-        );
-        const proofTuple = [headerArr, proofArr, txIndexBuf];
-        const serializedProof = '0x' + Buffer.from(rlp.encode(proofTuple)).toString('hex');
-        return serializedProof;
-    }
-    ```
+```ts
+import { relayEthToVara } from "@gear-js/bridge";
 
-5. **Prepare and queue the message for relay:**
+async function handleEvent(txHash: `0x${string}`) {
+  const { ok, error } = await relayEthToVara({
+    transactionHash: txHash,
+    beaconRpcUrl: BEACON_API_URL,
+    ethereumPublicClient,
+    gearApi: varaProvider!,
+    checkpointClientId: CHECKPOINT_LIGHT_CLIENT,
+    historicalProxyId:  HISTORICAL_PROXY_ID,
+    clientId:           PING_RECEIVER_PROGRAM_ID,
+    clientServiceName: "PingReceiver",
+    clientMethodName:  "SubmitReceipt",
+    signer,
+    wait: true,
+  });
 
-    ```js
-    // Inside event handler
-    const slot = await getSlotForEvent(event, ethApi);
-    const proof = await generateProof(event.transactionHash);
-    const msg = {
-        from,
-        blockNumber: event.blockNumber,
-        txHash: event.transactionHash,
-        slot,
-        proof,
-    };
-    pingMessages.push(msg);
-    ```
+  if (error) console.error("Proxy error:", error);
+  else        console.log("Relayed OK:", ok);
+}
+```
 
-6. **Listen for new checkpoints on Vara (Checkpoint Light Client):**  
-   As soon as the required slot is finalized on Vara, relay the message:
-
-    ```js
-    function listenForNewCheckpoint(sailsCheckpoint, onNewCheckpoint) {
-        sailsCheckpoint.services.ServiceSyncUpdate.events.NewCheckpoint.subscribe((data) => {
-            onNewCheckpoint({
-                slot: data.slot,
-                tree_hash_root: data.tree_hash_root,
-            });
-        });
-    }
-
-    listenForNewCheckpoint(sailsCheckpoint, (event) => {
-        lastVaraSlot = Number(event.slot);
-        const ready = pingMessages.filter(msg => lastVaraSlot !== null && msg.slot <= lastVaraSlot);
-        if (ready.length) {
-            sendToHistoricalProxy(sailsHistorical, wallet, ready[0]);
-        }
-        // Clean up sent messages
-        pingMessages = pingMessages.filter(msg => lastVaraSlot === null || msg.slot > lastVaraSlot);
-    });
-    ```
-
-7. **Send the message to the `HistoricalProxy` on Vara:**  
-   Data sent includes slot, proof, destination program ID, route
-
-    ```js
-    async function sendToHistoricalProxy(sailsHistorical, wallet, msg) {
-        const slot = msg.slot;
-        const proof = msg.proof;
-        const clientRoute = routeToHex(PING_RECEIVER_ROUTE);
-
-        const trx = await sailsHistorical.services.HistoricalProxy.functions.Redirect(
-            slot,
-            proof,
-            PING_RECEIVER_PROGRAM_ID,
-            clientRoute
-        );
-        trx.withAccount(wallet);
-        await trx.calculateGas();
-        const result = await trx.signAndSend();
-
-        console.log("Message sent to HistoricalProxy, result:", result);
-    }
-    ```
-
-**Summary:**
-- The relayer connects to both chains, listens for events, computes slot and proof, waits for checkpoint, and relays to Vara only when the event is finalized and provable.
-- All heavy lifting (proof construction, slot calculation, checkpoint monitoring) is automated via open-source libraries and scripts.
+That’s all: **listen to the Ethereum event → forward tx hash → the library handles proofs & finality**.  
+Full code is available in the [relayer/ folder](https://github.com/gear-foundation/eth-vara-cross-ping/tree/master/relayer).
 
 ### Vara Side
 
-On the Vara side, the application is a Rust smart contract (Gear program) that implements a service interface to receive cross-chain messages from Ethereum.
+Your program exposes a service method that the Historical Proxy will call **after** validation.  
+**The method must be exported** so it’s invokable externally.
 
-[Source code on GitHub](https://github.com/gear-foundation/eth-vara-cross-ping/tree/master/ping-receiver)
-
-**How it works:**
-- The relayer, via HistoricalProxy, delivers messages by calling the `send_message` function (or route) on the program.
-- This entrypoint receives three arguments: `slot`, `transaction_index`, and `receipt_rlp`. [See the source code in HistoricalProxy](https://github.com/gear-tech/gear-bridges/blob/main/gear-programs/historical-proxy/app/src/service.rs)
-- The service interface (route) must accept these parameters.
-
-**Example implementation:**
+A minimal implementation that emits an internal event on receipt:
 
 ```rust
 #![no_std]
 use sails_rs::prelude::*;
 
-#[derive(Debug, Encode, Decode, TypeInfo)]
-pub struct PingFromEthereum {
-    pub slot: u64,
-    pub transaction_index: u32,
-    pub receipt_rlp: Vec<u8>,
-}
-
-#[derive(Debug, Encode, Decode, TypeInfo)]
+#[sails_rs::event]
+#[derive(Encode, Decode, TypeInfo)]
 pub enum Event {
-    PingFromEthereum(PingFromEthereum),
+    ReceiptSubmitted(u64, u32),
 }
 
 pub struct PingReceiverService;
 
 #[service(events = Event)]
 impl PingReceiverService {
-    // Entry point called by HistoricalProxy via send_message
+    #[export]
     pub fn submit_receipt(
         &mut self,
         slot: u64,
         transaction_index: u32,
-        receipt_rlp: Vec<u8>,
-    ) {
-        self.emit_event(Event::PingFromEthereum(PingFromEthereum {
-            slot,
-            transaction_index,
-            receipt_rlp,
-        }))
-        .expect("Failed to emit event");
-    }
-}
-
-pub struct PingReceiverProgram;
-
-#[sails_rs::program]
-impl PingReceiverProgram {
-    pub fn new() -> Self {
-        Self
-    }
-    pub fn ping_receiver(&self) -> PingReceiverService {
-        PingReceiverService
+        _receipt_rlp: Vec<u8>,
+    ) -> Result<(), String> {
+        self.emit_event(Event::ReceiptSubmitted(slot, transaction_index))
+            .map_err(|_| "Failed to emit event".to_string())?;
+        Ok(())
     }
 }
 ```
 
+Program location:
+- [`ping-receiver/`](https://github.com/gear-foundation/eth-vara-cross-ping/tree/master/ping-receiver)
+
+**Names must match** what you pass from the relayer:
+- `clientServiceName = "PingReceiver"`
+- `clientMethodName  = "SubmitReceipt"`
+
 ### Verification
 
-- **Slot synchronization** with the Light Client takes around **15–20 minutes** (after the Ethereum event is finalized).
-- Once the slot is finalized, a message from HistoricalProxy is delivered to the application program on Vara.
-- Verification can be performed using [Gear Idea](https://idea.gear-tech.io/) or any Vara explorer by checking the program’s messages and emitted events.
+Slot synchronization with the Light Client takes around 15–20 minutes (after the Ethereum event is finalized).
+Once the slot is finalized, a message from HistoricalProxy is delivered to the application program on Vara.
+Verification can be performed using Gear Idea or any Vara explorer by checking the program’s messages and emitted events.

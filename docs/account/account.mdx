@@ -4,15 +4,13 @@ sidebar_position: 1
 sidebar_label: Create Vara Address
 ---
 
-A Substrate account enables connection to applications across all Substrate-based networks including Polkadot, Kusama, and their parachains.
-
-The Vara Network is Substrate-based, meaning any keypair compatible with `sr25519` will also work on Vara.
+A Substrate account can be used across all Substrate-based networks, including Vara. Since Vara is built on Substrate, any sr25519-compatible keypair works seamlessly on Vara as well.
 
 There are several ways to generate a Substrate account described in this article, depending on whether using a desktop or a mobile device.
 
 ## Key Information and Security 
 
-For most users, popular and reliable wallets will suffice. For creating a cold wallet for storing funds, consider using [Polkadot Vault](polkadot-vault.mdx) (formerly Parity Signer). Ledger support is expected later.
+For most users, popular and reliable wallets will suffice. For creating a cold wallet for storing funds, consider using [Ledger](ledger.mdx) or [Polkadot Vault](polkadot-vault.mdx) (formerly Parity Signer).
 
 Two key features make up an account - an address and a key (keypair):
 
@@ -135,18 +133,15 @@ If the `Gear` or `Vara` node is installed, generate a new `seed phrase` using th
 
 Then `import` the generated seed phrase into any convenient wallet.
 
-## How to Get Your Address in the Vara Network Format
+## How to Get Your Address in Vara Format
 
-:::note Skip these steps if the account was created via Polkadot.js browser extension
+To display your account address in the Vara format, you can use the [Vara Explorer](https://vara.subscan.io/). Simply paste any Substrate-compatible address into the search bar - the resulting account information will be shown in Vara format automatically.
 
-1. Install Polkadot browser extension from [here](https://polkadot.js.org/extension/) and import the account via Seed phrase or JSON file.
-2. Go to [Polkadot.js apps](https://polkadot.js.org/apps), and allow this web application to interact with the Polkadot extension in the prompt window.
-   :::
+If you need to manually convert an address into Vara format, you can use third-party tools such as:
+- [ss58.org](https://ss58.org/)
+- [Polkadot Subscan Format Transform Tool](https://polkadot.subscan.io/tools/format_transform)
 
-- To see the account in the Vara Network format, go to [Vara Accounts](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.vara.network#/accounts).
-- The address will be shown in the Vara format (with `kG…` or `kD…` prefix). Copy the address to share it with others.
-
-![img alt](./img/pdjs-vara-account.png)
+These tools allow you to convert addresses between different SS58 formats used across Substrate-based networks, including Vara.
 
 ## Frequently Asked Questions
 
@@ -163,8 +158,4 @@ Then `import` the generated seed phrase into any convenient wallet.
 
 #### Does Vara support hard wallets?
 
-> Yes! Vara currently supports [Parity Signer](polkadot-vault.mdx). Ledger support is expected later.
-
-#### How to get the address in the Vara Network format?
-
-> The Vara address prefix is 137. To see the account in the Vara Network format, go to [Vara Accounts](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.vara.network#/accounts).
+> Yes! Vara currently supports [Ledger](ledger.mdx) and [Polkadot Vault](polkadot-vault.mdx).

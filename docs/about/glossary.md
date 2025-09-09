@@ -55,7 +55,7 @@ Decentralized Finance, or DeFi for short, are financial services that are powere
 
 ### Layer-0 protocol
 
-The ground floor for all blockchain protocols. Examples of operating Layer 0 blockchains include Kusama and Polkadot.
+The ground floor for all blockchain protocols. Examples of operating Layer 0 blockchains include Polkadot, Kusama, Cosmos.
 
 ### Layer-1 blockchain protocol
 

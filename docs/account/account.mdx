@@ -4,15 +4,13 @@ sidebar_position: 1
 sidebar_label: Create Vara Address
 ---
 
-A Substrate account enables connection to applications across all Substrate-based networks including Polkadot, Kusama, and their parachains.
-
-The Vara Network is Substrate-based, meaning any keypair compatible with `sr25519` will also work on Vara.
+A Substrate account can be used across all Substrate-based networks, including Vara. Since Vara is built on Substrate, any sr25519-compatible keypair works seamlessly on Vara as well.
 
 There are several ways to generate a Substrate account described in this article, depending on whether using a desktop or a mobile device.
 
 ## Key Information and Security 
 
-For most users, popular and reliable wallets will suffice. For creating a cold wallet for storing funds, consider using [Polkadot Vault](polkadot-vault.mdx) (formerly Parity Signer). Ledger support is expected later.
+For most users, popular and reliable wallets will suffice. For creating a cold wallet for storing funds, consider using [Ledger](ledger.mdx) or [Polkadot Vault](polkadot-vault.mdx) (formerly Parity Signer).
 
 Two key features make up an account - an address and a key (keypair):
 
@@ -160,8 +158,4 @@ These tools allow you to convert addresses between different SS58 formats used a
 
 #### Does Vara support hard wallets?
 
-> Yes! Vara currently supports [Parity Signer](polkadot-vault.mdx). Ledger support is expected later.
-
-#### How to get the address in the Vara Network format?
-
-> The Vara address prefix is 137. To see the account in the Vara Network format, go to [Vara Accounts](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.vara.network#/accounts).
+> Yes! Vara currently supports [Ledger](ledger.mdx) and [Polkadot Vault](polkadot-vault.mdx).

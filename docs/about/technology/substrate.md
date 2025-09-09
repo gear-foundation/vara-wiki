@@ -11,8 +11,6 @@ Using a Substrate framework, the creation of different blockchains for specific 
 
 It allows every team creating a new blockchain not to waste efforts for implementing the code for networking, consensus and other essential components from scratch. Refer to the [Substrate Documentation](https://substrate.dev/docs/en/) for more details.
 
-It is an important component of the Polkadot network and most parachains. The critical aspect of the Polkadot network is its ability to route arbitrary messages between chains. These messages enable negotiation channels between two parachains and allow sending asynchronous messages through it.
-
 It's easy to understand the functions of Substrate by its name. The main Substrate features are the following:
 - Forkless Update
 - Built-in Coordination

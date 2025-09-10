@@ -8,7 +8,7 @@ sidebar_label: Ethereum → Vara App Guide
 
 ## Introduction
 
-This article describes the flow for building a cross-chain application from **Ethereum to Vara**. The guide demonstrates how to design an event-based “ping-pong” app, where the message originates on Ethereum and is securely delivered and processed on Vara.
+This article describes the flow for building a cross-chain application from **Ethereum to Vara**. The guide demonstrates how to design an event-based “ping-pong” dApp, where the message originates on Ethereum and is securely delivered and processed on Vara.
 
 Unlike the reverse direction (Vara → Ethereum), where ZK-proofs are used to guarantee trustless delivery, the **Ethereum → Vara** route is based on a **Light Client** mechanism. Here, there are no ZK-proofs on the Ethereum side. Instead, trust is achieved through on-chain light client validation of Ethereum’s consensus — specifically, through the **beacon chain** and its finalized checkpoints.
 
@@ -24,23 +24,26 @@ For simplification, developers can now use the ready-made [**GearJS Bridge libra
 
 ## High-Level Architecture
 
-[Complete the source code on GitHub](https://github.com/gear-foundation/eth-vara-cross-ping)
+[Complete source code on GitHub](https://github.com/gear-foundation/cross-ping/tree/master/packages)
 
 The Ethereum → Vara cross-chain application consists of three core components:
 
 1. **Ethereum Smart Contract (Ping Emitter)**  
    Minimal contract `EthPinger` with `ping()` that emits `PingFromEthereum(address indexed from)`.
+   Location: [`eth-vara-pinger-eth/`](https://github.com/gear-foundation/cross-ping/tree/master/packages/eth-vara-pinger-eth)
 
 2. **Relayer Service (Off-chain)**  
    - Connects to Ethereum and Vara.  
    - Subscribes to `PingFromEthereum` (Ethereum).  
    - For each event: calls `relayEthToVara({ transactionHash, ... })`.  
    - Optionally sets `wait: true` to block until the required checkpoint is finalized.
+   Location: [`eth-vara-relayer-node/`](https://github.com/gear-foundation/cross-ping/tree/master/packages/eth-vara-relayer-node)
 
-3. **Vara Programs (Receiver & Bridge)**  
+3. **Vara Program (Receiver)**
    - **Checkpoint Light Client** — tracks finalized Ethereum checkpoints.  
    - **Historical Proxy** — validates proofs and forwards messages.  
    - **Ping Receiver** — your program exposing `SubmitReceipt(slot, transaction_index, receipt_rlp)`.
+   Location: [`eth-vara-receiver-vara/`](https://github.com/gear-foundation/cross-ping/tree/master/packages/eth-vara-receiver-vara)
 
 ---
 
@@ -63,15 +66,9 @@ contract EthPinger {
 }
 ```
 
-Contract location:
-- [`eth-pinger/`](https://github.com/gear-foundation/eth-vara-cross-ping/tree/master/eth-pinger)
-
 ### Relayer Side (using the library)
 
 The relayer’s job can be summarized in **four steps**: connect to Ethereum, connect to Vara, listen for events, and relay them using the library.
-
-Codebase:
-- [`relayer/`](https://github.com/gear-foundation/eth-vara-cross-ping/tree/master/relayer)
 
 #### Create Ethereum clients (HTTP + WS)
 
@@ -138,7 +135,7 @@ async function handleEvent(txHash: `0x${string}`) {
 ```
 
 That’s all: **listen to the Ethereum event → forward tx hash → the library handles proofs & finality**.  
-Full code is available in the [relayer/ folder](https://github.com/gear-foundation/eth-vara-cross-ping/tree/master/relayer).
+Full code is available in the [relayer package](https://github.com/gear-foundation/cross-ping/tree/master/packages/eth-vara-relayer-node).
 
 ### Vara Side
 
@@ -176,14 +173,13 @@ impl PingReceiverService {
 ```
 
 Program location:
-- [`ping-receiver/`](https://github.com/gear-foundation/eth-vara-cross-ping/tree/master/ping-receiver)
+- [`eth-vara-receiver-vara/`](https://github.com/gear-foundation/cross-ping/tree/master/packages/eth-vara-receiver-vara)
 
 **Names must match** what you pass from the relayer:
 - `clientServiceName = "PingReceiver"`
 - `clientMethodName  = "SubmitReceipt"`
 
-### Verification
+## Verification
 
 Slot synchronization with the Light Client takes around 15–20 minutes (after the Ethereum event is finalized).
 Once the slot is finalized, a message from HistoricalProxy is delivered to the application program on Vara.
-Verification can be performed using Gear Idea or any Vara explorer by checking the program’s messages and emitted events.

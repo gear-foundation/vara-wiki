@@ -51,11 +51,13 @@ is encoded and returned as a response to a caller.
 #[service]
 impl MyService {
     // This is a command
+    #[export]
     pub fn do_something(&mut self, p1: u32, p2: String) -> &'static [u8] {
         ...
     }
 
     // This is a query
+    #[export]
     pub fn some_value(&self, p1: Option<bool>) -> String {
         ...
     }

@@ -61,17 +61,20 @@ This code snippet can be examined to understand how more advanced Sails applicat
             }
         }
 
+        #[export]
         pub fn mint(&mut self, to: ActorId, value: U256) {
             let state = State::get_mut();
             let balance = state.balances.entry(to).or_insert(U256::zero());
             *balance += value;
         }
 
+        #[export]
         pub fn name(&self) -> &'static str {
             let state = State::get();
             &state.name
         }
 
+        #[export]
         pub fn balance_of(&self, account: ActorId) -> U256 {
             let state = State::get();
             *state.balances.get(&account).unwrap_or(&U256::zero())

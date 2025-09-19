@@ -88,6 +88,7 @@ Instead of matching enum variants as in `gstd`, the **`Sails`** framework maps s
     ```rust
     #[service]
     impl Service {
+        #[export]
         pub fn do_a(&mut self) -> TypeOfReply {
             // Implementation for action A
             reply
@@ -135,11 +136,12 @@ This reduces manual work, as the framework abstracts the reply handling, resulti
     ```rust
     #[service]
     impl Service {
+        #[export]
         pub fn state_1(&self) -> TypeOfReply {
             // Implementation for State1
             state
         }
-
+        #[export]
         pub fn state_2(&self) -> TypeOfReply {
             // Implementation for State2
             state

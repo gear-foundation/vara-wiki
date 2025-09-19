@@ -16,6 +16,7 @@ method converted into *PascalCase*. For example:
 #[program]
 impl MyProgram {
     // The `MyPing` service is exposed as `PingSvc`
+    #[export]
     pub fn ping_svc(&self) -> MyPing {
         ...
     }

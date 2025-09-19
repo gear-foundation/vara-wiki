@@ -80,6 +80,8 @@ Your `vara-app` directory tree should look like this:
     │
     ├── build.rs
     │
+    ├── Cargo.lock
+    │
     ├── Cargo.toml
     │
     └──  README.md
@@ -88,32 +90,33 @@ Your `vara-app` directory tree should look like this:
 In `Cargo.toml`, the essential libraries required for building your first project have been included, for example:
 
     ```rust title="vara-app/Cargo.toml"
-    [workspace]
-
-    members = ["client"]
-
-
     [package]
     name = "vara-app"
     version = "0.1.0"
     edition = "2024"
 
     [dependencies]
-    vara-app-app = { path = "app" }
+    sails-rs = "0.9.1"
+    vara-app-app = { version = "0.1.0", path = "app" }
+
+    [workspace]
+    resolver = "3"
+    members = ["app", "client"]
+
+    [workspace.package]
+    version = "0.1.0"
+    edition = "2024"
 
     [build-dependencies]
-    vara-app-app = { path = "app" }
-    sails-rs = { version = "0.8.1", features = ["wasm-builder"] }
-    sails-idl-gen = "0.8.1"
+    sails-rs = { version = "0.9.1", features = ["build"] }
+    vara-app-app = { version = "0.1.0", path = "app" }
 
     [dev-dependencies]
-    vara-app = { path = ".", features = ["wasm-binary"] }
+    sails-rs = { version = "0.9.1", features = ["gtest", "gclient"] }
+    tokio = { version = "1.47.1", features = ["rt", "macros"] }
+    vara-app-app = { path = "app" }
     vara-app-client = { path = "client" }
-    sails-rs = { version = "0.8.1", features = ["gtest"] }
-    tokio = { version = "1.41", features = ["rt", "macros"] }
 
-    [features]
-    wasm-binary = []
     ```
 
 Let's move on to the main code:
@@ -125,37 +128,36 @@ This Rust code defines a simple program for the Vara Network, now updated with a
 
     use sails_rs::prelude::*;
 
-    struct VaraAppService(());
+    struct Service(());
 
-    #[sails_rs::service]
-    impl VaraAppService {
+    impl Service {
         pub fn new() -> Self {
             Self(())
         }
-
-        // Service's method (command)
-        pub fn do_something(&mut self) -> String {
-            "Hello from VaraApp!".to_string()
-        }
-
-        // Service's query
-        pub fn get_something(&self) -> String {
-            "Hello from VaraApp!".to_string()
-        }  
     }
 
-    pub struct VaraAppProgram(());
+    #[sails_rs::service]
+    impl Service { 
+        // Service's method (command)
+        #[export]
+        pub fn do_something(&mut self) -> String {
+            "Hello from Service!".to_string()
+        }
+    }
+
+    #[derive(Default)]
+    pub struct Program(());
 
     #[sails_rs::program]
-    impl VaraAppProgram {
+    impl Program {
         // Program's constructor
         pub fn new() -> Self {
             Self(())
         }
 
         // Exposed service
-        pub fn vara_app(&self) -> VaraAppService {
-            VaraAppService::new()
+        pub fn service(&self) -> Service {
+            Service::new()
         }
     }
     ```

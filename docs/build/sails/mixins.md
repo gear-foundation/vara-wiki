@@ -16,6 +16,7 @@ struct MyServiceA;
 
 #[service]
 impl MyServiceA {
+    #[export]
     pub fn do_a(&mut self) {
         ...
     }
@@ -25,6 +26,7 @@ struct MyServiceB;
 
 #[service]
 impl MyServiceB {
+    #[export]
     pub fn do_b(&mut self) {
         ...
     }
@@ -35,11 +37,13 @@ struct MyServiceC;
 #[service(extends = [MyServiceA, MyServiceB])]
 impl MyServiceC {
     // New method
+    #[export]
     pub fn do_c(&mut self) {
         ...
     }
 
     // Overridden method from MyServiceA
+    #[export]
     pub fn do_a(&mut self) {
         ...
     }

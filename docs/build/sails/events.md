@@ -30,6 +30,7 @@ impl MyCounter {
         Self
     }
 
+    #[export]
     pub fn increment(&mut self) {
         *counter_mut() += 1;
         self.notify_on(MyCounterEvent::Incremented(*counter_mut())).unwrap();

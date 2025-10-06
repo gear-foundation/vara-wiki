@@ -15,7 +15,18 @@ The subsequent section expands on how to leverage and extend this core service t
 
 :::tip
 The project code is developed using the [Sails](../../build/sails/sails.mdx) framework.
-:::  
+:::
+
+## Public CodeIds
+
+You can instantiate the extended VFT using the public CodeId below. The instantiating account becomes the initial admin/minter/burner.
+
+- **CodeId**: `0xbba6636d3bec4f203d4ae9b58d9bc9995c7aa20344028001f22dceb43911afad`  
+  * Mainnet: [link](https://idea.gear-tech.io/code/0xbba6636d3bec4f203d4ae9b58d9bc9995c7aa20344028001f22dceb43911afad?node=wss%3A%2F%2Frpc.vara.network)
+  * Testnet: [link](https://idea.gear-tech.io/code/0xbba6636d3bec4f203d4ae9b58d9bc9995c7aa20344028001f22dceb43911afad?node=wss%3A%2F%2Ftestnet.vara.network)
+
+> Open Gear IDEA → **Codes**, select the network, paste the CodeId, and click **Create Program**.
+
 
 ## Functions
 

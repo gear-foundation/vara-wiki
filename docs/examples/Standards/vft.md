@@ -19,6 +19,16 @@ A frontend guide showing how to use the `React Sails Hooks` with extended VFT pr
 The project code is developed using the [Sails](../../build/sails/sails.mdx) framework.
 ::: 
 
+## Public CodeIds
+
+You can instantiate the extended VFT using the public CodeId below. The instantiating account becomes the initial admin/minter/burner.
+
+- **CodeId**: `0x81663df58f48684923777cd8cf281bfd2e4ee427926abc52a1fcf4ecd41be7ad`  
+  * Mainnet: [link](https://idea.gear-tech.io/code/0x81663df58f48684923777cd8cf281bfd2e4ee427926abc52a1fcf4ecd41be7ad?node=wss%3A%2F%2Frpc.vara.network)
+  * Testnet: [link](https://idea.gear-tech.io/code/0x81663df58f48684923777cd8cf281bfd2e4ee427926abc52a1fcf4ecd41be7ad?node=wss%3A%2F%2Ftestnet.vara.network)
+
+> Open Gear IDEA → **Codes**, select the network, paste the CodeId, and click **Create Program**.
+
 ## Core VFT Service
 
 ### Functions

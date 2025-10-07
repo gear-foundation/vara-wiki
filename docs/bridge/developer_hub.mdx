@@ -4,7 +4,7 @@ sidebar_position: 4
 sidebar_label: Developer Hub
 ---
 
-import { eth, vara } from '@site/src/addresses/bridge-addresses.js';
+import { eth, vara } from "@site/src/addresses/bridge-addresses.js";
 
 # Developer Hub
 
@@ -16,8 +16,7 @@ Use this section to:
 - Explore and verify bridge-related contracts
 - Begin building integrations with the bridge (e.g. relayers, token managers, custom assets)
 
-:::warning
-⚠️ **All listed addresses belong to testnet deployments**.  
+:::warning ⚠️ **All listed addresses belong to testnet deployments**.  
 :::
 
 ## Contract Addresses
@@ -27,26 +26,35 @@ Use this section to:
 ## Ethereum (Hoodi)
 
 **Core Components**
+
 - **Verifier:** <a href={`https://hoodi.etherscan.io/address/${eth.verifier}`}>{eth.verifier}</a>
 - **MessageQueue:** <a href={`https://hoodi.etherscan.io/address/${eth.messageQueue}`}>{eth.messageQueue}</a>
 - **MessageQueue Proxy:** <a href={`https://hoodi.etherscan.io/address/${eth.messageQueueProxy}`}>{eth.messageQueueProxy}</a>
 - **Bridging Payment:** <a href={`https://hoodi.etherscan.io/address/${eth.bridgingPayment}`}>{eth.bridgingPayment}</a>
 
 **Token Contracts**
+
 - **USDC:** <a href={`https://hoodi.etherscan.io/address/${eth.usdc}`}>{eth.usdc}</a>
 - **USDT:** <a href={`https://hoodi.etherscan.io/address/${eth.usdt}`}>{eth.usdt}</a>
 - **WETH:** <a href={`https://hoodi.etherscan.io/address/${eth.WETH}`}>{eth.WETH}</a>
 - **WTVARA:** <a href={`https://hoodi.etherscan.io/address/${eth.wtvara}`}>{eth.wtvara}</a>
 
 **ERC20 Manager**
+
 - **ERC20Manager:** <a href={`https://hoodi.etherscan.io/address/${eth.erc20Manager}`}>{eth.erc20Manager}</a>
 - **ERC20Manager Proxy:** <a href={`https://hoodi.etherscan.io/address/${eth.erc20ManagerProxy}`}>{eth.erc20ManagerProxy}</a>
+
+**Bridge Governance**
+
+- **GovernanceAdmin:** <a href={`https://hoodi.etherscan.io/address/${eth.governanceAdmin}`}>{eth.governanceAdmin}</a>
+- **GovernancePauser:** <a href={`https://hoodi.etherscan.io/address/${eth.governancePauser}`}>{eth.governancePauser}</a>
 
 ---
 
 ## Vara (Testnet)
 
 **Core Components**
+
 - **checkpoint-light-client:** <a href={`https://idea.gear-tech.io/programs/${vara.checkpointLightClient}?node=wss%3A%2F%2Ftestnet.vara.network`}>{vara.checkpointLightClient}</a>
 - **eth-events-electra:** <a href={`https://idea.gear-tech.io/programs/${vara.ethEventsElectra}?node=wss%3A%2F%2Ftestnet.vara.network`}>{vara.ethEventsElectra}</a>
 - **historical-proxy:** <a href={`https://idea.gear-tech.io/programs/${vara.historicalProxy}?node=wss%3A%2F%2Ftestnet.vara.network`}>{vara.historicalProxy}</a>
@@ -54,9 +62,8 @@ Use this section to:
 - **Bridging Payment:** <a href={`https://idea.gear-tech.io/programs/${vara.bridgingPayment}?node=wss%3A%2F%2Ftestnet.vara.network`}>{vara.bridgingPayment}</a>
 
 **Token Contracts**
+
 - **WUSDC:** <a href={`https://idea.gear-tech.io/programs/${vara.wusdc}?node=wss%3A%2F%2Ftestnet.vara.network`}>{vara.wusdc}</a>
 - **WUSDT:** <a href={`https://idea.gear-tech.io/programs/${vara.wusdt}?node=wss%3A%2F%2Ftestnet.vara.network`}>{vara.wusdt}</a>
 - **WETH:** <a href={`https://idea.gear-tech.io/programs/${vara.weth}?node=wss%3A%2F%2Ftestnet.vara.network`}>{vara.weth}</a>
 - **Tokenized VARA:** <a href={`https://idea.gear-tech.io/programs/${vara.tokenizedVara}?node=wss%3A%2F%2Ftestnet.vara.network`}>{vara.tokenizedVara}</a>
-
----

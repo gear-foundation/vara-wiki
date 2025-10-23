@@ -4,26 +4,67 @@ sidebar_position: 4
 sidebar_label: Developer Hub
 ---
 
-import { eth, vara } from "@site/src/addresses/bridge-addresses.js";
+import { eth, ethMainnet, vara, varaMainnet } from "@site/src/addresses/bridge-addresses.js";
 
 # Developer Hub
 
 This page provides technical resources for developers and integrators working with the Vara ↔ Ethereum Bridge.  
-It includes the addresses of deployed smart contracts and on-chain programs on both Ethereum (**Hoodi testnet**) and Vara Testnet.
+It includes the addresses of deployed smart contracts and on-chain programs on both Ethereum and Vara networks.
 
 Use this section to:
 
 - Explore and verify bridge-related contracts
 - Begin building integrations with the bridge (e.g. relayers, token managers, custom assets)
 
-:::warning ⚠️ **All listed addresses belong to testnet deployments**.  
-:::
+## Vara Bridge Deployment - Mainnet
 
-## Contract Addresses
+### Ethereum Mainnet
+
+**Core Components**
+
+- **Verifier:** <a href={`https://etherscan.io/address/${ethMainnet.verifier}`}>{ethMainnet.verifier}</a>
+- **MessageQueue:** <a href={`https://etherscan.io/address/${ethMainnet.messageQueue}`}>{ethMainnet.messageQueue}</a>
+- **Bridging Payment:** <a href={`https://etherscan.io/address/${ethMainnet.bridgingPayment}`}>{ethMainnet.bridgingPayment}</a>
+
+**Token Contracts**
+
+- **USDC:** <a href={`https://etherscan.io/address/${ethMainnet.usdc}`}>{ethMainnet.usdc}</a>
+- **USDT:** <a href={`https://etherscan.io/address/${ethMainnet.usdt}`}>{ethMainnet.usdt}</a>
+- **WETH:** <a href={`https://etherscan.io/address/${ethMainnet.WETH}`}>{ethMainnet.WETH}</a>
+- **WVARA:** <a href={`https://etherscan.io/address/${ethMainnet.wvara}`}>{ethMainnet.wvara}</a>
+
+**ERC20 Manager**
+
+- **ERC20Manager:** <a href={`https://etherscan.io/address/${ethMainnet.erc20Manager}`}>{ethMainnet.erc20Manager}</a>
+
+**Bridge Governance**
+
+- **GovernanceAdmin:** <a href={`https://etherscan.io/address/${ethMainnet.governanceAdmin}`}>{ethMainnet.governanceAdmin}</a>
+- **GovernancePauser:** <a href={`https://etherscan.io/address/${ethMainnet.governancePauser}`}>{ethMainnet.governancePauser}</a>
 
 ---
 
-## Ethereum (Hoodi)
+### Vara Mainnet
+
+**Core Components**
+
+- **checkpoint-light-client:** <a href={`https://idea.gear-tech.io/programs/${varaMainnet.checkpointLightClient}?node=wss%3A%2F%2Frpc.vara.network`}>{varaMainnet.checkpointLightClient}</a>
+- **historical-proxy:** <a href={`https://idea.gear-tech.io/programs/${varaMainnet.historicalProxy}?node=wss%3A%2F%2Frpc.vara.network`}>{varaMainnet.historicalProxy}</a>
+- **vft-manager:** <a href={`https://idea.gear-tech.io/programs/${varaMainnet.vftManager}?node=wss%3A%2F%2Frpc.vara.network`}>{varaMainnet.vftManager}</a>
+- **Bridging Payment:** <a href={`https://idea.gear-tech.io/programs/${varaMainnet.bridgingPayment}?node=wss%3A%2F%2Frpc.vara.network`}>{varaMainnet.bridgingPayment}</a>
+
+**Token Contracts**
+
+- **WUSDC:** <a href={`https://idea.gear-tech.io/programs/${varaMainnet.wusdc}?node=wss%3A%2F%2Frpc.vara.network`}>{varaMainnet.wusdc}</a>
+- **WUSDT:** <a href={`https://idea.gear-tech.io/programs/${varaMainnet.wusdt}?node=wss%3A%2F%2Frpc.vara.network`}>{varaMainnet.wusdt}</a>
+- **WETH:** <a href={`https://idea.gear-tech.io/programs/${varaMainnet.weth}?node=wss%3A%2F%2Frpc.vara.network`}>{varaMainnet.weth}</a>
+- **Tokenized VARA:** <a href={`https://idea.gear-tech.io/programs/${varaMainnet.tokenizedVara}?node=wss%3A%2F%2Frpc.vara.network`}>{varaMainnet.tokenizedVara}</a>
+
+---
+
+## Vara Bridge Deployment - Testnet
+
+### Ethereum (Hoodi Testnet)
 
 **Core Components**
 
@@ -51,7 +92,7 @@ Use this section to:
 
 ---
 
-## Vara (Testnet)
+### Vara Testnet
 
 **Core Components**
 

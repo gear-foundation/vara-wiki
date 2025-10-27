@@ -35,36 +35,36 @@
   }
 
   .btn--white {
-    @apply bg-white text-black hocus:bg-[#D4D4D4] active:bg-white transition
+    @apply bg-white text-black hocus:bg-[#D4D4D4] active:bg-white transition;
   }
 
   .btn--black {
-    @apply bg-black text-white hover:bg-[#404040] hover:ring-[#404040] active:bg-[#1B1A1A] active:ring-[#1B1A1A] focus-visible:bg-[#262626] focus-visible:ring-[#262626] transition
+    @apply bg-black text-white hover:bg-[#404040] hover:ring-[#404040] active:bg-[#1B1A1A] active:ring-[#1B1A1A] focus-visible:bg-[#262626] focus-visible:ring-[#262626] transition;
   }
 
   .btn--white-tonal {
-    @apply bg-white/15 text-white hocus:bg-white/25 active:bg-white/35
+    @apply bg-white/15 text-white hocus:bg-white/25 active:bg-white/35;
   }
 
   .btn--white-outline {
-    @apply ring-2 ring-inset ring-current text-white hocus:bg-white hocus:ring-white hocus:text-black active:opacity-80 transition
+    @apply ring-2 ring-inset ring-current text-white hocus:bg-white hocus:ring-white hocus:text-black active:opacity-80 transition;
   }
 
   .btn--black-outline {
-    @apply ring-2 ring-inset ring-current text-black hocus:bg-black hocus:ring-black hocus:text-white active:opacity-80 transition
+    @apply ring-2 ring-inset ring-current text-black hocus:bg-black hocus:ring-black hocus:text-white active:opacity-80 transition;
   }
 
   .btn--black-tonal {
-    @apply text-black bg-black/[7%] hocus:bg-black/15 active:opacity-80 transition
+    @apply text-black bg-black/[7%] hocus:bg-black/15 active:opacity-80 transition;
   }
 
   .btn--sm {
-    @apply py-1.5 px-4
+    @apply py-1.5 px-4;
   }
 
   .btn:disabled,
   .btn[disabled] {
-    @apply cursor-not-allowed bg-neutral-600 text-white/50
+    @apply cursor-not-allowed bg-neutral-600 text-white/50;
   }
 
   .btn--loading {
@@ -72,7 +72,7 @@
   }
 
   .gradient-text-black {
-    @apply text-transparent bg-clip-text bg-black bg-gradient-to-r from-30% to-75% from-[#2B2B2B] to-brand
+    @apply text-transparent bg-clip-text bg-black bg-gradient-to-r from-30% to-75% from-[#2B2B2B] to-brand;
   }
 
   .gradient-text-white {
@@ -86,7 +86,7 @@
 
 html {
   font-size: 16px;
-  font-family: 'Anuphan', var(--ifm-font-family-base), serif;
+  font-family: "Anuphan", var(--ifm-font-family-base), serif;
 }
 
 h1,
@@ -95,11 +95,11 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Anuphan', var(--ifm-heading-font-family), serif;
+  font-family: "Anuphan", var(--ifm-heading-font-family), serif;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
-[data-theme='dark'] {
+[data-theme="dark"] {
   --ifm-color-primary: #00ffa0;
   --ifm-color-primary-dark: #21af90;
   --ifm-color-primary-darker: #1fa588;
@@ -110,16 +110,16 @@ h6 {
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
-[data-theme='light'] .navbar {
+[data-theme="light"] .navbar {
   background: #242526;
 }
 
-[data-theme='light'] .navbar__toggle,
-[data-theme='light'] .clean-btn {
+[data-theme="light"] .navbar__toggle,
+[data-theme="light"] .clean-btn {
   color: #ffffff;
 }
 
-[data-theme='light'] .navbar__link {
+[data-theme="light"] .navbar__link {
   --ifm-navbar-link-color: white;
 }
 
@@ -133,11 +133,11 @@ h6 {
   border-color: hsla(0, 0%, 94%, 0.1);
 }
 
-[data-theme='light'] .toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module {
+[data-theme="light"] .toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module {
   color: #ffffff !important;
 }
 
-[data-theme='light'] .toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module:hover {
+[data-theme="light"] .toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module:hover {
   background: #444950 !important;
 }
 
@@ -154,7 +154,7 @@ h6 {
 }
 
 // Styles for iframe
-[data-theme-vara=true] {
+[data-theme-vara="true"] {
   ::selection {
     background-color: rgba(0, 0, 0, 0.07);
     //background-color: rgba(0, 179, 135, 0.2);
@@ -165,7 +165,7 @@ h6 {
     --ifm-color-content: #000;
     --ifm-color-primary: #0da681;
 
-    --ifm-font-family-monospace: 'Anuphan';
+    --ifm-font-family-monospace: "Anuphan";
 
     --ifm-heading-font-weight: 600;
 
@@ -236,7 +236,7 @@ h6 {
   .pagination-nav,
   .col.col--3,
   .theme-doc-sidebar-container,
-  div[class^=announcementBar][role=banner],
+  div[class^="announcementBar"][role="banner"],
   ask-cookbook,
   #__cookbook,
   .navbar {

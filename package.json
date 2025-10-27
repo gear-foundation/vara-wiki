@@ -11,7 +11,8 @@
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "refresh": "npm run clear && rm -rf node_modules package-lock.json build .cache-loader && npm cache clean --force && npm install && npm start"
   },
   "dependencies": {
     "@cookbookdev/docsbot": "4.25.10",

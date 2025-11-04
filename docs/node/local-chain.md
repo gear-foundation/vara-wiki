@@ -3,13 +3,13 @@ sidebar_label: Local Chain Setup
 sidebar_position: 9
 ---
 
-# Building and Running a Local Gear Chain for Development and Testing
+# Building and Running a Local Vara Chain for Development and Testing
 
-If you're experimenting with runtime logic, benchmarking smart contracts, or just exploring how blockchain consensus actually works under the hood, running a local Gear chain is one of the best ways to do it.
+If you're experimenting with runtime logic, benchmarking smart contracts, or just exploring how blockchain consensus actually works under the hood, running a local Vara chain is one of the best ways to do it.
 
 While Vara offers ready-to-use public networks like testnet and mainnet, local environments give you more control. You can modify chain parameters, test custom runtimes, or simulate multi-validator behavior without relying on any external infrastructure.
 
-In this guide, you'll learn how to set up and operate a full Gear blockchain network locally, from compiling the runtime to launching validators and connecting through Polkadot.js.
+In this guide, you'll learn how to set up and operate a full Vara blockchain network locally, from compiling the runtime to launching validators and connecting through Polkadot.js.
 
 ## Table of Contents
 
@@ -42,7 +42,7 @@ In this guide, you'll learn how to set up and operate a full Gear blockchain net
 
 ## Overview
 
-This guide walks you through building and running a local Gear blockchain network for development and testing purposes. While Vara provides testnet and mainnet environments, local development offers complete control over chain parameters, consensus mechanisms, and runtime modifications.
+This guide walks you through building and running a local Vara blockchain network for development and testing purposes. While Vara provides testnet and mainnet environments, local development offers complete control over chain parameters, consensus mechanisms, and runtime modifications.
 
 ### When to Use This Approach
 
@@ -800,7 +800,7 @@ Beyond epoch duration, you can modify:
 
 ## Conclusion
 
-Running a local Gear chain is one of the most effective ways to experiment safely and understand how different components interact. Once everything is configured, it becomes a flexible tool for contract testing, runtime upgrades, and integration checks.
+Running a local Vara chain is one of the most effective ways to experiment safely and understand how different components interact. Once everything is configured, it becomes a flexible tool for contract testing, runtime upgrades, and integration checks.
 
 ### Remember to:
 

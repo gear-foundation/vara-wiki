@@ -76,6 +76,8 @@ This guide walks you through building and running a local Vara blockchain networ
 - Podman (recommended)
 - Docker
 
+> **Note**: Throughout this guide, we use `ghcr.io/gear-tech/node:v1.9.2` as an example. Always check the [latest releases](https://github.com/gear-tech/gear/releases) for the most recent version.
+
 **Development Tools**:
 
 - Git

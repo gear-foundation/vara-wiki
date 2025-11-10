@@ -1,6 +1,6 @@
 ---
 sidebar_label: VFT
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 # Vara Fungible Token

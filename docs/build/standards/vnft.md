@@ -1,9 +1,9 @@
 ---
-sidebar_label: VNFT
+sidebar_label: Vara Non-Fungible Token
 sidebar_position: 3
 ---
 
-# Vara Non-Fungible Token
+# Vara Non-Fungible Token (VNFT)
 
 :::note
 The Vara Non-Fungible Token Standard is the analogue of ERC-721 on Ethereum.

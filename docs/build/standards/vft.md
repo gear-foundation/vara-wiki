@@ -1,9 +1,9 @@
 ---
-sidebar_label: VFT
+sidebar_label: Fungible Token
 sidebar_position: 2
 ---
 
-# Vara Fungible Token
+# Vara Fungible Token (VFT)
 
 :::note
 The Vara Fungible Token Standard is the analogue of ERC-20 on Ethereum.

@@ -1,6 +1,6 @@
 ---
 
-sidebar_label: VMT  
+sidebar_label: Multi-Token  
 sidebar_position: 4  
 
 ---

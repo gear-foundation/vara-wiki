@@ -11,7 +11,7 @@ WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build
+RUN NODE_OPTIONS="--localstorage-file=/tmp/localstorage" npm run build
 
 # Этап 3: Финальный образ для запуска
 FROM node:alpine AS runner

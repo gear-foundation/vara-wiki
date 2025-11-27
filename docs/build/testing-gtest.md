@@ -2,209 +2,273 @@
 sidebar_position: 17
 ---
 
-# Testing with `gtest`
+# Testing with gtest
 
-`gtest` simulates a real network by providing mockups of the user, program, balances, mailbox, etc. Since it does not include parts of the actual blockchain, it is fast and lightweight. However, as a model of the blockchain network, `gtest` cannot be a complete reflection of the actual network.
+gtest simulates a real network by providing mockups of the user, program, balances, mailbox, etc. Since it does not include parts of the actual blockchain, it is fast and lightweight. However, as a model of the blockchain network, gtest cannot be a complete reflection of the actual network.
 
-`gtest` is excellent for unit and integration testing and is also helpful for debugging Vara program logic. Running tests based on `gtest` only requires the Rust compiler, making its use in continuous integration predictable and robust.
+gtest is excellent for unit and integration testing and is also helpful for debugging Gear program logic. Running tests based on gtest only requires the Rust compiler, making its use in continuous integration predictable and robust.
 
-## Import `gtest` Library
+## Import gtest Library
 
-To use the `gtest` library, import it into the `Cargo.toml` file in the `[dev-dependencies]` block to fetch and compile it for tests only:
+To use the gtest library, import it into the Cargo.toml file in the `[dev-dependencies]` block to fetch and compile it for tests only:
 
 ```toml
 [package]
-name = "first-gear-app"
+name = "my-gear-app"
 version = "0.1.0"
 authors = ["Your Name"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-gstd = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1" }
+gstd = { git = "https://github.com/gear-tech/gear.git", tag = "v1.0.1" }
 
 [build-dependencies]
-gear-wasm-builder = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1" }
+gear-wasm-builder = { git = "https://github.com/gear-tech/gear.git", tag = "v1.0.1" }
 
 [dev-dependencies]
-gtest = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1" }
+gtest = { git = "https://github.com/gear-tech/gear.git", tag = "v1.0.1" }
 ```
 
-## `gtest` Capabilities
+Make sure you use latest version of `gtest` and other crates required for program developing.
 
-- Initialization of the common environment for running programs:
+## gtest Capabilities
+
+### `System` - Gear node environment
+
+The System is a per-thread singleton that represents the complete Gear blockchain environment. It maintains block height, timestamp, message queue, program storage, and user balances. Only one System instance can exist per thread - attempting to create multiple instances will panic.
+
 ```rust
-// This emulates node's and chain's behavior.
-// By default, sets:
-// - current block equals 0
-// - current timestamp equals UNIX timestamp of your system.
-// - minimal message id equal 0x010000..
-// - minimal program id equal 0x010000..
 let sys = System::new();
 ```
 
-- Program initialization:
+System provides logging configuration methods for test output control. Initialize styled env_logger to print logs (gwasm target by default) to stdout:
+
 ```rust
-// Initialization of program structure from file.
-// Takes as arguments reference to the related `System` and the path to wasm binary relative to the root of the crate where the test was written.
-// Sets free program id from the related `System` to this program. For this case it equals 0x010000..
-// Next program initialized without id specification will have id 0x020000.. and so on.
-let _ = Program::from_file(
+// Gear programs use `gwasm` target with `debug` logging level.
+// `init_logger` method sets filter to handle only `gwasm` target at `debug`,
+// but it can be overridden by `RUST_LOG` environment variable:
+// RUST_LOG="gtest=debug,gwasm=warn" cargo test
+sys.init_logger();
+```
+
+The System provides several methods for advancing blockchain state through block execution:
+- `run_next_block()` - runs one block, processing messages from the queue
+- `run_next_block_with_allowance(gas)` - runs one block with custom gas allowance
+- `run_to_block(n)` - runs blocks until specified block number is reached
+- `run_scheduled_tasks(n)` - processes only scheduled tasks for n blocks without messages
+
+Note that 1 block in Gear network is 3 sec duration.
+
+### `Program` - interface to interact with Gear programs
+
+`Program` represents a Gear program and provides interface for interacting with it. There are several ways to instantiate a `Program`:
+
+```rust
+// 1. Load current crate's program (recognizes the compiled WASM binary path)
+let prog = Program::current(&sys);
+
+// 2. Load program from specific WASM file path
+let prog = Program::from_file(
     &sys,
     "./target/wasm32-unknown-unknown/release/demo_ping.wasm",
 );
 
-// Also, use the `Program::current()` function to load the current program.
-let _ = Program::current(&sys);
-
-// Check the id of the program by calling `id()` function.
-// It returns `ProgramId` type value.
-let ping_pong_id = ping_pong.id();
-
-// Manually specify the id of the program using `from_file_with_id` constructor.
-let _ = ProgramBuilder::from_file("./target/wasm32-unknown-unknown/release/demo_ping.wasm")
+// 3. Create program from WASM binary with custom configuration using ProgramBuilder
+let prog = ProgramBuilder::from_file("./target/wasm32-unknown-unknown/release/demo_ping.wasm")
     .with_id(105)
     .build(&sys);
+
+// 4. Create program from binary bytes
+let code = std::fs::read("demo.wasm").unwrap();
+let prog = Program::from_binary_with_id(&sys, 123, code);
+
+// Get program info
+let prog_id = prog.id();     // Returns program id
+let balance = prog.balance(); // Returns program balance
+
+// Getting existing program from the system by id
+let existing_prog = sys.get_program(105);
 ```
 
-- Getting the program from the system:
+The Program provides methods for sending messages:
+- `send()` and `send_bytes()` for messages without value
+- `send_with_value()` and `send_bytes_with_value()` for messages with attached funds
+
+Both methods require sender id as first argument and payload as second:
+- `send()` requires payload to be parity-scale-codec encodable
+- `send_bytes()` requires payload to implement `AsRef<[u8]>`
+
 ```rust
-// Retrieve the object from the system by id.
-let _ = sys.get_program(105);
+// First message to a program is always the init message
+let init_message_id = prog.send_bytes(100001, "INIT MESSAGE");
+
+// Subsequent messages are handle messages
+let handle_message_id = prog.send_bytes(100001, "PING");
+
+// Sending messages with value (requires sufficient sender balance)
+let message_id = prog.send_bytes_with_value(100001, "PING", 1000);
 ```
 
-- Initialization of styled `env_logger`:
+### `BlockRunResult` - processing execution results
+
+After sending messages, they are queued in the `System`. To process messages, call one of the block execution methods. These methods return `BlockRunResult` containing the outcome of block execution.
+
 ```rust
-// Initialization of styled `env_logger` to print logs (only from `gwasm` by default) into stdout.
-// To specify printed logs, set the env variable `RUST_LOG`:
-// `RUST_LOG="target_1=logging_level,target_2=logging_level" cargo test`
-// Vara programs use `gwasm` target with `debug` logging level
-sys.init_logger();
+// Runs one block, processing messages from the queue.
+// Queue has `init` and `handle` messages sent from the
+// previous example. `System::run*` methods allow to process
+// the queue.
+let block_result = sys.run_next_block();
+
+// `BlockRunResult` provides information about:
+// - Messages that were successfully executed
+assert!(block_result.succeed.contains(&init_message_id));
+
+// - Messages that failed during execution
+assert!(block_result.failed.is_empty());
+
+// - Messages that were skipped
+assert!(block_result.skipped.is_empty());
+
+// - Events emitted during block execution
+let events = block_result.events();
+
+// - Check if specific event exists in the result
+assert!(block_result.contains(&expected_event));
 ```
 
-- Sending messages:
+### `UserMessageEvent` - messages not in mailbox
+
+Messages sent from program to user can end up as events if mailbox conditions aren't met. `UserMessageEvent` represents such messages and provides access to their fields.
+
 ```rust
-// To send a message to the program, call `send()` or `send_bytes()` (or `send_with_value` and `send_bytes_with_value` if you need to send a message with attached funds).
-// Both methods require the sender id as the first argument and the payload as the second.
-// The first method requires payload to be CODEC Encodable, while the second requires payload to implement `AsRef<[u8]>`.
-// First message to the initialized program structure is always the init message.
-let res = program.send_bytes(100001, "INIT MESSAGE");
-```
-
-- Processing the result of the program execution:
-```rust
-// Sending functions return `RunResult` structure containing the final result of the processing message and others created during execution.
-// It has 4 main functions:
-
-// Returns the reference to the Vec produced to users messages.
-assert!(res.log().is_empty());
-
-// Returns bool indicating if there was panic during the execution of the main message.
-assert!(!res.main_failed());
-
-// Returns bool indicating if there was panic during the execution of the created messages during the main execution.
-assert!(!res.others_failed());
-
-// Returns bool indicating if logs contain a given log.
-assert!(!res.contains(&Log::builder()));
-
-// Build a log for assertion using `Log` structure with its builders.
-// All fields are optional. Assertions with Logs from core are made on the Some(..) fields.
-// Constructor for success log.
-let _ = Log::builder();
-
-// Constructor for error reply log. Note that error reply never contains payload.
-let _ = Log::error_builder();
-
-// Send a new message after the program has been initialized.
-let res = ping_pong.send_bytes(100001, "PING");
-
-// Other fields are set optionally by `dest()`, `source()`, `payload()`, `payload_bytes()`.
-// The logic for `payload()` and `payload_bytes()` is the same as for `send()` and `send_bytes()`.
-let log = Log::builder()
-    .source(ping_pong_id)
-    .dest(100001)
-    .payload_bytes("PONG");
-
-assert!(res.contains(&log));
-
-let wrong_log = Log::builder().source(100001);
-
-assert!(!res.contains(&wrong_log));
-
-// Log also has `From` implementations from (ID, T) and from (ID, ID, T),
-// where ID: Into<ProgramIdWrapper>, T: AsRef<[u8]>.
-// Examples:
-let x = Log::builder().dest(5).payload_bytes("A");
-let x_from: Log = (5, "A").into();
-assert_eq!(x, x_from);
-
-let y = Log::builder().dest(5).source(15).payload_bytes("A");
-let y_from: Log = (15, 5, "A").into();
-assert_eq!(y, y_from);
-
-assert!(!res.contains(&(ping_pong_id, ping_pong_id, "PONG")));
-assert!(res.contains(&(1, 100001, "PONG")));
-```
-
-- Spending blocks:
-```rust
-// Control time in the system by spending blocks.
-// It adds the amount of blocks passed as arguments to the current block of the system.
-// Note that 1 block in Vara network is 1 sec duration.
-sys.spend_blocks(150);
-```
-
-<!-- - Reading the program state:
-```rust
-// Read the program state using `meta_state()` or `meta_state_with_bytes()`.
-// These methods require the payload as the input argument.
-// The first method requires payload to be CODEC Encodable, while the second requires payload to implement `AsRef<[u8]>`.
-// Example:
-#[derive(Encode, Decode, TypeInfo)]
-pub struct ContractState {
-    a: u128,
-    b: u128,
+// Access events from `BlockRunResult`
+let events = block_result.events();
+for event in events {
+    let source = event.source();      // Get message source
+    let dest = event.destination();   // Get message destination
+    let payload = event.payload();    // Get raw payload bytes
+    
+    // Decode payload into specific type
+    let decoded: Result<String, _> = event.decode_payload();
 }
+```
 
-pub enum State {
-    A,
-    B,
-}
+### `UserMailbox` - managing user mailbox
 
-pub enum StateReply {
-    A(u128),
-    B(u128),
-}
+`UserMailbox` is the interface for managing a particular user's mailbox. It can only be instantiated through `System::get_mailbox()` method.
 
-#[no_mangle]
-unsafe extern "C" fn meta_state() -> *mut [i32; 2] {
-    let query: State = msg::load().expect("Unable to decode `State`");
-    let encoded = match query {
-        State::A => StateReply::A(STATE.a),
-        State::B => StateReply::B(STATE.b),
-    }.encode();
-    gstd::util::to_leak_ptr(encoded)
-}
-
-// Send a query from gtest:
-let reply: StateReply = self
-        .meta_state(&State::A)
-        .expect("Meta_state failed");
-let expected_reply = StateReply::A(10);
-assert_eq!(reply,expected_reply);
-
-// If `meta_state` function doesn't require input payloads, use `meta_state_empty` or `meta_state_empty_with_bytes` functions without any arguments.
-``` -->
-
-- Balance:
 ```rust
-// To send a message with value, mint balance for the message sender:
 let user_id = 42;
+let user_mailbox = sys.get_mailbox(user_id);
+
+// Check if mailbox contains specific message
+assert!(user_mailbox.contains(&expected_message));
+
+// Reply to messages in the mailbox
+user_mailbox.reply_bytes(message_id, "REPLY", 0).unwrap();
+
+// Claim value from message without replying
+user_mailbox.claim_value(message_id).unwrap();
+```
+
+### `EventBuilder` - finding events and messages
+
+`EventBuilder` provides a convenient way to construct events for searching in `BlockRunResult` or messages in `UserMailbox`.
+
+```rust
+// Build an event to search for in `BlockRunResult`
+let expected_event = EventBuilder::new()
+    .source(prog.id())
+    .dest(100001)
+    .payload_bytes(b"PONG")
+    .build();
+
+// Check if event exists in block result
+assert!(block_result.contains(&expected_event));
+
+// EventBuilder can be used directly without calling build()
+assert!(block_result.contains(&EventBuilder::new()
+    .source(prog.id())
+    .dest(100001)
+    .payload_bytes(b"PONG")
+));
+
+// Use EventBuilder to find messages in `UserMailbox`
+let user_mailbox = sys.get_mailbox(100001);
+assert!(user_mailbox.contains(&EventBuilder::new()
+    .source(prog.id())
+    .dest(100001)
+    .payload_bytes(b"RESPONSE")
+));
+```
+
+`EventBuilder` supports method chaining with various field setters:
+- `with_source()` - set message source
+- `with_destination()` - set message destination  
+- `with_payload()` - set parity-scale-codec-encodable payload
+- `with_payload_bytes()` - set raw bytes payload
+- `with_reply_code()` - set reply code
+- `with_reply_to()` - set reply-to message id
+
+### Balance management
+
+Before sending messages, ensure sufficient balance for the sender to cover existential deposit and gas costs.
+
+```rust
+let user_id = 42;
+// Mint balance to a user
 sys.mint_to(user_id, 5000);
 assert_eq!(sys.balance_of(user_id), 5000);
 
-// To give the balance to the program, use the `mint` method:
-let prog = Program::current(&sys);
-prog.mint(1000);
-assert_eq!(prog.balance(), 1000);
+// Transfer value to the program directly.
+sys.transfer(user_id, prog.id(), 1000, true);
+
+// Alternatively, use default users with preallocated balance
+use gtest::constants::DEFAULT_USER_ALICE;
+let message_id = prog.send_bytes(DEFAULT_USER_ALICE, "PING");
+```
+
+### Complete example
+
+Here's a complete test example demonstrating the `gtest` API:
+
+```rust
+#[test]
+fn test_ping_pong() {
+    use gtest::{System, Program, EventBuilder};
+    use gtest::constants::{DEFAULT_USER_ALICE, EXISTENTIAL_DEPOSIT};
+    
+    // Initialize the Gear node environment
+    let sys = System::new();
+    
+    // Initialize current program
+    let prog = Program::current(&sys);
+
+    // Although ids are 32 bytes values, you can define integer ids
+    let user = 42;
+    
+    // Ensure user has sufficient balance
+    sys.mint_to(user, EXISTENTIAL_DEPOSIT * 1000);
+    
+    // Send init message
+    let init_id = prog.send_bytes(user, b"");
+    let result = sys.run_next_block();
+    assert!(result.succeed.contains(&init_id));
+    
+    // Send handle message
+    let handle_id = prog.send_bytes(DEFAULT_USER_ALICE, b"PING");
+    let result = sys.run_next_block();
+    
+    // Verify successful execution
+    assert!(result.succeed.contains(&handle_id));
+    
+    // Check for expected reply event
+    let expected_event = EventBuilder::new()
+        .source(prog.id())
+        .dest(DEFAULT_USER_ALICE)
+        .payload_bytes(b"PONG");
+    
+    assert!(result.contains(&expected_event));
+}
 ```

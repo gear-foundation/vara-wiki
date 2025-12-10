@@ -1,11 +1,11 @@
 ---
 sidebar_label: VFT Frontend Guide
-sidebar_position: 3
+sidebar_position: 2
 ---
 
 # VFT Extended DApp Frontend Integration Guide
 
-![VFT frontend app example](../img/vft-app.png)
+![VFT frontend app example](./img/vft-app.png)
 
 This guide explains how to build a frontend application in React that interacts with the VFT Extended (Vara Fungible Token) contract, using sails-js React hooks. The document provides a step-by-step approach, code samples, and configuration tips for quickly integrating contract calls, queries, and event listeners.
 

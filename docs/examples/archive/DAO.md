@@ -42,7 +42,7 @@ struct Dao {
 ```
 where:
 
-`approved_token_program_id` - the reference to the token contract ([VFT](../Standards/vft.md)) that users use as pledge to get the share in the DAO.
+`approved_token_program_id` - the reference to the token contract ([VFT](/docs/examples/Standards/vft/vft.md)) that users use as pledge to get the share in the DAO.
 
 `period_duration` - the smallest unit time interval for the DAO, in ms.
 

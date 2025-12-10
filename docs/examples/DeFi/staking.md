@@ -11,7 +11,7 @@ Staking is an analogue of a bank deposit, providing passive earnings through the
 
 Anyone can create a Staking program and run it on the Gear Network. The source code, developed using the [Sails](../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/staking).
 
-The staking program interacts with the [Vara Fungible Token (VFT)](/docs/examples/Standards/vft.md) standard to handle token transfers seamlessly, enabling staking deposits, reward distributions, and withdrawals through secure and efficient transfer operations. These transfers are executed via asynchronous calls to the VFT contract, ensuring accurate state synchronization and error handling during token movements.
+The staking program interacts with the [Vara Fungible Token (VFT)](/docs/examples/Standards/vft/vft.md) standard to handle token transfers seamlessly, enabling staking deposits, reward distributions, and withdrawals through secure and efficient transfer operations. These transfers are executed via asynchronous calls to the VFT contract, ensuring accurate state synchronization and error handling during token movements.
 
 This article explains the programming interface, data structure, basic functions, and their purposes. The program can be used as-is or modified to suit specific scenarios.
 

@@ -16,7 +16,7 @@ The subsequent section expands on how to leverage and extend this core service t
 A frontend guide showing how to use the `React Sails Hooks` with extended VFT program is available [here](/docs/examples/Standards/vft-frontend).
 
 :::tip
-The project code is developed using the [Sails](../../build/sails/sails.mdx) framework.
+The project code is developed using the [Sails](/docs/build/sails/sails.mdx) framework.
 ::: 
 
 ## Public CodeIds

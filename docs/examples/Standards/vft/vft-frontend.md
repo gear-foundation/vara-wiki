@@ -19,7 +19,7 @@ This guide explains how to build a frontend application in React that interacts 
 - How to implement and use hooks for transactions, queries, and events
 - How to build UI components for interacting with the VFT contract
 
-[See VFT Standard description](https://wiki.vara.network/docs/examples/Standards/vft)
+[See VFT Standard description](/docs/examples/Standards/vft/vft.md)
 
 ## Prerequisites
 

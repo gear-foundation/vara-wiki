@@ -202,7 +202,7 @@ The mental poker DApp consists of two main components:
 - **On-chain smart contracts** — handle game state, commitments, shuffles, and phase transitions.  
 - **Client-side application** — performs all sensitive cryptographic operations off-chain.
 
-**Contracts and circuits source code:** [zk-mental-poker contracts and circuits](https://github.com/gear-foundation/zk-mental-poker)  
+**Contracts and circuits source code:** [zk-mental-poker contracts and circuits](https://github.com/gear-foundation/dapps/tree/master/contracts/zk-mental-poker)  
 **UI:** [zk-poker frontend](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/zk-poker)
 
 ### Programs Overview
@@ -442,6 +442,6 @@ function encodeProof(proof: { pi_a: string[], pi_b: string[][], pi_c: string[] }
 
 Mental poker combines decades-old cryptographic theory with cutting-edge blockchain and ZK technology to achieve trustless, fair, and efficient online gameplay. By leveraging elliptic curve cryptography, zk-SNARKs, and Vara’s actor-model WASM runtime (with Built-in Actors for heavy crypto), the system ensures **scalability**, **privacy**, and **verifiability**.
 
-- **Source code:** [zk-mental-poker contracts and circuits](https://github.com/gear-foundation/zk-mental-poker)  
+- **Source code:** [zk-mental-poker contracts and circuits](https://github.com/gear-foundation/dapps/tree/master/contracts/zk-mental-poker)  
 - **UI:** [zk-poker frontend](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/zk-poker)   
 - **Built-in Actors (BLS):** [BLS12-381 Built-in Actor](https://wiki.vara.network/docs/build/builtinactors/bia-bls)

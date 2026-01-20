@@ -13,38 +13,56 @@ Want to take your blockchain development skills to the next level? Don't miss th
 
 ## Prerequisites
 
-1. Linux users should generally install `GCC` and `Clang` according to their distribution's documentation.
+### System dependencies
 
-For example, on Ubuntu use:
+- **Linux:** install build tools according to your distribution.  
+  For Ubuntu:
 
 ```bash
 sudo apt install -y build-essential clang cmake curl
 ```
 
-On macOS, you can get a compiler toolset by running:
+- **macOS:** install Xcode Command Line Tools:
 
 ```bash
 xcode-select --install
 ```
 
-2. Make sure you have installed all the tools required to build a program in Rust. [Rustup](https://rustup.rs/) will be used to get Rust compiler ready:
+- **Windows:** install **Build Tools for Visual Studio**.  
+  Download: https://visualstudio.microsoft.com/downloads/?q=build+tools
+
+### Rust toolchain
+
+Install Rust using [Rustup](https://rustup.rs/):
 
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-3. A Wasm compiler is necessary for compiling a Rust program to Wasm, add it to the toolchain.
+:::note
+After installing Rust via `rustup`, your current terminal session may not yet have Cargo/Rustup in `PATH`.
+If you see `command not found: rustup` or `command not found: cargo`, reload your environment:
+
+```bash
+source "$HOME/.cargo/env"
+```
+
+Alternatively, restart the terminal (or VS Code integrated terminal) and try again.
+:::
+
+### Wasm target
+
+Add the Wasm target:
 
 ```bash
 rustup target add wasm32v1-none
 ```
 
-:::note
-Since Gear release 1.8.0, the new target `wasm32v1-none` is required for building programs for the Vara Network.  
+:::info
+Since Gear release **1.8.0**, the target `wasm32v1-none` is required for building programs for the Vara Network.  
 The old target `wasm32-unknown-unknown` is only needed for legacy projects.
 :::
 
-**_Note:_** If you use Windows, download and install [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/?q=build+tools).
 
 ## Creating your first Vara program
 

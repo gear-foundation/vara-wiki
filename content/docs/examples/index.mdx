@@ -1,0 +1,217 @@
+---
+title: Program Examples
+---
+
+This section contains a set of examples that can be used for familiarization with writing programs on Vara or as the basis for dApps: [https://github.com/gear-foundation](https://github.com/gear-foundation).
+
+Programs can be written from scratch or built from provided examples.
+
+## Stable Environment
+
+All program examples and JS applications have been tested in a stable environment with specific development tool versions necessary for implementing, building, and running programs and JS applications.
+
+{/* A local development environment can be configured according to the information provided below or by using a pre-configured Docker image as described in the [Using Docker](#using-docker) section. */}
+
+The **latest releases** of Gear librarires are avaible in the **[GitHub](https://github.com/gear-tech/gear/releases)**.
+
+<Callout type="note">
+Stay up to date with the latest releases and updates from the development team by subscribing to this Telegram channel - https://t.me/GearVaraDev.
+</Callout>
+
+<table>
+<tr>
+<td><b>Compiler Tools</b></td> 
+<td><b>Version</b></td> 
+<td><b>How to install / access</b></td>
+</tr>
+
+<tr>
+<td>Linux users should generally install `GCC` and `Clang`, according to their distribution’s documentation.</td>
+<td>Latest</td>
+<td>
+For example, on Ubuntu use:
+```bash
+sudo apt install -y build-essential clang cmake curl
+```
+On macOS, install a compiler toolset by running:
+```bash
+xcode-select --install
+```
+</td>
+</tr>
+
+<tr>
+<td>Rust</td>
+<td>stable</td>
+<td>
+Install [Rustup](https://rustup.rs/) to get Rust compiler ready:
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+Add Wasm target to the toolchain:
+```bash
+rustup target add wasm32-unknown-unknown
+```
+</td>
+</tr>
+
+<tr>
+<td>[Gear Sails](/docs/build/sails) library</td>
+<td>latest</td>
+<td>
+Install the latest version of Sails library:
+```bash
+cargo install sails-cli
+```
+</td>
+</tr>
+
+<tr>
+<td>[Gear Rust](/docs/build/gstd) libraries: `gstd`, `gtest`, `gclient`, `gear-wasm-builder`</td>
+<td>latest</td>
+<td>
+The latest version is tagged in the `Cargo.toml` file autmatically when creating a new program (for example named 'vara-app'):
+```bash
+cargo sails program vara-app
+```
+</td>
+</tr>
+
+<tr>
+<td>Vara Network [Testnet](https://idea.gear-tech.io/programs?node=wss%3A%2F%2Ftestnet.vara.network)</td>
+<td>latest</td>
+<td>
+Ensure connection to the Vara Network Testnet. Switch networks by clicking on the network name in https://idea.gear-tech.io
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td><b>Gear JS Tools</b></td>
+<td><b>Version</b></td>
+<td><b>How to install / access</b></td>
+</tr>
+<tr>
+<td>Gear JS API</td>
+<td>latest</td>
+<td>Ensure this version is specified in the package.json file of the program repository</td>
+</tr> 
+<tr>
+<td>Sails JS</td>
+<td>latest</td>
+<td>Ensure this version is specified in the package.json file of the program repository</td>
+</tr>
+<tr>
+<td>Gear JS React Hooks</td>
+<td>latest</td>
+<td>Ensure this version is specified in the package.json file of the program repository</td>
+</tr>
+<tr>
+<td>Vara UI Kit</td>
+<td>latest</td>
+<td>Ensure this version is specified in the package.json file of the program repository</td>
+</tr>
+</table>
+
+<Callout type="warning" title="Note">
+Windows users may encounter problems related to the installation of Rust components and dependencies.
+It is highly recommended to use Linux or macOS for compiling Vara nodes and programs.
+</Callout>
+
+
+## First Steps
+
+- Create a new project (named, for example - `vara-app`) by running:
+
+    ```bash
+    cargo sails program vara-app
+    ```
+
+  Your `vara-app` directory tree should look like this
+
+      ```
+      vara-app
+      │
+      ├── app
+      │   └── src
+      │       └── lib.rs
+      │
+      ├── client
+      │   └── ...
+      │
+      ├── src
+      │   └── lib.rs     
+      │
+      ├── tests
+      │   └── gtest.rs
+      │
+      ├── build.rs
+      │
+      ├── Cargo.toml
+      │
+      └──  README.md
+      ```
+
+
+  `Cargo.toml` file is a project manifest in Rust. The essential libraries required for compiling a project are automatically included there.
+
+- Write your program's code
+
+- Compile the Wasm program in the app folder:
+
+    ```bash
+    cargo build --release
+    ```
+
+Refer to [Getting Started](/docs/getting-started-in-5-minutes.md) for additional details.
+
+{/* ## Using Docker
+
+A pre-configured Docker image can be used to build and test programs. The image contains all necessary tools and dependencies for building and running programs and JS applications.
+
+The source code of the image is available on [GitHub](https://github.com/gear-foundation/gear-env).
+
+To use the image, install Docker on the machine. Installation instructions for different operating systems are available on the [Docker website](https://docs.docker.com/get-docker/).
+
+After installing Docker, pull the image from Docker Hub:
+
+```bash
+docker pull ghcr.io/gear-foundation/gear-env:stable
+```
+
+Run the image with the following command:
+
+```bash
+docker run --rm --name gear-env -itd ghcr.io/gear-foundation/gear-env:stable bash
+```
+
+The command will run the image in the background and provide access to the container's shell. Access the container's shell with:
+
+```bash
+docker exec -it gear-env bash
+```
+
+Copy a program to be built to the container (use the `gear-app` created above):
+
+```bash
+docker cp ./gear-app gear-env:/root
+```
+
+Build the program:
+
+```bash
+docker exec -itw /root/gear-app gear-env cargo build --release
+```
+
+The compiled program will be available in the `target/wasm32-unknown-unknown/release` folder inside the container. Copy it to the local machine:
+
+```bash
+docker cp gear-env:/root/gear-app/target/wasm32-unknown-unknown/release/. ./
+```
+
+Stop the Docker container after use:
+
+```shell
+docker stop gear-env
+``` */}

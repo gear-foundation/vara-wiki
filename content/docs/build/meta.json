@@ -1,0 +1,16 @@
+{
+  "title": "Developing Programs",
+  "pages": [
+    "introduction",
+    "sails",
+    "gstd",
+    "distributed_transactions",
+    "builtinactors",
+    "deploy",
+    "testing",
+    "testing-gtest",
+    "testing-gclient",
+    "rent-system",
+    "..."
+  ]
+}

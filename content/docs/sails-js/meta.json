@@ -1,0 +1,10 @@
+{
+  "title": "Sails-JS",
+  "pages": [
+    "overview",
+    "transaction-builder",
+    "client-generation",
+    "react-hooks",
+    "..."
+  ]
+}

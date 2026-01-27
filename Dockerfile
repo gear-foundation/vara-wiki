@@ -1,28 +1,50 @@
-# Этап 1: Установка зависимостей
-FROM node:alpine AS deps
+# Stage 1: Install dependencies
+FROM node:lts-alpine AS deps
 WORKDIR /app
 
+# Copy dependency files
 COPY package.json package-lock.json ./
+
+# Install dependencies with clean install
+RUN npm ci --only=production --force
+
+# Stage 2: Build application
+FROM node:lts-alpine AS builder
+WORKDIR /app
+
+# Copy dependency files for build
+COPY package.json package-lock.json ./
+
+# Install all dependencies (including devDependencies for build)
 RUN npm ci --force
 
-# Этап 2: Сборка приложения
-FROM node:alpine AS builder
-WORKDIR /app
-
-COPY --from=deps /app/node_modules ./node_modules
+# Copy source code
 COPY . .
+
+# Build the application with standalone output
 RUN NODE_OPTIONS="--localstorage-file=/tmp/localstorage" npm run build
 
-# Этап 3: Финальный образ для запуска
-FROM node:alpine AS runner
+# Stage 3: Production runtime
+FROM node:lts-alpine AS runner
 WORKDIR /app
 
-# Устанавливаем только serve для отдачи статики
-RUN npm install -g serve
+ENV NODE_ENV=production
 
-# Копируем только собранный build
-COPY --from=builder /app/build ./build
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy standalone build from builder
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+# Switch to non-root user
+USER nextjs
 
 EXPOSE 3000
 
-CMD ["serve", "-s", "build", "-l", "3000"]
+ENV PORT=3000
+
+# Start the Next.js server
+CMD ["node", "server.js"]

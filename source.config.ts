@@ -25,7 +25,9 @@ const remarkReplaceUnsupportedLanguages: Plugin = () => {
 
 // You can customise Zod schemas for frontmatter and `meta.json` here
 // see https://fumadocs.dev/docs/mdx/collections
-const customFrontmatterSchema = frontmatterSchema.extend({
+// Using object destructuring for Zod v4 compatibility (recommended approach)
+const customFrontmatterSchema = z.object({
+  ...frontmatterSchema.shape,
   browser_title: z.string().optional(),
   custom_title: z.string().optional(),
 });

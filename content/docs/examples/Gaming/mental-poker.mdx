@@ -181,7 +181,7 @@ Vara is a WASM-based blockchain platform that applies the actor model at its cor
 All cryptographic operations — commitments, encryption, public keys (ElGamal keys for poker), and all arithmetic on encrypted cards — are performed over the Bandersnatch curve (on BLS12-381). This curve is natively supported by the underlying cryptographic libraries (`ark-ed-on-bls12-381-bandersnatch`) and by Vara’s built-in primitives for pairing-based cryptography, including efficient serialization and deserialization.
 
 **Pairing-Friendly Architecture:**  
-All verification logic relies on pairing-friendly cryptography using [BLS12-381](/docs/build/builtinactors/bia-bls.md) and Bandersnatch, providing compatibility with modern proof systems such as Groth16 and PLONK.
+All verification logic relies on pairing-friendly cryptography using [BLS12-381](/docs/build/builtinactors/bia-bls) and Bandersnatch, providing compatibility with modern proof systems such as Groth16 and PLONK.
 
 **Built-in Contracts for Verification:**  
 On-chain zk-SNARK proof verification (Groth16/PLONK) is always performed by a dedicated zk-verification contract, never inside the game contract itself. Vara exposes **[built-in actors](/docs/build/builtinactors/)** that provide highly optimized cryptographic operations — multi-scalar multiplication, pairing checks, and related primitives. This approach accelerates verification, minimizes gas usage, and isolates security-sensitive code.

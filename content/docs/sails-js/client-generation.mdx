@@ -91,7 +91,7 @@ console.log(result);
 
 ### Message Methods
 
-Message methods are used to send messages to the program. These methods accept the required arguments for sending the message and return a [Transaction Builder](transaction-builder.md), which contains methods for building and sending the transaction.
+Message methods are used to send messages to the program. These methods accept the required arguments for sending the message and return a [Transaction Builder](transaction-builder), which contains methods for building and sending the transaction.
 
 ```javascript
 const transaction = program.serviceName.functionName(arg1, arg2);
@@ -132,7 +132,7 @@ console.log(result);
 
 ### Constructor Methods
 
-Constructor methods, postfixed with `CtorFromCode` and `CtorFromCodeId` in the `Program` class, are used to deploy the program on the chain. These methods accept either the Wasm code bytes or the code ID and return a [Transaction Builder](transaction-builder.md) just like message methods.
+Constructor methods, postfixed with `CtorFromCode` and `CtorFromCodeId` in the `Program` class, are used to deploy the program on the chain. These methods accept either the Wasm code bytes or the code ID and return a [Transaction Builder](transaction-builder) just like message methods.
 
 ```javascript
 const code = fs.readFileSync('path/to/program.wasm');

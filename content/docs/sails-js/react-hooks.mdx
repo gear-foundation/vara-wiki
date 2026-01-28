@@ -2,7 +2,7 @@
 title: React Hooks
 ---
 
-The [`@gear-js/react-hooks`](/docs/api/tooling/react-hooks.md) library provides React hook abstractions over `sails-js` and its [generated program library](client-generation.md). This significantly simplifies the development of front-end applications built with Sails.
+The [`@gear-js/react-hooks`](/docs/api/tooling/react-hooks) library provides React hook abstractions over `sails-js` and its [generated program library](client-generation). This significantly simplifies the development of front-end applications built with Sails.
 
 [TanStack Query](https://tanstack.com/query) is used as the async state manager to handle queries and mutations, making it easier to manage asynchronous operations like fetching data (queries) and performing create/update/delete operations (mutations) against the defined program library. Therefore, most hooks' parameters and return values correspond to the library's conventions.
 
@@ -50,7 +50,7 @@ console.log(data);
 
 The `useSendProgramTransaction` hook is used to call a `function` (also referred to as a [command](/docs/build/sails/coreconcepts.md#service) in Sails) of a Sails `service` from the application deployed at `id`. It returns a mutation to sign and send a transaction for this purpose.
 
-> **Note:** The returned mutation callback is essentially a wrapper over the [`TransactionBuilder`](transaction-builder.md) in `sails-js` and its `signAndSend` method, which will be called upon mutation execution. The `useSendProgramTransaction` hook abstracts this process by internally specifying an account and a [`@gear-js/api`](/docs/api/api.mdx) instance, making it a shortcut for this procedure.
+> **Note:** The returned mutation callback is essentially a wrapper over the [`TransactionBuilder`](transaction-builder) in `sails-js` and its `signAndSend` method, which will be called upon mutation execution. The `useSendProgramTransaction` hook abstracts this process by internally specifying an account and a [`@gear-js/api`](/docs/api) instance, making it a shortcut for this procedure.
 
 **Example:**
 

@@ -77,7 +77,7 @@ The typical lifecycle of a Vara program involves utilizing the Rust programming 
 
 ### 1. Write the program code.
 
-You can find the minimal example in the [Getting Started](/docs/getting-started-in-5-minutes.md) section. It is a simple program that stores the counter, can increment and decrement it and returns the current value of the counter.
+You can find the minimal example in the [Getting Started](/docs/getting-started-in-5-minutes) section. It is a simple program that stores the counter, can increment and decrement it and returns the current value of the counter.
 
 More advanced examples can be found in the Gear Foundation organization on GitHub: https://github.com/gear-foundation
 
@@ -87,7 +87,7 @@ The Vara developer community recommends using the [`gtest`](https://docs.gear.rs
 
 The more advanced way to test the program is to use the [`gclient`](https://docs.gear.rs/gclient/) crate that allows you to run the program in the blockchain network. It is useful when you need to test the program in a real environment.
 
-You can find more details about testing in the [Program Testing](./testing.md) section.
+You can find more details about testing in the [Program Testing](./testing) section.
 
 ### 3. Compile the program into Wasm.
 
@@ -118,7 +118,7 @@ If initialization fails (for example, the program panics in the `init()` functio
 
 {/* Also, it is important to underline that someone should pay rent for keeping the program in the blockchain after a free period that is equal to 5 million blocks (it is about 2 months for networks with 1 block per second production). It is possible to add funds for rent using the [`pay_program_rent`](https://docs.gear.rs/pallet_gear/pallet/struct.Pallet.html#method.pay_program_rent) extrinsic (by the user) or with the [`gstd::exec::pay_program_rent`](https://docs.gear.rs/gstd/exec/fn.pay_program_rent.html) API function (by the program). If the rent is not paid, the program state changes to pause, its persistent memory is removed from the storage and the program can't be executed. The program can be resumed by uploading its memory pages to the blockchain and paying the rent. */}
 
-More details about the program deployment can be found in the [Upload Program](/docs/build/deploy.md) section.
+More details about the program deployment can be found in the [Upload Program](/docs/build/deploy) section.
 
 ### 5. Execute the program.
 
@@ -151,7 +151,7 @@ This function is stored in the blockchain in the same Wasm blob with `handle()` 
 
 The data returned by the `state()` function can be converted to any convenient representation by using a state-conversion program. This is a separate program compiled into Wasm and dedicated to being executed on the off-chain runner. It should contain a set of meta-functions that accept the data returned by the `state()` function and return the data in a convenient format. There is a dedicated [`read_state_using_wasm`](https://docs.gear.rs/pallet_gear_rpc/trait.GearApiServer.html#tymethod.read_state_using_wasm) RPC call for reading the program state using the state-conversion program.
 
-More details about state functions can be found in the [State Functions](/docs/build/gstd/state.md) section.
+More details about state functions can be found in the [State Functions](/docs/build/gstd/state) section.
 
 ### Asynchronous programming
 
@@ -177,7 +177,7 @@ async fn init() {
 }
 ```
 
-More details about asynchronous programming can be found in the [Asynchronous Programming](/docs/build/gstd/async-programing.md) section.
+More details about asynchronous programming can be found in the [Asynchronous Programming](/docs/build/gstd/async-programing) section.
 
 ### Creating programs from programs
 
@@ -187,13 +187,13 @@ The only prerequisite is that the code of the program should be stored in the bl
 
 There are several helper functions for creating programs from programs in the [`gstd::prog`](https://docs.rs/gstd/latest/gstd/prog/index.html) module.
 
-More details about creating programs from programs can be found in the [Create Program](/docs/build/gstd/create.md) section.
+More details about creating programs from programs can be found in the [Create Program](/docs/build/gstd/create) section.
 
 ### Gas reservation
 
 Vara programs use gas for measuring the complexity of the program execution. The user pays a fee for the gas used by the program. Some part of the gas limit may be reserved during the current execution to be spent later. This gas reserving mechanism can be used to shift the burden of paying for program execution from one user to another. Also, it makes it possible to run some deferred actions using delayed messages described below.
 
-You can find more details about gas reservation in the [Gas Reservation](/docs/build/gstd/gas-reservation.md) section.
+You can find more details about gas reservation in the [Gas Reservation](/docs/build/gstd/gas-reservation) section.
 
 ### Delayed messages
 
@@ -201,7 +201,7 @@ Vara's programs can send messages to other actors during the current execution a
 
 Use functions with `*_delayed` suffix from [`gstd::msg`](https://docs.rs/gstd/latest/gstd/msg/index.html) module to send a delayed message to a program or user. The message will be sent after the specified number of blocks.
 
-More details about delayed messages can be found in the [Delayed Messages](/docs/build/gstd/delayed-messages.md) section.
+More details about delayed messages can be found in the [Delayed Messages](/docs/build/gstd/delayed-messages) section.
 
 ### System signals
 
@@ -215,7 +215,7 @@ extern "C" fn handle_signal() {
     // Handle system signal here
 }
 ```
-You can find more details about system signals in the [System Signals](/docs/build/gstd/system-signals.md) section.
+You can find more details about system signals in the [System Signals](/docs/build/gstd/system-signals) section.
 
 ### Reply deposit
 
@@ -223,4 +223,4 @@ Usually, the reply sender pays a gas fee for the reply message execution. Howeve
 
 The reply deposit is a part of the gas limit reserved during the current execution to be spent later. The reserved gas can be used to pay for the reply message execution. To do this, the program should call the [`gstd::exec::reply_deposit`](https://docs.rs/gstd/latest/gstd/exec/fn.reply_deposit.html) function. This function provides a gas deposit from the current message to handle the reply message on the given message ID. This message ID should be sent within the execution. Once the destination actor or system sends a reply to it, the gas limit is ignored; if the program provides a deposit, only it will be used for the execution of `handle_reply`.
 
-More details about reply deposit can be found in the [Reply Deposit](/docs/build/gstd/reply-deposit.md) section. 
+More details about reply deposit can be found in the [Reply Deposit](/docs/build/gstd/reply-deposit) section.

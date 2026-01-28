@@ -13,7 +13,7 @@ While transactions on a centralized exchange are recorded in that exchange's int
 
 DEXs are usually built on open-source code, allowing anyone interested to see exactly how they work. This also means that developers can adapt existing code to create new competing projects, as seen with Uniswap's code being adapted by various DEXs like Sushiswap and Pancakeswap.
 
-The source code, developed using the [Sails](../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe). The exchange uses [Vara fungible tokens (VFT)](/docs/examples/Standards/vft).
+The source code, developed using the [Sails](../../build/sails) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/tic-tac-toe). The exchange uses [Vara fungible tokens (VFT)](/docs/examples/Standards/vft).
 
 This article describes the program interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios.
 
@@ -74,7 +74,7 @@ The core state of the DEX is encapsulated in the `Storage` structure. This data 
 - **liquidity_providers**: A mapping of liquidity providers and their respective contributions.
 - **token_a** and **token_b**: The identifiers (ActorId) for token A and token B.
 - **k_last**: The product of reserves \( reserve_a \cdot reserve_b \), updated after liquidity changes.
-- **dns_info**: Optional information for domain name system ([dDNS](../Infra/dein.md)) integration.
+- **dns_info**: Optional information for domain name system ([dDNS](../Infra/dein)) integration.
 - **liquidity_action_gas**: Gas required for liquidity-related actions.
 - **swap_status**: Status of the current swap operation.
 

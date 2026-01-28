@@ -21,20 +21,20 @@ Upload Supply chain program requires build two auxiliary programs:
 
 You can deploy a program using [idea.gear-tech.io](https://idea.gear-tech.io/). In the network selector, choose `Vara Network Testnet` or `Development` (in this case, you should have a local node running).
 
-*** Non-Fungible Token ***
+***Non-Fungible Token***
 
 1. Upload program `nft.opt.wasm` from `/target/wasm32-unknown-unknown/release/`
 2. Upload metadata file `meta.txt`
 3. Specify `init payload` and calculate gas!
 
 <Callout type="info" title="Init payload:">
-- name `Str` - NFT collection name
-- symbol `Str` - NFT collection symbol
-- base_uri `Str` - NFT collection base URI
-- royalties `Option<Royalties>` - Optional param to specify accounts to pay royalties
+    - name `Str` - NFT collection name
+    - symbol `Str` - NFT collection symbol
+    - base_uri `Str` - NFT collection base URI
+    - royalties `Option< Royalties >` - Optional param to specify accounts to pay royalties
 </Callout>
 
-*** Sharded Fungible Token ***
+***Sharded Fungible Token***
 
 1. Upload code `ft_logic.opt.wasm` from `/target/wasm32-unknown-unknown/release/`
 2. Upload code `ft_storage.opt.wasm` from `/target/wasm32-unknown-unknown/release/`
@@ -47,7 +47,7 @@ You can deploy a program using [idea.gear-tech.io](https://idea.gear-tech.io/). 
 - ft_logic_code_hash (H256) - logic code ID
 </Callout>
 
-*** Supply Chain ***
+***Supply Chain***
 
 1. Upload code `supply_chain.opt.wasm` from `/target/wasm32-unknown-unknown/release/`
 
@@ -55,8 +55,8 @@ You can deploy a program using [idea.gear-tech.io](https://idea.gear-tech.io/). 
 
 1. Install packages
 
-```sh
-yarn install
+```npm
+npm install
 ```
 
 2. Configure .evn file. Specify network address and program ID like in the example below:
@@ -76,9 +76,9 @@ yarn start
 
 ## Logic
 
-* Each newly produced item gets the NFT in Gear's context - [Vara non-fungible token (VNFT)](/docs/examples/Standards/vft/vft.md) and its ID equals an ID of the item. Then, as an item moves along a supply chain, an item's NFT transfers between a supply chain program, item's producer, and future distributor, retailer and end consumer.
+* Each newly produced item gets the NFT in Gear's context - [Vara non-fungible token (VNFT)](/docs/examples/Standards/vnft) and its ID equals an ID of the item. Then, as an item moves along a supply chain, an item's NFT transfers between a supply chain program, item's producer, and future distributor, retailer and end consumer.
 * Anyone who knows an item's ID can get item info.
-* Sale, purchase, delivery is made in [Vara fungible tokens (VFT)](/docs/examples/Standards/vft/vft.md).
+* Sale, purchase, delivery is made in [Vara fungible tokens (VFT)](/docs/examples/Standards/vft).
 
 Item info has the following struct:
 ```rust title="supply-chain/io/src/lib.rs"

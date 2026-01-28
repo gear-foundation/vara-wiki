@@ -15,8 +15,8 @@ Applications developed with the Sails framework include an auto-generated IDL fi
 
 This example demonstrates how the custom Rust type `IoTrafficLightState` is represented in the corresponding IDL file.
 
-<Tabs items={['Rust', 'IDL', 'Rust', 'IDL']}>
-  <Tab value="rust" default>
+<Tabs items={['Rust', 'IDL']}>
+  <Tab value="Rust" default>
     ```rust
     // Create a struct that can be send to the user who reads state
     #[derive(Encode, Decode, TypeInfo)]
@@ -28,7 +28,7 @@ This example demonstrates how the custom Rust type `IoTrafficLightState` is repr
     }
     ```
   </Tab>
-  <Tab value="idl">
+  <Tab value="IDL">
     ```rust
     type IoTrafficLightState = struct {
       current_light: str,
@@ -42,8 +42,8 @@ This example demonstrates how the custom Rust type `IoTrafficLightState` is repr
 
 This code snippet can be examined to understand how more advanced Sails applications are represented in the IDL file. Note the additional keyword `query` in the IDL file for the `name` and `balance_of` methods, which use `&self` instead of `&mut self` as their first parameter.
 
-<Tabs items={['Rust', 'IDL', 'Rust', 'IDL']}>
-  <Tab value="rust" default>
+<Tabs items={['Rust', 'IDL']}>
+  <Tab value="Rust" default>
     ```rust
     #[service]
     impl Token {
@@ -91,7 +91,7 @@ This code snippet can be examined to understand how more advanced Sails applicat
     }
     ```
   </Tab>
-  <Tab value="idl">
+  <Tab value="IDL">
     ```rust
     constructor {
       New : (name: str);

@@ -2,11 +2,11 @@
 title: Gas Reservation
 ---
 
-Gas reservation is a powerful feature of the Gear Protocol that enables a new approach to programming and modern [use cases](/docs/about/features/message-automation.md).
+Gas reservation is a powerful feature of the Gear Protocol that enables a new approach to programming and modern [use cases](/docs/about/features/message-automation).
 
 Briefly, a program can send a message using gas that was reserved beforehand instead of using gas from the currently processing message.
 
-One of the key advantages of this feature is the ability to send [messages delayed](/docs/build/gstd/delayed-messages.md) in time automatically to any actor in the network, whether it is a user, another program, or even **itself**. In fact, a program can execute itself **an unlimited** number of blocks, provided that enough gas for execution is kept available.
+One of the key advantages of this feature is the ability to send [messages delayed](/docs/build/gstd/delayed-messages) in time automatically to any actor in the network, whether it is a user, another program, or even **itself**. In fact, a program can execute itself **an unlimited** number of blocks, provided that enough gas for execution is kept available.
 
 A program developer can provide a special function in the program's code that takes a defined amount of gas from the amount available to the program and reserves it. A reservation gets a unique identifier that can be used by the program to retrieve this reserved gas and use it later.
 

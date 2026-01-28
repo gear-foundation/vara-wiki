@@ -1,7 +1,6 @@
 {
   "title": "Gear Protocol Technology",
   "pages": [
-    "index",
     "substrate",
     "actor-model",
     "WASM",

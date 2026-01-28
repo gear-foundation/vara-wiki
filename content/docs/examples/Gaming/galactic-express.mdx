@@ -11,7 +11,7 @@ Taking their luck into their own hands, players guide a rocket into outer space,
 Players' strategic decisions about fuel allocation and target gains significantly affect the rocket's path, making each playthrough of the game unique.
 
 The article explains the programming interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios. Anyone can easily create their own application and run it on the Vara Network.
-The source code, developed using the [Sails](../../build/sails/sails.mdx) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/galactic-express).
+The source code, developed using the [Sails](../../build/sails) framework, is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/galactic-express).
 
 Everyone can play the game via this link - [Play Galactic Express](https://galactic-express.vara.network/). The game supports several simultaneous game sessions (lobbies). To start a new game, click the <kbd>Create game</kbd> button and share your account's public key with other players. To join your game, players need to click the <kbd>Find game</kbd> button and enter your account ID there.
 
@@ -42,7 +42,7 @@ pub struct Storage {
 ```
 * `games` - list of all games according to the address of the game's creator
 * `player_to_game_id` - list of players and the games in which they participate
-* `dns_info` -  optional field that stores the [dDNS](../Infra/dein.md) address and the program name
+* `dns_info` -  optional field that stores the [dDNS](../Infra/dein) address and the program name
 * `admin` - game admin
 
 Where the `Game` is as follows:

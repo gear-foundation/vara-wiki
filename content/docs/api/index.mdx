@@ -1,0 +1,97 @@
+---
+title: Getting Started
+---
+
+## Gear-JS API
+
+The Gear-JS API offers a set of utilities, libraries, and tools that enable JavaScript applications to interact with programs running on the Vara network via queries to a Vara node. For applications built using the [Sails](/docs/build/sails) framework, it is generally recommended to use [Sails-JS](/docs/sails-js), which leverages the Gear-JS API for low-level communication with Vara nodes.
+
+The sections below describe tools for implementing basic functions in a JS application, such as managing key pairs (accounts), calculating gas required for network operations, uploading programs to the network, sending messages to programs, reading program states, retrieving messages from the user's mailbox, working with metadata, and more. Useful code snippets are provided in the Cookbook section.
+
+The basic API is implemented on the Substrate layer and is consistent across all Substrate-based networks. The Gear-JS API code is available on [GitHub](https://github.com/gear-tech/gear-js). A complete API overview can be found on the [Polkadot documentation portal](https://polkadot.js.org/docs/).
+
+<Callout type="note">
+Since Vara and Vara Testnet can have different runtime versions, they may have different extrinsic signatures. When operating on the Vara Network, using the `VaraApi` class is more convenient than `GearApi`, and `VaraTestnetApi` is recommended for the Vara Testnet Network.
+</Callout>
+
+## Installation
+
+Install the Gear-JS API using npm:
+
+```npm
+npm install @gear-js/api
+```
+
+## Getting Started
+
+Start the API connection to the local running RPC node:
+
+```javascript
+import { GearApi } from '@gear-js/api';
+
+const gearApi = await GearApi.create();
+```
+
+Connect to a different node:
+
+```javascript
+const gearApi = await GearApi.create({
+  providerAddress: 'ws[s]://someIP[:somePort]',
+});
+```
+
+<Callout type="note" title="Below are a few entry points for interacting with the Vara RPC Node.">
+
+For connection to the local node, use:
+
+```bash
+ws://127.0.0.1:9944
+```
+
+For connection to the Vara Network Testnet, use:
+
+```bash
+wss://testnet.vara.network
+```
+</Callout>
+
+Retrieve node information:
+
+```javascript
+const chain = await gearApi.chain();
+const nodeName = await gearApi.nodeName();
+const nodeVersion = await gearApi.nodeVersion();
+const genesis = gearApi.genesisHash.toHex();
+```
+
+## Example
+
+This simple example demonstrates how to subscribe to new blocks and get chain specifications:
+
+```javascript
+async function connect() {
+  const gearApi = await GearApi.create({
+    providerAddress: 'wss://testnet.vara.network',
+  });
+
+  const [chain, nodeName, nodeVersion] = await Promise.all([
+    gearApi.chain(),
+    gearApi.nodeName(),
+    gearApi.nodeVersion(),
+  ]);
+
+  console.log(
+    `Connected to chain ${chain} using ${nodeName} v${nodeVersion}`,
+  );
+
+  const unsub = await gearApi.gearEvents.subscribeToNewBlocks((header) => {
+    console.log(
+      `New block with number: ${header.number.toNumber()} and hash: ${header.hash.toHex()}`,
+    );
+  });
+}
+
+connect().catch(console.error);
+```
+
+Refer to the [NFT Marketplace example](/docs/examples/NFTs/nft-marketplace/nft-application) for a demonstration of creating a React application that connects to an [NFT smart contract](/docs/examples/Standards/vnft) running on the blockchain.

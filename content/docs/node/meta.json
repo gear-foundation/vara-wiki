@@ -1,0 +1,14 @@
+{
+  "title": "Vara Node",
+  "pages": [
+    "node-as-service",
+    "telemetry",
+    "backup-restore",
+    "dev-net",
+    "multi-node",
+    "node-faq",
+    "troubleshooting",
+    "local-chain",
+    "..."
+  ]
+}

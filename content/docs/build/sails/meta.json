@@ -1,0 +1,13 @@
+{
+  "title": "Sails Library (High-Level)",
+  "pages": [
+    "coreconcepts",
+    "sails",
+    "events",
+    "routing",
+    "mixins",
+    "idl",
+    "migration",
+    "..."
+  ]
+}

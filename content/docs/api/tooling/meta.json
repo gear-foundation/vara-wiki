@@ -1,0 +1,13 @@
+{
+  "title": "Gear-JS tools",
+  "pages": [
+    "create-gear-app",
+    "meta-cli",
+    "react-hooks",
+    "gasless-txs",
+    "ai-generator",
+    "wallet-js",
+    "x402",
+    "..."
+  ]
+}

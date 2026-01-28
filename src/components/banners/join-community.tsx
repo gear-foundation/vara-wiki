@@ -1,48 +1,54 @@
-import Link from "@docusaurus/Link";
-import { SOCIALS } from "@site/src/lib/data/socials.data";
-import { Sprite } from "../ui/sprite";
-import { cn } from "@site/src/lib/utils";
+import Link from "next/link";
+import { HeroBgVideo } from "@/components/sections/home/blocks/hero/video";
+import { Sprite } from "@/components/ui/sprite";
+import { cn } from "@/lib/cn";
+import { SOCIALS } from "@/lib/data/socials.data";
 
-type Props = {
+type BaseComponentProps = {
   className?: string;
+  children?: React.ReactNode;
 };
 
-export function JoinCommunityBanner({ className, ...rest }: Props) {
+type JoinCommunityBannerProps = BaseComponentProps & {};
+
+export function JoinCommunityBanner({
+  className,
+  ...rest
+}: JoinCommunityBannerProps) {
   return (
-    <section
-      className={cn("container flex flex-col items-center *:mb-0", className)}
-      {...rest}
-    >
-      <h2 className="text-center max-md:text-[48px] max-md:leading-[58px] typo-title-1 font-medium 2xl:leading-[86px]">
-        Join Vara{" "}
-        <span className="gradient-text-black dark:gradient-text-white">
-          Community
-        </span>
-      </h2>
-      <p className="mt-6 max-w-[640px] mx-auto text-center text-lg/[1.4]">
-        Follow the Vara social channels and join the{" "}
-        <span className="block md:inline">
-          conversation on the future of Web3
-        </span>
-      </p>
-      <ul className="list-none flex items-center justify-between sm:justify-start space-x-5 md:space-x-8 mt-12 xl:mt-14.5">
-        {Object.values(SOCIALS).map((item, i) => (
-          <li key={i}>
-            <Link
-              href={item.url}
-              className="text-black dark:text-white hover:!text-brand active:!text-brand-600 duration-200 transition-colors"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <span className="sr-only">{item.title}</span>
-              <Sprite
-                name={item.icon}
-                className="inline-block size-8 md:size-12"
-              />
-            </Link>
-          </li>
-        ))}
-      </ul>
+    <section className={cn("container", className)} {...rest}>
+      <div className="relative rounded-xl border border-border py-17 md:py-20 dark:bg-card overflow-hidden">
+        <div className="relative z-2 flex flex-col items-center">
+          <h2 className="text-center text-[40px] font-bold leading-[1.4] lg:text-[48px]">
+            Join Vara Community
+          </h2>
+          <p className="mx-auto mt-6 max-w-[640px] text-center text-base/[1.4] text-muted-foreground">
+            Follow the Vara social channels and join the{" "}
+            <span className="block md:inline">
+              conversation on the future of Web3
+            </span>
+          </p>
+          <ul className="mt-12 flex items-center justify-between space-x-4 sm:justify-start md:space-x-8 xl:mt-18">
+            {Object.values(SOCIALS).map((item, i) => (
+              <li key={i}>
+                <Link
+                  href={item.url}
+                  className="transition-colors duration-200 hover:text-primary active:text-primary/70"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span className="sr-only">{item.title}</span>
+                  <Sprite
+                    name={item.icon}
+                    className="inline-block size-8 xl:size-10"
+                  />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <HeroBgVideo className="z-1" />
+      </div>
     </section>
   );
 }

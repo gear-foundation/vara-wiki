@@ -1,0 +1,282 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@import "fumadocs-ui/css/shadcn.css";
+@import "fumadocs-ui/css/preset.css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --brand: 0 255 196;
+  --brand-500: 3 255 196;
+  --brand-400: 100 255 219;
+  --brand-600: 14 211 163;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.7 0.15 162);
+  --primary-foreground: oklch(0.98 0.02 166);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.58 0.22 27);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.85 0.13 165);
+  --chart-2: oklch(0.77 0.15 163);
+  --chart-3: oklch(0.7 0.15 162);
+  --chart-4: oklch(0.85 0.15 165);
+  --chart-5: oklch(0.51 0.1 166);
+  --radius: 0.45rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.85 0.15 165);
+  --sidebar-primary-foreground: oklch(0.98 0.02 166);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+html {
+  font-size: 16px;
+  font-family: "Anuphan", system-ui, -apple-system, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Anuphan", system-ui, -apple-system, sans-serif;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.85 0.15 165);
+  --primary-foreground: oklch(0.26 0.05 173);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.371 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.85 0.13 165);
+  --chart-2: oklch(0.77 0.15 163);
+  --chart-3: oklch(0.7 0.15 162);
+  --chart-4: oklch(0.85 0.15 165);
+  --chart-5: oklch(0.51 0.1 166);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.77 0.15 163);
+  --sidebar-primary-foreground: oklch(0.26 0.05 173);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@theme inline {
+  --font-display: "Anuphan", sans-serif;
+
+  --color-brand: rgb(0 255 196);
+  --color-brand-400: rgb(100 255 219);
+  --color-brand-500: rgb(3 255 196);
+  --color-brand-600: rgb(14 211 163);
+
+  --font-sans: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 1rem;
+
+  @variant md {
+    max-width: initial;
+    padding-inline: 3rem;
+  }
+
+  @variant xl {
+    max-width: 90rem;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex justify-center items-center text-center min-w-fit py-3 px-6 font-semibold rounded whitespace-nowrap cursor-pointer select-none;
+  }
+
+  .btn--primary {
+    @apply text-black bg-brand hover:bg-[#30FFCF] focus-visible:bg-brand-600 focus-visible:shadow-none active:opacity-80 transition;
+  }
+
+  .btn--primary--shadow {
+    @apply shadow-[0_1.6px_3.2px] shadow-brand/40;
+  }
+
+  .btn--primary:hover {
+    box-shadow:
+      0 1.6px 3.2px rgba(var(--brand) / 0.4),
+      inset 0 0.4px 1.2px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn--white {
+    @apply bg-white text-black hover:bg-[#D4D4D4] active:bg-white transition;
+  }
+
+  .btn--white-text {
+    @apply text-white hover:bg-[#202020]/80 focus-visible:bg-white focus-visible:text-black active:opacity-80 transition;
+  }
+
+  .btn--black {
+    @apply bg-black text-white hover:bg-[#404040] hover:ring-[#404040] active:bg-[#1B1A1A] active:ring-[#1B1A1A] focus-visible:bg-[#262626] focus-visible:ring-[#262626] transition;
+  }
+
+  .btn--white-tonal {
+    @apply bg-white/15 text-white hover:bg-white/25 active:bg-white/35 transition;
+  }
+
+  .btn--white-outline {
+    @apply ring-2 ring-inset ring-[#1D1D1F] text-[#1D1D1F] bg-white transition hover:text-white hover:bg-[#1D1D1F] hover:ring-transparent focus-visible:text-white focus-visible:bg-black focus-visible:ring-transparent active:opacity-80;
+  }
+
+  .btn--black-outline {
+    @apply ring-2 ring-inset ring-current text-black hover:bg-black hover:ring-black hover:text-white active:opacity-80 transition;
+  }
+
+  .btn--black-tonal {
+    @apply text-black bg-[#E5E5E7] hover:bg-black/15 active:opacity-80 transition;
+  }
+
+  .btn--black-text {
+    @apply text-black hover:bg-[#F3F5F7]/80 focus-visible:bg-black focus-visible:text-white active:opacity-80 transition;
+  }
+
+  .btn--grey {
+    @apply text-black bg-[#E5E5E7] hover:bg-[#DDDDE1] focus-visible:bg-[#CFCFD4] active:bg-[#BDBDC2] active:opacity-80 transition;
+  }
+
+  .btn--sm {
+    @apply py-1.5 px-4;
+  }
+
+  .btn:disabled,
+  .btn[disabled] {
+    @apply cursor-not-allowed disabled:bg-[#58696E]/4 disabled:text-[#58696E]/50;
+  }
+
+  .btn--loading {
+    @apply opacity-90 gap-2 before:w-4 before:h-4 before:border-2 before:border-neutral-400 before:rounded-full before:border-l-transparent before:border-t-transparent before:animate-spin;
+  }
+
+  .gradient-text-black {
+    @apply text-transparent bg-clip-text bg-black bg-linear-to-r from-30% to-75% from-[#2B2B2B];
+    --tw-gradient-to: rgb(var(--brand));
+  }
+
+  .gradient-text-white {
+    @apply text-transparent bg-clip-text bg-foreground bg-linear-to-r from-30% to-75% from-foreground;
+    --tw-gradient-to: var(--primary);
+  }
+
+  .typo-title-1 {
+    @apply font-semibold lg:font-medium text-[42px] md:text-[46px] lg:text-[52px] xl:text-[62px] 2xl:text-[72px] leading-12.5 md:leading-13.75 lg:leading-15.5 xl:leading-18.5 2xl:leading-21.5;
+  }
+
+  .text-brand {
+    color: rgb(var(--brand));
+  }
+
+  .text-brand-600 {
+    color: rgb(var(--brand-600));
+  }
+}
+
+@utility join-community-banner-gradients {
+  background: radial-gradient(
+    99.91% 88.06% at 48.75% -61.94%,
+    transparent 36.49%,
+    var(--background) 100%
+  );
+}
+
+@utility join-community-banner-gradients-dark {
+  background: radial-gradient(
+    99.91% 88.06% at 48.75% -61.94%,
+    transparent 36.49%,
+    var(--card) 100%
+  );
+}
+
+@utility banner-white-bg {
+  background-image: radial-gradient(
+    99.91% 88.06% at 48.75% -61.94%,
+    transparent 36.49%,
+    var(--background) 100%
+  );
+}

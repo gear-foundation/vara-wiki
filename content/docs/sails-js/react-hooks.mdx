@@ -2,7 +2,7 @@
 title: React Hooks
 ---
 
-The [`@gear-js/react-hooks`](/docs/api/tooling/react-hooks) library provides React hook abstractions over `sails-js` and its [generated program library](client-generation). This significantly simplifies the development of front-end applications built with Sails.
+The [`@gear-js/react-hooks`](/docs/api/tooling/react-hooks) library provides React hook abstractions over `sails-js` and its [generated program library](/docs/sails-js/client-generation). This significantly simplifies the development of front-end applications built with Sails.
 
 [TanStack Query](https://tanstack.com/query) is used as the async state manager to handle queries and mutations, making it easier to manage asynchronous operations like fetching data (queries) and performing create/update/delete operations (mutations) against the defined program library. Therefore, most hooks' parameters and return values correspond to the library's conventions.
 
@@ -10,7 +10,7 @@ The [`@gear-js/react-hooks`](/docs/api/tooling/react-hooks) library provides Rea
 
 ### `useSails`
 
-The `useSails` hook returns a `Sails` instance as described in the [Library Overview](overview#the-sails-class) section, based on the provided `programId` and IDL description of the deployed application.
+The `useSails` hook returns a `Sails` instance as described in the [Library Overview](/docs/sails-js/overview#the-sails-class) section, based on the provided `programId` and IDL description of the deployed application.
 
 **Example:**
 
@@ -30,7 +30,7 @@ console.log(data);
 
 ### `useProgram`
 
-The `useProgram` hook returns a `Program` instance as described in the [Client Generation](client-generation#methods-of-the-program-class) section using a generated library (`lib.ts`) and the `id` of a deployed application.
+The `useProgram` hook returns a `Program` instance as described in the [Client Generation](/docs/sails-js/client-generation#methods-of-the-program-class) section using a generated library (`lib.ts`) and the `id` of a deployed application.
 
 **Example:**
 
@@ -50,7 +50,7 @@ console.log(data);
 
 The `useSendProgramTransaction` hook is used to call a `function` (also referred to as a [command](/docs/build/sails/coreconcepts#service) in Sails) of a Sails `service` from the application deployed at `id`. It returns a mutation to sign and send a transaction for this purpose.
 
-> **Note:** The returned mutation callback is essentially a wrapper over the [`TransactionBuilder`](transaction-builder) in `sails-js` and its `signAndSend` method, which will be called upon mutation execution. The `useSendProgramTransaction` hook abstracts this process by internally specifying an account and a [`@gear-js/api`](/docs/api) instance, making it a shortcut for this procedure.
+> **Note:** The returned mutation callback is essentially a wrapper over the [`TransactionBuilder`](/docs/sails-js/transaction-builder) in `sails-js` and its `signAndSend` method, which will be called upon mutation execution. The `useSendProgramTransaction` hook abstracts this process by internally specifying an account and a [`@gear-js/api`](/docs/api) instance, making it a shortcut for this procedure.
 
 **Example:**
 
@@ -159,7 +159,7 @@ export { App };
 
 ## Prepare Hooks
 
-When performing long-running asynchronous work in response to a user transaction using [`useSendProgramTransaction`](#usesendprogramtransaction)) hook, the user only receives feedback on the transaction status after transaction is complete. Prepare hooks can be used to eagerly obtain values before user interaction or to perform upfront validation before sending a transaction.
+When performing long-running asynchronous work in response to a user transaction using [`useSendProgramTransaction`](/docs/sails-js/react-hooks#usesendprogramtransaction)) hook, the user only receives feedback on the transaction status after transaction is complete. Prepare hooks can be used to eagerly obtain values before user interaction or to perform upfront validation before sending a transaction.
 
 ### `usePrepareProgramTransaction`
 
@@ -211,7 +211,7 @@ export { LogTransactionFeeButton };
 
 **Example:**
 
-Using the hook in combination with [useSendProgramTransaction](#usesendprogramtransaction):
+Using the hook in combination with [useSendProgramTransaction](/docs/sails-js/react-hooks#usesendprogramtransaction):
 
 ```jsx
 import { useProgram, usePrepareProgramTransaction, useSendProgramTransaction } from '@gear-js/react-hooks';

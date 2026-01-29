@@ -10,7 +10,7 @@ Programs can be written from scratch or built from provided examples.
 
 All program examples and JS applications have been tested in a stable environment with specific development tool versions necessary for implementing, building, and running programs and JS applications.
 
-{/* A local development environment can be configured according to the information provided below or by using a pre-configured Docker image as described in the [Using Docker](#using-docker) section. */}
+[//]: # (A local development environment can be configured according to the information provided below or by using a pre-configured Docker image as described in the [Using Docker]&#40;#using-docker&#41; section.)
 
 The **latest releases** of Gear librarires are avaible in the **[GitHub](https://github.com/gear-tech/gear/releases)**.
 
@@ -19,64 +19,70 @@ Stay up to date with the latest releases and updates from the development team b
 </Callout>
 
 <table>
+<thead>
 <tr>
-<td><b>Compiler Tools</b></td> 
-<td><b>Version</b></td> 
-<td><b>How to install / access</b></td>
+<th><strong>Compiler Tools</strong></th>
+<th><strong>Version</strong></th>
+<th><strong>How to install / access</strong></th>
 </tr>
-
+</thead>
+<tbody>
 <tr>
-<td>Linux users should generally install `GCC` and `Clang`, according to their distribution’s documentation.</td>
+<td>Linux users should generally install `GCC` and `Clang`, according to their distribution's documentation.</td>
 <td>Latest</td>
 <td>
 For example, on Ubuntu use:
+
 ```bash
 sudo apt install -y build-essential clang cmake curl
 ```
+
 On macOS, install a compiler toolset by running:
+
 ```bash
 xcode-select --install
 ```
 </td>
 </tr>
-
 <tr>
 <td>Rust</td>
 <td>stable</td>
 <td>
 Install [Rustup](https://rustup.rs/) to get Rust compiler ready:
+
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
+
 Add Wasm target to the toolchain:
+
 ```bash
 rustup target add wasm32-unknown-unknown
 ```
 </td>
 </tr>
-
 <tr>
 <td>[Gear Sails](/docs/build/sails) library</td>
 <td>latest</td>
 <td>
 Install the latest version of Sails library:
+
 ```bash
 cargo install sails-cli
 ```
 </td>
 </tr>
-
 <tr>
 <td>[Gear Rust](/docs/build/gstd) libraries: `gstd`, `gtest`, `gclient`, `gear-wasm-builder`</td>
 <td>latest</td>
 <td>
 The latest version is tagged in the `Cargo.toml` file autmatically when creating a new program (for example named 'vara-app'):
+
 ```bash
 cargo sails program vara-app
 ```
 </td>
 </tr>
-
 <tr>
 <td>Vara Network [Testnet](https://idea.gear-tech.io/programs?node=wss%3A%2F%2Ftestnet.vara.network)</td>
 <td>latest</td>
@@ -84,35 +90,15 @@ cargo sails program vara-app
 Ensure connection to the Vara Network Testnet. Switch networks by clicking on the network name in https://idea.gear-tech.io
 </td>
 </tr>
+</tbody>
 </table>
 
-<table>
-<tr>
-<td><b>Gear JS Tools</b></td>
-<td><b>Version</b></td>
-<td><b>How to install / access</b></td>
-</tr>
-<tr>
-<td>Gear JS API</td>
-<td>latest</td>
-<td>Ensure this version is specified in the package.json file of the program repository</td>
-</tr> 
-<tr>
-<td>Sails JS</td>
-<td>latest</td>
-<td>Ensure this version is specified in the package.json file of the program repository</td>
-</tr>
-<tr>
-<td>Gear JS React Hooks</td>
-<td>latest</td>
-<td>Ensure this version is specified in the package.json file of the program repository</td>
-</tr>
-<tr>
-<td>Vara UI Kit</td>
-<td>latest</td>
-<td>Ensure this version is specified in the package.json file of the program repository</td>
-</tr>
-</table>
+| **Gear JS Tools** | **Version** | **How to install / access** |
+| --- | --- | --- |
+| Gear JS API | latest | Ensure this version is specified in the package.json file of the program repository |
+| Sails JS | latest | Ensure this version is specified in the package.json file of the program repository |
+| Gear JS React Hooks | latest | Ensure this version is specified in the package.json file of the program repository |
+| Vara UI Kit | latest | Ensure this version is specified in the package.json file of the program repository |
 
 <Callout type="warning" title="Note">
 Windows users may encounter problems related to the installation of Rust components and dependencies.
@@ -166,52 +152,83 @@ It is highly recommended to use Linux or macOS for compiling Vara nodes and prog
 
 Refer to [Getting Started](/docs/getting-started-in-5-minutes) for additional details.
 
-{/* ## Using Docker
+[//]: # (## Using Docker)
 
-A pre-configured Docker image can be used to build and test programs. The image contains all necessary tools and dependencies for building and running programs and JS applications.
+[//]: # ()
+[//]: # (A pre-configured Docker image can be used to build and test programs. The image contains all necessary tools and dependencies for building and running programs and JS applications.)
 
-The source code of the image is available on [GitHub](https://github.com/gear-foundation/gear-env).
+[//]: # ()
+[//]: # (The source code of the image is available on [GitHub]&#40;https://github.com/gear-foundation/gear-env&#41;.)
 
-To use the image, install Docker on the machine. Installation instructions for different operating systems are available on the [Docker website](https://docs.docker.com/get-docker/).
+[//]: # ()
+[//]: # (To use the image, install Docker on the machine. Installation instructions for different operating systems are available on the [Docker website]&#40;https://docs.docker.com/get-docker/&#41;.)
 
-After installing Docker, pull the image from Docker Hub:
+[//]: # ()
+[//]: # (After installing Docker, pull the image from Docker Hub:)
 
-```bash
-docker pull ghcr.io/gear-foundation/gear-env:stable
-```
+[//]: # ()
+[//]: # (```bash)
 
-Run the image with the following command:
+[//]: # (docker pull ghcr.io/gear-foundation/gear-env:stable)
 
-```bash
-docker run --rm --name gear-env -itd ghcr.io/gear-foundation/gear-env:stable bash
-```
+[//]: # (```)
 
-The command will run the image in the background and provide access to the container's shell. Access the container's shell with:
+[//]: # ()
+[//]: # (Run the image with the following command:)
 
-```bash
-docker exec -it gear-env bash
-```
+[//]: # ()
+[//]: # (```bash)
 
-Copy a program to be built to the container (use the `gear-app` created above):
+[//]: # (docker run --rm --name gear-env -itd ghcr.io/gear-foundation/gear-env:stable bash)
 
-```bash
-docker cp ./gear-app gear-env:/root
-```
+[//]: # (```)
 
-Build the program:
+[//]: # ()
+[//]: # (The command will run the image in the background and provide access to the container's shell. Access the container's shell with:)
 
-```bash
-docker exec -itw /root/gear-app gear-env cargo build --release
-```
+[//]: # ()
+[//]: # (```bash)
 
-The compiled program will be available in the `target/wasm32-unknown-unknown/release` folder inside the container. Copy it to the local machine:
+[//]: # (docker exec -it gear-env bash)
 
-```bash
-docker cp gear-env:/root/gear-app/target/wasm32-unknown-unknown/release/. ./
-```
+[//]: # (```)
 
-Stop the Docker container after use:
+[//]: # ()
+[//]: # (Copy a program to be built to the container &#40;use the `gear-app` created above&#41;:)
 
-```shell
-docker stop gear-env
-``` */}
+[//]: # ()
+[//]: # (```bash)
+
+[//]: # (docker cp ./gear-app gear-env:/root)
+
+[//]: # (```)
+
+[//]: # ()
+[//]: # (Build the program:)
+
+[//]: # ()
+[//]: # (```bash)
+
+[//]: # (docker exec -itw /root/gear-app gear-env cargo build --release)
+
+[//]: # (```)
+
+[//]: # ()
+[//]: # (The compiled program will be available in the `target/wasm32-unknown-unknown/release` folder inside the container. Copy it to the local machine:)
+
+[//]: # ()
+[//]: # (```bash)
+
+[//]: # (docker cp gear-env:/root/gear-app/target/wasm32-unknown-unknown/release/. ./)
+
+[//]: # (```)
+
+[//]: # ()
+[//]: # (Stop the Docker container after use:)
+
+[//]: # ()
+[//]: # (```shell)
+
+[//]: # (docker stop gear-env)
+
+[//]: # (```)

@@ -4,7 +4,7 @@ title: ZK-Battleship Game
 
 ## Introduction
 
-[The previous paper](./battleship)  explored the implementation of a Battleship game, where all data, including the positions of players' ships, were openly stored on a blockchain. While this approach demonstrated the potential of decentralized gaming, it had a significant drawback: the ship positions were publicly accessible, undermining the strategic nature of the game.
+[The previous paper](/docs/examples/Gaming/Battleship)  explored the implementation of a Battleship game, where all data, including the positions of players' ships, were openly stored on a blockchain. While this approach demonstrated the potential of decentralized gaming, it had a significant drawback: the ship positions were publicly accessible, undermining the strategic nature of the game.
 
 To address this issue and preserve the confidentiality of players' data, the new version of the game integrates **Zero-Knowledge Proofs (zk-SNARKs)**. With this technology, players' boards are stored locally, and no information about ship positions is transmitted to the network, ensuring both fairness and security in gameplay.
 
@@ -394,7 +394,7 @@ This process allows the game to maintain fairness and privacy, ensuring that pla
 
 The program leverages the BLS12-381 elliptic curve for verifying zero-knowledge proofs, which is a computationally intensive process. BLS cryptography is known for its ability to efficiently handle signature aggregation and verification at scale using Elliptic Curve cryptography.
 
-In the context of this program, performing BLS computations directly on-chain would significantly increase gas costs and processing time, potentially requiring over 30 blocks on the Vara network to complete. To address this, the program utilizes the [BLS12-381 Built-in Actor](docs/build/builtinactors/bia-bls), a specialized module integrated into the Vara runtime.
+In the context of this program, performing BLS computations directly on-chain would significantly increase gas costs and processing time, potentially requiring over 30 blocks on the Vara network to complete. To address this, the program utilizes the [BLS12-381 Built-in Actor](/docs/build/builtinactors/bia-bls), a specialized module integrated into the Vara runtime.
 
 This module allows the program to offload BLS cryptographic operations to be executed in native mode off-chain by the validators. By sending a message with the necessary arguments to the BLS12-381 actor's address, the program ensures that these intensive computations are processed efficiently and within the single block time of the Vara network (which is 3 seconds). Once the computation is complete, the result is returned to the program, minimizing on-chain resource usage and reducing gas costs. 
 

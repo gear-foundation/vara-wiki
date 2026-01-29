@@ -308,7 +308,7 @@ function BalanceDisplay({ balance }) {
 Retrieves and subscribes to the total balance of a given account address, allowing you to display or react to the overall balance in your application. This hook is based on `api.balance.findOut` and `api.gearEvents.subscribeToBalanceChanges`.
 
 > **Note:**  
-> This hook returns the account's total balance as a single value, not its individual components (such as free, reserved, or misc frozen balances). On Substrate-based chains, the balance type is a composite structure; to access specific fields like free balance, use the [useDeriveBalancesAll](#useDeriveBalancesAll).
+> This hook returns the account's total balance as a single value, not its individual components (such as free, reserved, or misc frozen balances). On Substrate-based chains, the balance type is a composite structure; to access specific fields like free balance, use the [useDeriveBalancesAll](/docs/api/tooling/react-hooks#usederivebalancesall).
 
 ### Parameters
 
@@ -619,7 +619,7 @@ function SendTransaction() {
 export { SendTransaction };
 ```
 
-Or in combination with [usePrepareProgramTransaction](#usePrepareProgramTransaction):
+Or in combination with [usePrepareProgramTransaction](/docs/api/tooling/react-hooks#useprepareprogramtransaction):
 
 ```jsx
 import { useProgram, usePrepareProgramTransaction, useSendProgramTransaction } from '@gear-js/react-hooks';

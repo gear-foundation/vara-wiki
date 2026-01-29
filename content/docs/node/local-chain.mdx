@@ -1,6 +1,6 @@
 ---
-custom_title: Building and Running a Local Vara Chain for Development and Testing
 title: Local Chain Setup
+custom_title: Building and Running a Local Vara Chain for Development and Testing
 ---
 
 If you're experimenting with runtime logic, benchmarking smart contracts, or just exploring how blockchain consensus actually works under the hood, running a local Vara chain is one of the best ways to do it.
@@ -8,35 +8,6 @@ If you're experimenting with runtime logic, benchmarking smart contracts, or jus
 While Vara offers ready-to-use public networks like testnet and mainnet, local environments give you more control. You can modify chain parameters, test custom runtimes, or simulate multi-validator behavior without relying on any external infrastructure.
 
 In this guide, you'll learn how to set up and operate a full Vara blockchain network locally, from compiling the runtime to launching validators and connecting through Polkadot.js.
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-  - [System Requirements](#system-requirements)
-  - [Required Software](#required-software)
-  - [Verification Steps](#verification-steps)
-- [Quick Start for Experienced Users](#quick-start-for-experienced-users)
-- [Architecture Overview](#architecture-overview)
-- [Detailed Setup Guide](#detailed-setup-guide)
-  - [Step 1: Install Dependencies](#step-1-install-dependencies)
-  - [Step 2: Install Rust Toolchain](#step-2-install-rust-toolchain)
-  - [Step 3: Clone and Build Gear](#step-3-clone-and-build-gear)
-  - [Step 4: Generate Chain Specification](#step-4-generate-chain-specification)
-  - [Step 5: Update Runtime in Chain Spec](#step-5-update-runtime-in-chain-spec)
-  - [Step 6: Generate Validator Configuration](#step-6-generate-validator-configuration)
-  - [Step 7: Generate Node Keys](#step-7-generate-node-keys)
-  - [Step 8: Convert Chain Spec to Raw Format](#step-8-convert-chain-spec-to-raw-format)
-  - [Step 9: Start Validator Network](#step-9-start-validator-network)
-- [Validation and Testing](#validation-and-testing)
-- [Monitoring and Health Checks](#monitoring-and-health-checks)
-- [Troubleshooting](#troubleshooting)
-- [Cleanup and Teardown](#cleanup-and-teardown)
-- [Security Considerations](#security-considerations)
-- [Performance and Resources](#performance-and-resources)
-- [Common Use Cases](#common-use-cases)
-- [Advanced Configuration](#advanced-configuration)
-- [Conclusion](#conclusion)
 
 ## Overview
 

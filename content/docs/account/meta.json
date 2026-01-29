@@ -1,4 +1,4 @@
 {
   "title": "Account",
-  "pages": ["index", "ledger", "polkadot-vault", "ss58", "..."]
+  "pages": ["ledger", "polkadot-vault", "ss58", "..."]
 }

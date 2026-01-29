@@ -10,7 +10,7 @@ The [`@gear-js/react-hooks`](/docs/api/tooling/react-hooks) library provides Rea
 
 ### `useSails`
 
-The `useSails` hook returns a `Sails` instance as described in the [Library Overview](overview.md#the-sails-class) section, based on the provided `programId` and IDL description of the deployed application.
+The `useSails` hook returns a `Sails` instance as described in the [Library Overview](overview#the-sails-class) section, based on the provided `programId` and IDL description of the deployed application.
 
 **Example:**
 
@@ -30,7 +30,7 @@ console.log(data);
 
 ### `useProgram`
 
-The `useProgram` hook returns a `Program` instance as described in the [Client Generation](client-generation.md#methods-of-the-program-class) section using a generated library (`lib.ts`) and the `id` of a deployed application.
+The `useProgram` hook returns a `Program` instance as described in the [Client Generation](client-generation#methods-of-the-program-class) section using a generated library (`lib.ts`) and the `id` of a deployed application.
 
 **Example:**
 
@@ -48,7 +48,7 @@ console.log(data);
 
 ### `useSendProgramTransaction`
 
-The `useSendProgramTransaction` hook is used to call a `function` (also referred to as a [command](/docs/build/sails/coreconcepts.md#service) in Sails) of a Sails `service` from the application deployed at `id`. It returns a mutation to sign and send a transaction for this purpose.
+The `useSendProgramTransaction` hook is used to call a `function` (also referred to as a [command](/docs/build/sails/coreconcepts#service) in Sails) of a Sails `service` from the application deployed at `id`. It returns a mutation to sign and send a transaction for this purpose.
 
 > **Note:** The returned mutation callback is essentially a wrapper over the [`TransactionBuilder`](transaction-builder) in `sails-js` and its `signAndSend` method, which will be called upon mutation execution. The `useSendProgramTransaction` hook abstracts this process by internally specifying an account and a [`@gear-js/api`](/docs/api) instance, making it a shortcut for this procedure.
 

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     template: "%s | Vara Network Documentation Portal",
     default: "Vara Network Documentation Portal",
   },
-  description: "All documentation related to Vara Network",
+  description: "Guides, quick start, program examples, and API reference for building dApps on Vara Network",
   metadataBase: new URL("https://wiki.vara.network"),
 };
 

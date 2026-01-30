@@ -3,5 +3,18 @@
   "description": "Build programs with IDEA, Sails-JS, Gear-JS and CLI",
   "icon": "Code",
   "root": true,
-  "pages": ["index", "build", "idea", "sails-js", "api", "gcli", "..."]
+  "pages": [
+    "---Introduction---",
+    "index",
+    "---Build (Rust)---",
+    "build/index",
+    "...build",
+    "---IDEs & Frameworks---",
+    "idea",
+    "sails-js",
+    "---API & CLI---",
+    "api",
+    "...gcli",
+    "..."
+  ]
 }

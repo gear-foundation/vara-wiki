@@ -14,12 +14,18 @@ export const metadata = {
 
 export default function Layout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" suppressHydrationWarning className={font.variable}>
+    <html lang="en" suppressHydrationWarning className={`${font.variable}`}>
       {process.env.NODE_ENV === "production" && (
         <GoogleTagManager gtmId="GTM-NH2N6VX" />
       )}
       <body className="flex flex-col min-h-screen">
-        <RootProvider>{children}</RootProvider>
+        <RootProvider
+          theme={{
+            defaultTheme: "dark",
+          }}
+        >
+          {children}
+        </RootProvider>
       </body>
     </html>
   );

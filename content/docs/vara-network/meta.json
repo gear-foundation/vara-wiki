@@ -1,0 +1,21 @@
+{
+  "title": "Vara Network",
+  "description": "Network overview, node, staking, governance and bridge",
+  "icon": "Globe",
+  "root": true,
+  "pages": [
+    "index",
+    "about",
+    "account",
+    "getting-started-in-5-minutes",
+    "node",
+    "examples",
+    "tokenomics",
+    "bridge",
+    "indexers",
+    "staking",
+    "governance",
+    "general",
+    "..."
+  ]
+}

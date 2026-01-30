@@ -1,0 +1,211 @@
+---
+title: Testing with gclient
+custom_title: Testing with `gclient`
+---
+
+`gclient` is intended to be used as a tool for testing Vara programs with a real blockchain network. It allows sending extrinsics and RPCs by connecting to the network. `gclient` is recommended for end-to-end testing to ensure the program works as expected in the real blockchain world.
+
+It is essential to note that testing with `gclient` requires a running node as the second part of the test suite. `gclient` interacts with the node over the WebSocket protocol. Depending on the testing purpose, `gclient` can communicate with either a local or a remote node. Using a **local node in developer mode** is the best choice for initial debugging and continuous integration.
+
+Testing with `gclient` is slower than `gtest` and produces more build artifacts, making it better suited as the final step in quality control. However, `gclient` provides the most accurate test results.
+
+## Import `gclient` Library
+
+To use the `gclient` library, import it into the `Cargo.toml` file in the `[dev-dependencies]` block. Also, add some external crates that are used together with `gclient`:
+
+```toml
+[package]
+name = "first-gear-app"
+version = "0.1.0"
+authors = ["Your Name"]
+edition = "2021"
+
+[dependencies]
+gstd = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1", features = ["debug"] }
+
+[build-dependencies]
+gear-wasm-builder = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1" }
+
+[dev-dependencies]
+gclient = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1" }
+tokio = { version = "1", features = ["full"] }
+```
+
+## Running the Node
+
+The best way is to download the latest node binary for your operating system from [https://get.gear.rs](https://get.gear.rs). Then unpack the package and run the node. Here and below, the node is assumed to be running in developer mode.
+
+<Tabs items={['Linux x86-64', 'macOS ARM', 'macOS x86-64', 'Windows x86-64']}>
+<Tab value="Linux x86-64" default>
+
+Terminal:
+
+```bash
+curl https://get.gear.rs/gear-v1.1.1-x86_64-unknown-linux-gnu.tar.xz | tar xJ
+```
+
+or
+
+**Linux x86-64**: [gear-v1.1.1-x86_64-unknown-linux-gnu.tar.xz](https://get.gear.rs/gear-v1.1.1-x86_64-unknown-linux-gnu.tar.xz)
+
+You can try to run the node:
+
+```
+❯ ./gear --version
+gear 1.1.1-33ee05d5aab
+```
+
+</Tab>
+
+<Tab value="macOS ARM">
+
+Terminal:
+
+```bash
+curl https://get.gear.rs/gear-v1.1.1-aarch64-apple-darwin.tar.xz | tar xJ
+```
+
+or
+
+**macOS ARM**: [gear-v1.1.1-aarch64-apple-darwin.tar.xz](https://get.gear.rs/gear-v1.1.1-aarch64-apple-darwin.tar.xz)
+
+You can try to run the node:
+
+```
+❯ ./gear --version
+gear 1.1.1-33ee05d5aab
+```
+
+</Tab>
+<Tab value="macOS x86-64">
+
+Terminal:
+
+```bash
+curl https://get.gear.rs/gear-v1.1.1-x86_64-apple-darwin.tar.xz | tar xJ
+```
+
+or
+
+**macOS x86-64**: [gear-v1.1.1-x86_64-apple-darwin.tar.xz](https://get.gear.rs/gear-v1.1.1-x86_64-apple-darwin.tar.xz)
+
+You can try to run the node:
+
+```
+❯ ./gear --version
+gear 1.1.1-33ee05d5aab
+```
+
+</Tab>
+
+<Tab value="Windows x86-64">
+
+Terminal:
+
+```bash
+curl -O https://get.gear.rs/gear-v1.1.1-x86_64-pc-windows-msvc.zip
+```
+
+or
+
+**Windows x86-64**: [gear-v1.1.1-x86_64-pc-windows-msvc.zip](https://get.gear.rs/gear-v1.1.1-x86_64-pc-windows-msvc.zip)
+
+Unzip the downloaded package then you can try to run the node:
+
+```
+❯ gear.exe --version
+gear 1.1.1-33ee05d5aab
+```
+
+</Tab>
+</Tabs>
+
+Open the second terminal window and run tests using `cargo` as described in the [previous section](/docs/developing/build/testing#building-a-program-in-test-mode).
+
+## Simple Example
+
+Add an end-to-end test to the `first-gear-app` introduced in the [Getting Started](/docs/vara-network/getting-started-in-5-minutes#creating-your-first-vara-program) section.
+
+Add the `tests` directory next to the `src` directory and create the `end2end.rs` file in it.
+
+```
+└── first-gear-app
+    ├── Cargo.toml
+    ├── src
+    │   └── lib.rs
+    └── tests
+        └── end2end.rs
+```
+
+`end2end.rs`:
+
+```rust
+use gclient::{EventProcessor, GearApi, Result};
+
+const WASM_PATH: &str = "./target/wasm32-unknown-unknown/release/first_gear_app.opt.wasm";
+
+#[tokio::test]
+#[ignore]
+async fn test_example() -> Result<()> {
+    // Create API instance
+    let api = GearApi::dev().await?;
+
+    // Subscribe to events
+    let mut listener = api.subscribe().await?;
+
+    // Check that blocks are still running
+    assert!(listener.blocks_running().await?);
+
+    // Calculate gas amount needed for initialization
+    let gas_info = api
+        .calculate_upload_gas(
+            None,
+            gclient::code_from_os(WASM_PATH)?,
+            vec![],
+            0,
+            true,
+        )
+        .await?;
+
+    // Upload and init the program
+    let (message_id, program_id, _hash) = api
+        .upload_program_bytes_by_path(
+            WASM_PATH,
+            gclient::now_micros().to_le_bytes(),
+            vec![],
+            gas_info.min_limit,
+            0,
+        )
+        .await?;
+
+    assert!(listener.message_processed(message_id).await?.succeed());
+
+    let payload = b"PING".to_vec();
+
+    // Calculate gas amount needed for handling the message
+    let gas_info = api
+        .calculate_handle_gas(None, program_id, payload.clone(), 0, true)
+        .await?;
+
+    // Send the PING message
+    let (message_id, _hash) = api
+        .send_message_bytes(program_id, payload, gas_info.min_limit, 0)
+        .await?;
+
+    assert!(listener.message_processed(message_id).await?.succeed());
+
+    Ok(())
+}
+```
+
+Run the following command and wait for all tests to be green:
+
+```shell
+cargo test --release -- --include-ignored
+```
+
+It is recommended to mark tests with `gclient` with the `#[ignore]` attribute to separate their slow execution from the rest. To execute ignored tests with Cargo, add the `--include-ignored` flag after a double dash (`--`) as shown above.
+
+## More Details About `gclient`
+
+Please refer to the [`gclient` docs](https://docs.gear.rs/gclient/) for more information about its capabilities and use cases.

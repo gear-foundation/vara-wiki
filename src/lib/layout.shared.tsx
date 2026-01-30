@@ -39,7 +39,7 @@ export function homepageOptions(): BaseLayoutProps {
     links: [
       {
         text: "Documentation",
-        url: "/docs/welcome",
+        url: "/docs/vara-network",
       },
       ...existingLinks,
     ],

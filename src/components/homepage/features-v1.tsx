@@ -20,7 +20,7 @@ import { FEATURES_DATA, type FeatureItem } from "@/lib/data/features.data";
 export function HomepageFeaturesV1() {
   return (
     <section className="container">
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {FEATURES_DATA.map((props, idx) => (
           <FeatureCard key={idx} {...props} />
         ))}

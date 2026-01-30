@@ -1,0 +1,11 @@
+{
+  "title": "Interact",
+  "pages": [
+    "initialization",
+    "sending-messages",
+    "funding-executable-balance",
+    "events-state-reading",
+    "common-workflows",
+    "..."
+  ]
+}

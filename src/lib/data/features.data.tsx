@@ -9,53 +9,36 @@ export type FeatureItem = {
 
 export const FEATURES_DATA: FeatureItem[] = [
   {
-    title: "Start developing",
+    title: "Vara Network",
     img: "/img/develop.svg",
     description: (
       <>
-        Are you developer? Start building a new generation of Web3 applications
-        right now.
-        <br />
-        <br />
+        Documentation for the Vara Network: accounts, node, staking, governance,
+        tokenomics, bridge, and more.
       </>
     ),
-    url: "/docs/build",
+    url: "/docs/vara-network",
   },
   {
-    title: "Become a Validator",
-    img: "/img/validate.svg",
-    description: (
-      <>
-        Provide computing resources to keep the Vara Network secure, performant
-        and censorship-resistant. It is not only a responsibility, but also a
-        good reward.
-      </>
-    ),
-    url: "/docs/staking/validate",
-  },
-  {
-    title: "Become a Nominator",
-    img: "/img/nominate.svg",
-    description: (
-      <>
-        Help maintain the network security by participating as a nominator.
-        Stake your VARA and get reward!
-        <br />
-        <br />
-      </>
-    ),
-    url: "/docs/staking/nominate",
-  },
-  {
-    title: "Explore Vara's Token Economy",
+    title: "Vara.eth",
     img: "/img/tokenomics.svg",
     description: (
       <>
-        Learn how every transaction and stake contributes to a robust network.
-        From incentives to governance, Vara opens doors to a new era in
-        decentralized networks.
+        Vara.eth Wiki: build, deploy, and integrate with the Vara.eth
+        ecosystem. Content coming soon.
       </>
     ),
-    url: "/docs/tokenomics",
+    url: "/docs/vara-eth",
+  },
+  {
+    title: "Developing on Vara",
+    img: "/img/validate.svg",
+    description: (
+      <>
+        Develop programs with Gear IDEA, Sails-JS, Gear-JS API, and Gear-CLI.
+        From introduction to deployment and testing.
+      </>
+    ),
+    url: "/docs/developing",
   },
 ];

@@ -15,11 +15,14 @@ WORKDIR /app
 # Copy dependency files for build
 COPY package.json package-lock.json ./
 
-# Install all dependencies (including devDependencies for build)
-RUN npm ci --force
+# Install all dependencies (skip postinstall: fumadocs-mdx needs content which is not copied yet)
+RUN npm ci --ignore-scripts
 
 # Copy source code
 COPY . .
+
+# Run fumadocs-mdx (postinstall equivalent - requires content to be present)
+RUN npx fumadocs-mdx
 
 # Build the application with standalone output
 RUN NODE_OPTIONS="--localstorage-file=/tmp/localstorage" npm run build

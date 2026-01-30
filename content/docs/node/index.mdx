@@ -1,0 +1,242 @@
+---
+title: Vara Node
+description: "This guide covers the steps required to install and run the Vara node."
+---
+
+## Introduction
+
+There are two ways to get started with the Vara node. First, download a pre-built binary file and run it. Second, compile the binary file and configure it manually. Using a ready-made build is a quick and convenient way to get started, as it skips the installation of Rust and all its dependencies and the node compiling process. Compiling the node from scratch may take about twenty minutes or more, depending on hardware.
+
+## System Requirements
+
+• CPU: 2 vCPUs @ ~3.4 GHz (Intel Ice Lake or equivalent) • Memory: 8 GB RAM • Storage: 80 GB SSD
+
+## Install with Pre-built Binary
+
+Depending on the operating system, download the latest release build of the node from https://get.gear.rs:
+
+<Tabs items={['Linux x86-64', 'macOS ARM', 'macOS x86-64', 'Windows x86-64']}>
+<Tab value="Linux x86-64" default>
+
+Terminal:
+
+```bash
+curl https://get.gear.rs/gear-v1.2.1-x86_64-unknown-linux-gnu.tar.xz | tar xJ
+```
+
+or
+
+**Linux x86-64**: [gear-v1.2.1-x86_64-unknown-linux-gnu.tar.xz](https://get.gear.rs/gear-v1.2.1-x86_64-unknown-linux-gnu.tar.xz)
+
+Run the node:
+
+```bash
+./gear --version
+gear 1.2.1-a218853
+```
+
+</Tab>
+<Tab value="macOS ARM">
+
+Terminal:
+
+```bash
+curl https://get.gear.rs/gear-v1.2.1-aarch64-apple-darwin.tar.xz | tar xJ
+```
+
+or
+
+**macOS ARM**: [gear-v1.2.1-aarch64-apple-darwin.tar.xz](https://get.gear.rs/gear-v1.2.1-aarch64-apple-darwin.tar.xz)
+
+Run the node:
+
+```bash
+./gear --version
+gear 1.2.1-a218853
+```
+
+</Tab>
+<Tab value="macOS x86-64">
+
+Terminal:
+
+```bash
+curl https://get.gear.rs/gear-v1.2.1-x86_64-apple-darwin.tar.xz | tar xJ
+```
+
+or
+
+**macOS x86-64**: [gear-v1.2.1-x86_64-apple-darwin.tar.xz](https://get.gear.rs/gear-v1.2.1-x86_64-apple-darwin.tar.xz)
+
+Run the node:
+
+```bash
+./gear --version
+gear 1.2.1-a218853
+```
+
+</Tab>
+<Tab value="Windows x86-64">
+
+Terminal:
+
+```bash
+curl -O https://get.gear.rs/gear-v1.2.1-x86_64-pc-windows-msvc.zip
+```
+
+or
+
+**Windows x86-64**: [gear-v1.2.1-x86_64-pc-windows-msvc.zip](https://get.gear.rs/gear-v1.2.1-x86_64-pc-windows-msvc.zip)
+
+Unzip the downloaded package, then run the node:
+
+```bash
+gear.exe --version
+gear.exe 1.2.1-a218853
+```
+
+</Tab>
+</Tabs>
+
+<Callout type="idea" title="Need the Latest Features?">
+    If you require cutting-edge functionality before it hits the stable release, you can use our [nightly builds](https://get.gear.rs/#gear-nightly).
+
+    **Note:** Nightly versions may be less stable than official releases.
+</Callout>
+
+
+## Compile Node Manually
+
+Compiling the build will take some time and requires the installation of some dependencies.
+
+<Callout type="warn" title="Windows Compatibility">
+    - Windows users often face issues with Rust dependencies and build tools.
+    - We **strongly recommend** using Linux or macOS for compiling Vara nodes and programs.
+
+    **Tip:** If you are on Windows, using **WSL2** (Windows Subsystem for Linux) is the best way to ensure a stable development environment.
+</Callout>
+
+
+### Prerequisites
+
+Linux users should generally install `GCC` and `Clang`, according to their distribution’s documentation. Additionally, the `binaryen` toolset, which contains the required `wasm-opt` tool, should be installed.
+
+For example, on Ubuntu use:
+
+```bash
+sudo apt install -y clang build-essential binaryen cmake protobuf-compiler
+```
+
+On macOS, get a compiler toolset and `binaryen` by running:
+
+```bash
+xcode-select --install
+brew install binaryen
+```
+
+### Install Rust
+
+If Rust is already installed, skip this step.
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+Reboot the terminal after installation.
+
+### Install Wasm Toolchains
+
+```bash
+rustup toolchain add nightly
+rustup target add wasm32-unknown-unknown --toolchain nightly
+```
+
+### Clone Gear Repository
+
+```bash
+git clone https://github.com/gear-tech/gear.git
+cd gear
+# Checkout to the latest release tag
+git checkout v1.2.1 -b release-1.2.1
+```
+
+<Callout type="info" title="Using the Master Branch">
+    To access the latest or experimental Gear Protocol functions, compile the node from the `master` branch.
+
+    If you have switched to another branch, you can return to `master` using:
+
+    ```bash
+    git checkout master
+    ```
+</Callout>
+
+### Compile
+
+```bash
+cargo build -p gear-cli --release
+```
+
+or
+
+```bash
+make node-release
+```
+
+<Callout type="note" title="Build Output Location">
+    The compiled binary is located at: `target/release/gear`
+
+    To navigate to the output folder, run:
+    ```bash
+    cd target/release
+    ```
+</Callout>
+
+## Run Vara Node
+
+<Callout type="info" title="Starting the Node">
+    Regardless of how you obtained the binary, navigate to its directory and run the node to connect to the **Vara Testnet**:
+
+    ```bash
+    ./gear
+    ```
+</Callout>
+
+To run the Vara node in dev mode:
+
+```bash
+./gear --dev
+```
+
+## Command Flags and Options
+
+```bash
+gear [subcommand] [options]
+```
+
+- `--chain=testnet`
+
+  Connect the node to the test network (default option).
+
+- `--chain=vara`
+
+  Connect the node to the Vara network.
+
+- `--dev`
+
+  Run a local node in development mode for testing purposes. This node will not be connected to any external network and will store the state in temporary storage.
+
+- `purge-chain`
+
+  Remove storage of the selected chain type. Specify the chain connection type `--chain=testnet`, `--chain=vara`, or `--dev`.
+
+- `help`, `--help`
+
+  Print the available subcommands/options or the help of the given subcommand.
+
+## Special Environment Variables
+
+To run the Vara node with logs from contracts:
+
+```bash
+RUST_LOG="gwasm=debug" gear [subcommand] [options]
+```

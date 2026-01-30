@@ -1,0 +1,74 @@
+---
+custom_title: Bridge Vara ↔ Ethereum Easily
+browser_title: Bridge Vara ↔ Ethereum Easily
+title: Bridge Guideline
+---
+
+[**EitherWay**](https://bridge.vara.network/) – the officially supported bridge interface designed for asset transfers between Vara and Ethereum. It currently supports transfers for the following assets:
+
+- **VARA (Vara Native) ↔ wVARA** (on Ethereum)
+- **ETH (Ethereum Native) ↔ wETH** (on Vara)
+- **USDT (on Ethereum) ↔ wUSDT** (on Vara)
+- **USDC (on Ethereum) ↔ wUSDC** (on Vara)
+
+---
+
+## Quick Guide: Bridging Assets via EitherWay
+
+### Wallet Requirements
+
+**From Vara → Ethereum** Connect your Vara wallet by selecting one of [the supported wallets](https://vara.network/ecosystem?tags=6382654c-162d-4ed7-9215-b9504b60e72c).
+
+**From Ethereum → Vara** Connect your Ethereum-compatible wallet (e.g., [MetaMask](https://metamask.io/), [Trust Wallet](https://trustwallet.com/) etc)
+
+---
+
+### Step 1: Select Asset & Amount
+
+- Pick the asset you want to transfer (**VARA**, **USDC**, **USDT** or **ETH**).
+- Specify the **exact amount** you want to bridge.
+
+---
+
+### Step 2: Enter Destination Address
+
+- Provide the **receiving wallet address** on the **target network**.
+
+---
+
+### Step 3: Confirm and Initiate Swap
+
+- If your wallet is not already connected, click **Connect Wallet**
+- Click **Transfer** to start the process
+- Review the **transaction details**
+- Approve and **sign the transaction**
+
+---
+
+### Step 4: Track Your Transaction
+
+The **Transactions** tab lets you check the status of current and past transfers without leaving the interface.
+
+Transfers usually complete within **~30 minutes**.
+
+---
+
+### Step 5: Claim Native VARA (if bridging from Ethereum)
+
+If you bridged **wVARA** from Ethereum back to Vara, the tokens will first arrive in your account as VFT tokens managed by the bridge.
+
+To convert them into native VARA, you’ll need to **unlock** them manually:
+
+- Go to the “My Tokens” tab
+- Make sure your **Substrate wallet is connected**
+- Click **Unlock** next to your VFT token balance
+
+<Callout type="idea" title="Who Pays the Transfer Fees?">
+    The gas token required always depends on the **source network**:
+
+    *   **Vara → Ethereum**: You only need **VARA** tokens. *(No ETH is required for the initial transfer.)*
+    *   **Ethereum → Vara**: You need **ETH**, **regardless** of the asset you are bridging (VARA, ETH, or stablecoins).
+
+    *Tip: Always keep a small amount of the native gas token in your source wallet to avoid transaction failures.*
+</Callout>
+

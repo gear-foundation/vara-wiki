@@ -1,0 +1,20 @@
+{
+  "title": "Gear-JS",
+  "pages": [
+    "keyring",
+    "calculate-gas",
+    "upload-program",
+    "program-rent",
+    "submit-code",
+    "send-message",
+    "read-state",
+    "vouchers",
+    "metadata-type-creation",
+    "mailbox",
+    "events",
+    "extra-queries",
+    "json-rpc",
+    "extrinsics",
+    "..."
+  ]
+}

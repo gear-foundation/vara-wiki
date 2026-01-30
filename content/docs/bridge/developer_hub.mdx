@@ -1,0 +1,146 @@
+---
+title: Developer Hub
+description: This page provides technical resources for developers and integrators working with the Vara ↔ Ethereum Bridge. It includes the addresses of deployed smart contracts and on-chain programs on both Ethereum and Vara networks for two deployments - Mainnet and Testnet.
+browser_title: Vara ↔ Ethereum Bridge Developer Hub
+---
+
+import { eth, ethMainnet, vara, varaMainnet } from '@/addresses/bridge-addresses.js';
+
+<Callout type="info" title="Bridge Access">
+- **Bridge:** [https://bridge.vara.network/](https://bridge.vara.network/)
+</Callout>
+
+**Use this section to:**
+- Explore and verify bridge-related contracts
+- Begin building integrations with the bridge (e.g. relayers, token managers, custom assets)
+
+---
+
+## Vara Bridge Deployments
+
+<Callout type="info" title="Network Selection">
+    Select the target network to view the specific **contract addresses** required for your integration.
+</Callout>
+
+<Tabs groupId="network"items={['🟢 Mainnet (Production)', '🟡 Testnet (Development)']} persist>
+<Tab value="🟢 Mainnet (Production)" default>
+    <div className="network-section mainnet">
+        ### Ethereum Mainnet
+
+        #### Core Components
+
+        | Component            | Address                                                                                                                  |
+        | -------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+        | **Verifier**         | <a href={`https://etherscan.io/address/${ethMainnet.verifier}`} target="\_blank">{ethMainnet.verifier}</a>               |
+        | **MessageQueue**     | <a href={`https://etherscan.io/address/${ethMainnet.messageQueue}`} target="\_blank">{ethMainnet.messageQueue}</a>       |
+        | **Bridging Payment** | <a href={`https://etherscan.io/address/${ethMainnet.bridgingPayment}`} target="\_blank">{ethMainnet.bridgingPayment}</a> |
+
+        #### Token Contracts
+
+        | Token     | Address                                                                                              |
+        | --------- | ---------------------------------------------------------------------------------------------------- |
+        | **USDC**  | <a href={`https://etherscan.io/address/${ethMainnet.usdc}`} target="\_blank">{ethMainnet.usdc}</a>   |
+        | **USDT**  | <a href={`https://etherscan.io/address/${ethMainnet.usdt}`} target="\_blank">{ethMainnet.usdt}</a>   |
+        | **WETH**  | <a href={`https://etherscan.io/address/${ethMainnet.WETH}`} target="\_blank">{ethMainnet.WETH}</a>   |
+        | **WVARA** | <a href={`https://etherscan.io/address/${ethMainnet.wvara}`} target="\_blank">{ethMainnet.wvara}</a> |
+        | **WBTC**  | <a href={`https://etherscan.io/address/${ethMainnet.wbtc}`} target="\_blank">{ethMainnet.wbtc}</a>   |
+
+        #### ERC20 Manager
+
+        | Component        | Address                                                                                                            |
+        | ---------------- | ------------------------------------------------------------------------------------------------------------------ |
+        | **ERC20Manager** | <a href={`https://etherscan.io/address/${ethMainnet.erc20Manager}`} target="\_blank">{ethMainnet.erc20Manager}</a> |
+
+        #### Bridge Governance
+
+        | Component            | Address                                                                                                                    |
+        | -------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+        | **GovernanceAdmin**  | <a href={`https://etherscan.io/address/${ethMainnet.governanceAdmin}`} target="\_blank">{ethMainnet.governanceAdmin}</a>   |
+        | **GovernancePauser** | <a href={`https://etherscan.io/address/${ethMainnet.governancePauser}`} target="\_blank">{ethMainnet.governancePauser}</a> |
+
+        ---
+
+        ### Vara Mainnet
+
+        #### Core Components
+
+        | Component                   | Address                                                                                                                                                                        |
+        | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+        | **checkpoint-light-client** | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.checkpointLightClient}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.checkpointLightClient}</a> |
+        | **historical-proxy**        | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.historicalProxy}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.historicalProxy}</a>             |
+        | **vft-manager**             | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.vftManager}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.vftManager}</a>                       |
+        | **Bridging Payment**        | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.bridgingPayment}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.bridgingPayment}</a>             |
+
+        #### Token Contracts
+
+        | Token              | Address                                                                                                                                                        |
+        | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+        | **WUSDC**          | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.wusdc}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.wusdc}</a>                 |
+        | **WUSDT**          | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.wusdt}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.wusdt}</a>                 |
+        | **WETH**           | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.weth}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.weth}</a>                   |
+        | **WBTC**           | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.wbtc}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.wbtc}</a>                   |
+        | **Tokenized VARA** | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.tokenizedVara}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.tokenizedVara}</a> |
+    </div>
+</Tab>
+
+<Tab value="🟡 Testnet (Development)">
+    <div className="network-section testnet">
+    ### Ethereum Testnet (Hoodi)
+
+    #### Core Components
+
+    | Component              | Address                                                                                                              |
+    | ---------------------- | -------------------------------------------------------------------------------------------------------------------- |
+    | **Verifier**           | <a href={`https://hoodi.etherscan.io/address/${eth.verifier}`} target="\_blank">{eth.verifier}</a>                   |
+    | **MessageQueue**       | <a href={`https://hoodi.etherscan.io/address/${eth.messageQueue}`} target="\_blank">{eth.messageQueue}</a>           |
+    | **MessageQueue Proxy** | <a href={`https://hoodi.etherscan.io/address/${eth.messageQueueProxy}`} target="\_blank">{eth.messageQueueProxy}</a> |
+    | **Bridging Payment**   | <a href={`https://hoodi.etherscan.io/address/${eth.bridgingPayment}`} target="\_blank">{eth.bridgingPayment}</a>     |
+
+    #### Token Contracts
+
+    | Token      | Address                                                                                        |
+    | ---------- | ---------------------------------------------------------------------------------------------- |
+    | **USDC**   | <a href={`https://hoodi.etherscan.io/address/${eth.usdc}`} target="\_blank">{eth.usdc}</a>     |
+    | **USDT**   | <a href={`https://hoodi.etherscan.io/address/${eth.usdt}`} target="\_blank">{eth.usdt}</a>     |
+    | **WETH**   | <a href={`https://hoodi.etherscan.io/address/${eth.WETH}`} target="\_blank">{eth.WETH}</a>     |
+    | **WTVARA** | <a href={`https://hoodi.etherscan.io/address/${eth.wtvara}`} target="\_blank">{eth.wtvara}</a> |
+
+    #### ERC20 Manager
+
+    | Component              | Address                                                                                                              |
+    | ---------------------- | -------------------------------------------------------------------------------------------------------------------- |
+    | **ERC20Manager**       | <a href={`https://hoodi.etherscan.io/address/${eth.erc20Manager}`} target="\_blank">{eth.erc20Manager}</a>           |
+    | **ERC20Manager Proxy** | <a href={`https://hoodi.etherscan.io/address/${eth.erc20ManagerProxy}`} target="\_blank">{eth.erc20ManagerProxy}</a> |
+
+    #### Bridge Governance
+
+    | Component            | Address                                                                                                            |
+    | -------------------- | ------------------------------------------------------------------------------------------------------------------ |
+    | **GovernanceAdmin**  | <a href={`https://hoodi.etherscan.io/address/${eth.governanceAdmin}`} target="\_blank">{eth.governanceAdmin}</a>   |
+    | **GovernancePauser** | <a href={`https://hoodi.etherscan.io/address/${eth.governancePauser}`} target="\_blank">{eth.governancePauser}</a> |
+
+    ---
+
+    ### Vara Testnet
+
+    #### Core Components
+
+    | Component                   | Address                                                                                                                                                              |
+    | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | **checkpoint-light-client** | <a href={`https://idea.gear-tech.io/programs/${vara.checkpointLightClient}?node=wss%3A%2F%2Ftestnet.vara.network`} target="\_blank">{vara.checkpointLightClient}</a> |
+    | **eth-events-electra**      | <a href={`https://idea.gear-tech.io/programs/${vara.ethEventsElectra}?node=wss%3A%2F%2Ftestnet.vara.network`} target="\_blank">{vara.ethEventsElectra}</a>           |
+    | **historical-proxy**        | <a href={`https://idea.gear-tech.io/programs/${vara.historicalProxy}?node=wss%3A%2F%2Ftestnet.vara.network`} target="\_blank">{vara.historicalProxy}</a>             |
+    | **vft-manager**             | <a href={`https://idea.gear-tech.io/programs/${vara.vftManager}?node=wss%3A%2F%2Ftestnet.vara.network`} target="\_blank">{vara.vftManager}</a>                       |
+    | **Bridging Payment**        | <a href={`https://idea.gear-tech.io/programs/${vara.bridgingPayment}?node=wss%3A%2F%2Ftestnet.vara.network`} target="\_blank">{vara.bridgingPayment}</a>             |
+
+    #### Token Contracts
+
+    | Token              | Address                                                                                                                                              |
+    | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | **WUSDC**          | <a href={`https://idea.gear-tech.io/programs/${vara.wusdc}?node=wss%3A%2F%2Ftestnet.vara.network`} target="\_blank">{vara.wusdc}</a>                 |
+    | **WUSDT**          | <a href={`https://idea.gear-tech.io/programs/${vara.wusdt}?node=wss%3A%2F%2Ftestnet.vara.network`} target="\_blank">{vara.wusdt}</a>                 |
+    | **WETH**           | <a href={`https://idea.gear-tech.io/programs/${vara.weth}?node=wss%3A%2F%2Ftestnet.vara.network`} target="\_blank">{vara.weth}</a>                   |
+    | **Tokenized VARA** | <a href={`https://idea.gear-tech.io/programs/${vara.tokenizedVara}?node=wss%3A%2F%2Ftestnet.vara.network`} target="\_blank">{vara.tokenizedVara}</a> |
+    </div>
+</Tab>
+</Tabs>

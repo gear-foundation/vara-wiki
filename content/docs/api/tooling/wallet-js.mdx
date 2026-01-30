@@ -1,0 +1,102 @@
+---
+title: Gear-JS Wallet Connect
+---
+
+## Description
+
+A React library to connect supported Substrate-based wallets in a standardized and consistent way across decentralized applications.
+
+## Installation
+
+```npm
+npm install @gear-js/wallet-connect @gear-js/react-hooks @gear-js/ui @gear-js/vara-ui
+```
+
+## Getting started
+
+### Configure API
+
+Before using `@gear-js/wallet-connect`, make sure to configure [`@gear-js/react-hooks`](https://github.com/gear-tech/gear-js/tree/main/utils/gear-hooks#readme) in your project according to its documentation. This setup is required for API connection and account management.
+
+### Configure UI
+
+Depending on your chosen theme, you must also install and configure the corresponding UI library styles:
+
+- For the **`vara`** theme (default), follow the [`@gear-js/vara-ui`](https://github.com/gear-tech/gear-js/tree/main/utils/vara-ui#readme) documentation to set up global styles.
+- For the **`gear`** theme, follow the [`@gear-js/ui`](https://github.com/gear-tech/gear-js/tree/main/utils/gear-ui#readme) documentation to set up global styles (typically via your `index.scss`).
+
+## Components
+
+### Wallet
+
+A React component that displays the current account or wallet connection button, and (optionally) the account’s total balance. It uses [`useAccount`](https://github.com/gear-tech/gear-js/tree/main/utils/gear-hooks#useaccount) from `@gear-js/react-hooks` to manage account state and modal visibility for wallet actions.
+
+<Callout type="info" title="Standard Wallet Component">
+    This is a generic, **ready-to-use component** for wallet management. It handles:
+
+    * **Connection:** Managing the wallet connection flow.
+    * **Account Display:** Showing the currently active account.
+    * **Modals:** Built-in modal handling for selection and management.
+
+    For most dApps, this component is the quickest way to integrate wallet functionality.
+</Callout>
+
+#### Props
+
+- `theme` (`'gear' | 'vara'`, optional): UI theme for the wallet controls. Defaults to `'vara'`.
+- `displayBalance` (`boolean`, optional): Whether to show the account’s total balance. Defaults to `true`.
+
+#### Usage Example
+
+```jsx
+import { Wallet } from '@gear-js/wallet-connect';
+
+import Logo from './logo.svg?react';
+
+function Header() {
+  return (
+    <header>
+      <Logo />
+      <Wallet />
+    </header>
+  );
+}
+
+export { Header };
+```
+
+### WalletModal
+
+A React modal component for managing wallet connections and account selection. It provides a user interface for connecting to supported wallets, switching between accounts, copying addresses, and logging out. This component is used internally by the [Wallet](/docs/api/tooling/wallet-js#wallet) component.
+
+<Callout type="idea" title="Custom Wallet Control">
+    Use this component if you need to open the wallet modal **programmatically** or create a **custom** button for account management.
+
+    Unlike the generic `Wallet` component, this one gives you full control over the modal's behavior and appearance.
+</Callout>
+
+#### Props
+
+- `theme` (`'gear' | 'vara'`, optional): UI theme for the modal. Defaults to `'vara'`.
+- `close` (`() => void`): Function to close the modal.
+
+#### Usage Example
+
+```jsx
+import { WalletModal } from '@gear-js/wallet-connect';
+
+function CustomWalletButton() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  return (
+    <>
+      <button onClick={openModal}>Open Wallet Modal</button>
+
+      {isModalOpen && <WalletModal theme="vara" close={closeModal} />}
+    </>
+  );
+}
+```

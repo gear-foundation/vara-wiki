@@ -1,0 +1,69 @@
+---
+title: Send Message
+---
+
+Use `api.message.send` method to send messages to the program:
+
+```javascript
+try {
+  const message = {
+    destination: destination, // programId
+    payload: somePayload,
+    gasLimit: 10000000,
+    value: 1000,
+    // prepaid: true,
+    // account: accountId,
+    // if you send message with issued voucher
+  };
+  // In that case payload will be encoded using meta.types.handle.input type
+  let extrinsic = api.message.send(message, meta);
+  // So if you want to use another type you can specify it
+  extrinsic = api.message.send(message, meta, meta.types.other.input);
+} catch (error) {
+  console.error(`${error.name}: ${error.message}`);
+}
+try {
+  await extrinsic.signAndSend(keyring, (event) => {
+    console.log(event.toHuman());
+  });
+} catch (error) {
+  console.error(`${error.name}: ${error.message}`);
+}
+```
+
+<Callout type="info" title="Gas Calculation in Production">
+    To ensure successful message processing in real-world conditions, you should always calculate the required gas using:
+
+    `api.program.calculateGas`
+
+    For more details and code examples, refer to the [Calculate Gas](/docs/api/calculate-gas) guide.
+</Callout>
+
+### Send reply message
+
+When you need to reply to a message received from a program, use `api.message.reply`:
+
+```javascript
+try {
+  const reply = {
+    replyToId: messageId,
+    payload: somePayload,
+    gasLimit: 10000000,
+    value: 1000,
+    // prepaid: true,
+    // account: accountId,
+    // if you send message with issued voucher
+  };
+  // In this case payload will be encoded using `meta.types.reply.input` type.
+  const extrinsic = api.message.sendReply(reply, meta);
+} catch (error) {
+  console.error(`${error.name}: ${error.message}`);
+}
+try {
+  await extrinsic(keyring, (events) => {
+    console.log(event.toHuman());
+  });
+} catch (error) {
+  console.error(`${error.name}: ${error.message}`);
+}
+```

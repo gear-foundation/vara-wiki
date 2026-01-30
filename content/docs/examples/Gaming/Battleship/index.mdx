@@ -16,7 +16,14 @@ These features allow users to interact with the game for a certain period withou
 
 The source code is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/battleship ). This article describes the program interface, data structure, basic functions and explains their purpose. It can be used as is or modified to suit your own scenarios.
 
-> **Important notice**: The implementation is based on the interaction of two programs: the main `game` program and the `bot` program that users will interact with during the game. To successfully load the game into the [Vara Network Testnet](https://idea.gear-tech.io/programs?node=wss%3A%2F%2Ftestnet.vara.network), it is imperative to upload the bot program first. Subsequently, during the initialization phase of the main game program, specifying the bot program's address is a crucial step.
+<Callout type="warn" title="Deployment Order is Crucial">
+    The system consists of two programs: `game` and `bot`. To deploy them successfully to the [Vara Network Testnet](https://idea.gear-tech.io/programs?node=wss%3A%2F%2Ftestnet.vara.network):
+
+    1. **Upload the bot program first.**
+    2. During the main game program's initialization, provide the bot's address (ID).
+
+    Failure to follow this order will prevent the game from functioning correctly.
+</Callout>
 
 Also, everyone can play the game via this link - [Play Battleship](https://battleship.vara.network/) (VARA tokens are required for gas fees).
 

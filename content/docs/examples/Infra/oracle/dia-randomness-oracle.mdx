@@ -37,19 +37,19 @@ pub struct RandomnessOracle {
 ## Actions
 
 ```rust title="oracle/randomness/app/src/lib.rs"
-    pub fn set_random_value(&mut self, round: u128, value: Random);
-    pub fn get_last_round_with_random_value(&mut self) -> (u128, u128);
-    pub fn update_manager(&mut self, new_manager: ActorId);
+pub fn set_random_value(&mut self, round: u128, value: Random);
+pub fn get_last_round_with_random_value(&mut self) -> (u128, u128);
+pub fn update_manager(&mut self, new_manager: ActorId);
 ```
 - The `set_random_value` method securely assigns a new random value to a specific round, ensuring sequential updates.
 - The `get_last_round_with_random_value` method retrieves the most recent round and its associated random value.
 - The `update_manager` method changes the manager, allowing controlled delegation of responsibility.
 
 ```rust title="oracle/randomness/app/src/lib.rs"
-    pub fn get_owner(&self) -> ActorId;
-    pub fn get_last_round(&self) -> u128;
-    pub fn get_manager(&self) -> ActorId;
-    pub fn get_values(&self) -> Vec<(u128, Random)>;
+pub fn get_owner(&self) -> ActorId;
+pub fn get_last_round(&self) -> u128;
+pub fn get_manager(&self) -> ActorId;
+pub fn get_values(&self) -> Vec<(u128, Random)>;
 ```
 Methods like `get_owner`, `get_last_round`, `get_manager`, and `get_values` provide convenient access to the oracle's current state.
 
@@ -59,12 +59,11 @@ Methods like `get_owner`, `get_last_round`, `get_manager`, and `get_values` prov
 The `Event` enum defines key events: updating the manager, adding a new random value, and retrieving the last round's random value, ensuring clear system behavior tracking.
 
 ```rust title="oracle/randomness/app/src/lib.rs"
-
-    pub enum Event {
-        NewManager(ActorId),
-        NewRandomValue { round: u128, value: Random },
-        LastRoundWithRandomValue { round: u128, random_value: u128 },
-    }
+pub enum Event {
+    NewManager(ActorId),
+    NewRandomValue { round: u128, value: Random },
+    LastRoundWithRandomValue { round: u128, random_value: u128 },
+}
 ```
 
 ## Initialisation 
@@ -72,16 +71,16 @@ The `Event` enum defines key events: updating the manager, adding a new random v
 The `init` method initializes the oracle with the given manager and sets up its default state, defining ownership and control.
 
 ```rust title="oracle/randomness/app/src/lib.rs"
-    pub async fn init(manager: ActorId) -> Self {
-        unsafe {
-            RANDOMNESS_ORACLE = Some(RandomnessOracle {
-                owner: msg::source(),
-                manager,
-                ..Default::default()
-            });
-        }
-        Self(())
+pub async fn init(manager: ActorId) -> Self {
+    unsafe {
+        RANDOMNESS_ORACLE = Some(RandomnessOracle {
+            owner: msg::source(),
+            manager,
+            ..Default::default()
+        });
     }
+    Self(())
+}
 ```
 
 ## Conclusion

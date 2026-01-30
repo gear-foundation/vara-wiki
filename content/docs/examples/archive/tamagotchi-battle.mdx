@@ -237,7 +237,14 @@ fn start_battle(&mut self) {
 }
 ```
 
-> **Important notice**: The *split_into_pairs* function uses a reserved gas delayed messaging feature `msg::send_delayed_from_reservation` designed to keep track of whether a player has made a move. If a player does not make a move in the given time, that player will be penalized and will get damage to his health.
+<Callout type="warn" title="Inactivity Penalty">
+    The game uses **Gas Reservation** and **Delayed Messaging** to enforce turn limits:
+
+    * **Mechanism:** The `split_into_pairs` function schedules a delayed move check via `msg::send_delayed_from_reservation`.
+    * **Consequence:** If a player fails to move within the allotted time, they are automatically **penalized** and take **health damage**.
+
+    This ensures that games cannot be stalled by inactive participants.
+</Callout>
 
 ```rust title="tamagotchi-battle/src/lib.rs"
 fn send_delayed_msg_from_rsv(

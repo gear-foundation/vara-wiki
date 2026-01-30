@@ -10,8 +10,8 @@ This guide explains how to create a `React` application and connect it to an [ex
 
 2. Then install dependencies:
 
-```shell
-yarn install
+```npm
+npm install
 ```
 
 3. There is an `.env.example` file. Create your own `.env` file and copy the contents of `.env.example` to your `.env` file. It contains the following variables:
@@ -45,8 +45,8 @@ const ADDRESS = {
 
 5. Install `kubo-rpc-client` library to handle IPFS requests:
 
-```shell
-yarn add kubo-rpc-client
+```npm
+npm i kubo-rpc-client
 ```
 
 Next, create a context to integrate IPFS in a React-friendly way. In the `context` folder, create a file named `index.tsx` and add the following code:
@@ -86,7 +86,7 @@ const providers = [..., IPFSProvider];
 
 Place the `extended_vnft.idl` file in the `api/sails` folder and run sails-cli command:
 
-```shell
+```npm
 npx sails-js-cli generate src/api/sails/extended_vnft.idl -o src/api/sails --no-project
 ```
 

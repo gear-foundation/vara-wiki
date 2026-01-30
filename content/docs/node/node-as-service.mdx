@@ -42,8 +42,10 @@ LimitNOFILE=10000
 WantedBy=multi-user.target
 ```
 
-<Callout type="note">
-The `ExecStart` declaration points to the location of the `gear` binary file. In this case, it is in the `/usr/bin` directory. Additional launch parameters can be added after `--` but are not mandatory.
+<Callout type="note" title="Service Configuration">
+    The `ExecStart` directive points to the `gear` binary location (default: `/usr/bin`).
+
+    **Tip:** You can append optional launch parameters (like `--name` or `--validator`) directly to the execution command if needed.
 </Callout>
 
 ## Starting the Node
@@ -103,9 +105,12 @@ sudo systemctl restart gear-node
 
 If running the node is no longer needed, completely purge it from the disk.
 
-<Callout type="warning">
-Once the node is deleted, it cannot be fully restored. Refer to the [Backup and Restore](/docs/node/backup-restore) article for important data backup information.
+<Callout type="error" title="Irreversible Action">
+    Once the node is deleted, it **cannot be fully restored**.
+
+    Before proceeding, ensure you have followed the [Backup and Restore](/docs/node/backup-restore) instructions to save your important data.
 </Callout>
+
 
 Remove the node's storage, the service configuration, and the executable:
 

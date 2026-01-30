@@ -11,8 +11,10 @@ Check out the [Vara Validators Dashboard](https://validators.vara.network/) that
 
 ## Hardware Requirements
 
-<Callout type="info">
-Beginners can start their validator setup on Linux-based cloud servers. Select the VPS provider that best meets the requirements below to maximize performance and run securely.
+<Callout type="info" title="Infrastructure for Beginners">
+    The recommended way for beginners to set up a validator is using a **Linux-based cloud server (VPS)**.
+
+    Choose a provider that meets the hardware requirements below to ensure optimal performance and security.
 </Callout>
 
 - `OS:` Ubuntu 22.04+ (or any distribution with GLIBC 2.35+)
@@ -147,8 +149,10 @@ LimitNOFILE=10000
 WantedBy=multi-user.target
 ```
 
-<Callout type="note" title="Declaration `ExecStart` points to the location of the `gear` binary file. In this case, it is in `/usr/bin` directory.">
-The example is configured to run the service from the `root` user.
+<Callout type="warn" title="Service Configuration Details">
+    The `ExecStart` directive points to the `gear` binary location (default: `/usr/bin`).
+
+    **Security Note:** This example is configured to run the service as the **root** user. For production environments, it is recommended to use a dedicated non-privileged user.
 </Callout>
 
 Save & Exit.
@@ -179,8 +183,10 @@ Use the prompt to generate a new seed phrase:
 ./gear key generate --network vara
 ```
 
-<Callout type="note">
-Save both seed phrases in a secure place. Skip the previous step if you intend to use your seed phrase. If you want to use your seed phrase, skip this step. You can use [Polkadot.\{js\}](https://polkadot.js.org/apps/#/accounts) or [Polkadot extension](https://polkadot.js.org/extension/)
+<Callout type="warn" title="Seed Phrase Security">
+    **Save both seed phrases in a secure, offline place.**
+
+    If you already have a seed phrase and want to use it, skip this step. You can manage your accounts via [Polkadot.\{js\} Apps](https://polkadot.js.org/apps/#/accounts) or the [Polkadot Extension](https://polkadot.js.org/extension/).
 </Callout>
 
 ## Get Session Keys
@@ -207,8 +213,10 @@ Go to Polkadot.\{js\} app and navigate to Network → Staking → [Account actio
 
 Choose your stash and controller accounts and specify your stake amount. It's recommended to utilize distinct accounts both stash and controller.
 
-<Callout type="info">
-The minimum self-stake required to become an active Validator is currently 100_000 VARA, but it is subject to change over time.
+<Callout type="note" title="Minimum Self-Stake">
+    The minimum self-stake required to become an active validator is currently **100,000 VARA**.
+
+    Please note that this threshold is dynamic and may **change over time** based on network governance.
 </Callout>
 
 ![setup validator](./img/setup-validator-1.png)

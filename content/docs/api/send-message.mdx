@@ -31,9 +31,12 @@ try {
 }
 ```
 
-<Callout type="note" title="In real conditions to ensure successful message processing, the calculation of the required gas for processing the message should be performed by using `api.program.calculateGas` method.">
+<Callout type="info" title="Gas Calculation in Production">
+    To ensure successful message processing in real-world conditions, you should always calculate the required gas using:
 
-[more info](/docs/api/calculate-gas)
+    `api.program.calculateGas`
+
+    For more details and code examples, refer to the [Calculate Gas](/docs/api/calculate-gas) guide.
 </Callout>
 
 ### Send reply message

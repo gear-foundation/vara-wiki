@@ -5,7 +5,7 @@ custom_title: Migration of `gstd` programs
 
 [`Sails`](/docs/build/sails) is a library for writing applications utilizing the Gear Protocol with simplicity and clarity. This powerful tool represents the next step in the evolution of the Gear Protocol.
 
-Initially, Gear applications typically employ the less convenient [`gstd`](/docs/build/gstd/gstd) library for managing low-level operations and essential functionality. The `Sails` library builds programs on top of `gstd`, handling most low-level interactions under the hood. As projects grow, adopting the `Sails` framework allows developers to shift towards a more modular and service-oriented architecture. Existing dApps written with `gstd` can be effortlessly migrated to `Sails`.
+Initially, Gear applications typically employ the less convenient [`gstd`](/docs/build/gstd) library for managing low-level operations and essential functionality. The `Sails` library builds programs on top of `gstd`, handling most low-level interactions under the hood. As projects grow, adopting the `Sails` framework allows developers to shift towards a more modular and service-oriented architecture. Existing dApps written with `gstd` can be effortlessly migrated to `Sails`.
 
 This guide focuses on the key steps involved in transitioning existing gstd-based code to the `Sails` framework, outlining the necessary code transformations and architectural adjustments while leveraging the underlying `gstd` infrastructure.
 
@@ -58,9 +58,12 @@ To get started with the migration process, you can use a template to create a ne
         pub fn do_b(&mut self) { /* Implementation for action B */ }
     }
     ```
-<Callout type="note" title="Instead of matching enum variants as in `gstd`, the **`Sails`** framework maps string-based service identifiers">
-(e.g. `do_a` or `do_b`) to the corresponding service methods, allowing for more flexible action routing.
+<Callout type="note" title="Sails vs gstd: Action Routing">
+    Unlike the `gstd` approach of matching enum variants, the **Sails** framework uses string-based service identifiers (e.g., `do_a` or `do_b`).
+
+    This mapping to service methods allows for more flexible and dynamic action routing within your programs.
 </Callout>
+
 
 ## Migrating Reply Messages  
 

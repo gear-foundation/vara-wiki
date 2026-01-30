@@ -35,9 +35,12 @@ After the rent period's expiration, the program automatically transitions to a '
 
 {/*Additionally,*/} Vara enables rent for messages stored in the Waitlist.
 
-<Callout type="note">
-According to the Actor Model in Gear Protocol, actors exchange messages. One of the Gear-specific entities is the Waitlist - a database where messages (not transactions) reside.
+<Callout type="note" title="Understanding the Waitlist">
+    In the Gear Protocol **Actor Model**, actors communicate via messages.
+
+    The **Waitlist** is a specific entity—a database where these messages (not transactions) are stored while awaiting processing or fulfilling specific conditions.
 </Callout>
+
 
 A message enters payable storage with locked funds for a maximum duration in `N` blocks. In `M` blocks (where `M<N`), a message can leave storage, paying rent for `M` blocks from locked funds and freeing the rest of this lock (`N-M`) back. The Rent Pool is a synthetic address that keeps all rent payments during the current staking ERA. At the end of the ERA, the rent payment redistributes rent shares among the validator set according to their ERA points.
 

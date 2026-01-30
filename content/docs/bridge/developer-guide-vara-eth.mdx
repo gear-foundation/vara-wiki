@@ -4,8 +4,13 @@ title: Vara → Ethereum App Guide
 
 Cross-chain communication can seem complex, but at its core, it’s about securely moving messages and value between independent blockchains. To make this process clear and approachable, a simple Ping-Pong application is used as the most illustrative example, showing step by step how secure cross-chain messaging works on top of the **Vara ↔ Ethereum Bridge**.
 
-<Callout type="note">
-The ping-pong pattern is a classic example used in distributed systems to demonstrate reliable message delivery: a simple “ping” sent from one chain and a “pong” received in response from the other.
+<Callout type="note" title="The Ping-Pong Pattern">
+    The **ping-pong pattern** is a classic distributed systems example used to demonstrate reliable message delivery:
+
+    * **Ping:** A simple message sent from the source chain.
+    * **Pong:** A response received back from the target chain.
+
+    This pattern confirms that the **Vara-Ethereum Bridge** transport layer is operating correctly in both directions.
 </Callout>
 
 This guide focuses on the flow from Vara to Ethereum using the bridge’s built-in ZK-based mechanism. The protocol handles the heavy lifting — cryptographic proofs, relaying, and validation — allowing developers to concentrate on the application logic. Future articles will explore the reverse direction (Ethereum → Vara) and additional cross-chain patterns.
@@ -23,14 +28,20 @@ At a high level, the cross-chain ping-pong app consists of three main parts, eac
 
 ## What You Don’t Implement
 
-<Callout type="tip">
-As a developer, you do **not implement** the transport layers. All Merkle root calculations, proof generation, ZK-inclusion proofs, and cross-chain state synchronization are handled by the protocol and bridge infrastructure — automatically, behind the scenes.
+<Callout type="idea" title="Abstracted Infrastructure">
+    As a developer, you do **not need to implement** the transport layers yourself. The bridge infrastructure handles these complex operations automatically:
+
+    * **Calculations:** Merkle root and proof generation.
+    * **Security:** ZK-inclusion proofs.
+    * **Sync:** Cross-chain state synchronization.
+
+    This allows you to focus purely on your application logic while the protocol manages the underlying **Vara-Ethereum** communication.
 </Callout>
 
 Your responsibility is **only your app’s custom logic**: how to format the message and how to process it on arrival.
 
 If you want a deep dive into the protocol’s internals — including proof generation, validator set management, and message processing — please see the official technical overview: 
-[**Vara ↔ Ethereum Bridge Technical Overview**](https://wiki.vara.network/docs/bridge/bridge_technical)
+[**Vara ↔ Ethereum Bridge Technical Overview**](/docs/bridge/bridge_technical)
 
 The bridge’s protocol ensures that Ethereum can trust which messages were sent from Vara, so you never need to worry about the details of proof construction or on-chain validation.  
 Everything you need for secure message delivery is already built in.

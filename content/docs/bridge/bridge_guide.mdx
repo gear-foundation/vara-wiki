@@ -63,7 +63,12 @@ To convert them into native VARA, you’ll need to **unlock** them manually:
 - Make sure your **Substrate wallet is connected**
 - Click **Unlock** next to your VFT token balance
 
-<Callout type="note" title="### Who Pays the Transfer Fees?">
-- **Vara → Ethereum**: You only need **VARA** tokens to pay the fee. _(No ETH required.)_
-- **Ethereum → Vara**: You need **ETH** to pay the fee, **regardless** of the asset you’re bridging.
+<Callout type="idea" title="Who Pays the Transfer Fees?">
+    The gas token required always depends on the **source network**:
+
+    *   **Vara → Ethereum**: You only need **VARA** tokens. *(No ETH is required for the initial transfer.)*
+    *   **Ethereum → Vara**: You need **ETH**, **regardless** of the asset you are bridging (VARA, ETH, or stablecoins).
+
+    *Tip: Always keep a small amount of the native gas token in your source wallet to avoid transaction failures.*
 </Callout>
+

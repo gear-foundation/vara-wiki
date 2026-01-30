@@ -3,34 +3,34 @@ title: Non-Fungible Token
 custom_title: Vara Non-Fungible Token (VNFT)
 ---
 
-<Callout type="note">
-The Vara Non-Fungible Token Standard is the analogue of ERC-721 on Ethereum.
+<Callout type="note" title="ERC-721 Analogue">
+    The **Vara Non-Fungible Token (VNFT)** standard is the equivalent of Ethereum's **ERC-721** on the Vara Network.
 </Callout>
 
 The Vara Non-Fungible Token (VNFT) Standard provides a unified API for programs to implement non-fungible token (NFT) functionalities. It encompasses critical operations like token transfer and approvals for third-party spending on the blockchain. Below is a detailed look at the state of the program, its interface, and key methods to facilitate these operations.
 
-<Callout type="tip">
-The project code is developed using the [Sails](/docs/build/sails) framework.
+<Callout type="idea" title="Framework Information">
+    The project code is built using the [Sails](/docs/build/sails) framework, which simplifies program development on Gear Protocol.
 </Callout>
 
 ## Functions
 
 ```
-  Approve(approved, token_id)
-  Transfer(to, token_id)
-  TransferFrom(from, to, token_id)
-  BalanceOf(owner)
-  OwnerOf(token_id)
-  GetApproved(token_id)
-  Name()
-  Symbol()
+Approve(approved, token_id)
+Transfer(to, token_id)
+TransferFrom(from, to, token_id)
+BalanceOf(owner)
+OwnerOf(token_id)
+GetApproved(token_id)
+Name()
+Symbol()
 ```
 
 ## Events
 
 ```
-    Approval(owner, approved, token_id);
-    Transfer(from, to, token_id);
+Approval(owner, approved, token_id);
+Transfer(from, to, token_id);
 ```
 
 ## Key methods

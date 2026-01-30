@@ -115,11 +115,13 @@ extern "C" fn handle() {
 }
 ```
 
-<Callout type="note" title="The `debug!` macro is available only when the `&quot;debug&quot;` feature is enabled for the `gstd` crate.">
+<Callout type="info" title="Enabling Debug Macro">
+    The `debug!` macro is only available when the **debug** feature is enabled in your `Cargo.toml`.
 
-```toml
-[dependencies]
-gstd = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1", features = ["debug"] }
-```
+    Add it to your `gstd` dependencies:
 
+    ```toml
+    [dependencies]
+    gstd = { git = "https://github.com/gear-tech/gear.git", tag = "v1.1.1", features = ["debug"] }
+    ```
 </Callout>

@@ -5,9 +5,12 @@ title: "Getting Started"
 
 This guide provides a general overview of running programs on the [Vara Network](https://vara.network/). It guides you through how to write a program, compile it to Wasm and deploy it to the network.
 
-<Callout type="warning">
-Want to take your blockchain development skills to the next level? Don't miss this opportunity to become a pro Vara blockchain developer. 🔥 Try out the interactive [Sails tutorial](https://sails-tutorials.vara.network/hello-world/hello-world).
+<Callout type="idea" title="Level Up Your Skills">
+    Want to become a pro Vara developer? 🔥
+
+    Take our interactive [Sails Tutorial](https://sails-tutorials.vara.network/hello-world/hello-world) to master blockchain development from scratch.
 </Callout>
+
 
 ## Prerequisites
 
@@ -37,14 +40,16 @@ Install Rust using [Rustup](https://rustup.rs/):
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-<Callout type="note" title="After installing Rust via `rustup`, your current terminal session may not yet have Cargo/Rustup in `PATH`.">
-If you see `command not found: rustup` or `command not found: cargo`, reload your environment:
+<Callout type="note" title="Fix 'Command Not Found' Error">
+    If you just installed Rust and see `command not found: rustup` or `cargo`, your terminal needs to reload the environment.
 
-```bash
-source "$HOME/.cargo/env"
-```
+    **Run this command to update your PATH:**
 
-Alternatively, restart the terminal (or VS Code integrated terminal) and try again.
+    ```bash
+        source "$HOME/.cargo/env"
+    ```
+
+    Alternatively, simply restart your terminal (or VS Code) to apply the changes.
 </Callout>
 
 ### Wasm target
@@ -55,9 +60,10 @@ Add the Wasm target:
 rustup target add wasm32v1-none
 ```
 
-<Callout type="info" title="Info">
-    Since Gear release **1.8.0**, the target `wasm32v1-none` is required for building programs for the Vara Network.
-The old target `wasm32-unknown-unknown` is only needed for legacy projects.
+<Callout type="warn" title="Required Build Target">
+    Starting from Gear **v1.8.0**, you must use the `wasm32v1-none` target to build programs for the Vara Network.
+
+    **Note:** The old `wasm32-unknown-unknown` target is now considered legacy and should only be used for older projects.
 </Callout>
 
 

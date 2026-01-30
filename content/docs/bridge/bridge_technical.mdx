@@ -4,16 +4,21 @@ browser_title: Vara-Ethereum Bridge - Technical Overview
 title: Technical Overview
 ---
 
-<Callout type="success">
-**Security First**  
-The bridge architecture has been reviewed through a professional security audit. All critical findings, including edge cases — have been addressed in the final implementation.
+<Callout type="success" title="Security Audit Passed">
+    The bridge architecture has undergone a professional security audit. All critical findings and edge cases have been fully addressed in the final implementation.
 
-The audit confirmed that all core components — including message validation, token logic, and relayer incentives — operate correctly and safely under real-world conditions.  
-[📄 Security Audit Report (PDF)](https://github.com/gear-tech/gear-bridges/blob/main/audits/ethernal.pdf)
+    The audit confirms the safety of core components:
+    * **Message Validation** & **Token Logic**
+    * **Relayer Incentives**
+    * **Real-world condition stability**
+
+    [📄 View Full Audit Report (PDF)](https://github.com/gear-tech/gear-bridges/blob/main/audits/ethernal.pdf)
 </Callout>
 
-<Callout type="warning" title="To explore the code navigate to:">
-[🔗 Bridge Implementation Repository](https://github.com/gear-tech/gear-bridges)
+<Callout type="info" title="Source Code">
+    To explore the bridge implementation details, visit the official repository:
+
+    [🔗 Bridge Implementation Repository](https://github.com/gear-tech/gear-bridges)
 </Callout>
 
 ## The Tech Behind the Bridge
@@ -55,12 +60,14 @@ On the Vara side, a `checkpoint light client` program verifies that the submitte
 
 Once Vara accepts the block as finalized, any relevant event emitted on Ethereum (e.g., a Burn event from the wVARA Manager contract) can be proven via a Merkle proof. These proofs are then consumed on the Vara side, such as the VFT Manager program, which performs the appropriate on-chain logic, like minting VARA tokens.
 
-<Callout type="note">
-**VFT Manager**, in simple terms, is the contract that interacts with the bridge and sends commands to the token contract to trigger the corresponding actions — such as minting or unlocking tokens.
+<Callout type="note" title="What is VFT Manager?">
+    In simple terms, the **VFT Manager** acts as an intermediary between the bridge and the token contract:
+
+    * **Action:** It receives commands from the **Vara-Ethereum Bridge**.
+    * **Execution:** It triggers the corresponding actions in the token contract, such as **minting** or **unlocking** assets.
 </Callout>
 
-<Callout type="note" title="Example Transaction Flow">
-
+### Example Transaction Flow
 Let’s walk through an end-to-end example:
 
 1. A user wants to move VARA to Ethereum.
@@ -80,8 +87,6 @@ The reverse flow (burn wVARA on Ethereum → unlock VARA on Vara) follows the sa
 5. Native VARA are minted or unlocked to the user’s account on Vara.
 
 This dual-model architecture — zk-proofs in one direction, consensus/event-based validation in the other — ensures both efficiency and robustness.
-
-</Callout>
 
 ## Transport Layer
 
@@ -112,8 +117,9 @@ Other important modules are programs:
 `Historical Proxy` — A routing layer between users and multiple versions of the Ethereum Event Client. It chooses the correct version of the event client to handle a given request based on Ethereum’s slot number.
 
 <Callout type="info" title="Why is Historical Proxy needed?">
+    Ethereum evolves over time, and its data structures or client versions may change.
 
-Ethereum evolves over time, and the structure of data and clients may change. Historical Proxy helps manage this smoothly — it always picks the right client version based on the block’s slot.
+    The **Historical Proxy** ensures seamless compatibility by **automatically selecting the correct client version** based on the specific block’s slot, allowing the bridge to process historical data without errors.
 </Callout>
 
 ### Ethereum Side Components
@@ -145,15 +151,21 @@ Relayers may also be economically incentivized. Each successful message delivery
 
 They are **replaceable, stateless, and independent by design** — if one stops, another can continue without any coordination. Many can run simultaneously.
 
-<Callout type="info" title="Bridging Payment Contracts">
+<Callout type="idea" title="Bridging Payment Mechanisms">
+    To ensure network liveness, the system supports optional bridging payment contracts on both sides:
 
-To incentivize relayers, the system optionally supports bridging payment mechanisms on both sides.
-The user automatically pays a small fee when initiating a cross-chain message, which the relayer can later claim. These bridging payment flows are not strictly mandatory — users can also relay messages manually without paying an automatic fee, but in practice, relayers typically require an incentive.
+    * **Automatic:** Users pay a small fee during message initiation, which relayers claim as an incentive.
+    * **Manual:** Users can relay messages themselves without an automatic fee, though in practice, professional relayers require incentives to operate.
+
+    This dual approach provides flexibility while maintaining **relayer incentives** for a smooth user experience.
 </Callout>
 
-<Callout type="info" title="What happens if relayers go offline?">
+<Callout type="idea" title="What happens if relayers go offline?">
+    Because all bridging data is stored **on-chain** (using Merkle Trees), the system is inherently resilient:
 
-Because all data is stored on-chain (and in Merkle Trees), nothing is lost. Once the relayer or any new relayer returns, it can pick up the proofs and continue transmitting. This design ensures liveness without central points of failure.
+    * **Persistence:** No data is lost during downtime.
+    * **Recovery:** Any new or returning relayer can simply retrieve the proofs and resume transmission.
+    * **Security:** This design ensures **liveness** and eliminates central points of failure.
 </Callout>
 
 ## Smart Contract Layer: Token Logic & Extensibility
@@ -199,13 +211,19 @@ Through proposals the bridge allows:
 - **Emergency control** - Pause or restrict bridge activity in response to critical threats, based on transparent community consensus.
 
 <Callout type="info" title="Governance in Practice">
+    The bridge’s **DAO logic** is natively integrated with its transport layer to ensure secure upgrades:
 
-The bridge’s DAO logic is fully integrated with its transport layer. Administrative messages sent through governance are recognized by smart contracts and pallets, allowing for controlled updates without compromising on-chain security.
+    * **Mechanism:** Administrative messages sent through governance are automatically recognized by both smart contracts and pallets.
+    * **Benefit:** This allows for **controlled updates** and parameter tuning without bypassing the on-chain security protocols.
 </Callout>
 
-<Callout type="note" title="What Does This Means for Users?">
+<Callout type="idea" title="What Does This Mean for Users?">
+    Governance makes the bridge resilient and **future-proof**:
 
-Governance makes the bridge resilient and future-proof. Any community member can propose improvements — and once approved, they’re implemented seamlessly, with no downtime or manual intervention.
+    * **Community-Driven:** Any member can propose improvements or architectural updates.
+    * **Seamless Execution:** Once a proposal is approved via the DAO, changes are implemented automatically with **no downtime** or manual intervention.
+
+    This ensures the bridge evolves alongside the needs of the ecosystem while maintaining total transparency.
 </Callout>
 
 ---

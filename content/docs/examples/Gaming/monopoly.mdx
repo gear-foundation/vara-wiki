@@ -50,13 +50,13 @@ There are two ways to upload the game onto the chain:
 
 It allows sending transactions to the Gear node based on `yaml` file:
 - Go to folder with [scripts](https://github.com/gear-foundation/dapps/tree/master/frontend/dev/syndote-upload-game):
-    ```
+    ```bash
     cd ./syndote-upload-game/
     ```
 - Upload previously built files into `/programs` folder (replace if necessary): `sydnote_player.idl`, `syndote.idl`, `sydnote_player.opt.wasm`, `syndote.opt.wasm`
 
 - Install `gear-js/cli`:
-    ```
+    ```npm
     npm install -g @gear-js/cli
     ```
 - Upload the master program. The `upload-game.yaml` file contains a transaction that will deploy the program onto the network, check [README](https://github.com/gear-tech/gear-js/tree/main/tools/cli) for more details.
@@ -64,7 +64,7 @@ It allows sending transactions to the Gear node based on `yaml` file:
 - Customize the following parameters:
 
     - Specify the accounts using on of these methods - mnemonic phrase, seed or Using well-known account such as `Alice` and `Bob`
-	```
+	```bash
     	accounts:
   		alice: 'bottom drive obey lake curtain smoke basket hold race lonely fit walk'
 		bob: //Bob
@@ -74,12 +74,12 @@ It allows sending transactions to the Gear node based on `yaml` file:
     	```
 
     - You can also specify which node you want to deploy the program on by defining the variable `wsAddress` in the file with transactions. If this variable is not defined, the program will be deployed on the local node which should be running beforehand:
-    	```
+    	```bash
     	wsAddress: wss://testnet.vara.network
     	```
 
 - To deploy the program, run the command:
-    ```
+    ```bash
     gear-js workflow upload-game.yaml
     ```
 
@@ -89,7 +89,7 @@ It allows sending transactions to the Gear node based on `yaml` file:
 - To run the application, it is necessary to save this address and later specify it as a variable in the `.env` file.
 
 - Make gas reservations to ensure continuous game execution. Open `reserve-gas.yaml` file and customize account and node address as described above. Run the command with the master program address specified:
-    ```
+    ```bash
     gear-js workflow reserve-gas.yaml -a program_id='0x60663aaee2971eb60874b63c92e738cc375f3764a1d3b38d65cbc63d8ee8f70c'
     ```
 
@@ -98,7 +98,7 @@ It allows sending transactions to the Gear node based on `yaml` file:
     ![img alt](../img/reserve_gas.png)
 
 - Upload players programs to the network. For testing purposes, you can upload 4 identical player programs. After initialization in the network, their addresses will be unique and you will then need to register them in the game. Open `players.yaml` file and customize account and node address as described above. Run the command to add players in the game:
-    ```
+    ```bash
     gear-js workflow players.yaml
     ```
 
@@ -113,8 +113,8 @@ It allows sending transactions to the Gear node based on `yaml` file:
 
 1. Download [this repository](https://github.com/gear-foundation/dapps/tree/master/frontend/apps/syndote) locally and go to the `frontend` folder.
 2. Install packages:
-```sh
-yarn install
+```npm
+npm install
 ```
 3. Declare environment variables, go to `/frontend/` foler, create a new `.env` file, and check `.env.example` file to get the necessary variables:
     - `VITE_NODE_ADDRESS` - specify the address of the node where you deployed the programs.
@@ -122,17 +122,22 @@ yarn install
     - `VITE_DNS_NAME` - specify the dDNS name of the deployed program (add the dDNS name for your program in the [IDEA dDNS section](https://idea.gear-tech.io/dns?node=wss%3A%2F%2Ftestnet.vara.network)).
 4. Put the latest version of the `syndote.idl` file in the `src\app\utils\sails` folder locally, replacing the existing file if necessary. Then, [generate the client library](https://github.com/gear-tech/sails/blob/master/js/cli/README.md#generate-typescript-client-library-using-the-idl-file) and place it in `src\app\utils\sails\syndote.ts`.
 
-<Callout type="note" title="In order for all features to work as expected, the node and its runtime version should be chosen based on the current `@gear-js/api` version. In case of issues with the application, try to switch to another network or run your own local node and specify its address in the `.env` file. When applicable, make sure the program(s) wasm files are uploaded and running in this network accordingly.">
-Also, you can try `npm i --force` in case of `yarn install` issues.
+<Callout type="warn" title="Version Compatibility & Troubleshooting">
+    To ensure all features work correctly, your node and runtime version must match the current **`@gear-js/api`** version.
+
+    **If you encounter issues:**
+    * **Network:** Try switching networks or run a **local node** (update the address in your `.env`).
+    * **Programs:** Verify that the `.wasm` files are correctly uploaded and running on the selected network.
+    * **Dependencies:** If `yarn install` fails, try running `npm i --force`.
 </Callout>
 
 5. Run the app:
-```sh
-yarn start
+```npm
+npm run start
 ```
 
 ## Run the game
-1. Find the players addresses you have prevously uploaded.
+1. Find the players addresses you have previously uploaded.
 
 2. Register players in the application's interface one after another. Each player registration is a transaction that needs to be signed. It is possible to register up to 4 players.
 

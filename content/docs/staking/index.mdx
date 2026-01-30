@@ -2,8 +2,8 @@
 title: Staking Overview
 ---
 
-<Callout type="tip" title="Familiar with staking?">
-Start [validating](/docs/staking/validate) or [nominating](/docs/staking/nominate) your VARA right now.
+<Callout type="idea" title="Familiar with staking?">
+    Skip the basics and start [Validating](/docs/staking/validate) or [Nominating](/docs/staking/nominate) your VARA tokens right now.
 </Callout>
 
 Vara Network uses an inclusive and reliable Nominated Proof-of-Stake (NPoS) mechanism to select validators for its consensus protocol. It chooses validators based on their own stakes and the funds nominated by other token holders. This approach helps make the process more democratic and decentralized. NPoS ensures decentralization by preventing a situation where only the richest entities can be validators.
@@ -64,8 +64,13 @@ The algorithm considers several factors to determine the validators for the next
 - **Security Considerations**: The consensus algorithm aims to maintain a decentralized and secure network. To achieve this, the active set selection process considers factors such as geographic distribution, avoiding concentration of stake or influence, and minimizing the chance of validators working together in a harmful way for the network.
 - **Validator Performance**: Validators are expected to fulfill their duties diligently, including block production, participation in consensus activities, and follow the network's rules and protocols. Validators with a history of reliable performance and minimal downtime are favored in the selection process.
 
-<Callout type="info">
-The algorithm used in the system gives validators with a higher stake a greater chance of being selected for the active set. However, it also allows block production by validators with a smaller stake to prevent centralization and keep the system fair.
+<Callout type="info" title="NPoS Validator Selection">
+    The NPoS algorithm balances security and decentralization:
+
+    *   **Higher Stake:** Validators with a larger stake have a greater chance of being selected for the active set (more secure).
+    *   **Smaller Stake:** The system also allows block production by validators with a smaller stake to prevent centralization and maintain fairness.
+
+    This dynamic approach ensures the network remains both secure and decentralized.
 </Callout>
 
 ### Eras and Sessions
@@ -93,8 +98,10 @@ Era points validator incentives to act in the network's best interest, maintain 
 
 ### Reward Distribution
 
-<Callout type="info">
-All validators are paid almost equally, but someone a little more.
+<Callout type="idea" title="Reward Distribution">
+    In the Vara Network, all validators in the active set are paid **nearly equally**, regardless of their total stake.
+
+    **Note:** Minor differences in rewards occur based on **Era Points**, which are earned through performance metrics like block production and network activity.
 </Callout>
 
 Validators receive rewards in every era based on the inflation-based economic model. These rewards are allocated among all validators, and the amount each validator receives depends on their accumulated era points. The distribution of rewards is not affected by the number of tokens staked behind a validator.
@@ -111,10 +118,11 @@ Here are essential points to understand about staking rewards:
 - Validators and their nominators can start the payout for all unclaimed eras.
 - When the payout is triggered, the network will distribute rewards to all nominators who supported the validator during those eras.
 
-<Callout type="warning" title="important">
-It is crucial to be aware that if the reward payout is not requested within 84 eras, the rewards for those eras will be forfeited and lost. Additionally, if a validator unbinds all of their own stake, any pending payouts for unclaimed eras will also be lost.
+<Callout type="error" title="Risk of Reward Loss">
+    Rewards must be claimed within **84 eras** (~42 days). If not requested in time, or if a validator unbinds their entire stake, all pending rewards will be **permanently forfeited**.
 
-**84 eras × 12 hours in a single era ÷ 24 hours in a day = 42 days**
+    **Calculation:**
+    `84 eras × 12h = 1008 hours = 42 days`
 </Callout>
 
 ### Slashing
@@ -130,8 +138,10 @@ Here are actions violations subject to punishment:
 - Downtime
 - Collusion
 
-<Callout type="info" title="Not only the validator's own stake can be slashed, but also the stake of their nominators. It is crucial to exercise caution and carefully choose trustworthy validators when nominating.">
-When a validator and their associated nominators are slashed, the slashed amount of tokens is not lost but instead added to the Treasury.
+<Callout type="warn" title="Slashing Affects Nominators">
+    Be careful: if a validator is slashed, **all associated nominators** also lose a portion of their stake. It is crucial to choose trustworthy validators.
+
+    *Note: Slashed funds are not burned; they are redirected to the Treasury.*
 </Callout>
 
 When a validator is slashed on Vara, it goes into a state called "unapplied slash" for 7 days. During this time, there is a chance to submit a governance proposal to undo the slashing decision. This proposal allows for a review of the slashing and potential mitigation of its effects.

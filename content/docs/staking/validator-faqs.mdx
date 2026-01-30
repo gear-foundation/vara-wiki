@@ -35,8 +35,10 @@ Here are addresses of official Vara bootnodes:
 - `/dns4/vara-connect-1.vara-network.io/tcp/30333/ws/p2p/12D3KooWLDpZ5sWtSmZtiHXBstoQVwMAZ5yRWpDUBdjQHV7vBLHy`
 - `/dns4/vara-connect-2.vara-network.io/tcp/30333/ws/p2p/12D3KooWCJas1xGRDUC8nnSvfSiC1RcTXWaAef6oom1vGvqUMZV7`
 
-<Callout type="info">
-These nodes are already included in the [Vara chain spec](https://raw.githubusercontent.com/gear-tech/gear/master/node/res/vara.json), which will be used by default when you start your node with `--chain vara`
+<Callout type="info" title="Automatic Chain Configuration">
+    These nodes are already included in the [Vara chain spec](https://raw.githubusercontent.com/gear-tech/gear/master/node/res/vara.json).
+
+    This configuration is applied **automatically** when you start your node with the `--chain vara` flag.
 </Callout>
 
 ## What is the block time of the Vara Network?
@@ -189,13 +191,18 @@ Therefore, only attempt a high availability set-up when you know what you're doi
 
 - [Telemetry](https://telemetry.rs) This tracks your node details including the version you are running, block height, CPU & memory usage, block propagation time, etc.
 
-<Callout type="info" title="Add `--telemetry-url &quot;wss://telemetry.rs/submit 1&quot;` to the node startup parameter, then your node will show up on the telemetry dashboard.">
+<Callout type="idea" title="Enable Telemetry">
+    To see your node on the [telemetry dashboard](https://telemetry.rs), add the following parameter to your startup command:
+
+    `--telemetry-url "wss://telemetry.rs/submit 1"`
 </Callout>
 
 - [Prometheus](https://prometheus.io)-based monitoring stack, including Grafana for dashboards and log aggregation. It includes alerting, querying, visualization, and monitoring features and works for both cloud and on-premise systems.
 
-<Callout type="info">
-You need to specify the prometheus port, for example `--prometheus-port 9615`, then the node metrics will be available at `http://127.0.0.1:9615/metrics`.
+<Callout type="idea" title="Prometheus Metrics">
+    To enable monitoring, specify the prometheus port (e.g., `--prometheus-port 9615`).
+
+    Once started, node metrics will be available locally at: `http://127.0.0.1:9615/metrics`
 </Callout>
 
 ## What is the expected uptime from validators?
@@ -254,6 +261,8 @@ It is recommended to have backups of the following files and directories in case
 
 3. __Blockchain Database__(optional): The blockchain database resides in the `~/.local/share/gear/chains/vara_network/db` directory. It can be deleted and synchronized from scratch at any time, but keep in mind that this process may take some time.
 
-<Callout type="info">
-Please make sure the old node is stopped before you launch the new node, otherwise replicating session keys across multiple nodes may lead to equivocation slashes.
+<Callout type="error" title="Critical: Avoid Double Signing">
+    **Stop the old node before launching the new one.**
+
+    Running multiple nodes with the same session keys will lead to **equivocation slashes** (direct loss of your staked tokens).
 </Callout>

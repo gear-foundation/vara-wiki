@@ -3,36 +3,35 @@ title: Fungible Token
 custom_title: Vara Fungible Token (VFT)
 ---
 
-<Callout type="note">
-The Vara Fungible Token Standard is the analogue of ERC-20 on Ethereum.
+<Callout type="note" title="ERC-20 Analogue">
+    The **Vara Fungible Token (VFT)** standard is the equivalent of Ethereum's **ERC-20** on the Vara Network.
 </Callout>
 
 The Vara Fungible Token Standard provides a unified API for programs to implement token functionalities. It encompasses critical operations like token transfer and approvals for third-party spending on the blockchain. Below is a detailed look at the state of the program, its interface, and key methods to facilitate these operations.
 
-<Callout type="tip">
-The project code is developed using the [Sails](/docs/build/sails) framework.
+<Callout type="idea" title="Framework Information">
+    The project code is built using the [Sails](/docs/build/sails) framework, which simplifies program development on Gear Protocol.
 </Callout>
 
 ## Functions
 
 ```
-  Approve(spender, value)
-  Transfer(to, value)
-  TransferFrom(from, to, value)
-  Allowance(owner, spender)
-  BalanceOf(owner) 
-  Decimals()
-  Name()
-  Symbol()
-  TotalSupply()
-
+Approve(spender, value)
+Transfer(to, value)
+TransferFrom(from, to, value)
+Allowance(owner, spender)
+BalanceOf(owner)
+Decimals()
+Name()
+Symbol()
+TotalSupply()
 ```
 
 ## Events
 
 ```
-    Approval(owner, spender, value);
-    Transfer(from, to, value);
+Approval(owner, spender, value);
+Transfer(from, to, value);
 ```
 
 ## Key methods

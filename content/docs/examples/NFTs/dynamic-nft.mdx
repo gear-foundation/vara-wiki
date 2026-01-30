@@ -12,12 +12,14 @@ Unlike traditional NFTs that represent a static digital asset, dynamic NFTs can 
 
 This example demonstrates Gear Protocol's unique features enabling the new user experience for totally on-chain, truly decentralized applications that do not require centralized components. [Delayed messages](/docs/build/gstd/delayed-messages) allows the contract to wake itself after a specified period of time.
 
-<Callout type="tip">
-The project code is developed using the [Sails](/docs/build/sails) framework.
+<Callout type="idea" title="Framework Information">
+    The project code is built using the [Sails](/docs/build/sails) framework, which simplifies program development on Gear Protocol.
 </Callout>
 
-<Callout type="note">
-This contract is an extended version of the standard [vNFT](/docs/examples/Standards/vnft). This article focuses solely on the additional features and fields that differentiate it from the basic implementation.
+<Callout type="note" title="Scope of this Guide">
+    This is an extended version of the standard [vNFT](/docs/examples/Standards/vnft).
+
+    We will focus **solely on the additional features** and fields that differentiate this version from the basic implementation.
 </Callout>
 
 ## Token Metadata changes
@@ -44,15 +46,15 @@ As the metadata updates, the `current_media_index` will increment, cycling throu
 ## Additional Functions
 
 ```
-  StartMetadataUpdate(updates_count, update_period_in_blocks, token_id)
-  UpdateMetadata(token_id, owner, update_period, updates_count)
+StartMetadataUpdate(updates_count, update_period_in_blocks, token_id)
+UpdateMetadata(token_id, owner, update_period, updates_count)
 ```
 
 ## Additional Events
 
 ```
-    MetadataStartedUpdaing(updates_count, update_period_in_blocks, token_id);
-    MetadataUpdated(token_id, current_media_index);
+MetadataStartedUpdaing(updates_count, update_period_in_blocks, token_id);
+MetadataUpdated(token_id, current_media_index);
 ```
 
 ## Additional Methods
@@ -149,30 +151,30 @@ pub fn start_metadata_update(
 This function handles the actual metadata update for a token. It cycles through available metadata options and triggers further updates if required. Ownership verification ensures that only authorized requests proceed.
 
 ```rust title="dynamic-nft/app/src/services/dynamic_nft/mod.rs"
-    pub fn update_metadata(
-        &mut self,
-        token_id: TokenId,
-        owner: ActorId,
-        update_period: u32,
-        updates_count: u32,
-    ) {
-        if msg::source() != exec::program_id() {
-            panic!("This message can only be sent by the programme")
-        }
-
-        let current_media_index = services::utils::panicking(|| {
-            funcs::update_metadata(
-                Storage::owner_by_id(),
-                &mut self.get_mut().token_metadata_by_id,
-                token_id,
-                owner,
-                update_period,
-                updates_count,
-            )
-        });
-        self.notify_on(Event::MetadataUpdated { token_id, current_media_index })
-            .expect("Notification Error");
+pub fn update_metadata(
+    &mut self,
+    token_id: TokenId,
+    owner: ActorId,
+    update_period: u32,
+    updates_count: u32,
+) {
+    if msg::source() != exec::program_id() {
+        panic!("This message can only be sent by the programme")
     }
+
+    let current_media_index = services::utils::panicking(|| {
+        funcs::update_metadata(
+            Storage::owner_by_id(),
+            &mut self.get_mut().token_metadata_by_id,
+            token_id,
+            owner,
+            update_period,
+            updates_count,
+        )
+    });
+    self.notify_on(Event::MetadataUpdated { token_id, current_media_index })
+        .expect("Notification Error");
+}
 ```
 
 ```rust title="dynamic-nft/app/src/services/dynamic_nft/funcs.rs"

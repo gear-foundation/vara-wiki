@@ -48,6 +48,10 @@ export default defineConfig({
   mdxOptions: {
     remarkPlugins: [remarkMath, remarkReplaceUnsupportedLanguages],
     rehypePlugins: (v) => [rehypeKatex, ...v],
+    // Package manager switcher for ```npm blocks: selection persists globally
+    remarkNpmOptions: {
+      persist: { id: 'package-manager' },
+    },
     rehypeCodeOptions: {
       themes: {
         light: "github-light",

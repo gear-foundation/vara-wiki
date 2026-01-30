@@ -232,11 +232,11 @@ Example input:
 The combined ship coordinates are hashed using the Poseidon hash function, and the result is compared with the provided hash to verify the validity of the ship positions.
 
 ```circom
-    component poseidon = Poseidon(N1 + N2 + N3 + N4);
-    for (var i = 0; i < N1 + N2 + N3 + N4; i++) {
-        poseidon.inputs[i] <== combinedShips[i];
-    }
-    hash === poseidon.out;
+component poseidon = Poseidon(N1 + N2 + N3 + N4);
+for (var i = 0; i < N1 + N2 + N3 + N4; i++) {
+    poseidon.inputs[i] <== combinedShips[i];
+}
+hash === poseidon.out;
 ```
 
 2. **Hit Detection**
@@ -244,17 +244,17 @@ The combined ship coordinates are hashed using the Poseidon hash function, and t
 For each ship, the circuit checks whether the current shot matches any of the ship's coordinates and counts the number of hits. It also tracks previous hits on each ship.
 
 ```circom
-    // Check hits on ship 1
-    var hits_on_ship1 = 0;
-    component is_equal_ship1[N1];
-    for (var j = 0; j < N1; j++) {
-        is_equal_ship1[j] = IsEqual();
-        is_equal_ship1[j].in[0] <== hit;
-        is_equal_ship1[j].in[1] <== ship_1[j];
-        hits_on_ship1 += is_equal_ship1[j].out;
-    }
-    signal hit_ship1 <== hits_on_ship1;
-    // ... (similarly for ship_2, ship_3, and ship_4)
+// Check hits on ship 1
+var hits_on_ship1 = 0;
+component is_equal_ship1[N1];
+for (var j = 0; j < N1; j++) {
+    is_equal_ship1[j] = IsEqual();
+    is_equal_ship1[j].in[0] <== hit;
+    is_equal_ship1[j].in[1] <== ship_1[j];
+    hits_on_ship1 += is_equal_ship1[j].out;
+}
+signal hit_ship1 <== hits_on_ship1;
+// ... (similarly for ship_2, ship_3, and ship_4)
 ```
 
 3. **Sinking Verification**
@@ -262,11 +262,11 @@ For each ship, the circuit checks whether the current shot matches any of the sh
 The circuit calculates the total hits on each ship by summing previous hits with the current hit and then checks if this total equals the ship's length, indicating the ship is sunk.
 
 ```circom
-    component ge_total_hits1 = GreaterEqThan(N1);
-    ge_total_hits1.in[0] <== total_hits_on_ship1;
-    ge_total_hits1.in[1] <== N1;
-    signal sunk_ship1 <== ge_total_hits1.out;
-    // ... (similarly for ship_2, ship_3, and ship_4)
+component ge_total_hits1 = GreaterEqThan(N1);
+ge_total_hits1.in[0] <== total_hits_on_ship1;
+ge_total_hits1.in[1] <== N1;
+signal sunk_ship1 <== ge_total_hits1.out;
+// ... (similarly for ship_2, ship_3, and ship_4)
 ```
 
 4. **Determining the Final Result**
@@ -274,11 +274,11 @@ The circuit calculates the total hits on each ship by summing previous hits with
 The circuit uses a series of `Mux1` components to determine the final output (`is_hit`). It checks whether each ship was hit or sunk and sets the output accordingly.
 
 ```circom
-    component mux_main4 = Mux1();
-    mux_main4.c[0] <== mux_main3.out;
-    mux_main4.c[1] <== mux_hit4.out;
-    mux_main4.s <== hit_ship4;
-    is_hit <== mux_main4.out;
+component mux_main4 = Mux1();
+mux_main4.c[0] <== mux_main3.out;
+mux_main4.c[1] <== mux_hit4.out;
+mux_main4.s <== hit_ship4;
+is_hit <== mux_main4.out;
 ```
 
 This circuit verifies if a shot in Battleship hits a ship and whether that ship is sunk. It uses a series of equality checks and logic gates to aggregate hits, compare them against ship coordinates, and output the correct result.  
@@ -386,8 +386,10 @@ For each move the program processes the following:
 
 The verification process is central to the program's function. When a player submits a move or sets up their ships, the program checks the provided proof against the public inputs using the stored verification keys. If the proof is valid, the program acknowledges the action as legitimate; otherwise, it rejects the action.
 
-<Callout type="note">
-This process allows the game to maintain fairness and privacy, ensuring that players cannot cheat by altering ship placements or falsifying shot outcomes.
+<Callout type="note" title="Fair Play & Privacy">
+    This process ensures game integrity by preventing players from altering ship placements or falsifying shot outcomes.
+
+    By moving the logic on-chain, the game maintains a **trustless environment** where cheating is technically impossible.
 </Callout>
 
 ### Use of BLS12-381 in the Program
@@ -465,9 +467,11 @@ if exp != alpha_g1_beta_g2 {
 
    - Similar to the Miller loop, a request is sent to the BLS12-381 Built-in Actor to perform the exponentiation.
    - The result is decoded and compared with the expected `alpha_g1_beta_g2` value. If the result does not match, the verification fails.
-   
-<Callout type="note">
-This implementation highlights the use of off-chain computation via the BLS12-381 Built-in Actor to handle complex cryptographic operations, thus optimizing both performance and cost.
+
+<Callout type="idea" title="Cryptographic Optimization">
+    This implementation leverages **off-chain computation** via the **BLS12-381 Built-in Actor**.
+
+    By offloading complex cryptographic operations to the runtime, the program significantly **optimizes performance** and **reduces gas costs**.
 </Callout>
 
 ### Overview of Application Workflow

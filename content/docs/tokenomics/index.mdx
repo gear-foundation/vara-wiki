@@ -94,10 +94,14 @@ Vara uses [Polkadot’s standard inflation model](https://wiki.polkadot.network/
 
 1. **Staking rate:**
 
-    <Callout type="info" title="Info">
-    Staking Rate = number of tokens staked / number of stakeable tokens.
+    <Callout type="info" title="Staking Rate Formula">
+        The Staking Rate is calculated using these metrics:
 
-    Number of stakeable tokens = TTS - Locked Team tokens - Locked Investors tokens  - Inflation offsetting pool tokens
+        **Formula:**
+        `Staking Rate = staked tokens / stakeable tokens`
+
+        **Stakeable tokens:**
+        `Total Supply (TTS) - Locked Team - Locked Investors - Inflation Pool`
     </Callout>
 
     At Genesis the stakeable tokens amount to 48.5% of TTS. This initially allows the protocol to have 51.5% less inflation while providing competitive market rates for staking ROI. While tokens are getting unlocked and/or expended, the number of stakeable tokens trends towards the TTS. 

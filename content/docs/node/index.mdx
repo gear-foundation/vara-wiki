@@ -98,20 +98,24 @@ gear.exe 1.2.1-a218853
 </Tab>
 </Tabs>
 
-<Callout type="info" title="Nightly builds are available if the latest features are needed: [nightly builds](https://get.gear.rs/#gear-nightly).">
+<Callout type="idea" title="Need the Latest Features?">
+    If you require cutting-edge functionality before it hits the stable release, you can use our [nightly builds](https://get.gear.rs/#gear-nightly).
 
+    **Note:** Nightly versions may be less stable than official releases.
 </Callout>
+
 
 ## Compile Node Manually
 
 Compiling the build will take some time and requires the installation of some dependencies.
 
-<Callout type="warning" title="Note">
+<Callout type="warn" title="Windows Compatibility">
+    - Windows users often face issues with Rust dependencies and build tools.
+    - We **strongly recommend** using Linux or macOS for compiling Vara nodes and programs.
 
-- Windows users may encounter some problems related to the installation of Rust components and dependencies. 
-- It is highly recommended to use Linux or macOS for compiling Vara node and programs.
-
+    **Tip:** If you are on Windows, using **WSL2** (Windows Subsystem for Linux) is the best way to ensure a stable development environment.
 </Callout>
+
 
 ### Prerequisites
 
@@ -156,12 +160,14 @@ cd gear
 git checkout v1.2.1 -b release-1.2.1
 ```
 
-<Callout type="info" title="To use the latest or experimental Gear Protocol's functions, compile the node from the `master` branch. It is the default branch after cloning, but switch back to the `master` branch using:">
+<Callout type="info" title="Using the Master Branch">
+    To access the latest or experimental Gear Protocol functions, compile the node from the `master` branch.
 
-```bash
-git checkout master
-```
+    If you have switched to another branch, you can return to `master` using:
 
+    ```bash
+    git checkout master
+    ```
 </Callout>
 
 ### Compile
@@ -176,25 +182,24 @@ or
 make node-release
 ```
 
-<Callout type="note" title="The final build can be found at `gear/target/release/gear`.">
+<Callout type="note" title="Build Output Location">
+    The compiled binary is located at: `target/release/gear`
 
-Navigate to:
-
-```bash
-cd target/release
-```
-
+    To navigate to the output folder, run:
+    ```bash
+    cd target/release
+    ```
 </Callout>
 
 ## Run Vara Node
 
-<Callout type="info" title="Regardless of whether the pre-built binary was downloaded or built manually, navigate to the directory where the node is installed and run it without special arguments to connect to the testnet:">
+<Callout type="info" title="Starting the Node">
+    Regardless of how you obtained the binary, navigate to its directory and run the node to connect to the **Vara Testnet**:
 
+    ```bash
+    ./gear
+    ```
 </Callout>
-
-```bash
-./gear
-```
 
 To run the Vara node in dev mode:
 

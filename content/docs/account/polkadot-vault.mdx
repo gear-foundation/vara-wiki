@@ -4,9 +4,6 @@ custom_title: Vara cold storage via Polkadot Vault (formerly Parity Signer)
 browser_title: Polkadot Vault (formerly Parity Signer)
 ---
 
-import googleURL from './img/google-play-badge.png';
-import appleURL from './img/app-store-badge.png';
-
 Polkadot Vault allows you to turn any mobile device based on Android or iOS into a real cold wallet. Your private keys are kept secure offline at all times and transactions are signed in an air-gapped way via QR-codes. A huge advantage is the completely open and transparent source code of [the product](https://github.com/paritytech/parity-signer).
 
 Vara Network completely supports working with Polkadot Vault.
@@ -17,13 +14,13 @@ There are several ways to get the Polkadot Vault.
 
 Download from the application store for your device:
 
-<div align="left">
-  <a href="https://play.google.com/store/apps/details?id=io.parity.signer">
-    <img src={googleURL} alt="Play Market" />
-  </a>{' '}
-  <a href="https://itunes.apple.com/us/app/parity-signer/id1218174838">
-    <img src={appleURL} alt="Apple Store" />
-  </a>
+<div className="flex gap-2 items-center">
+    <a href="https://itunes.apple.com/us/app/parity-signer/id1218174838" className='inline-flex'>
+        <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" width={120} height={40} className="no-zoom m-0!" />
+    </a>
+    <a href="https://play.google.com/store/apps/details?id=io.parity.signer" className='inline-flex'>
+        <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" width={155} height={60} className="no-zoom m-0!" />
+    </a>
 </div>
 
 Download directly from the GitHub:
@@ -32,9 +29,12 @@ https://github.com/paritytech/parity-signer/releases
 
 ## Create your keys
 
-<Callout type="info">
-Once Polkadot Vault is installed, your device should never go online. You must turn off or even physically remove the smartphone's Wifi, Mobile Network, and Bluetooth to ensure that the mobile phone containing these accounts will not be exposed to any online threat. Switching to airplane mode suffices in many cases.
+<Callout type="warn" title="Air-Gap Security">
+    To protect your accounts, the device with **Polkadot Vault must never go online.**
+
+    Physically disable or turn off **Wi-Fi, Mobile Data, and Bluetooth**. While switching to **Airplane Mode** suffices in many cases, total isolation is the best practice to prevent online threats.
 </Callout>
+
 
 1. Go offline, open your Polkadot Vault application, accept Privacy Policy, create your PIN code.
 
@@ -68,9 +68,12 @@ To get the latest blockchain metadata:
 
 3. In the `Metadata` tab, scan video QR with metadata frames. Wait for `Parsing multipart data` is completed.
 
-<Callout type="info">
-Scanning QR with metadata could take some time. Remember to update the Polkadot Vault to the latest version of metadata, you will need to do the scan again. We generate new QR's with each runtime upgrade of the network.
+<Callout type="note" title="Metadata Updates">
+    Scanning QR codes with metadata can take some time. Ensure your **Polkadot Vault** is updated to the latest version of metadata after every network runtime upgrade.
+
+    **Why?** We generate new QR codes for each upgrade. If the metadata is outdated, you will need to re-scan to maintain compatibility.
 </Callout>
+
 
 When all metadata is uploaded, Polkadot Vault will be ready to work with the Vara Network.
 

@@ -34,7 +34,10 @@ try {
 }
 ```
 
-<Callout type="note" title="For the calculation of the required gas for `init` message processing should use `api.program.calculateGas.initUpload()` method.">
+<Callout type="info" title="Gas Calculation for Init">
+    To calculate the gas required for processing an `init` message, use the following method:
 
-[more info](/docs/api/calculate-gas)
+    `api.program.calculateGas.initUpload()`
+
+    For a deeper dive into the gas mechanics, see the [Calculate Gas](/docs/api/calculate-gas) documentation.
 </Callout>

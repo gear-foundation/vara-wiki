@@ -81,7 +81,8 @@ SetPayee { payee: RewardAccount }
 ## Example: Staking Broker
 To help illustrate how to use the Staking Built-in Actor, we provide a basic implementation called the **Staking Broker**. This program acts as a simple example to demonstrate the concepts of bonding, unbonding, and nominating validators on behalf of users. To explore the code and learn more about the implementation details, you can visit the Staking Broker example on [GitHub](https://github.com/gear-tech/gear/tree/master/examples/staking-broker).
 
-<Callout type="note">
-The Staking Broker is intended for demonstration purposes only. It accepts user messages to perform actions such as bonding tokens, unbonding funds, and nominating validators. However, it does not handle certain critical aspects, such as managing the unbonding period or other complexities involved in a real-world scenario. A production-level implementation, like a liquid staking contract, would be significantly more intricate.
-</Callout>
+<Callout type="warn" title="Staking Broker: Demo Only">
+    The Staking Broker is intended for **demonstration purposes only**.
 
+    While it demonstrates bonding and nominating, it **does not handle critical production aspects** like the unbonding period or complex state management. A real-world liquid staking implementation would require a significantly more intricate architecture.
+</Callout>

@@ -31,9 +31,12 @@ Before starting, make sure your environment is ready:
 - Installed browser wallet (e.g., [Polkadot.js extension](https://polkadot.js.org/extension/) or compatible with Substrate network)
 - **Basic knowledge** of React, TypeScript, and smart contract architecture
 
-<Callout type="note">
-You need your contract uploaded to the Vara network and its address (ID) available before starting the frontend part.
+<Callout type="warn" title="Prerequisites">
+    Before starting the frontend development, ensure your contract is **uploaded to the Vara Network** and you have its **Program ID** ready.
+
+    Interaction with the network is impossible without a deployed contract.
 </Callout>
+
 
 ## Project Setup
 
@@ -49,8 +52,13 @@ yarn install # or npm install
 yarn start   # or npm start
 ```
 
-<Callout type="tip">
-The template includes wallet connection, node provider setup, alert system, and is ready for smart contract integration.
+<Callout type="idea" title="Template Features">
+    The provided template is production-ready and includes:
+
+    * **Wallet Connection:** Pre-configured interaction with Vara-compatible wallets.
+    * **Node Provider:** Pre-set connection to the Vara Network.
+    * **Alert System:** Built-in notifications for user feedback.
+    * **Contract Ready:** Fully prepared for smart contract integration.
 </Callout>
 
 ### Project Structure Overview
@@ -73,7 +81,7 @@ Make sure your VFT contract is already deployed on Vara testnet or mainnet (via 
 
 ### Generate Client Library
 
-Follow the client generation instructions: [Client Generation Docs](https://wiki.vara.network/docs/sails-js/client-generation)
+Follow the client generation instructions: [Client Generation Docs](/docs/sails-js/client-generation)
 
 ```bash
 npx @gear-js/sails codegen --program <YOUR_PROGRAM_ID> --output src/hooks/lib.ts
@@ -90,10 +98,11 @@ Import the generated client (ABI) in your hooks, e.g.:
 import { SailsProgram } from './lib';
 ```
 
-<Callout type="note">
-The generated file describes the contract API for type-safe frontend access.
-</Callout>
+<Callout type="idea" title="Type-Safe API Access">
+    The generated file (IDL) provides a full description of your contract's API.
 
+    Use it to enable **type-safety** on the frontend, ensuring that your calls match the contract's expected arguments and return types.
+</Callout>
 
 ## Environment Configuration
 
@@ -115,9 +124,11 @@ export const ENV = {
 
 ## Implementing React Hooks for Contract Interaction
 
-<Callout type="info" title="For detailed documentation on sails-js React Hooks and up-to-date API examples, see:">
-- [React Sails Hooks Documentation](https://wiki.vara.network/docs/sails-js/react-hooks)  
-- [Full hooks/api.ts source on GitHub](https://github.com/gear-foundation/dapps/blob/master/frontend/apps/vft-extended/src/hooks/api.ts)
+<Callout type="info" title="Additional Resources">
+    For detailed documentation on **Sails React Hooks** and up-to-date API examples, check out these links:
+
+    * [React Sails Hooks Documentation](/docs/sails-js/react-hooks)
+    * [Full hooks/api.ts source on GitHub](https://github.com/gear-foundation/dapps/blob/master/frontend/apps/vft-extended/src/hooks/api.ts)
 </Callout>
 
 Your hooks (e.g., `hooks/api.ts`) wrap all main contract actions, queries, and event subscriptions.
@@ -186,8 +197,8 @@ export function useTokenQueries() {
 }
 ```
 
-<Callout type="note">
-For a full list of query methods, see the [React Hooks API Reference](https://wiki.vara.network/docs/sails-js/react-hooks).
+<Callout type="note" title="API Reference">
+    For a full list of query methods and detailed usage, see the [React Hooks API Reference](/docs/sails-js/react-hooks).
 </Callout>
 
 ### Query with Parameters
@@ -206,9 +217,11 @@ export function useBalanceOfQuery(address: `0x${string}`) {
 }
 ```
 
-<Callout type="tip" title="When to use `watch`">
-Use `watch: true` for dynamic data that changes frequently, like balances in dashboards, or when you expect user actions or contract events to affect the data.  
-For static or rarely-changing data (e.g., token name, symbol, decimals), you can skip `watch` for better performance.
+<Callout type="idea" title="When to use watch?">
+    The `watch` parameter determines how frequently your data updates:
+
+    * **Use `watch: true`:** For dynamic data like **balances** or values affected by frequent user actions and contract events.
+    * **Skip `watch`:** For static data such as **token names, symbols, or decimals** to improve app performance.
 </Callout>
 
 ### Listen to Events
@@ -229,7 +242,10 @@ export function useTokenEvents(callbacks) {
 }
 ```
 
-> **See [hooks/api.ts](https://github.com/gear-foundation/dapps/blob/master/frontend/apps/vft-extended/src/hooks/api.ts) for full code**
+<Callout type="info" title="Full Implementation Example">
+    For a complete, production-ready example of the hooks setup, refer to the source code: [hooks/api.ts on GitHub](https://github.com)
+</Callout>
+
 
 ## Making Transactions
 
@@ -338,11 +354,12 @@ For Vara UI Kit component details and usage, see
 
 ## Notes and Best Practices
 
-<Callout type="note" title="- Handle async errors to improve UX.">
+- Handle async errors to improve UX.
 - Use event subscriptions to keep UI state in sync with blockchain.
 - For production: review security, error boundaries, and consider adding better wallet management and notifications.
-</Callout>
 
-<Callout type="warning" title="Never hard-code private keys or sensitive data in the frontend.">
-Always use environment variables for node and contract addresses.
+<Callout type="warn" title="Security First">
+    **Never hard-code private keys** or sensitive data in the frontend.
+
+    Always use environment variables (`.env`) for node endpoints and contract addresses to keep your application secure and configurable.
 </Callout>

@@ -31,8 +31,15 @@ Depending on your chosen theme, you must also install and configure the correspo
 
 A React component that displays the current account or wallet connection button, and (optionally) the account’s total balance. It uses [`useAccount`](https://github.com/gear-tech/gear-js/tree/main/utils/gear-hooks#useaccount) from `@gear-js/react-hooks` to manage account state and modal visibility for wallet actions.
 
-> **Note:**  
-> This is a generic component that provides ready-to-use behavior for wallet management, including connection, account display, and modal handling. For most use cases, you can simply use this component to integrate wallet functionality into your app.
+<Callout type="info" title="Standard Wallet Component">
+    This is a generic, **ready-to-use component** for wallet management. It handles:
+
+    * **Connection:** Managing the wallet connection flow.
+    * **Account Display:** Showing the currently active account.
+    * **Modals:** Built-in modal handling for selection and management.
+
+    For most dApps, this component is the quickest way to integrate wallet functionality.
+</Callout>
 
 #### Props
 
@@ -62,8 +69,11 @@ export { Header };
 
 A React modal component for managing wallet connections and account selection. It provides a user interface for connecting to supported wallets, switching between accounts, copying addresses, and logging out. This component is used internally by the [Wallet](/docs/api/tooling/wallet-js#wallet) component.
 
-> **Note:**  
-> Use this component if you need to open the wallet modal programmatically, or if you want to create a custom wallet or account button that triggers wallet or account management actions. It gives you more control over when and how the modal appears, compared to the generic `Wallet` component.
+<Callout type="idea" title="Custom Wallet Control">
+    Use this component if you need to open the wallet modal **programmatically** or create a **custom** button for account management.
+
+    Unlike the generic `Wallet` component, this one gives you full control over the modal's behavior and appearance.
+</Callout>
 
 #### Props
 

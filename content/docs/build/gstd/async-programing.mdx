@@ -31,9 +31,13 @@ async fn main() {
 }
 ```
 
-<Callout type="info" title="`async init` сan be used together with `async main`. But functions `init`, `handle_reply` cannot be specified if this macro is used.">
+<Callout type="warn" title="Async Macro Restrictions">
+    While `async init` and `async main` can be used together, there are strict limitations:
 
+    * You **cannot** define `init` or `handle_reply` functions if these macros are used.
+    * Attempting to mix standard entry points with async macros will cause a compilation error.
 </Callout>
+
 
 # Cross-program message
 

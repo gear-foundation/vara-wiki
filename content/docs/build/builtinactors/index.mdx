@@ -8,8 +8,11 @@ The Built-in Actors framework is an extensible system that provides a registry o
 
 Built-in Actors may be added, removed, updated (including address change) by the Gear Protocol's development team and appear on Vara during runtime upgrades. If a new runtime interface added with a Built-in Actor, upgrading the node client is essential to import blocks and maintain onchain functionality.
 
-<Callout type="note">
-Built-in Actors can be added by the developers of the Gear Protocol, as they are part of the runtime. They cannot be created by any other program or initiated by users. However, they are accessible to everyone like any other program through messaging.
+<Callout type="note" title="Understanding Built-in Actors">
+    **Built-in Actors** are part of the runtime and can only be added by the developers of the Gear Protocol.
+
+    * **Restrictions:** They cannot be created by other programs or initiated by users.
+    * **Access:** Despite their special status, they are accessible to everyone through the standard messaging system, just like any other program.
 </Callout>
 
 ## Usage

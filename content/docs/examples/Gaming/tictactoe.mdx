@@ -75,32 +75,32 @@ pub enum Mark {
 To initialize the game program, the game configuration and the optional DNS address and name must be provided.
 
 ```rust title="tic-tac-toe/app/services/game/mod.rs"
-    pub async fn init(config: Config, dns_id_and_name: Option<(ActorId, String)>) -> Self {
-        unsafe {
-            STORAGE = Some(Storage {
-                admins: vec![msg::source()],
-                current_games: HashMap::with_capacity(10_000),
-                config,
-                messages_allowed: true,
-                dns_info: dns_id_and_name.clone(),
-            });
-        }
-
-        if let Some((id, name)) = dns_id_and_name {
-            let request = [
-                "Dns".encode(),
-                "AddNewProgram".to_string().encode(),
-                (name, exec::program_id()).encode(),
-            ]
-            .concat();
-
-            msg::send_bytes_with_gas_for_reply(id, request, 5_000_000_000, 0, 0)
-                .expect("Error in sending message")
-                .await
-                .expect("Error in `AddNewProgram`");
-        }
-        Self(())
+pub async fn init(config: Config, dns_id_and_name: Option<(ActorId, String)>) -> Self {
+    unsafe {
+        STORAGE = Some(Storage {
+            admins: vec![msg::source()],
+            current_games: HashMap::with_capacity(10_000),
+            config,
+            messages_allowed: true,
+            dns_info: dns_id_and_name.clone(),
+        });
     }
+
+    if let Some((id, name)) = dns_id_and_name {
+        let request = [
+            "Dns".encode(),
+            "AddNewProgram".to_string().encode(),
+            (name, exec::program_id()).encode(),
+        ]
+        .concat();
+
+        msg::send_bytes_with_gas_for_reply(id, request, 5_000_000_000, 0, 0)
+            .expect("Error in sending message")
+            .await
+            .expect("Error in `AddNewProgram`");
+    }
+    Self(())
+}
 ```
 
 ```rust title="tic-tac-toe/app/services/game/utils.rs"
@@ -123,28 +123,28 @@ pub struct Config {
 ### Action
 
 ```rust title="tic-tac-toe/app/services/game/mod.rs"
-    // user actions
-    pub fn start_game(&mut self, session_for_account: Option<ActorId>);
-    pub fn turn(&mut self, step: u8, session_for_account: Option<ActorId>);
-    pub fn skip(&mut self, session_for_account: Option<ActorId>);
+// user actions
+pub fn start_game(&mut self, session_for_account: Option<ActorId>);
+pub fn turn(&mut self, step: u8, session_for_account: Option<ActorId>);
+pub fn skip(&mut self, session_for_account: Option<ActorId>);
 
-    // action for the program itself (for delayed messages)
-    pub fn remove_game_instance(&mut self, account: ActorId);
+// action for the program itself (for delayed messages)
+pub fn remove_game_instance(&mut self, account: ActorId);
 
-    // admin actions
-    pub fn remove_game_instances(&mut self, accounts: Option<Vec<ActorId>>);
-    pub fn add_admin(&mut self, admin: ActorId);
-    pub fn remove_admin(&mut self, admin: ActorId);
-    pub fn update_config(
-        &mut self,
-        s_per_block: Option<u64>,
-        gas_to_remove_game: Option<u64>,
-        time_interval: Option<u32>,
-        turn_deadline_ms: Option<u64>,
-        gas_to_delete_session: Option<u64>,
-    );
-    pub fn allow_messages(&mut self, messages_allowed: bool);
-    pub async fn kill(&mut self, inheritor: ActorId);
+// admin actions
+pub fn remove_game_instances(&mut self, accounts: Option<Vec<ActorId>>);
+pub fn add_admin(&mut self, admin: ActorId);
+pub fn remove_admin(&mut self, admin: ActorId);
+pub fn update_config(
+    &mut self,
+    s_per_block: Option<u64>,
+    gas_to_remove_game: Option<u64>,
+    time_interval: Option<u32>,
+    turn_deadline_ms: Option<u64>,
+    gas_to_delete_session: Option<u64>,
+);
+pub fn allow_messages(&mut self, messages_allowed: bool);
+pub async fn kill(&mut self, inheritor: ActorId);
 ```
 
 ### Event
@@ -276,22 +276,22 @@ pub fn turn(
 After successful game status checks, the player's move is saved and the time of the last move is updated
 
 ```rust title="tic-tac-toe/app/services/game/funcs.rs"
-    //..
-    game_instance.board[step as usize] = Some(game_instance.player_mark);
-    game_instance.last_time = block_timestamp;
+//..
+game_instance.board[step as usize] = Some(game_instance.player_mark);
+game_instance.last_time = block_timestamp;
 
-    if let Some(mark) = get_result(&game_instance.board.clone()) {
-        if mark == game_instance.player_mark {
-            game_over(game_instance, &player, &storage.config, GameResult::Player);
-        } else {
-            game_over(game_instance, &player, &storage.config, GameResult::Bot);
-        }
-        return Ok(Event::GameFinished {
-            game: game_instance.clone(),
-            player_address: player,
-        });
+if let Some(mark) = get_result(&game_instance.board.clone()) {
+    if mark == game_instance.player_mark {
+        game_over(game_instance, &player, &storage.config, GameResult::Player);
+    } else {
+        game_over(game_instance, &player, &storage.config, GameResult::Bot);
     }
-    // ..
+    return Ok(Event::GameFinished {
+        game: game_instance.clone(),
+        player_address: player,
+    });
+}
+// ..
 ```
 If the game is over, a **delayed message** will be sent to delete the game from the program
 
@@ -333,7 +333,6 @@ fn send_delayed_message_to_remove_game(
 But if the game is not over, the turn passes to the bot and the same actions are performed
 
 ```rust title="tic-tac-toe/app/services/game/funcs.rs"
-
     let bot_step = make_move(game_instance);
 
     if let Some(step_num) = bot_step {

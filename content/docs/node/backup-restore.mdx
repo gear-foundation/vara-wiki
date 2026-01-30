@@ -98,9 +98,11 @@ To move the node to a new server, backup and restore the following (provided pat
 
 If the database is not backed up, it can be synchronized from scratch, but this process may take some time.
 
-<Callout type="info" title="Stop the node before backing up the database to avoid a corrupted database.">
+<Callout type="warn" title="Stop Before Backup">
+    **Stop the node** before backing up the database to prevent data corruption.
 
-```shell
-sudo systemctl stop gear-node
-```
+    Use the following command to stop the service:
+    ```shell
+    sudo systemctl stop gear-node
+    ```
 </Callout>

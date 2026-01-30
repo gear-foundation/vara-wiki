@@ -8,8 +8,10 @@ Being a nominator does not require running your own node or worrying about onlin
 
 ## Start Nominating
 
-<Callout type="note">
-The minimum amount of VARA required to start nominating validators directly and earning rewards is 50 VARA. This is the minimum balance needed to qualify for rewards. If your balance is less than 50 VARA, consider joining [Nomination Pools](/docs/staking/nominate#join-nomination-pools).
+<Callout type="note" title="Minimum Nomination Amount">
+    The minimum amount of VARA required to start nominating validators directly and earning rewards is **50 VARA**.
+
+    If your balance is less than this minimum, consider joining [Nomination Pools](/docs/staking/nominate#join-nomination-pools) instead.
 </Callout>
 
 ### Via Vara Staking Dashboard
@@ -127,24 +129,26 @@ These pools enable users to join forces by pooling their VARA tokens together on
 
 ![stake pool vara](./img/stakepool-vara-2.png)
 
-<Callout type="note">
-Select only pools that have active nominations; staking in a pool with `Not Nominating` status does not yield rewards.
+<Callout type="warn" title="Check Pool Status">
+    Select only pools with **active nominations**. Staking in a pool with a `Not Nominating` status **does not yield rewards**.
 </Callout>
 
 3. Specify the amount of VARA to stake and click `Submit`:
 
 ![stake pool vara](./img/stakepool-vara-3.png)
 
-<Callout type="note">
-It's advisable not to stake the maximum amount of tokens, but rather keep a small balance to cover gas fees for future transactions. Limited access to claiming rewards and withdrawals may occur if tokens are not readily available.
+<Callout type="warn" title="Don't Stake Your Full Balance">
+    Always keep a small amount of VARA (e.g., 1-2 VARA) liquid to cover gas fees.
+
+    If you stake your entire balance, you won't be able to pay for the transactions required to **claim rewards** or **unstake** your tokens.
 </Callout>
 
 4. Congratulations! You have successfully staked VARA in the pool. You will begin earning staking rewards from the next era.
 
 ![stake pool vara](./img/stakepool-vara-4.png)
 
-<Callout type="note">
-Pool staking rewards are not claimed automatically by default. You have to periodically check for available rewards and claim them.
+<Callout type="idea" title="Manual Rewards Claim">
+    Staking rewards are **not claimed automatically**. You must periodically check your available balance and trigger the claim transaction manually.
 </Callout>
 
 #### Via Polkadot.js app using SubWallet browser as an example
@@ -180,8 +184,8 @@ Pool staking rewards are not claimed automatically by default. You have to perio
 ![stake pool polkajs](./img/stakepool_subwallet_8-1.jpg)
 ![stake pool polkajs](./img/stakepool_subwallet_8-2.jpg)
 
-<Callout type="note">
-This instruction is also valid for using this app on Laptop/Desktop devices via **[this link](https://polkadot.js.org/apps/?rpc=wss://rpc.vara.network#/staking/pools)**.
+<Callout type="note" title="Desktop Access">
+    These instructions also apply to laptop and desktop devices. You can access the interface directly via [Polkadot.js Apps](https://polkadot.js.org/apps/?rpc=wss://rpc.vara.network#/staking/pools).
 </Callout>
 
 ## Rewards and Withdrawals
@@ -209,8 +213,10 @@ Users have two choices for claiming rewards:
 - Reinvest them into the pool (`Compound`), increasing the pool share and accumulating further rewards.
 - `Withdraw` them from the pool to the user's account as free (transferable) VARA.
 
-<Callout type="note">
-To perform transactions (such as claiming, withdrawing, unlocking, and others), having a small amount of free VARA tokens in your balance is necessary to cover gas fees. If the balance is insufficient to cover these fees, transactions will not be possible until the balance is replenished.
+<Callout type="warn" title="Keep a Small Balance for Gas Fees">
+    You must always keep a small balance of free VARA tokens to cover transaction fees (claiming, withdrawing, etc.).
+
+    If your balance is insufficient, **you will not be able to perform any transactions** until you replenish it.
 </Callout>
 
 ![nomnate overview](./img/pool-rewards.png)

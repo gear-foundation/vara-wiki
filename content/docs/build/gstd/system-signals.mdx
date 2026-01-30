@@ -37,8 +37,10 @@ fn my_handle_signal() {
 }
 ```
 
-<Callout type="info" title="Note that the custom signal handler derives its default behavior.">
+<Callout type="info" title="Signal Handler Behavior">
+    Note that the custom signal handler derives its default behavior.
 
+    This ensures that standard system signals are still processed correctly even when custom logic is implemented.
 </Callout>
 
 Some useful functions that can be used in `handle_signal`:

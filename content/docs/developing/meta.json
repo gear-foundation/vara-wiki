@@ -4,8 +4,6 @@
   "icon": "Code",
   "root": true,
   "pages": [
-    "---Introduction---",
-    "index",
     "---Build (Rust)---",
     "build/index",
     "...build",

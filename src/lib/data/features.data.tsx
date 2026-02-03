@@ -10,10 +10,10 @@ export type FeatureItem = {
 export const FEATURES_DATA: FeatureItem[] = [
   {
     title: "Vara Network",
-    img: "/img/develop.svg",
+    img: "/img/favicon.svg",
     description: (
       <>
-        Documentation for the Vara Network: accounts, node, staking, governance,
+        Documentation for the L1 Vara Network: accounts, node, staking, governance,
         tokenomics, bridge, and more.
       </>
     ),
@@ -21,11 +21,10 @@ export const FEATURES_DATA: FeatureItem[] = [
   },
   {
     title: "Vara.eth",
-    img: "/img/tokenomics.svg",
+    img: "/img/ve-logo-light.svg",
     description: (
       <>
-        Vara.eth Wiki: build, deploy, and integrate with the Vara.eth
-        ecosystem. Content coming soon.
+        Vara.eth: build, deploy, and integrate apps in the Ethereum ecosystem.
       </>
     ),
     url: "/docs/vara-eth",
@@ -35,7 +34,7 @@ export const FEATURES_DATA: FeatureItem[] = [
     img: "/img/validate.svg",
     description: (
       <>
-        Develop programs with Gear IDEA, Sails-JS, Gear-JS API, and Gear-CLI.
+        Develop programs with Gear Sails, Sails-JS, Gear-JS API, and Gear-CLI.
         From introduction to deployment and testing.
       </>
     ),

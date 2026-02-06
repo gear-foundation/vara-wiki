@@ -8,9 +8,10 @@ export function getSection(path: string | undefined): string {
   if (!dir) return "vara-network";
   return (
     {
+      "gear": "gear",
       "vara-network": "vara-network",
       "vara-eth": "vara-eth",
-      developing: "developing",
+      "developing": "developing",
     }[dir] ?? "vara-network"
   );
 }

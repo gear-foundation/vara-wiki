@@ -1,6 +1,6 @@
 {
-  "title": "Developing on Vara",
-  "description": "Build programs with IDEA, Sails-JS, Gear-JS and CLI",
+  "title": "Developing on Sails",
+  "description": "How to build programs with Sail framework",
   "icon": "Code",
   "root": true,
   "pages": [
@@ -9,10 +9,6 @@
     "...build",
     "---IDEs & Frameworks---",
     "idea",
-    "sails-js",
-    "---API & CLI---",
-    "api",
-    "...gcli",
-    "..."
+    "sails-js"
   ]
 }

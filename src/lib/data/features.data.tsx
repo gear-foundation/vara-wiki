@@ -10,7 +10,7 @@ export type FeatureItem = {
 export const FEATURES_DATA: FeatureItem[] = [
     {
     title: "Gear Protocol",
-    img: "/img/favicon.svg",
+    img: "/img/gear-grey.png",
     description: (
       <>
         A modern technology for building decentralized systems and applications.
@@ -40,11 +40,11 @@ export const FEATURES_DATA: FeatureItem[] = [
     url: "/docs/vara-eth",
   },
   {
-    title: "Developing on Vara",
+    title: "Developing on Sails",
     img: "/img/validate.svg",
     description: (
       <>
-        Develop programs with Gear Sails, Sails-JS, Gear-JS API, and Gear-CLI.
+        Learn how to develop programs for Vara and Vara.eth with Sails framework.
         From introduction to deployment and testing.
       </>
     ),

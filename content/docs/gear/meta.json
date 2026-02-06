@@ -1,0 +1,10 @@
+{
+  "title": "Gear Protocol",
+  "description": "Learn more about principles of the Gear Protocol",
+  "root": true,
+  "icon": "Cog",
+  "pages": [
+    "About",
+    "..."
+  ]
+}

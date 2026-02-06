@@ -8,6 +8,16 @@ export type FeatureItem = {
 };
 
 export const FEATURES_DATA: FeatureItem[] = [
+    {
+    title: "Gear Protocol",
+    img: "/img/favicon.svg",
+    description: (
+      <>
+        A modern technology for building decentralized systems and applications.
+      </>
+    ),
+    url: "/docs/gear",
+  },
   {
     title: "Vara Network",
     img: "/img/favicon.svg",

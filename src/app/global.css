@@ -45,6 +45,7 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   /* Sidebar tab icon colors (root docs sections); vara-network = primary teal */
+  --docs-tab-gear-color: oklch(0.90 0.37 139);
   --docs-tab-vara-network-color: oklch(0.7 0.15 162);
   --docs-tab-vara-eth-color: oklch(0.58 0.14 273);
   --docs-tab-developing-color: var(--fd-foreground, var(--foreground));
@@ -53,6 +54,11 @@
 /* Section-specific primary color override.
    When body has class .vara-network / .vara-eth / .developing, --color-fd-primary
    (and related) are set to the corresponding variable. */
+body.gear {
+  --primary: var(--docs-tab-gear-color);
+  --sidebar-primary: var(--docs-tab-gear-color);
+  --color-fd-primary: var(--docs-tab-gear-color);
+}
 body.vara-network {
   --primary: var(--docs-tab-vara-network-color);
   --sidebar-primary: var(--docs-tab-vara-network-color);
@@ -116,6 +122,7 @@ h6 {
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
   /* Sidebar tab icon colors (root docs sections); vara-network = primary teal */
+  --docs-tab-gear-color: oklch(0.90 0.37 139);
   --docs-tab-vara-network-color: oklch(0.85 0.15 165);
   --docs-tab-vara-eth-color: oklch(0.87 0.06 286);
   --docs-tab-developing-color: var(--fd-foreground, var(--foreground));

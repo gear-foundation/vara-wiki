@@ -1,7 +1,7 @@
 {
   "title": "Vara.eth",
   "description": "Build, deploy and integrate with the Vara.eth ecosystem",
-  "icon": "Coins",
+  "icon": "Command",
   "root": true,
   "pages": [
     "index",

@@ -30,9 +30,9 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
         {page.data.description}
       </DocsDescription>
       <div className="flex flex-row gap-2 items-center border-b pb-6">
-        <LLMCopyButton markdownUrl={`/api/pages/${page.slugs.join("/")}/raw`} />
+        <LLMCopyButton markdownUrl={`/api/pages/raw/${page.slugs.join("/")}`} />
         {/*<ViewOptions*/}
-        {/*  markdownUrl={`${page.url}.mdx`}*/}
+        {/*  markdownUrl={`/api/pages/raw/${page.slugs.join("/")}`}*/}
         {/*  // update it to match your repo*/}
         {/*  githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/docs/${page.path}`}*/}
         {/*/>*/}

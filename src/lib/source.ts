@@ -21,7 +21,7 @@ export function getPageImage(page: InferPageType<typeof source>) {
 export async function getLLMText(page: InferPageType<typeof source>) {
   // Note: getText might not be available in all versions
   // If it fails, use page.data.body or page.data.content instead
-  const data = page.data as {
+  const data = page.data as unknown as {
     getText?: (format: "raw" | "processed") => Promise<string>;
     body?: string;
   };

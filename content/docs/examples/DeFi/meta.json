@@ -1,9 +1,4 @@
 {
   "title": "DeFi",
-  "pages": [
-    "multisig-wallet",
-    "dex",
-    "staking",
-    "..."
-  ]
+  "pages": ["multisig-wallet", "dex", "staking", "..."]
 }

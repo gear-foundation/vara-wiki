@@ -2,11 +2,12 @@ import "./global.css";
 import "katex/dist/katex.min.css";
 import { GoogleTagManager } from "@next/third-parties/google";
 import { RootProvider } from "fumadocs-ui/provider/next";
+import type { Metadata } from "next";
 import { Anuphan } from "next/font/google";
 
 const font = Anuphan({ subsets: ["latin"], variable: "--font-sans" });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Vara Network Documentation Portal",
   description: "All documentation related to Vara Network",
   metadataBase: new URL("https://wiki.vara.network"),

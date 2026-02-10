@@ -1,7 +1,4 @@
 {
   "title": "Gear-CLI Tools",
-  "pages": [
-    "gring",
-    "..."
-  ]
+  "pages": ["gring", "..."]
 }

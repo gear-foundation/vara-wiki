@@ -26,4 +26,4 @@ export const EXTERNAL_LINKS = {
   aiCodegen: "https://stg-ai-codegen.vara.network",
   varaStart: "https://stg-start.vara.network",
   varaETH: "https://stg-eth.vara.network",
-} as const
+} as const;

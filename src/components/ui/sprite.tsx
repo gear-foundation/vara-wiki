@@ -1,11 +1,11 @@
-import { cn } from "@/lib/cn"
+import { cn } from "@/lib/cn";
 
 type SpriteProps = {
-  name: string
-  className?: string
-  section?: string
-  size?: number
-} & React.SVGProps<SVGSVGElement>
+  name: string;
+  className?: string;
+  section?: string;
+  size?: number;
+} & React.SVGProps<SVGSVGElement>;
 
 export function Sprite({
   name,
@@ -14,8 +14,8 @@ export function Sprite({
   size,
   ...props
 }: SpriteProps) {
-  const width = size || props.width
-  const height = size || props.height
+  const width = size || props.width;
+  const height = size || props.height;
 
   return (
     <svg
@@ -26,5 +26,5 @@ export function Sprite({
     >
       <use href={`/sprites/${section}.svg#${name}`} />
     </svg>
-  )
+  );
 }

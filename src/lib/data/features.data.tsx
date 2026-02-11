@@ -10,7 +10,7 @@ export type FeatureItem = {
 export const FEATURES_DATA: FeatureItem[] = [
     {
     title: "Gear Protocol",
-    img: "/img/gear-grey.png",
+    img: "/images/gear-grey.png",
     description: (
       <>
         A modern technology for building decentralized systems and applications.
@@ -20,7 +20,7 @@ export const FEATURES_DATA: FeatureItem[] = [
   },
   {
     title: "Vara Network",
-    img: "/img/favicon.svg",
+    img: "/images/favicon.svg",
     description: (
       <>
         Documentation for the L1 Vara Network: accounts, node, staking, governance,
@@ -31,7 +31,7 @@ export const FEATURES_DATA: FeatureItem[] = [
   },
   {
     title: "Vara.eth",
-    img: "/img/ve-logo-light.svg",
+    img: "/images/ve-logo-light.svg",
     description: (
       <>
         Vara.eth: build, deploy, and integrate apps in the Ethereum ecosystem.
@@ -41,7 +41,7 @@ export const FEATURES_DATA: FeatureItem[] = [
   },
   {
     title: "Developing on Sails",
-    img: "/img/validate.svg",
+    img: "/images/validate.svg",
     description: (
       <>
         Learn how to develop programs for Vara and Vara.eth with Sails framework.

@@ -137,7 +137,7 @@ Your validator node can be slashed under the following scenarios:
 
 If a single validator is offline there’s no obvious reason to suspect malicious intent. The validator is not slashed, which means they also keep all their nominations. They are chilled. In practice, the protocol considers it problematic when 10% of the validator set is offline—that’s when slashing conditions kick in.
 
-![liveness slashing penalty](./img/slashing-penalty-liveness.png)
+![liveness slashing penalty](/images/docs/staking/slashing-penalty-liveness.png)
 
 The penalty starts relatively small, 0.021% slashed if 10% are offline. But penalties increase linearly from there until the maximum penalty of 7% is hit when 44% of the network is offline.
 
@@ -145,7 +145,7 @@ The penalty starts relatively small, 0.021% slashed if 10% are offline. But pena
 
 Validators may run their nodes on multiple machines to make sure they can still perform validation work in case one of their nodes goes down, but validator operators should be extremely careful in setting these up. If they do not have good coordination to manage signing machines, equivocation is possible, and equivocation offenses are slashed at much higher rates than equivalent offline offenses.
 
-![equivocation slashing penalty](./img/slashing-penalty-equivocation.png)
+![equivocation slashing penalty](/images/docs/staking/slashing-penalty-equivocation.png)
 
 GRANDPA equivocation has the harshest slashing penalty of all offenses, and it also exemplifies slashing based on the threat to the network—if 33% or more of the validator set commits a GRANDPA equivocation, the offenders lose 100% of their stake.
 
@@ -247,7 +247,7 @@ The ideal number of active validators is defined by the `staking.validatorsCount
 
 You can query the storage item by visiting [PolkadotJS Apps](https://polkadot.js.org/apps/?rpc=wss://rpc.vara.network) > Developer > Chain state > staking > validatorCount
 
-![querying chainstate](./img/querying-chainstate.png)
+![querying chainstate](/images/docs/staking/querying-chainstate.png)
 
 In each era, if there are more validators than the ideal threshold, the inactive validators will stay in the waiting list until they are elected.
 

@@ -4,6 +4,7 @@ import {
   frontmatterSchema,
   metaSchema,
 } from "fumadocs-mdx/config";
+import type { Code } from "mdast";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
 import type { Plugin } from "unified";
@@ -15,7 +16,7 @@ const remarkReplaceUnsupportedLanguages: Plugin = () => {
   const unsupportedLangs = ["math", "circom", "env"];
 
   return (tree) => {
-    visit(tree, "code", (node: any) => {
+    visit(tree, "code", (node: Code) => {
       if (node.lang && unsupportedLangs.includes(node.lang)) {
         node.lang = "text";
       }
@@ -50,7 +51,7 @@ export default defineConfig({
     rehypePlugins: (v) => [rehypeKatex, ...v],
     // Package manager switcher for ```npm blocks: selection persists globally
     remarkNpmOptions: {
-      persist: { id: 'package-manager' },
+      persist: { id: "package-manager" },
     },
     rehypeCodeOptions: {
       themes: {

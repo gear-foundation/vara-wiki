@@ -7,7 +7,7 @@ import {
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { LLMCopyButton, ViewOptions } from "@/components/ai/page-actions";
+import { LLMCopyButton } from "@/components/ai/page-actions";
 import { getPageImage, source } from "@/lib/source";
 import { getMDXComponents } from "@/mdx-components";
 
@@ -30,9 +30,9 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
         {page.data.description}
       </DocsDescription>
       <div className="flex flex-row gap-2 items-center border-b pb-6">
-        <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
+        <LLMCopyButton markdownUrl={`/api/pages/raw/${page.slugs.join("/")}`} />
         {/*<ViewOptions*/}
-        {/*  markdownUrl={`${page.url}.mdx`}*/}
+        {/*  markdownUrl={`/api/pages/raw/${page.slugs.join("/")}`}*/}
         {/*  // update it to match your repo*/}
         {/*  githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/docs/${page.path}`}*/}
         {/*/>*/}
@@ -61,7 +61,10 @@ export async function generateMetadata(
   if (!page) notFound();
 
   // Use browser_title if available, otherwise fall back to title
-  const pageTitle = (page.data as any).browser_title || page.data.title;
+  const pageTitle =
+    ("browser_title" in page.data
+      ? (page.data as { browser_title?: string }).browser_title
+      : undefined) || page.data.title;
 
   return {
     title: pageTitle,

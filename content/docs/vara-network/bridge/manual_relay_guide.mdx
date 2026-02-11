@@ -23,7 +23,7 @@ This guide describes how to manually push a message across the bridge between Va
 
 ### 1. Approve Token Transfer
 
-![Approve USDT for Bridging](./img/approve.png)
+![Approve USDT for Bridging](/images/docs/bridge/approve.png)
 
 - **Open** the <a href={`https://hoodi.etherscan.io/address/${eth.usdt}`}>test USDT contract on Hoodi Etherscan</a>.
 - Go to **Contract → Write Contract** tab.
@@ -34,7 +34,7 @@ This guide describes how to manually push a message across the bridge between Va
 
 ### 2. Initiate Bridging
 
-![Request Bridging](./img/request-bridging.png)
+![Request Bridging](/images/docs/bridge/request-bridging.png)
 
 - **Open** <a href={`https://hoodi.etherscan.io/address/${eth.erc20ManagerProxy}#writeProxyContract`}>Erc20Manager Proxy contract on Hoodi Etherscan</a>.
 - Go to **Contract → Write as Proxy**.
@@ -51,7 +51,7 @@ At this point, Erc20Manager emits a `BridgingRequested` event.
 
 The final step is to relay proof of the bridging event from Ethereum to the Vara network. This means providing evidence that the required Ethereum block was finalized and that a transaction containing the relevant event (`BridgingRequested`) was actually included and executed on-chain.
 
-![Event hash USDT for Bridging](./img/event_hash.png)
+![Event hash USDT for Bridging](/images/docs/bridge/event_hash.png)
 
 To do this:
 
@@ -119,7 +119,7 @@ This will mint the desired amount of VFT in <a href={`https://idea.gear-tech.io/
 
 ### 1. Approve VftManager to Spend Tokens
 
-![Approve TVARA](./img/vara-approve.png)
+![Approve TVARA](/images/docs/bridge/vara-approve.png)
 
 - Open the VFT token contract, e.g., <a href={`https://idea.gear-tech.io/programs/${vara.tokenizedVara}?node=wss%3A%2F%2Ftestnet-archive.vara.network`}>TVARA token program</a>.
 - Use the `approve` function:
@@ -128,7 +128,7 @@ This will mint the desired amount of VFT in <a href={`https://idea.gear-tech.io/
 
 ### 2. Request Bridging via VftManager
 
-![Request TVARA Bridging](./img/vara-request-bridging.png)
+![Request TVARA Bridging](/images/docs/bridge/vara-request-bridging.png)
 
 - Open the <a href={`https://idea.gear-tech.io/programs/${vara.vftManager}?node=wss%3A%2F%2Ftestnet-archive.vara.network`}>VftManager program</a>
 - Call the `RequestBridging` function:
@@ -143,7 +143,7 @@ the VftManager program emits a `BridgingRequested` event containing a `nonce` an
 - Go to the <a href={`https://idea.gear-tech.io/programs/${vara.vftManager}?node=wss%3A%2F%2Ftestnet-archive.vara.network`}>VftManager program</a>
 - Switch to the **Events** tab to locate the relevant `BridgingRequested` event and copy the `nonce` and `block` values.
 
-![Event TVARA](./img/vara-bridging-request-event.png)
+![Event TVARA](/images/docs/bridge/vara-bridging-request-event.png)
 
 ### 3. Relay Proof to Ethereum
 
@@ -163,7 +163,7 @@ gear-eth-manual \
   --eth-fee-payer "<ETH_PRIVATE_KEY>"
 ```
 
-![how to get Ethereum block](./img/eth-block.png)
+![how to get Ethereum block](/images/docs/bridge/eth-block.png)
 
 - To get `<ETH_BLOCK>` go to [erc20 Manager Proxy contract](https://hoodi.etherscan.io/address/${eth.erc20ManagerProxy}#events), find your relevant bridging transaction, and note the Ethereum block number in which the event was emitted. Use this block number as the value for `--from-eth-block`.
 - `<MQ_ADDRESS>`: This is the MQ (Message Queue Proxy) address used by the bridge. You can find it in the documentation or in the contract’s Read/Write panel on Etherscan.
@@ -184,4 +184,4 @@ gear-eth-manual \
     3. Call the `balanceOf` function using the recipient's address.
 </Callout>
 
-![See the result of TVARA Bridging](./img/vara-eth-res.png)
+![See the result of TVARA Bridging](/images/docs/bridge/vara-eth-res.png)

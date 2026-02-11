@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     default: "Vara Network Documentation Portal",
   },
   description: "Guides, quick start, program examples, and API reference for building dApps on Vara Network",
-  metadataBase: new URL("https://wiki.vara.network"),
+  metadataBase: new URL(process.env.APP_URL || "https://wiki.vara.network"),
 };
 
 export default function Layout({ children }: LayoutProps<"/">) {

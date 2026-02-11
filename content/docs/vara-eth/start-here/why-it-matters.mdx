@@ -1,4 +1,94 @@
 ---
 title: Why It Matters
+description: The core innovations behind Vara.eth — reverse gas, pre-confirmations, and parallel execution.
 ---
-Coming soon.
+
+# Why It Matters
+
+Vara.eth introduces three fundamental innovations that change how developers build on Ethereum. Each addresses a critical limitation holding back mass adoption.
+
+## Reverse Gas: Programs Pay, Not Users
+
+On Ethereum, every user must hold ETH and pay gas for every action — even simple ones. This creates friction and makes Web2-style UX impossible.
+
+Vara.eth flips the model:
+
+**Users pay** only the base Ethereum transaction fee (in ETH) to submit a message to the Mirror contract.
+
+**Programs pay** for their own execution from a pre-funded balance (in wVARA).
+
+```
+Traditional:    User ──pays ETH gas──▶ Smart Contract execution
+Vara.eth:       User ──pays ETH (L1 tx only)──▶ Mirror ──program pays wVARA──▶ Execution
+```
+
+Developers fund their program's balance once, then users interact for free. If the balance runs low, the program pauses until replenished — no funds are lost.
+
+This enables gasless experiences: users click, sign with MetaMask, and the program covers compute. No token management, no gas estimation, no multi-step approval flows.
+
+→ [Reverse Gas Model](/docs/vara-eth/economics/reverse-gas-model) | [Funding Your Program](/docs/vara-eth/interact/funding-executable-balance)
+
+## Pre-confirmations: Instant Feedback + Ethereum Security
+
+Ethereum's ~12 second block time destroys UX for real-time applications. Trading, gaming, interactive apps need instant feedback.
+
+Vara.eth provides **pre-confirmations**:
+
+1. User sends message to Mirror contract
+2. Executors observe transaction, execute program immediately, sign result
+3. SDK fetches signed result via RPC — user sees outcome **in milliseconds**
+4. Later, batch settles to Ethereum for canonical finality
+
+```
+Timeline:
+  0ms     User submits transaction
+  ~100ms  Executors sign result (pre-confirmation) ← user sees this
+  ~12s    Ethereum block inclusion
+  ~13min  Full finality
+```
+
+Pre-confirmations are cryptographically signed by validators using the same execution logic as final settlement. For most apps, the pre-confirmed result is identical to the final one.
+
+The SDK provides clear APIs to handle both pre-confirmed and finalized states when needed.
+
+→ [Events & State Reading](/docs/vara-eth/interact/events-state-reading)
+
+## Parallel Execution: No Global Bottlenecks
+
+Ethereum processes transactions sequentially — one at a time, globally. Every contract competes for the same execution slot. This creates a fundamental throughput ceiling.
+
+Vara.eth takes a different approach. Each program is an **isolated actor** with its own state and message queue. Programs don't share memory or storage. This means:
+
+**Thousands of programs execute simultaneously** without coordination overhead.
+
+**Each program is effectively its own rollup** — collectively forming a "swarm of rollups" architecture.
+
+**Horizontal scaling comes naturally** — more programs don't slow down existing ones.
+
+```
+Ethereum:     [Program A] → [Program B] → [Program C]  (sequential)
+
+Vara.eth:     [Program A] ─┐
+              [Program B] ─┼─ all running in parallel
+              [Program C] ─┘
+```
+
+This architecture is enabled by the [Actor Model](/docs/gear/actor-model) that powers the Gear runtime. Executors run multi-threaded, processing multiple programs simultaneously on each node.
+
+## What This Enables
+
+These innovations unlock applications previously impossible on Ethereum:
+
+**DeFi**  
+Order books with sub-second matching. Perpetual futures with instant liquidations. Real-time risk models. Each program supports up to 2 GB memory for complex financial simulations.
+
+**Gaming**  
+Real-time game loops with PvP combat, anti-cheat, and complex state — all settled on Ethereum. Pre-confirmations enable instant gameplay feedback.
+
+**AI/ML**  
+On-chain inference, autonomous agents, ML model execution. Up to 2 GB memory per program. Verifiable computation backed by validator consensus.
+
+**Enterprise**  
+Supply chain IoT processing, large-scale DAO voting, Web2 integrations via verified HTTPS/TLS proofs.
+
+Build these today on [Vara.eth TestNet](https://eth.vara.network/testnet).

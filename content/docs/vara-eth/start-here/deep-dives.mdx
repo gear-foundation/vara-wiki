@@ -1,4 +1,123 @@
 ---
 title: Deep Dives
+description: In-depth technical resources on Vara.eth architecture, security, and implementation.
 ---
-Coming soon.
+
+# Deep Dives
+
+Comprehensive technical documentation for developers, architects, and researchers who need detailed knowledge of Vara.eth internals.
+
+## Official Specifications
+
+| Document | Version | Contents |
+| --- | --- | --- |
+| [Vara.eth Whitepaper](https://eth.vara.network/whitepaper) | v0.3 | Complete system design: architecture, components, security model, economics, use cases |
+| [Technical Documentation](https://eth.vara.network/whitepaper/vara.eth-technical.pdf) | v0.2 | Implementation specification: actors, components, system flows, design decisions, economics |
+
+## System Architecture
+
+### Core Components
+
+| Component | Purpose | Interface |
+| --- | --- | --- |
+| **Router** | Central L1 settlement contract. Validates code, creates programs, commits batches, coordinates with Middleware | [IRouter.sol](https://github.com/gear-tech/gear/blob/master/ethexe/contracts/src/IRouter.sol) |
+| **Middleware** | Validator management via [Symbiotic](https://docs.symbiotic.fi/) liquid restaking. Handles registration, elections, rewards, slashing | [IMiddleware.sol](https://github.com/gear-tech/gear/blob/master/ethexe/contracts/src/IMiddleware.sol) |
+| **Mirror** | Per-program L1 proxy (EIP-1167). Queues messages, emits events, stores `stateHash`. Variants: `MirrorProxy`, `MirrorProxySmall` | [IMirror.sol](https://github.com/gear-tech/gear/blob/master/ethexe/contracts/src/IMirror.sol) |
+| **Executors** | Decentralized validator network. Runs WASM programs, produces FROST pre-confirmations, commits batches | → [Validators & Staking](/docs/vara-eth/economics/validators-staking) |
+| **Sails** | Rust developer framework. Macros (`#[service]`, `#[program]`), IDL generation, client bindings | → [Sails Workflow](/docs/vara-eth/build/sails-workflow) |
+
+→ [Contract Addresses](/docs/vara-eth/reference/contract-addresses) | [Program Basics](/docs/vara-eth/build/program-basics)
+
+### Execution and Settlement
+
+Complete execution flow — from user transaction to L1 settlement — is described in [Technical Documentation, Section 4: System Flows](https://eth.vara.network/whitepaper/vara.eth-technical.pdf).
+
+**Key characteristics:**
+
+- Message ordering: deterministic by `(blockNumber, txIndex, logIndex)`
+- Pre-confirmations: instant via FROST threshold signatures
+- Settlement: batch commits to Router with validator signature verification
+
+**Validator management:**
+
+- Era-based rotation (~1 day intervals) via `Middleware.makeElectionAt()`
+- Economic security through wVARA staking in Symbiotic vaults
+- Slashing for incorrect execution
+
+→ [Validators & Staking](/docs/vara-eth/economics/validators-staking)
+
+### Security Modes
+
+| Mode                     | Status         | Verification Method                                             |
+| ------------------------ | -------------- | --------------------------------------------------------------- |
+| **Liquid Restaking PoS** | Live (testnet) | Economic security via wVARA stake and slashing                  |
+| **ZK-Verified**          | Future         | Mathematical certainty via on-chain ZK-SNARK proof verification |
+
+→ [Vara.eth Whitepaper, Section 4: Security](https://eth.vara.network/whitepaper)
+
+## Technology Foundation
+
+Vara.eth is built on the Gear Protocol stack, a production-grade WASM runtime proven on Vara Network.
+
+### Gear Protocol
+
+Actor Model runtime with persistent memory and WASM execution. Powers both Vara Network and Vara.eth. Actor isolation enables native parallelism — programs run concurrently without coordination overhead.
+
+→ [Gear Protocol](/docs/gear)
+
+### Actor Model
+
+Each program is an isolated actor with private state and message queue. Inter-program communication is asynchronous message-passing only. No shared state means no contention.
+
+→ [Actor Model](/docs/gear/actor-model)
+
+### Persistent Memory
+
+Programs maintain state across executions without explicit storage APIs. Write Rust code as if state is always in memory — simpler than Ethereum's storage model.
+
+→ [Persistent Memory](/docs/gear/persist-memory)
+
+### WASM Execution
+
+WebAssembly provides portable, sandboxed, deterministic execution. Programs compile once, run anywhere — validators execute identical bytecode. Supports up to 2 GB memory per program vs. EVM's gas constraints.
+
+→ [WASM Execution](/docs/gear/WASM)
+
+## Cross-Chain Bridge
+
+Vara.eth programs can interact with Vara Network through a ZK-based trustless bridge.
+
+| Resource | Description |
+| --- | --- |
+| [Bridge Technical Overview](/docs/vara-network/bridge/bridge_technical) | ZK architecture using Plonky2 and Gnark provers |
+| [Bridge Built-in Actor](/docs/developing/build/builtinactors/bia-bridge) | On-chain actor API for cross-chain messages |
+| [BLS12-381 Built-in Actor](/docs/developing/build/builtinactors/bia-bls) | Native BLS signatures for efficient aggregation |
+| [Vara → Ethereum Guide](/docs/vara-network/bridge/developer-guide-vara-eth) | Cross-chain application patterns |
+| [Ethereum → Vara Guide](/docs/vara-network/bridge/developer-guide-eth-vara) | Receiving Ethereum events on Vara |
+
+## Source Code
+
+### Main Repository
+
+[gear-tech/gear/ethexe](https://github.com/gear-tech/gear/tree/master/ethexe)
+
+| Directory | Purpose |
+| --- | --- |
+| [contracts/](https://github.com/gear-tech/gear/tree/master/ethexe/contracts) | Solidity contracts: Router, Mirror, Middleware, WrappedVara |
+| [cli/](https://github.com/gear-tech/gear/tree/master/ethexe/cli) | `ethexe` CLI for code upload and program management |
+| [rpc/](https://github.com/gear-tech/gear/tree/master/ethexe/rpc) | JSON-RPC server (`VaraEthApi`) for Vara.eth-side interactions |
+| [observer/](https://github.com/gear-tech/gear/tree/master/ethexe/observer) | L1 event observer (monitors Router/Mirror events) |
+| [processor/](https://github.com/gear-tech/gear/tree/master/ethexe/processor) | Message queue processor (executes WASM programs) |
+| [consensus/](https://github.com/gear-tech/gear/tree/master/ethexe/consensus) | FROST threshold signature implementation |
+| [network/](https://github.com/gear-tech/gear/tree/master/ethexe/network) | P2P layer for validator communication |
+| [blob-loader/](https://github.com/gear-tech/gear/tree/master/ethexe/blob-loader) | EIP-4844 blob fetcher (retrieves WASM code) |
+| [runtime/](https://github.com/gear-tech/gear/tree/master/ethexe/runtime) | Gear WASM runtime integration |
+| [service/](https://github.com/gear-tech/gear/tree/master/ethexe/service) | Main validator node service |
+
+### Related Repositories
+
+| Repository | Purpose |
+| --- | --- |
+| [Sails framework](https://github.com/gear-tech/sails) | Rust macros, IDL generation, client SDKs |
+| [`@vara-eth/api`](https://github.com/gear-tech/gear-js/tree/main/apis/vara-eth) | TypeScript SDK (Ethereum-side + Vara.eth-side) |
+| [One of Us](https://github.com/gear-foundation/one-of-us) | Full reference application |

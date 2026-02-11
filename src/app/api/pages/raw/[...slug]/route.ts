@@ -15,9 +15,10 @@ export async function GET(_req: Request, { params }: RouteContext) {
 
   const body = await getPageBodyWithAbsoluteUrls(page);
 
-  return NextResponse.json({
-    title: page.data.title,
-    description: page.data.description ?? null,
-    body,
+  return new NextResponse(body, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+    },
   });
 }

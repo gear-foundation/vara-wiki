@@ -1,11 +1,5 @@
 "use client";
-import {
-  Callout as BaseCallout,
-  CalloutContainer,
-  CalloutDescription,
-  CalloutTitle,
-} from "fumadocs-ui/components/callout";
-import { Info } from "lucide-react";
+import { Callout as BaseCallout } from "fumadocs-ui/components/callout";
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/cn";
 
@@ -17,13 +11,15 @@ export interface CalloutProps extends ComponentProps<typeof BaseCallout> {
   variant?: "default" | "compact" | "bordered" | "minimal";
 }
 
+type BaseCalloutType = NonNullable<ComponentProps<typeof BaseCallout>["type"]>;
+
 // Extended alias resolution function
-function resolveExtendedAlias(type: string): string {
+function resolveExtendedAlias(type: string): BaseCalloutType {
   if (type === "warn") return "warning";
   if (type === "tip") return "info";
   if (type === "important") return "warning"; // Maps to warning
   if (type === "note") return "info"; // Keep for custom handling with muted colors
-  return type;
+  return type as BaseCalloutType;
 }
 
 export function Callout({
@@ -45,7 +41,7 @@ export function Callout({
   // For all other types, use BaseCallout with resolved type
   return (
     <BaseCallout
-      type={resolvedType as any}
+      type={resolvedType}
       className={cn(variantClasses[variant], className)}
       {...props}
     />

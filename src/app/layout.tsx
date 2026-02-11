@@ -10,7 +10,7 @@ const font = Anuphan({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
   title: "Vara Network Documentation Portal",
   description: "All documentation related to Vara Network",
-  metadataBase: new URL("https://wiki.vara.network"),
+  metadataBase: new URL(process.env.APP_URL || "https://wiki.vara.network"),
 };
 
 export default function Layout({ children }: LayoutProps<"/">) {

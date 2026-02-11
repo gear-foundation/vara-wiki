@@ -1,4 +1,78 @@
 ---
 title: Pick Your Path
+description: Choose your learning path based on what you want to build.
 ---
-Coming soon.
+
+# Pick Your Path
+
+Choose the path that matches your goal. Each track is designed to get you productive quickly.
+
+## Build Programs
+
+**Write application logic in Rust, compile to WASM, deploy to Ethereum.**
+
+Programs run off-chain in validator networks but maintain state on L1. You'll use the [Sails framework](/docs/developing/build/sails) and work with the [actor model](/docs/gear/actor-model).
+
+→ Start: [Quick Start](/docs/vara-eth/build/quickstart) (5 minutes to first deploy)  
+→ Full workflow: [Program Basics](/docs/vara-eth/build/program-basics) → [Testing](/docs/vara-eth/build/testing-debugging) → [Deploy](/docs/vara-eth/deploy/upload-validation)
+
+**Need:** Basic Rust. No Solidity required.
+
+## Integrate from Solidity
+
+**Call Vara.eth programs from your existing Ethereum contracts.**
+
+Offload heavy computation (order books, AI inference, complex game logic) while keeping your core contracts on L1.
+
+→ Start: [Solidity Integration](/docs/vara-eth/integrate/solidity-integration)  
+→ Patterns: [Choosing a Pattern](/docs/vara-eth/integrate/choosing-a-pattern)
+
+**Need:** Solidity, Foundry or Hardhat.
+
+## Integrate from Frontend
+
+**Connect web apps to Vara.eth programs with TypeScript.**
+
+Use typed clients generated from your program's IDL. Handle both Ethereum-side (wallet signatures) and Vara.eth-side (instant pre-confirmations) flows.
+
+→ Start: [Frontend Integration](/docs/vara-eth/integrate/frontend-integration)  
+→ Library docs: [Sails-JS](/docs/developing/sails-js) (typed clients, React hooks)
+
+**Need:** JavaScript/TypeScript, basic web3 (ethers.js or viem).
+
+## Integrate from Backend
+
+**Build services that interact with Vara.eth programs.**
+
+Run off-chain workers, automate program interactions, or build indexers. Use the same TypeScript SDK as frontends or call JSON-RPC directly.
+
+→ Start: [Backend Integration](/docs/vara-eth/integrate/backend-integration)  
+→ API reference: [RPC API](/docs/vara-eth/reference/rpc-api)
+
+**Need:** Any language with HTTP client. TypeScript SDK available.
+
+## Learn the System
+
+**Understand how Vara.eth works: validators, settlement, economics.**
+
+Read if you're evaluating Vara.eth for your project, contributing to the protocol, or building infrastructure.
+
+**Recommended order:**
+
+1. [What is Vara.eth?](/docs/vara-eth/start-here/what-is-vara-eth) — mental model
+2. [Why It Matters](/docs/vara-eth/start-here/why-it-matters) — core innovations
+3. [Vara.eth Whitepaper](https://eth.vara.network/whitepaper) — complete design
+4. [Technical Documentation](https://eth.vara.network/whitepaper/vara.eth-technical.pdf) — implementation spec
+5. [Deep Dives](/docs/vara-eth/start-here/deep-dives) — architecture details, source code
+
+**Economics and operations:**
+
+- [wVARA Overview](/docs/vara-eth/economics/wvara-overview) — token model
+- [Reverse Gas](/docs/vara-eth/economics/reverse-gas-model) — programs pay, not users
+- [Validators & Staking](/docs/vara-eth/economics/validators-staking) — how validation works
+
+**Foundation:**
+
+- [Gear Protocol](/docs/gear) — underlying runtime
+- [Actor Model](/docs/gear/actor-model) — execution model
+- [Bridge Technical Overview](/docs/vara-network/bridge/bridge_technical) — cross-chain architecture

@@ -22,7 +22,7 @@ export function JoinCommunityBanner({
           <h2 className="text-center text-[40px] font-bold leading-[1.4] lg:text-[48px]">
             Join Vara Community
           </h2>
-          <p className="mx-auto mt-6 max-w-[640px] text-center text-base/[1.4] text-muted-foreground">
+          <p className="mx-auto mt-6 max-w-160 text-center text-base/[1.4] text-muted-foreground">
             Follow the Vara social channels and join the{" "}
             <span className="block md:inline">
               conversation on the future of Web3

@@ -24,7 +24,7 @@ export function Sprite({
       height={height}
       {...props}
     >
-      <use href={`/sprites/${section}.svg#${name}`} />
+      <use href={`/images/sprites/${section}.svg#${name}`} />
     </svg>
   );
 }

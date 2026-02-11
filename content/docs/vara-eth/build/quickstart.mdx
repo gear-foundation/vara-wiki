@@ -1,4 +1,207 @@
 ---
-title: Quickstart
+title: Quick Start
+description: Build and deploy your first Vara.eth program in 5 minutes.
 ---
-Coming soon.
+
+# Quick Start
+
+This guide takes you from zero to a deployed program on Vara.eth testnet. You'll create a simple counter program, deploy it to Ethereum Hoodi, and interact with it.
+
+<Callout type="note" title="Prerequisites">
+  Rust toolchain, Sails CLI, and ethexe CLI installed. → [Tools Install](/docs/vara-eth/setup/tools-install)
+</Callout>
+
+## 1. Create a New Project
+
+```bash
+cargo sails new counter-app
+cd counter-app
+```
+
+This scaffolds a new [Sails](/docs/developing/build/sails) program with the correct project structure.
+
+## 2. Write Your Program
+
+Open `app/src/lib.rs` and replace the contents with:
+
+```rust title="app/src/lib.rs"
+#![no_std]
+
+use sails_rs::prelude::*;
+
+// Program state
+static mut COUNTER: i64 = 0;
+
+// Service definition — your program's API
+#[derive(Default)]
+pub struct CounterService;
+
+#[service]
+impl CounterService {
+    /// Increment the counter and return the new value
+    pub fn increment(&mut self) -> i64 {
+        unsafe {
+            COUNTER += 1;
+            COUNTER
+        }
+    }
+
+    /// Decrement the counter and return the new value
+    pub fn decrement(&mut self) -> i64 {
+        unsafe {
+            COUNTER -= 1;
+            COUNTER
+        }
+    }
+
+    /// Read the current counter value
+    pub fn get(&self) -> i64 {
+        unsafe { COUNTER }
+    }
+}
+
+// Program entry point
+#[derive(Default)]
+pub struct CounterProgram;
+
+#[program]
+impl CounterProgram {
+    /// Constructor — called once when the program is initialized
+    pub fn init() -> Self {
+        Self
+    }
+
+    /// Expose the CounterService
+    pub fn counter(&self) -> CounterService {
+        CounterService
+    }
+}
+```
+
+Update `Cargo.toml` to enable ethexe support:
+
+```toml title="Cargo.toml"
+[package]
+name = "counter-app"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sails-rs = { version = "0.10.1", features = ["ethexe"] }
+parity-scale-codec = { version = "3", default-features = false }
+scale-info = { version = "2", default-features = false }
+```
+
+## 3. Build
+
+```bash
+cargo build --release
+```
+
+This produces two artifacts in `target/wasm32-gear/release/`:
+
+- `counter_app.opt.wasm` — the compiled WASM binary
+- `counter_app.idl` — the [Interface Definition Language](/docs/developing/build/sails/idl) file describing your program's API
+
+## 4. Deploy to Testnet
+
+Set up your environment:
+
+```bash
+# Insert your private key (testnet wallet only!)
+ethexe key insert <YOUR_PRIVATE_KEY>
+
+# Set variables for convenience
+export RPC="wss://hoodi-reth-rpc.gear-tech.io/ws"
+export ROUTER="0xBC888a8B050B9B76a985d91c815d2c4f2131a58A"
+export SENDER="<YOUR_WALLET_ADDRESS>"
+```
+
+### Upload the WASM code
+
+```bash
+ethexe --cfg none tx \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER" \
+  upload target/wasm32-gear/release/counter_app.opt.wasm -w
+```
+
+This uploads your WASM as an [EIP-4844 blob](/docs/vara-eth/reference/glossary#blob-eip-4844) and requests code validation. Wait for the `CODE_ID` to appear in the output.
+
+```bash
+export CODE_ID="0x..."  # Copy from output
+```
+
+### Create a program instance
+
+```bash
+ethexe --cfg none tx \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER" \
+  create "$CODE_ID" \
+  --salt "0x0000000000000000000000000000000000000000000000000000000000000001"
+```
+
+This deploys a Mirror contract on Ethereum representing your program. The output contains your `PROGRAM_ID` (Mirror address).
+
+```bash
+export PROGRAM_ID="0x..."  # Copy from output
+```
+
+<Callout type="tip" title="Deterministic Addressing">
+  The `--salt` parameter makes the Mirror address deterministic. Use different salts to deploy multiple instances of the
+  same code. Address is computed as `CREATE2(Router, keccak256(codeId, salt))`.
+</Callout>
+
+### Fund the program
+
+Your program needs wVARA to pay for execution. Use the `executableBalanceTopUp` function on the Mirror contract via Etherscan, the SDK, or CLI.
+
+→ [Funding Executable Balance](/docs/vara-eth/interact/funding-executable-balance)
+
+### Initialize the program
+
+Send the first message to trigger the constructor:
+
+```bash
+ethexe --cfg none tx \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER" \
+  send-message "$PROGRAM_ID" \
+  --payload "0x..."  # Encoded init payload
+```
+
+## 5. Interact with Your Program
+
+Once initialized, anyone can send messages to your program. The Mirror contract on Ethereum accepts standard transactions.
+
+**Interact via:**
+
+- **Etherscan** — If you deployed with an ABI interface, methods appear under "Write as Proxy"
+- **CLI** — Use `ethexe tx send-message`
+- **SDK** — Use [sails-js](/docs/developing/sails-js) or `@vara-eth/api` from your frontend
+
+### Read state
+
+```bash
+ethexe --cfg none state \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  "$PROGRAM_ID"
+```
+
+## What Just Happened?
+
+1. You wrote a Rust program using the [Sails framework](/docs/developing/build/sails)
+2. Compiled it to WASM and uploaded the blob to Ethereum via [EIP-4844](/docs/vara-eth/reference/glossary#blob-eip-4844)
+3. Executors validated the WASM code off-chain and included the result in a batch
+4. You created a Mirror contract on Ethereum — your program's L1 identity
+5. You sent an initialization message through the Mirror
+6. Executors processed the message, executed the WASM, and committed the state transition back to Ethereum
+
+Your program is now live on Ethereum, accessible via its Mirror address, with execution powered by the Vara.eth network.
+
+→ [Program Basics](/docs/vara-eth/build/program-basics) | [Sails Workflow](/docs/vara-eth/build/sails-workflow)

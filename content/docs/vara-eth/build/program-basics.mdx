@@ -1,4 +1,192 @@
 ---
 title: Program Basics
+description: Core concepts for building Vara.eth programs — setup, lifecycle, and identity.
 ---
-Coming soon.
+
+# Program Basics
+
+Vara.eth programs are **Gear programs** that run on Ethereum. If you're familiar with [Gear Protocol](/docs/gear) or [Vara Network](/docs/vara-network), you already know how to build for Vara.eth.
+
+This page covers the essentials. For detailed program development, see the [Sails Framework](/docs/developing/build/sails) and [Gear documentation](/docs/gear).
+
+## Vara.eth vs Standard Gear Programs
+
+The runtime, actor model, and WASM execution are identical. The only difference is the deployment target.
+
+### Project Setup
+
+Create a new program:
+
+```bash
+cargo sails new my-program
+cd my-program
+```
+
+**Update `Cargo.toml`:**
+
+```toml
+[dependencies]
+sails-rs = { version = "0.10.1", features = ["ethexe"] }
+parity-scale-codec = { version = "3", default-features = false }
+scale-info = { version = "2", default-features = false }
+```
+
+**The `ethexe` feature** enables Ethereum-specific functionality — event emission to L1, Mirror contract integration, and settlement flows.
+
+**`parity-scale-codec` and `scale-info`** are needed if your program defines custom types for encoding/decoding messages.
+
+→ [Sails Framework](/docs/developing/build/sails) | [Quick Start](/docs/vara-eth/build/quickstart)
+
+## Minimal Example
+
+Here's a complete counter program:
+
+```rust
+#![no_std]
+
+use sails_rs::prelude::*;
+
+static mut COUNTER: i64 = 0;
+
+#[derive(Default)]
+pub struct CounterService;
+
+#[service]
+impl CounterService {
+    pub fn increment(&mut self) -> i64 {
+        unsafe {
+            COUNTER += 1;
+            COUNTER
+        }
+    }
+
+    pub fn get(&self) -> i64 {
+        unsafe { COUNTER }
+    }
+}
+
+#[derive(Default)]
+pub struct CounterProgram;
+
+#[program]
+impl CounterProgram {
+    pub fn init() -> Self {
+        Self
+    }
+
+    pub fn counter(&self) -> CounterService {
+        CounterService
+    }
+}
+```
+
+<Callout type="tip" title="Custom Data Types">
+If you use custom structures in messages or state, derive encoding traits:
+
+```rust
+use parity_scale_codec::{Decode, Encode};
+use scale_info::TypeInfo;
+
+#[derive(Encode, Decode, TypeInfo)]
+pub struct MyData {
+    pub value: u64,
+    pub owner: ActorId,
+}
+```
+
+</Callout>
+
+## Type Restrictions
+
+<Callout type="warning" title="TODO">
+**Type restrictions and Solidity compatibility:**
+- Which Rust types cannot be converted to Solidity ABI
+- Unsupported types for ABI generation
+- Best practices for type definitions
+
+This section needs to be completed with concrete examples.
+
+</Callout>
+
+## Reserved Words
+
+<Callout type="warning" title="TODO">
+**Reserved words and naming restrictions:**
+- Solidity keywords that conflict with service/method names
+- Ethereum-specific reserved words
+- Naming conventions to avoid conflicts
+
+This section needs to be completed with the full list.
+
+</Callout>
+
+## Program Lifecycle
+
+```
+Upload Code → Validate → Create Instance → Top Up → Initialize → Active → (Exit)
+   (blob)     (executors)  (Mirror deploy)   (wVARA)   (first msg)  (processing)
+```
+
+### Upload
+
+Developer uploads compiled WASM code to Ethereum as an [EIP-4844 blob](/docs/vara-eth/reference/glossary#blob-eip-4844) and calls `requestCodeValidation(codeId)` on the Router.
+
+### Validate
+
+Executors fetch the blob, verify the WASM is valid, and include a `CodeCommitment` in the next batch. If valid, the `codeId` is marked as approved.
+
+### Create Instance
+
+Anyone can deploy a program from a validated `codeId` by calling `createProgram(...)` on the Router. This deploys a Mirror contract on Ethereum.
+
+The program's address is **deterministic**: `address = keccak256(codeId, salt)`.
+
+### Top Up
+
+Fund the program's Executable Balance with wVARA. Without balance, the program cannot execute messages.
+
+→ [Funding Executable Balance](/docs/vara-eth/interact/funding-executable-balance)
+
+### Initialize
+
+The first message to a program triggers its constructor (`init`). Until initialization completes, the program cannot process regular messages.
+
+<Callout type="warning" title="Initializer Restriction">
+  Only the address that created the program can send the first message.
+</Callout>
+
+### Active
+
+The program processes messages from its queue in strict `(blockNumber, txIndex, logIndex)` order. Each processed message produces a `StateTransition` that gets committed to Ethereum via the Router.
+
+### Exit (Optional)
+
+A program can terminate itself by calling `msg::exit()`. On exit:
+
+- The program specifies an **inheritor address** where remaining balances are transferred
+- Both Executable Balance and Free Balance are transferred to the inheritor
+- The Mirror contract is marked as `exited` and stops accepting new messages
+
+The inheritor can claim the transferred value via `Mirror.transferLockedValueToInheritor()`.
+
+## Program Identity
+
+Every program has two identifiers:
+
+| Identifier     | Format                      | Where Used                                           |
+| -------------- | --------------------------- | ---------------------------------------------------- |
+| `ActorId`      | 256-bit hash                | Inside Vara.eth runtime, for inter-program messaging |
+| Mirror Address | Ethereum address (20 bytes) | On Ethereum L1, for user interaction                 |
+
+Both are derived deterministically from `(codeId, salt)`.
+
+## Execution Cost Model
+
+Programs don't pay per-message. Instead, each program has an **Executable Balance** in wVARA:
+
+1. Every program gets a small **free compute threshold** per message
+2. Beyond the threshold, execution time is metered at a `wvaraPerSecond` rate
+3. If the Executable Balance runs out, messages remain queued until the program is topped up
+4. The consumed balance is distributed to validators as rewards
+
+→ [Reverse Gas Model](/docs/vara-eth/economics/reverse-gas-model)

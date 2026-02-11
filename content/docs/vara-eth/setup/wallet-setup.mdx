@@ -1,4 +1,69 @@
 ---
 title: Wallet Setup
+description: Connect your Ethereum wallet to Vara.eth testnet and get test tokens.
 ---
-Coming soon.
+
+# Wallet Setup
+
+Vara.eth uses standard Ethereum wallets. If you have MetaMask, you're ready to go.
+
+## Add Hoodi Network
+
+The fastest way is to visit [Chainlist](https://chainlist.org/chain/560048) and click "Add to MetaMask."
+
+**Manual setup:**
+
+1. Open MetaMask → Settings → Networks → Add Network
+2. Fill in:
+   - **Network Name**: `Hoodi Testnet`
+   - **RPC URL**: `https://hoodi-reth-rpc.gear-tech.io`
+   - **Chain ID**: `560048`
+   - **Currency Symbol**: `ETH`
+   - **Block Explorer**: `https://hoodi.etherscan.io`
+3. Save
+
+## Get Test ETH
+
+You need test ETH on Hoodi to pay for L1 transaction fees (sending messages to Mirror contracts, creating programs).
+
+Visit the [Vara.eth Faucet](https://eth.vara.network/faucet) and request test ETH. Tokens arrive within a few minutes.
+
+<Callout type="note" title="Why ETH?">
+  Even though Vara.eth uses the [reverse gas model](/docs/vara-eth/economics/reverse-gas-model) (programs pay for
+  execution), you still need ETH for the base Ethereum transaction fee.
+</Callout>
+
+## Get Test wVARA
+
+wVARA funds your program's [Executable Balance](/docs/vara-eth/interact/funding-executable-balance). Without wVARA, your program cannot execute messages.
+
+Visit the [Vara.eth Faucet](https://eth.vara.network/faucet) to request test wVARA.
+
+Once you have wVARA, fund your program via:
+
+- `executableBalanceTopUp(value)` on the Mirror contract
+- `ethexe` CLI
+- TypeScript SDK
+
+→ [wVARA Overview](/docs/vara-eth/economics/wvara-overview)
+
+## Verify Your Setup
+
+Quick checklist:
+
+- MetaMask switched to Hoodi network
+- ETH balance > 0
+- wVARA balance > 0 (add token via [Contract Addresses](/docs/vara-eth/reference/contract-addresses))
+- Your address visible on [Hoodi Etherscan](https://hoodi.etherscan.io)
+
+## For CLI Users
+
+If you prefer command-line workflows, insert your private key into `ethexe`:
+
+```bash
+ethexe key insert <YOUR_PRIVATE_KEY>
+```
+
+<Callout type="warning" title="Security">
+  Only use test wallets with testnet keys. Never use your mainnet private key in development environments.
+</Callout>

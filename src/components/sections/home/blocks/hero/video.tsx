@@ -4,8 +4,8 @@ import Image from "next/image";
 import { VideoWrapper } from "@/components/sections/home/blocks/video-wrapper";
 import { cn } from "@/lib/cn";
 
-const BGImage = "/img/join-banner/arrow-wave-start.jpg";
-const BGImageWebp = "/img/join-banner/arrow-wave-start.webp";
+const BGImage = "/images/join-banner/arrow-wave-start.jpg";
+const BGImageWebp = "/images/join-banner/arrow-wave-start.webp";
 
 type Props = {
   className?: string;

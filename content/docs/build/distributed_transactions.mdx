@@ -21,18 +21,21 @@ Consider the following situation: we have a liquidity pool of token A and token 
 
 `Step 1` : A user sends a `MakeOrder` message to the swap contract. During that transaction the contract sends a message to the fungible token contract. The result of executing this message can be a success or a failure. The worst case scenario is having a lack of gas when processing a message in the token contract or in the subsequent execution of the swap contract. However, since the token contract supports idempotency, the user can simply restart the transaction and complete it.
 
-![img alt](./img/1.step1.png#gh-light-mode-only)
-![img alt](./img/1.step1-dark.png#gh-dark-mode-only)
+<div className="dark:invert">
+  <img src="/images/docs/build/1.step1.png" alt="img alt" />
+</div>
 
 `Step 2`:  A user sends an `ExecuteOrder` message to the swap contract. The swap contract just calculates the amount of tokens a user will receive and saves the new state of the liquidity poll.
 
-![img alt](./img/1.step2.png#gh-light-mode-only)
-![img alt](./img/1.step2-dark.png#gh-dark-mode-only)
+<div className="dark:invert">
+  <img src="/images/docs/build/1.step2.png" alt="img alt" />
+</div>
 
 `Step 3`:  A user sends a `Withdraw` message to the swap contract and receives tokens B. The situation here is the same as in the first step.
 
-![img alt](./img/1.step3.png#gh-light-mode-only)
-![img alt](./img/1.step3-dark.png#gh-dark-mode-only)
+<div className="dark:invert">
+  <img src="/images/docs/build/1.step3.png" alt="img alt" />
+</div>
 
 It is possible to execute a swap in one transaction. To resolve the problem of atomicity we can use the following patterns here:
 - `2 PC - 2 Phase Commit protocol` (And also its extension - 3 phase commit protocol);
@@ -79,8 +82,9 @@ Token contracts make all necessary checks, and in case of success, lock funds an
 Swap contract handles the messages from the token contracts and decides whether to commit or abort the global transaction.
 receives tokens B. The situation here is the same as in the first step.
 
-![img alt](./img/2.prepare.png#gh-light-mode-only)
-![img alt](./img/2.prepare-dark.png#gh-dark-mode-only)
+<div className="dark:invert">
+  <img src="/images/docs/build/2.prepare.png" alt="img alt" />
+</div>
 
 **Commit phase**
 
@@ -91,8 +95,9 @@ Token contracts finally change their state and send replies to the swap contract
 - `Swap contracts:
 Swap contract handles the messages from the token contracts and saves the result about transaction execution.
 
-![img alt](./img/2.commit.png#gh-light-mode-only)
-![img alt](./img/2.commit-dark.png#gh-dark-mode-only)
+<div className="dark:invert">
+  <img src="/images/docs/build/2.commit.png" alt="img alt" />
+</div>
 
 Of course, all that workflow handles the case when the gas runs out during the message execution.
 
@@ -150,16 +155,18 @@ The following cases are possible:
 
 In the case of a fall, if a transaction isn't restarted, the swap contract will not move to the second phase and the token contracts will unlock their state using delayed messages.
 
-![img alt](./img/3.prepare.png#gh-light-mode-only)
-![img alt](./img/3.prepare-dark.png#gh-dark-mode-only)
+<div className="dark:invert">
+  <img src="/images/docs/build/3.prepare.png" alt="img alt" />
+</div>
 
 **Pre-Commit phase**:
 At this stage, there can be a failure in the swap contract or in the token contract only due to the lack of gas. To address this issue, gas reservation can be utilized as follows:
 - The swap contract receives the information about error in its `handle_signal`;
 - Using gas reservation (so, it’s necessary to care about gas reservations before), the swap contract sends a message to itself to restart the transaction from the second phase. (The same logic can also be used in the `preparation phase`).
 
-![img alt](./img/3.precommit.png#gh-light-mode-only)
-![img alt](./img/3.precommit-dark.png#gh-dark-mode-only)
+<div className="dark:invert">
+  <img src="/images/docs/build/3.precommit.png" alt="img alt" />
+</div>
 
 **Commit phase**:
 Like the previous stage, failure can occur solely due to the absence of gas. In this situation, it is not as critical, as all participants can commit to the process.
@@ -181,7 +188,8 @@ The swap operation consists of the following steps:
 3. It starts executing the first task. If the execution fails, it cancels the transaction. If it’s successful, the swap contract executes the second task;
 4. If the execution of the second task is successful, the transaction is completed. Otherwise, the swap contract executes the compensation transaction for the first task.
 
-![img alt](./img/saga.png#gh-light-mode-only)
-![img alt](./img/Saga-dark.png#gh-dark-mode-only)
+<div className="dark:invert">
+  <img src="/images/docs/build/saga.png" alt="img alt" />
+</div>
 
 It is important to note that compensatory transactions should not fail due to any logical error. They can only fall due to lack of gas. If this happens, then it is needed to restart the transaction again or use the gas reservation. The `idempotency` of the token contract guarantees that the transaction will be completed to the end without any duplicate transactions.

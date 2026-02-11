@@ -10,7 +10,7 @@ export type FeatureItem = {
 export const FEATURES_DATA: FeatureItem[] = [
   {
     title: "Start developing",
-    img: "/img/develop.svg",
+    img: "/images/develop.svg",
     description: (
       <>
         Are you developer? Start building a new generation of Web3 applications
@@ -23,7 +23,7 @@ export const FEATURES_DATA: FeatureItem[] = [
   },
   {
     title: "Become a Validator",
-    img: "/img/validate.svg",
+    img: "/images/validate.svg",
     description: (
       <>
         Provide computing resources to keep the Vara Network secure, performant
@@ -35,7 +35,7 @@ export const FEATURES_DATA: FeatureItem[] = [
   },
   {
     title: "Become a Nominator",
-    img: "/img/nominate.svg",
+    img: "/images/nominate.svg",
     description: (
       <>
         Help maintain the network security by participating as a nominator.
@@ -48,7 +48,7 @@ export const FEATURES_DATA: FeatureItem[] = [
   },
   {
     title: "Explore Vara's Token Economy",
-    img: "/img/tokenomics.svg",
+    img: "/images/tokenomics.svg",
     description: (
       <>
         Learn how every transaction and stake contributes to a robust network.

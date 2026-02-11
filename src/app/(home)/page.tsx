@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <main className="grow flex flex-col pb-50">
       <HomepageHero />
-      <div className="pt-30 space-y-20 md:space-y-30">
+      <div className="pt-12 md:pt-16 space-y-12 md:space-y-16">
         <HomepageFeaturesV1 />
         <JoinCommunityBanner />
       </div>

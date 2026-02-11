@@ -1,4 +1,165 @@
 ---
 title: Create Program Instance
+description: Deploy a program instance from validated code and understand Mirror contracts.
 ---
-Coming soon.
+
+# Create Program Instance
+
+Once your code is validated, you can create one or more program instances from it. Each instance gets its own Mirror contract on Ethereum, its own state, and its own Executable Balance.
+
+## Creation Methods
+
+### CLI
+
+**Without ABI:**
+
+```bash
+ethexe --cfg none tx \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER" \
+  create "$CODE_ID" --salt "0x01"
+```
+
+**With ABI (recommended):**
+
+```bash
+ethexe --cfg none tx \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER" \
+  create "$CODE_ID" --salt "0x01" --abi ./MyProgram.abi.json
+```
+
+### Gear IDEA
+
+<Callout type="note" title="Specialized Interface">
+  [Gear IDEA](https://idea.gear-tech.io) is specialized for Gear programs. A dedicated Vara.eth interface may become
+  available in the future.
+</Callout>
+
+1. Go to idea.gear-tech.io
+2. Connect your wallet
+3. Navigate to "Programs" → "Create Program"
+4. Enter your `CODE_ID`
+5. Choose a salt value
+6. Optionally upload ABI file
+7. Submit transaction
+
+### TypeScript SDK
+
+**Without ABI:**
+
+```typescript
+import { EthereumClient } from '@vara-eth/api';
+
+const client = new EthereumClient(provider, ROUTER_ADDRESS);
+const tx = await client.createProgram(codeId, salt);
+await tx.wait();
+```
+
+**With ABI:**
+
+```typescript
+const tx = await client.createProgramWithAbi(
+  codeId,
+  salt,
+  abiInterface, // Generated Solidity ABI
+);
+await tx.wait();
+```
+
+## Why Deploy With ABI?
+
+Deploying with ABI attaches a Solidity interface to your Mirror contract:
+
+**Without ABI:**  
+Only base Mirror methods visible — `sendMessage`, `executableBalanceTopUp`, `claimValue`
+
+**With ABI:**  
+Your custom methods appear on Etherscan under "Write as Proxy" / "Read as Proxy" with decoded parameter names and types
+
+**Benefits:**
+
+- Etherscan shows your custom methods
+- MetaMask can call methods directly
+- Hardhat/Foundry can interact as a standard contract
+- Other Solidity contracts can call your program with typed interfaces
+
+<Callout type="tip" title="Production Recommendation">
+  Always deploy with ABI for production programs. This dramatically improves developer experience and enables Solidity
+  integration.
+</Callout>
+
+## Generating ABI from IDL
+
+If your program is built with [Sails](/docs/developing/build/sails), generate a Solidity interface from the IDL:
+
+```bash
+cargo sails sol --idl-path ./target/wasm32-gear/release/my_program.idl
+```
+
+This produces `MyProgram.sol` with:
+
+- Solidity interface matching your Sails services
+- ABI contract definition
+- Callback definitions for handling replies
+
+**Deploy the ABI contract** to Ethereum (via Foundry, Hardhat, or any tool), then use its address when creating your program.
+
+→ [Solidity Integration](/docs/vara-eth/integrate/solidity-integration)
+
+<Callout type="note" title="Reference Implementation">
+  See [One of Us](https://github.com/gear-foundation/one-of-us) for a complete example of IDL → Solidity ABI → program
+  creation with ABI.
+</Callout>
+
+## Salt & Deterministic Addressing
+
+The program's address is computed deterministically:
+
+```
+Mirror Address = CREATE2(Router, keccak256(codeId, salt))
+ActorId = keccak256(codeId, salt)
+```
+
+**This means:**
+
+- Same code + same salt = same address (across deployments)
+- Different salt = different address (multiple instances of same code)
+- You can predict the address before deploying
+
+→ [EIP-1167 Minimal Proxy](/docs/vara-eth/reference/glossary#eip-1167-minimal-proxy)
+
+## What Gets Deployed
+
+When you call `createProgram`, the Router:
+
+1. Verifies the `codeId` is in `Validated` state
+2. Computes the deterministic address from `(codeId, salt)`
+3. Deploys a `MirrorProxy` contract at that address (EIP-1167 minimal proxy)
+4. Calls `Mirror.initialize(...)` on the new proxy
+5. Emits `ProgramCreated(actorId, codeId)` event
+
+## After Creation
+
+The program exists on Ethereum but is **not yet initialized**. You need to:
+
+1. **Fund it** — Top up the Executable Balance with wVARA
+2. **Initialize it** — Send the first message (constructor call)
+
+```
+createProgram → Fund (wVARA) → Initialize (first message) → Active
+```
+
+→ [Funding Executable Balance](/docs/vara-eth/interact/funding-executable-balance) | [Initialization](/docs/vara-eth/interact/initialization)
+
+## Multiple Instances
+
+You can deploy many instances from the same `CODE_ID` using different salts. Each instance has independent state, balance, and lifecycle.
+
+**Use cases:**
+
+- Multi-tenant applications (one instance per user/organization)
+- Testing different configurations of the same program
+- Deploying sharded versions for horizontal scaling

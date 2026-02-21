@@ -98,27 +98,57 @@ pub struct MyData {
 
 ## Type Restrictions
 
-<Callout type="warning" title="TODO">
-**Type restrictions and Solidity compatibility:**
-- Which Rust types cannot be converted to Solidity ABI
-- Unsupported types for ABI generation
-- Best practices for type definitions
+When you plan to generate a Solidity interface (`cargo sails sol`) and use "Read/Write as Proxy" on Etherscan, design your public API with Solidity-compatible types in mind.
 
-This section needs to be completed with concrete examples.
+**Safe baseline for ABI-facing methods:**
 
+- Integers: `u8..u256`, `i8..i256`
+- `bool`
+- `String`
+- `Vec<u8>` (maps to dynamic `bytes`)
+- Fixed-size byte arrays (`[u8; 32]` etc.)
+- Structs composed only of supported fields
+- Arrays/vectors of supported element types
+
+**Types that commonly cause ABI friction:**
+
+- Rust-specific collections (`HashMap`, `BTreeMap`, complex nested containers)
+- Deeply nested enums/tuples and heavily generic public signatures
+- Program-internal types exposed directly in ABI-facing methods
+
+<Callout type="note" title="ActorId vs address">
+  `ActorId` is 32 bytes, while Ethereum `address` is 20 bytes.
+  In Gear primitives, `ActorId::to_address_lossy()` converts to `H160` with potential loss of the first 12 bytes.
+  The reverse direction (`H160 -> ActorId`) is represented with zero-padding in the leading 12 bytes.
+  If a method is intended for Solidity wallets/contracts, prefer address-oriented parameters in the ABI-facing surface,
+  or document explicit conversion rules.
 </Callout>
+
+**Best practice:**
+
+1. Keep your external API minimal and Solidity-friendly.
+2. Run `cargo sails sol --idl-path ...` early.
+3. Treat generator output as the source of truth: if a type generates awkward Solidity, simplify the Rust signature before deployment.
 
 ## Reserved Words
 
-<Callout type="warning" title="TODO">
-**Reserved words and naming restrictions:**
-- Solidity keywords that conflict with service/method names
-- Ethereum-specific reserved words
-- Naming conventions to avoid conflicts
+When exposing methods through generated Solidity interfaces, avoid names that conflict with Solidity language keywords or EVM special function names.
 
-This section needs to be completed with the full list.
+**Avoid using as public method/service names:**
 
+- Solidity keywords like `contract`, `library`, `interface`, `function`, `mapping`, `event`, `error`
+- Special function names like `constructor`, `receive`, `fallback`
+
+<Callout type="warning" title="Name collisions in explorers">
+  Even when compilation succeeds, naming your API too close to low-level Ethereum terms can make Etherscan proxy views
+  confusing. Prefer explicit domain names like `initCounter`, `joinMember`, `getProfile` instead of ambiguous names.
 </Callout>
+
+**Practical naming rules:**
+
+- Use `snake_case` in Rust, let generated clients map naming as needed.
+- Keep constructor/init semantics explicit (`init`, `init_<domain>`).
+- Avoid reusing generic names that may look like transport/runtime internals (`send`, `call`, `execute`, `state`).
 
 ## Program Lifecycle
 

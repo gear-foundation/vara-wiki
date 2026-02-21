@@ -1,4 +1,4 @@
 {
   "title": "Setup",
-  "pages": ["networks", "wallet-setup", "tools-install", "..."]
+  "pages": ["local-node", "networks", "wallet-setup", "tools-install", "..."]
 }

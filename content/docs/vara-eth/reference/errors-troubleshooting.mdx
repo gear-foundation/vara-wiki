@@ -1,4 +1,188 @@
 ---
 title: Errors & Troubleshooting
+description: Common errors and solutions when developing on Vara.eth.
 ---
-Coming soon.
+
+# Errors & Troubleshooting
+
+## Build Errors
+
+### `cargo build` fails with missing dependencies
+
+```
+error: failed to select a version for `sails-rs`
+```
+
+**Fix**: Ensure your `Cargo.toml` points to the correct Gear crate versions. Check [github.com/gear-tech/gear](https://github.com/gear-tech/gear) for the latest compatible versions.
+
+### WASM build produces no `.opt.wasm`
+
+**Fix**: Make sure you're building with the correct target:
+
+```bash
+cargo build --release --target wasm32-unknown-unknown
+```
+
+And that `wasm-opt` is installed. The `.opt.wasm` file is the optimized version needed for deployment.
+
+### IDL not generated
+
+**Fix**: Ensure your program uses the `#[program]` macro from [Sails](/docs/developing/build/sails) and that all service types implement the required traits. The [IDL](/docs/developing/build/sails/idl) is generated from your Rust type definitions at build time.
+
+## Deployment Errors
+
+### Code validation fails
+
+**Possible causes**:
+- Invalid WASM format (not a valid WebAssembly module)
+- Missing Gear-compatible entry points
+- Memory allocation exceeds limits (>2GB)
+- Incompatible runtime version
+
+**Fix**: Rebuild with the latest Sails version. Verify the `.opt.wasm` file is valid:
+
+```bash
+wasm-validate program.opt.wasm
+```
+
+### `createProgram` reverts
+
+**Possible causes**:
+- Code ID not yet validated (status is `Pending`)
+- Code ID was rejected (invalid)
+- Insufficient ETH for gas
+
+**Fix**: Wait for `CodeGotValidated` event before creating the program. Check code status via:
+- **Etherscan**: Search for `CodeGotValidated` events on the Router contract
+- **TypeScript**: Use `@vara-eth/api` to query the Router contract's validation status
+
+### Mirror address mismatch
+
+**Fix**: Mirror addresses are deterministic: `CREATE2(Router, keccak256(codeId, salt))`. If you get an unexpected address, verify you're using the correct code ID and salt.
+
+## Message Errors
+
+### Message not being executed
+
+**Possible causes**:
+
+1. **Zero Executable Balance** — Most common. The program has no wVARA to pay for execution.
+2. **Program not initialized** — First message must be from the program creator.
+3. **Payload encoding error** — SCALE or ABI encoding mismatch.
+4. **Validators not processing** — Network issue (rare on testnet).
+
+**Diagnosis steps**:
+
+```bash
+# 1. Check mirror state and ETH balance
+ethexe tx query "$PROGRAM_ID" \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+
+# 2. Verify executable balance top-up and message queue events on Etherscan
+```
+
+### "Message panicked" in execution
+
+The program's Rust code panicked during execution.
+
+**Common causes**:
+- `unwrap()` on a `None` or `Err` value
+- Array index out of bounds
+- Integer overflow
+- Assertion failure (`assert!`, `panic!`)
+
+**Fix**: Add proper error handling. Use `expect()` with descriptive messages for debugging. Test thoroughly with `cargo test` before deployment.
+
+### Reply not received
+
+**Possible causes**:
+- `callReply` was set to `false` — Reply events are only emitted when `callReply = true`
+- Execution hasn't been committed yet — Wait for the next batch
+- Program didn't generate a reply — Check program logic
+
+**Fix**: Ensure `callReply = true` when sending, and listen for `Reply` events on the Mirror.
+
+## State Query Errors
+
+### "Program not found"
+
+**Fix**: Verify the actor ID / program ID is correct. Programs have both an `ActorId` (256-bit, used in the runtime) and a Mirror address (20-byte Ethereum address). Use the correct identifier for the context.
+
+### State query returns empty/zero
+
+**Possible causes**:
+- Program hasn't been initialized yet
+- Querying with wrong method name or arguments
+- State hasn't been updated since last batch
+
+**Fix**: Verify initialization by checking for `StateChanged` events. Use the exact method name from the IDL.
+
+### Stale state
+
+Pre-confirmed state is more recent than on-chain state. If you're reading state via Ethereum RPC (`eth_call`), you'll see the last committed batch state. For the latest pre-confirmed state, use the [Vara.eth RPC methods](/docs/vara-eth/reference/rpc-api).
+
+## Frontend Errors
+
+### MetaMask chain mismatch
+
+```
+Chain ID 560048 not recognized
+```
+
+**Fix**: Add the Hoodi testnet to MetaMask manually. See [Wallet Setup](/docs/vara-eth/setup/wallet-setup).
+
+### Transaction underpriced
+
+**Fix**: Increase gas price. On testnet, gas prices can spike during high activity.
+
+### sails-js type mismatch
+
+```
+TypeError: Cannot read property 'encode' of undefined
+```
+
+**Fix**: Regenerate TypeScript bindings from the latest IDL:
+
+```bash
+sails-cli js --idl program.idl --out ./src/generated/
+```
+
+Ensure the IDL matches the deployed program version.
+
+## Network Errors
+
+### RPC connection refused / timeout
+
+**Fix**:
+- Check the endpoint URL (no typos)
+- Try HTTPS vs WebSocket
+- Check if there's a network outage
+- Use a fallback endpoint if available
+
+### Transaction stuck (pending)
+
+**Fix**: The Hoodi testnet can occasionally have slow block times. Wait a few minutes. If persistent, try resubmitting with higher gas.
+
+### Pre-confirmation unavailable
+
+**Fix**: Pre-confirmations require the executor network to be operational. On testnet, this may occasionally be unavailable during upgrades. Fall back to waiting for L1 finality.
+
+## Common Mistakes
+
+| Mistake | Fix |
+|---|---|
+| Forgetting to fund Executable Balance | Top up before sending messages |
+| Sending init message from wrong address | Only the creator can initialize |
+| Using SCALE encoding when ABI is expected | Match encoding to program deployment type |
+| Not waiting for code validation | Check status before `createProgram` |
+| Hardcoding gas estimates | Use `estimateGas()` or generous limits |
+| Not handling async replies | Design UI around async message flow |
+| Using `unwrap()` in production code | Use proper error handling with `Result` |
+
+## Getting Help
+
+- **GitHub Issues**: [github.com/gear-tech/gear/issues](https://github.com/gear-tech/gear/issues)
+- **Discord**: Join the [Vara community](https://discord.gg/vara) for developer support
+- **Gear IDEA**: Use the web UI for visual debugging at [idea.gear-tech.io](https://idea.gear-tech.io)

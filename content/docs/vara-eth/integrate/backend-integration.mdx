@@ -1,4 +1,305 @@
 ---
 title: Backend Integration
+description: Server-side patterns for integrating with Vara.eth programs.
 ---
-Coming soon.
+
+# Backend Integration
+
+Backend services connect to Vara.eth for automation, indexing, monitoring, and bridging off-chain systems with on-chain programs.
+
+## Connection Methods
+
+### WebSocket RPC
+
+Direct connection to Vara.eth executors for real-time data and pre-confirmations:
+
+```typescript
+import { WebSocket } from "ws";
+
+const ws = new WebSocket("wss://hoodi-reth-rpc.gear-tech.io/ws");
+
+ws.on("open", () => {
+  ws.send(
+    JSON.stringify({
+      jsonrpc: "2.0",
+      method: "programStorage_stateQuery",
+      params: [programId, "readMethod", encodedArgs],
+      id: 1,
+    })
+  );
+});
+
+ws.on("message", (data) => {
+  const result = JSON.parse(data.toString());
+  console.log("State:", result);
+});
+```
+
+See [RPC API](/docs/vara-eth/reference/rpc-api) for the full method reference.
+
+### Ethereum RPC
+
+Monitor Mirror events via standard Ethereum JSON-RPC:
+
+```typescript
+import { ethers } from "ethers";
+
+const provider = new ethers.WebSocketProvider(
+  "wss://hoodi-reth-rpc.gear-tech.io/ws"
+);
+
+const mirror = new ethers.Contract(mirrorAddress, mirrorAbi, provider);
+
+mirror.on("StateChanged", (stateHash) => {
+  console.log(`New state hash: ${stateHash}`);
+});
+
+mirror.on("Message", (id, destination, payload, value) => {
+  console.log(`Program sent message to ${destination}`);
+});
+```
+
+### sails-js (Node.js)
+
+Use the typed SDK for server-side operations:
+
+```typescript
+import { SailsProgram } from "sails-js";
+import { ethers } from "ethers";
+
+const provider = new ethers.JsonRpcProvider(
+  "https://hoodi-reth-rpc.gear-tech.io"
+);
+const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+
+const program = new SailsProgram({
+  idl: programIdl,
+  address: mirrorAddress,
+  provider,
+  signer: wallet,
+});
+
+// Read state (free, no tx)
+const balance = await program.token.balanceOf(userAddress);
+
+// Send message (requires ETH for gas)
+await program.token.transfer(recipient, amount);
+```
+
+## Common Backend Patterns
+
+### Event Indexer
+
+Index program events into a database for fast queries:
+
+```typescript
+import { ethers } from "ethers";
+import { Pool } from "pg";
+
+const db = new Pool({ connectionString: DATABASE_URL });
+const provider = new ethers.WebSocketProvider(RPC_URL);
+const mirror = new ethers.Contract(mirrorAddress, abi, provider);
+
+// Index all transfer events
+mirror.on("Transferred", async (from, to, amount, event) => {
+  await db.query(
+    `INSERT INTO transfers (from_addr, to_addr, amount, block_number, tx_hash)
+     VALUES ($1, $2, $3, $4, $5)`,
+    [
+      from,
+      to,
+      amount.toString(),
+      event.log.blockNumber,
+      event.log.transactionHash,
+    ]
+  );
+});
+
+// Backfill historical events
+async function backfill(fromBlock: number) {
+  const events = await mirror.queryFilter("Transferred", fromBlock, "latest");
+  for (const event of events) {
+    // Insert into DB...
+  }
+}
+```
+
+### Automation Bot
+
+Automate actions based on program state or events:
+
+```typescript
+async function monitorAndAct() {
+  const program = new SailsProgram({
+    idl,
+    address: mirrorAddress,
+    provider,
+    signer: botWallet,
+  });
+
+  setInterval(async () => {
+    const state = await program.myService.getStatus();
+
+    if (state.needsRebalance) {
+      console.log("Triggering rebalance...");
+      await program.myService.rebalance();
+    }
+  }, 30_000);
+}
+```
+
+### Keeper Service
+
+Execute time-sensitive operations that programs cannot trigger themselves:
+
+```typescript
+// Programs respond to messages — they can't initiate actions on their own.
+// A keeper sends periodic messages to trigger scheduled logic.
+
+async function keeper() {
+  const program = new SailsProgram({
+    idl,
+    address: mirrorAddress,
+    provider,
+    signer: keeperWallet,
+  });
+
+  const cron = new CronJob("0 0 * * *", async () => {
+    try {
+      await program.settlement.processDailyBatch();
+      console.log("Daily settlement triggered");
+    } catch (err) {
+      console.error("Settlement failed:", err);
+    }
+  });
+
+  cron.start();
+}
+```
+
+<Callout type="info" title="Message Automation on Vara">
+    On [Vara Network](/docs/vara-network), programs can use [delayed messages](/docs/vara-network/about/features/message-automation) for self-scheduling. On Vara.eth, external keepers fill this role.
+</Callout>
+
+### API Gateway
+
+Expose program state via REST API:
+
+```typescript
+import express from "express";
+import { SailsProgram } from "sails-js";
+
+const app = express();
+const program = new SailsProgram({ idl, address: mirrorAddress, provider });
+
+// Read-only endpoints (free, no gas)
+app.get("/api/balance/:address", async (req, res) => {
+  const balance = await program.token.balanceOf(req.params.address);
+  res.json({ balance: balance.toString() });
+});
+
+app.get("/api/state", async (req, res) => {
+  const state = await program.myService.getFullState();
+  res.json(state);
+});
+
+// Write endpoints (requires gas)
+app.post("/api/action", async (req, res) => {
+  const signedProgram = program.connect(serverWallet);
+  const result = await signedProgram.myService.doAction(req.body.params);
+  res.json({ success: true, result });
+});
+
+app.listen(3000);
+```
+
+### The Graph Subgraph
+
+For production indexing, use The Graph to create a subgraph:
+
+```yaml title="subgraph.yaml"
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: MyProgram
+    network: hoodi
+    source:
+      address: "0x..." # Mirror address
+      abi: Mirror
+      startBlock: 1000000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Transfer
+        - StateUpdate
+      abis:
+        - name: Mirror
+          file: ./abis/Mirror.json
+      eventHandlers:
+        - event: StateChanged(bytes32)
+          handler: handleStateChanged
+        - event: Transferred(address,address,uint256)
+          handler: handleTransfer
+```
+
+## Monitoring & Alerting
+
+### Health Check
+
+```typescript
+async function healthCheck() {
+  const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const mirror = new ethers.Contract(mirrorAddress, abi, provider);
+  const stateHash = await mirror.stateHash();
+
+  // Check recent activity
+  const filter = mirror.filters.StateChanged();
+  const events = await mirror.queryFilter(filter, -1000);
+  const lastUpdate = events[events.length - 1];
+
+  if (lastUpdate) {
+    const block = await provider.getBlock(lastUpdate.blockNumber);
+    const age = Date.now() / 1000 - block.timestamp;
+    if (age > 3600) {
+      alert("Program hasn't updated state in over an hour");
+    }
+  }
+}
+```
+
+### Metrics Collection
+
+```typescript
+import { Counter, Gauge } from "prom-client";
+
+const messagesReceived = new Counter({
+  name: "vara_messages_received_total",
+  help: "Total messages received by program",
+});
+
+const executableBalance = new Gauge({
+  name: "vara_executable_balance",
+  help: "Current executable balance in wVARA",
+});
+
+mirror.on("MessageQueueingRequested", () => {
+  messagesReceived.inc();
+});
+
+setInterval(async () => {
+  const balance = await getExecutableBalance(programId);
+  executableBalance.set(parseFloat(balance));
+}, 60_000);
+```
+
+## Security Considerations
+
+- **Private key management**: Use environment variables, HSMs, or secret managers (AWS Secrets Manager, HashiCorp Vault) — never hardcode keys.
+- **Rate limiting**: Vara.eth RPC endpoints may rate-limit. Implement exponential backoff and connection pooling.
+- **Idempotency**: Design your backend to handle duplicate events. Mirror events can be re-emitted during chain reorgs.
+- **Error handling**: Always wrap message sends in try/catch. Failed transactions still cost gas.
+- **Monitoring gas**: Backend wallets need ETH for gas. Monitor balances and set up alerts for low funds.

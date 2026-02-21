@@ -14,21 +14,22 @@ Once your code is validated, you can create one or more program instances from i
 **Without ABI:**
 
 ```bash
-ethexe --cfg none tx \
+ethexe tx create "$CODE_ID" \
   --ethereum-rpc "$RPC" \
   --ethereum-router "$ROUTER" \
-  --sender "$SENDER" \
-  create "$CODE_ID" --salt "0x01"
+  --sender "$SENDER"
 ```
 
-**With ABI (recommended):**
+**With ABI:**
 
 ```bash
-ethexe --cfg none tx \
+# First deploy ABI interface contract, then:
+ethexe tx create-with-abi "$CODE_ID" "$ABI_INTERFACE_ADDRESS" \
+  --salt 0x0000000000000000000000000000000000000000000000000000000000000000 \
+  --initializer "$SENDER" \
   --ethereum-rpc "$RPC" \
   --ethereum-router "$ROUTER" \
-  --sender "$SENDER" \
-  create "$CODE_ID" --salt "0x01" --abi ./MyProgram.abi.json
+  --sender "$SENDER"
 ```
 
 ### Gear IDEA
@@ -37,14 +38,6 @@ ethexe --cfg none tx \
   [Gear IDEA](https://idea.gear-tech.io) is specialized for Gear programs. A dedicated Vara.eth interface may become
   available in the future.
 </Callout>
-
-1. Go to idea.gear-tech.io
-2. Connect your wallet
-3. Navigate to "Programs" → "Create Program"
-4. Enter your `CODE_ID`
-5. Choose a salt value
-6. Optionally upload ABI file
-7. Submit transaction
 
 ### TypeScript SDK
 
@@ -86,11 +79,6 @@ Your custom methods appear on Etherscan under "Write as Proxy" / "Read as Proxy"
 - Hardhat/Foundry can interact as a standard contract
 - Other Solidity contracts can call your program with typed interfaces
 
-<Callout type="tip" title="Production Recommendation">
-  Always deploy with ABI for production programs. This dramatically improves developer experience and enables Solidity
-  integration.
-</Callout>
-
 ## Generating ABI from IDL
 
 If your program is built with [Sails](/docs/developing/build/sails), generate a Solidity interface from the IDL:
@@ -108,11 +96,6 @@ This produces `MyProgram.sol` with:
 **Deploy the ABI contract** to Ethereum (via Foundry, Hardhat, or any tool), then use its address when creating your program.
 
 → [Solidity Integration](/docs/vara-eth/integrate/solidity-integration)
-
-<Callout type="note" title="Reference Implementation">
-  See [One of Us](https://github.com/gear-foundation/one-of-us) for a complete example of IDL → Solidity ABI → program
-  creation with ABI.
-</Callout>
 
 ## Salt & Deterministic Addressing
 
@@ -150,6 +133,15 @@ The program exists on Ethereum but is **not yet initialized**. You need to:
 
 ```
 createProgram → Fund (wVARA) → Initialize (first message) → Active
+```
+
+**Example initialization command:**
+
+```bash
+ethexe tx send-message "$PROGRAM_ID" "0x..." 0 \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
 ```
 
 → [Funding Executable Balance](/docs/vara-eth/interact/funding-executable-balance) | [Initialization](/docs/vara-eth/interact/initialization)

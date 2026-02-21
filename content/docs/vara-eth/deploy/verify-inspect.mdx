@@ -1,4 +1,101 @@
 ---
 title: Verify & Inspect
+description: Verify your program deployment and inspect state on Ethereum explorers.
 ---
-Coming soon.
+
+# Verify & Inspect
+
+After deploying your program, verify it on Ethereum block explorers and inspect its state through multiple tools.
+
+## Explorer Verification
+
+### Etherscan
+
+Find your Mirror contract on [Hoodi Etherscan](https://hoodi.etherscan.io). Search by the Mirror address returned during [program creation](/docs/vara-eth/deploy/create-program-instance).
+
+**Without ABI:**  
+Base Mirror methods visible — `sendMessage`, `sendReply`, `executableBalanceTopUp`, `claimValue`
+
+**With ABI:**  
+Under "Write as Proxy" and "Read as Proxy", your program's custom methods appear with decoded parameters
+
+### Key Events
+
+On your Mirror contract's "Events" tab:
+
+| Event                             | Meaning                                     |
+| --------------------------------- | ------------------------------------------- |
+| `MessageQueueingRequested`        | Message was queued for your program         |
+| `ExecutableBalanceTopUpRequested` | wVARA was deposited for execution           |
+| `StateChanged`                    | Program state was updated (batch committed) |
+| `Message`                         | Program sent an outgoing message            |
+| `Reply`                           | Program replied to a message                |
+| `ValueClaimed`                    | Value was claimed from the program          |
+
+## Read Program State
+
+### CLI
+
+```bash
+ethexe tx query "$PROGRAM_ID" \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+### TypeScript SDK (sails-js)
+
+```typescript
+import { MyProgram } from './generated';
+
+const program = new MyProgram(provider, PROGRAM_ADDRESS);
+
+// Read-only queries — free, no gas
+const counter = await program.counter.get();
+const balance = await program.token.balanceOf(userAddress);
+```
+
+### Etherscan (with ABI)
+
+If deployed with ABI, navigate to the Mirror address on Etherscan and use the "Read as Proxy" tab to call read-only methods directly in the browser.
+
+## State Hash
+
+Every program's Mirror contract stores a `stateHash` — a cryptographic commitment to the program's full state.
+
+```typescript
+const mirror = new ethers.Contract(mirrorAddress, mirrorAbi, provider);
+const stateHash = await mirror.stateHash();
+```
+
+<Callout type="note" title="State Guarantee">
+  The `stateHash` guarantees that the state stored by executors matches what's committed on L1. Any dispute about
+  program state can be resolved by comparing hashes.
+</Callout>
+
+## Gear IDEA
+
+<Callout type="note" title="Specialized Interface">
+  [Gear IDEA](https://idea.gear-tech.io) is specialized for Gear programs. A dedicated Vara.eth interface may become
+  available in the future.
+</Callout>
+
+Web UI for inspecting programs:
+
+- Browse deployed programs and their code IDs
+- View program state and message history
+- Send messages through the web interface
+- Inspect IDL definitions
+
+## Checking Program Health
+
+A healthy, active program should show:
+
+**Valid code** — `CodeGotValidated(codeId, true)` event exists on the Router  
+**Initialized** — At least one `StateChanged` event after the init message  
+**Funded** — At least one successful `ExecutableBalanceTopUpRequested` event and continued `StateChanged` activity  
+**Processing** — Recent `StateChanged` events when messages are sent
+
+<Callout type="tip" title="Troubleshooting">
+  If something looks wrong, consult [Errors & Troubleshooting](/docs/vara-eth/reference/errors-troubleshooting).
+</Callout>

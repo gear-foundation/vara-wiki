@@ -1,4 +1,105 @@
 ---
-title: Getting WVARA
+title: Getting wVARA
+description: How to acquire wVARA tokens for funding programs and participating in the network.
 ---
-Coming soon.
+
+# Getting wVARA
+
+## Testnet
+
+### Faucet
+
+The easiest way to get testnet wVARA:
+
+1. Go to [eth.vara.network/testnet](https://eth.vara.network/testnet)
+2. Connect your wallet (must be on Hoodi testnet)
+3. Click "Request tokens"
+4. Receive testnet wVARA and Hoodi ETH
+
+The faucet provides enough tokens for development and testing. You can request multiple times with a cooldown between requests.
+
+### Manual Bridge (Testnet)
+
+If you have testnet VARA on Vara Network, you can bridge it:
+
+1. Visit the bridge interface at [eth.vara.network](https://eth.vara.network)
+2. Connect both Vara and Ethereum wallets
+3. Select amount to bridge
+4. Approve and confirm the bridge transaction
+5. Wait for bridge confirmation (~15-30 minutes)
+6. wVARA appears in your Ethereum wallet
+
+For a detailed bridge walkthrough, see the [Bridge User Guide](/docs/vara-network/bridge/bridge_guide).
+
+## Mainnet
+
+<Callout type="note" title="Coming Soon">
+    Vara.eth mainnet is not yet live. The following describes the expected mechanics.
+</Callout>
+
+### Bridge from Vara Network
+
+The primary way to get wVARA:
+
+1. Acquire VARA on the Vara Network (exchanges, staking rewards, etc.) — see [Vara Network Tokenomics](/docs/vara-network/tokenomics)
+2. Use the official [bridge](/docs/vara-network/bridge) to wrap VARA -> wVARA on Ethereum
+3. wVARA is minted 1:1 against locked VARA
+
+For the technical details of the bridge, see the [Bridge Technical Overview](/docs/vara-network/bridge/bridge_technical).
+
+### DEX Trading
+
+Once wVARA has liquidity on Ethereum:
+- Trade on Uniswap, Curve, or other DEXes
+- Pair with ETH, USDC, or other tokens
+- Standard ERC-20 trading experience
+
+### Validator Rewards
+
+Validators earn wVARA for:
+- Executing programs and committing batches
+- Participating in the FROST signing protocol
+- Maintaining uptime and correct execution
+
+See [Validators & Staking](/docs/vara-eth/economics/validators-staking) for details.
+
+## Using wVARA
+
+Once you have wVARA, the main uses are:
+
+### Fund a Program
+
+```typescript
+// Approve Router to spend wVARA
+const wvara = new ethers.Contract(wvaraAddress, erc20Abi, signer);
+await wvara.approve(routerAddress, parseUnits("100", 18));
+
+// Top up program's Executable Balance
+const mirror = new ethers.Contract(mirrorAddress, mirrorAbi, signer);
+await mirror.executableBalanceTopUp(parseUnits("100", 18));
+```
+
+### Attach to Messages
+
+Send wVARA as value with a message:
+
+```typescript
+// Approve Router first
+await wvara.approve(routerAddress, parseUnits("5", 18));
+
+// Send message with 5 wVARA attached
+await program.vault.deposit({ value: parseUnits("5", 18) });
+```
+
+### Stake as Validator
+
+Lock wVARA to join the executor set and earn rewards. See [Validators & Staking](/docs/vara-eth/economics/validators-staking).
+
+## Token Address
+
+| Network | wVARA Address |
+|---|---|
+| Hoodi Testnet | See [Contract Addresses](/docs/vara-eth/reference/contract-addresses) |
+| Ethereum Mainnet | Not yet deployed |
+
+Add wVARA to MetaMask: Import the token address as a custom ERC-20 token. See [Wallet Setup](/docs/vara-eth/setup/wallet-setup) for instructions.

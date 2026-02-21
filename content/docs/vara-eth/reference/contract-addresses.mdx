@@ -1,4 +1,172 @@
 ---
 title: Contract Addresses
+description: Deployed contract addresses for Vara.eth on all networks.
 ---
-Coming soon.
+
+# Contract Addresses
+
+## Hoodi Testnet
+
+| Contract | Address | Description |
+|---|---|---|
+| **Router** | `0xBC888a8B050B9B76a985d91c815d2c4f2131a58A` | Core settlement contract. Manages code validation, program creation, and batch commitments. |
+| **Middleware** | Check Router or testnet UI | Validator management contract integrated with [Symbiotic](https://docs.symbiotic.fi/). Handles operator registration, stake vaults, election, rewards, and slashing. |
+| **wVARA** | Check Router or testnet UI | ERC-20 wrapped VARA token. |
+| **Mirror (per program)** | Deterministic per program | Each program gets its own Mirror proxy. Address = `CREATE2(Router, keccak256(codeId, salt))`. |
+| **MirrorProxy** | Implementation singleton | EIP-1167 minimal proxy implementation used by all Mirror instances. |
+| **MirrorProxySmall** | Implementation singleton | Gas-optimized variant for programs with minimal state. |
+
+For Vara Network bridge contract addresses (Verifier, MessageQueue, BridgingPayment, ERC20Manager, etc.), see the [Bridge Developer Hub](/docs/vara-network/bridge/developer_hub).
+
+### Finding a Program's Mirror Address
+
+The Mirror address is deterministic and emitted in the `ProgramCreated` event:
+
+```typescript
+import { ethers } from "ethers";
+
+const router = new ethers.Contract(ROUTER_ADDRESS, routerAbi, provider);
+
+// Listen for new programs
+router.on("ProgramCreated", (actorId, mirrorAddress) => {
+  console.log(`Program ${actorId} -> Mirror at ${mirrorAddress}`);
+});
+```
+
+### Verifying on Etherscan
+
+1. Go to the Mirror address on [Hoodi Etherscan](https://hoodi.etherscan.io)
+2. The contract shows as a proxy (EIP-1167)
+3. If deployed with ABI (`createProgramWithAbiInterface`), Etherscan shows decoded methods under "Write as Proxy" and "Read as Proxy"
+
+## Router Contract Interface
+
+Key Router methods:
+
+```solidity
+interface IRouter {
+    // Upload and validate WASM code
+    function requestCodeValidation(bytes32 codeId) external;
+
+    // Create a new program instance
+    function createProgram(
+        bytes32 codeId,
+        bytes32 salt
+    ) external returns (address);
+
+    // Create with ABI for Etherscan integration
+    function createProgramWithAbiInterface(
+        bytes32 codeId,
+        bytes32 salt,
+        string calldata abiJson
+    ) external returns (address);
+
+    // Events
+    event ProgramCreated(bytes32 actorId, address mirror);
+    event CodeGotValidated(bytes32 codeId, bool valid);
+    event BatchCommitted(bytes32 batchHash);
+    event CodeValidationRequested(bytes32 codeId, bytes32 blobTxHash);
+}
+```
+
+## Middleware Contract Interface
+
+The Middleware integrates Vara.eth with [Symbiotic](https://docs.symbiotic.fi/) for validator management. Key functions:
+
+```solidity
+interface IMiddleware {
+    // Validator set management
+    function makeElectionAt(uint48 ts, uint256 maxValidators)
+        external view returns (address[] memory);
+
+    function getOperatorStakeAt(address operator, uint48 ts)
+        external view returns (uint256 stake);
+
+    // Operator registration
+    function registerOperator() external;
+    function disableOperator() external;
+    function unregisterOperator(address operator) external;
+
+    // Vault management (by vault owner)
+    function registerVault(address vault, address rewards) external;
+    function unregisterVault(address vault) external;
+
+    // Rewards distribution (called by Router)
+    function distributeOperatorRewards(
+        address token,
+        uint256 amount,
+        bytes32 root
+    ) external returns (bytes32);
+
+    // Slashing
+    function requestSlash(SlashData[] calldata data) external;
+    function executeSlash(SlashIdentifier[] calldata slashes) external;
+
+    // Parameters
+    function eraDuration() external view returns (uint48);
+    function minVaultEpochDuration() external view returns (uint48);
+    function collateral() external view returns (address); // wVARA
+}
+```
+
+Source: [IMiddleware.sol](https://github.com/gear-tech/gear/blob/master/ethexe/contracts/src/IMiddleware.sol)
+
+## Mirror Contract Interface
+
+Every Mirror exposes:
+
+```solidity
+interface IMirror {
+    // Primary functions
+    function sendMessage(bytes calldata payload, bool callReply)
+        external payable returns (bytes32);
+
+    function sendReply(bytes32 repliedTo, bytes calldata payload)
+        external payable;
+
+    function claimValue(bytes32 claimedId) external;
+
+    function executableBalanceTopUp(uint128 value) external;
+
+    function transferLockedValueToInheritor() external;
+
+    // State queries
+    function stateHash() external view returns (bytes32);
+    function nonce() external view returns (uint256);
+    function exited() external view returns (bool);
+    function inheritor() external view returns (address);
+    function initializer() external view returns (address);
+
+    // Events for users (informational)
+    event StateChanged(bytes32 stateHash);
+    event Message(bytes32 id, address indexed destination, bytes payload, uint128 value);
+    event Reply(bytes payload, uint128 value, bytes32 replyTo, bytes4 indexed replyCode);
+    event ValueClaimed(bytes32 claimedId, uint128 value);
+    event MessageCallFailed(bytes32 id, address indexed destination, uint128 value);
+    event ReplyCallFailed(uint128 value, bytes32 replyTo, bytes4 indexed replyCode);
+
+    // Events for validators (requesting)
+    event MessageQueueingRequested(
+        bytes32 id,
+        address indexed source,
+        bytes payload,
+        uint128 value,
+        bool callReply
+    );
+    event ReplyQueueingRequested(
+        bytes32 repliedTo,
+        address indexed source,
+        bytes payload,
+        uint128 value
+    );
+    event ValueClaimingRequested(bytes32 claimedId, address indexed source);
+    event ExecutableBalanceTopUpRequested(uint128 value);
+    event OwnedBalanceTopUpRequested(uint128 value);
+}
+```
+
+## Ethereum Mainnet
+
+<Callout type="note" title="Coming Soon">
+    Addresses will be published here at mainnet launch.
+</Callout>

@@ -1,4 +1,73 @@
 ---
 title: Initialization
+description: Initialize your program with the first message that activates it.
 ---
-Coming soon.
+
+# Initialization
+
+After funding the program every Vara.eth program must be initialized before it can process regular messages. Initialization is triggered by the first message sent to the program, which calls the constructor defined in your `#[program]` block.
+
+## What Is Initialization?
+
+```
+Created (Mirror deployed and toped up) → Init message sent → Constructor runs → Active (processing)
+```
+
+A freshly created program has no state. The constructor establishes the starting conditions — owner addresses, default configurations, initial balances, etc.
+
+## Who Can Initialize
+
+<Callout type="warning" title="Initializer Restriction">
+  Only the **initializer** — the address that called `createProgram(...)` on the Router — can send the first message to
+  a program.
+</Callout>
+
+## Init vs Regular Messages
+
+| Aspect        | Init Message         | Regular Message |
+| ------------- | -------------------- | --------------- |
+| Sender        | Owner only           | Anyone          |
+| Frequency     | Once per program     | Unlimited       |
+| Target        | Constructor (`init`) | Service methods |
+| Required      | Yes                  | No              |
+| Carries value | Optional             | Optional        |
+
+## Sending the Init Message
+
+### CLI
+
+```bash
+ethexe tx send-message "$PROGRAM_ID" "0x..." 0 \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+### TypeScript SDK (sails-js)
+
+```typescript
+import { MyProgram } from './generated';
+
+const program = new MyProgram(signer, PROGRAM_ADDRESS);
+
+// The first message triggers initialization
+const tx = await program.init(constructorArgs);
+await tx.wait();
+```
+
+### Etherscan (with ABI)
+
+If deployed with ABI, navigate to the Mirror on Etherscan. Under "Write as Proxy", find the init method and call it directly.
+
+## Common Issues
+
+<Callout type="tip" title="Troubleshooting">
+**"Only initializer can send first message"** — You're trying to initialize from a different address than the one that created the program. Use the same wallet that called `createProgram`.
+
+**Init message not processed** — The program likely has zero Executable Balance. Fund it before or alongside initialization.
+
+→ [Funding Executable Balance](/docs/vara-eth/interact/funding-executable-balance)
+
+**Constructor panic** — Your init logic has a bug. Check the payload encoding matches your constructor signature. Test with `cargo test` before deploying.
+
+</Callout>

@@ -24,11 +24,11 @@ Your compiled `.opt.wasm` file is uploaded to Ethereum as an **EIP-4844 blob** �
 ### CLI
 
 ```bash
-ethexe --cfg none tx \
+ethexe tx upload target/wasm32-gear/release/my_program.opt.wasm \
+  --watch \
   --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
   --ethereum-router "0xBC888a8B050B9B76a985d91c815d2c4f2131a58A" \
-  --sender "$SENDER" \
-  upload target/wasm32-gear/release/my_program.opt.wasm -w
+  --sender "$SENDER"
 ```
 
 ### Gear IDEA
@@ -83,13 +83,11 @@ After the upload transaction is included in an Ethereum block:
 
 ## Check Validation Status
 
-```bash
-ethexe query code-status --code-id 0x...
-```
+Check on Etherscan by searching for `CodeGotValidated` event on the Router contract:
 
-**Expected output:** `Validated`  
-**If `Pending`:** Wait for the next executor batch  
-**If failed:** Check validation errors in executor logs
+- **Event found with `valid: true`** — Code is validated and ready to use
+- **Event found with `valid: false`** — Code failed validation, check WASM module
+- **No event yet** — Wait for the next executor batch (~12 seconds)
 
 ## Validation Failures
 

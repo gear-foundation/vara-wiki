@@ -1,4 +1,140 @@
 ---
 title: Common Workflows
+description: Typical interaction patterns for building dApps on Vara.eth.
 ---
-Coming soon.
+
+# Common Workflows
+
+This page describes the most common interaction patterns you'll use when building on Vara.eth.
+
+## Send, Wait, Read State
+
+The simplest pattern: send a message, wait for execution, then read the updated state.
+
+```typescript
+// 1. Send a message
+const tx = await program.counter.increment();
+
+// 2. Wait for pre-confirmation (sub-second)
+const result = tx.preConfirmedResult;
+
+// 3. Read updated state
+const value = await program.counter.get();
+```
+
+## Send with Value
+
+Attach wVARA to a message for programs that accept deposits:
+
+```typescript
+// Approve Router to spend wVARA
+await wvara.approve(routerAddress, amount);
+
+// Send message with value
+const tx = await program.vault.deposit({ value: parseUnits('10', 18) });
+```
+
+The attached value is credited to the program's Free Balance, which the program logic can then distribute or hold.
+
+## Event-Driven Pattern
+
+Subscribe to events for real-time updates across multiple users:
+
+```typescript
+const mirror = new ethers.Contract(mirrorAddress, abi, wsProvider);
+
+// React to state changes
+mirror.on('StateChanged', async (stateHash) => {
+  const newState = await program.myService.getState();
+  refreshUI(newState);
+});
+
+// React to custom events
+program.on('TradeExecuted', (event) => {
+  addToTradeHistory(event);
+  updatePriceChart(event);
+});
+```
+
+This pattern is essential for multi-user applications where one user's action should update other users' UIs.
+
+## Pre-Confirmation UX
+
+Build responsive UIs by showing pre-confirmed results immediately, then updating on finality:
+
+```typescript
+async function handleSwap(tokenA, tokenB, amount) {
+  setStatus('pending');
+
+  const tx = await program.dex.swap(tokenA, tokenB, amount);
+
+  // Instant feedback
+  setStatus('pre-confirmed');
+  setBalance(tx.preConfirmedResult.newBalance);
+
+  // Final confirmation
+  await tx.waitForFinality();
+  setStatus('finalized');
+}
+```
+
+→ [Events & State Reading](/docs/vara-eth/interact/events-state-reading)
+
+## Contract-to-Contract
+
+Solidity contracts can interact with Vara.eth programs by sending messages to the Mirror:
+
+```solidity
+contract MyDeFi {
+    IMirror public pricingEngine;
+
+    function requestPrice(address token) external {
+        bytes memory payload = abi.encode(token);
+        pricingEngine.sendMessage(payload, 0, true);
+    }
+}
+```
+
+→ [Solidity Integration](/docs/vara-eth/integrate/solidity-integration)
+
+## Batch Operations
+
+For multiple operations in sequence, send messages in order — they'll be processed sequentially by the program:
+
+```typescript
+await program.token.approve(spenderAddress, amount1);
+await program.dex.swap(tokenA, tokenB, amount2);
+await program.vault.deposit({ value: amount3 });
+```
+
+<Callout type="note" title="Atomicity">
+  Each message is a separate Ethereum transaction. For atomic multi-step operations, implement the logic within a single
+  program method that handles the entire workflow.
+</Callout>
+
+## Program-to-Program Communication
+
+Programs can send messages to other programs via `ActorId`. Inter-program messages are processed within the same batch when possible.
+
+→ [Message Passing on Vara Network](/docs/developing/build/gstd/create)
+
+```rust
+// Inside a Vara.eth program
+use sails_rs::prelude::*;
+
+fn call_other_program(&self, target: ActorId, payload: Vec<u8>) {
+    msg::send(target, payload, 0).expect("Failed to send");
+}
+```
+
+## Claim/Refund Pattern
+
+Programs can hold value and allow users to claim it later:
+
+```typescript
+// Program sends value to a user address
+// User claims via Mirror
+const mirror = new ethers.Contract(mirrorAddress, mirrorAbi, signer);
+await mirror.claimValue(claimedId);
+// claimedId is from the Message event emitted by the Mirror
+```

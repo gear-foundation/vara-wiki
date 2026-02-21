@@ -120,11 +120,11 @@ export SENDER="<YOUR_WALLET_ADDRESS>"
 ### Upload the WASM code
 
 ```bash
-ethexe --cfg none tx \
+ethexe tx upload target/wasm32-gear/release/counter_app.opt.wasm \
+  --watch \
   --ethereum-rpc "$RPC" \
   --ethereum-router "$ROUTER" \
-  --sender "$SENDER" \
-  upload target/wasm32-gear/release/counter_app.opt.wasm -w
+  --sender "$SENDER"
 ```
 
 This uploads your WASM as an [EIP-4844 blob](/docs/vara-eth/reference/glossary#blob-eip-4844) and requests code validation. Wait for the `CODE_ID` to appear in the output.
@@ -136,12 +136,11 @@ export CODE_ID="0x..."  # Copy from output
 ### Create a program instance
 
 ```bash
-ethexe --cfg none tx \
+ethexe tx create "$CODE_ID" \
+  --salt 0x0000000000000000000000000000000000000000000000000000000000000001 \
   --ethereum-rpc "$RPC" \
   --ethereum-router "$ROUTER" \
-  --sender "$SENDER" \
-  create "$CODE_ID" \
-  --salt "0x0000000000000000000000000000000000000000000000000000000000000001"
+  --sender "$SENDER"
 ```
 
 This deploys a Mirror contract on Ethereum representing your program. The output contains your `PROGRAM_ID` (Mirror address).
@@ -166,12 +165,10 @@ Your program needs wVARA to pay for execution. Use the `executableBalanceTopUp` 
 Send the first message to trigger the constructor:
 
 ```bash
-ethexe --cfg none tx \
+ethexe tx send-message "$PROGRAM_ID" "0x..." 0 \
   --ethereum-rpc "$RPC" \
   --ethereum-router "$ROUTER" \
-  --sender "$SENDER" \
-  send-message "$PROGRAM_ID" \
-  --payload "0x..."  # Encoded init payload
+  --sender "$SENDER"
 ```
 
 ## 5. Interact with Your Program
@@ -187,10 +184,10 @@ Once initialized, anyone can send messages to your program. The Mirror contract 
 ### Read state
 
 ```bash
-ethexe --cfg none state \
+ethexe tx query "$PROGRAM_ID" \
   --ethereum-rpc "$RPC" \
   --ethereum-router "$ROUTER" \
-  "$PROGRAM_ID"
+  --sender "$SENDER"
 ```
 
 ## What Just Happened?

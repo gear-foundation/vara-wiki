@@ -1,4 +1,137 @@
 ---
 title: Reverse Gas Model
+description: How Vara.eth's execution cost model works — programs pay, not users.
 ---
-Coming soon.
+
+# Reverse Gas Model
+
+In traditional blockchains, users pay gas for every transaction. Vara.eth flips this: **programs pay for their own execution**, and users only pay standard Ethereum gas for the L1 transaction.
+
+## How It Works
+
+### Traditional Model (Ethereum)
+
+```
+User sends transaction -> User pays gas -> Contract executes
+```
+
+Every interaction costs the user gas. Complex operations cost more. Users must estimate gas, risk failed transactions, and hold ETH for every action.
+
+### Vara.eth Reverse Model
+
+```
+User sends message -> User pays L1 gas (~60-100k) -> Program pays wVARA for execution
+```
+
+Users pay a flat, predictable ETH cost for the Ethereum transaction. The program's Executable Balance covers the actual computation cost, regardless of complexity.
+
+This concept is related to Vara Network's [gasless and signless transactions](/docs/vara-network/about/features/gassignless) feature, which uses vouchers to enable gas-free user interactions.
+
+## Execution Pricing
+
+### Free Threshold
+
+Each message gets a free computation allowance. Simple operations that complete within this threshold cost the program nothing beyond the base commitment.
+
+### Metered Execution
+
+When execution exceeds the free threshold, the program is charged at the `wvaraPerSecond` rate:
+
+```
+Execution cost = max(0, execution_time - free_threshold) * wvaraPerSecond
+```
+
+The `wvaraPerSecond` rate is a network parameter set by governance, reflecting the cost of validator computation resources.
+
+### What Determines Execution Time
+
+- **Computational complexity** — Loops, cryptographic operations, data processing
+- **Memory usage** — Allocating and accessing large state
+- **Message handling** — Processing incoming data, generating replies
+- **Inter-program calls** — Sending messages to other programs
+
+### Cost Example
+
+| Operation | Approximate Cost |
+|---|---|
+| Simple counter increment | ~0.001 wVARA (within free threshold = free) |
+| Token transfer with checks | ~0.005 wVARA |
+| Complex DeFi calculation | ~0.05 wVARA |
+| Heavy ML inference | ~0.5 wVARA |
+
+These are illustrative — actual costs depend on network parameters and implementation.
+
+## Why Reverse Gas?
+
+### Better UX
+
+Users don't need to understand gas, hold wVARA, or estimate execution costs. They sign one Ethereum transaction with predictable gas. This enables:
+
+- Onboarding users who don't know about wVARA
+- Predictable costs for frontend applications
+- No "out of gas" failures at the user level
+
+### Developer-Funded Model
+
+Developers fund their programs like running a server — pay for infrastructure so users get a free experience. This aligns with Web2 expectations where users don't pay per API call.
+
+### Flexible Funding
+
+Anyone can top up a program's Executable Balance:
+
+- **Developers** fund their own programs
+- **DAOs** fund community programs via governance
+- **Users** optionally contribute to programs they use
+- **Sponsors** fund programs as part of grant programs
+
+### Spam Prevention
+
+Programs that don't maintain their Executable Balance simply stop processing messages. This creates natural economic pressure: only programs with funding (i.e., someone values their existence) consume network resources.
+
+## Executable Balance Management
+
+### Funding
+
+```typescript
+// Fund via ethers.js
+const mirror = new ethers.Contract(mirrorAddress, abi, signer);
+await mirror.executableBalanceTopUp(parseUnits("10", 18));
+```
+
+### Monitoring
+
+```typescript
+// Check current balance via RPC
+const balance = await api.executableBalance(programId);
+console.log(`Executable balance: ${formatUnits(balance, 18)} wVARA`);
+```
+
+### What Happens When Balance Runs Out
+
+1. Messages continue to arrive at the Mirror (users still pay L1 gas)
+2. Messages are queued in the program's message queue
+3. Executors detect zero Executable Balance and skip execution
+4. No state changes occur — the program is effectively paused
+5. Once funded again, queued messages are processed in order
+
+<Callout type="warn" title="Frontend Warning">
+    Users who send messages to an unfunded program still pay L1 gas, but their messages won't be processed until the program is funded. Design your frontend to check Executable Balance and warn users.
+</Callout>
+
+## Cost Optimization
+
+- **Minimize computation in hot paths** — avoid unnecessary work in frequently called methods
+- **Use lazy evaluation** — don't compute what isn't needed
+- **Batch operations** in single messages when possible
+- **Cache computed values** in state rather than recomputing
+- **Keep payloads small** — less data to decode
+- **Monitor consumption patterns** and right-size funding with automated alerts
+
+## Comparison with Other Models
+
+| Model | Who Pays | Predictability | UX |
+|---|---|---|---|
+| **Ethereum L1** | User | Variable gas | Poor — users estimate gas |
+| **L2 Rollups** | User | Lower but variable | Better — cheaper gas |
+| **Vara.eth** | Program | Fixed L1 cost for users | Best — users pay only L1 gas |
+| **Gasless (meta-tx)** | Relayer | Variable | Good — but centralized relayer |

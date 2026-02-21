@@ -1,25 +1,3 @@
 {
-  "title": "docs",
-  "pages": [
-    "welcome",
-    "about",
-    "account",
-    "getting-started-in-5-minutes",
-    "node",
-    "build",
-    "examples",
-    "idea",
-    "sails-js",
-    "api",
-    "gcli",
-    "tokenomics/index",
-    "bridge",
-    "indexers",
-    "staking",
-    "governance/index",
-    "general",
-    "!tokenomics",
-    "!governance",
-    "..."
-  ]
+  "pages": ["gear", "vara-network", "vara-eth", "developing"]
 }

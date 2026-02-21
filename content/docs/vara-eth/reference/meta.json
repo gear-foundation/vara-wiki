@@ -1,0 +1,12 @@
+{
+  "title": "Reference",
+  "pages": [
+    "network-endpoints",
+    "contract-addresses",
+    "cli-reference",
+    "rpc-api",
+    "errors-troubleshooting",
+    "glossary",
+    "..."
+  ]
+}

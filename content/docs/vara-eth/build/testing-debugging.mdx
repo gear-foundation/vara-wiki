@@ -1,0 +1,136 @@
+---
+title: Testing & Debugging
+description: Test your Vara.eth programs locally and debug common issues.
+---
+
+# Testing & Debugging
+
+Before deploying to testnet, test your programs locally. This page covers unit testing, integration testing patterns, and common debugging techniques.
+
+## Unit Tests
+
+Sails programs are standard Rust code, so you can use `#[cfg(test)]` modules and `cargo test` for basic logic testing.
+
+```bash
+cargo test
+```
+
+<Callout type="note" title="Execution Environment">
+  Unit tests run natively (not in WASM), so they don't test the full Gear runtime behavior. Use them for business logic
+  validation.
+</Callout>
+
+### Example Unit Test
+
+```rust
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_increment() {
+        let mut service = CounterService;
+        let result = service.increment();
+        assert_eq!(result, 1);
+    }
+
+    #[test]
+    fn test_decrement_from_zero() {
+        let mut service = CounterService;
+        let result = service.decrement();
+        assert_eq!(result, -1);
+    }
+}
+```
+
+## Integration Tests with gtest
+
+For integration tests that simulate the Gear runtime, use the [gtest framework](/docs/developing/build/testing-gtest). This allows you to test your program's message handling, state transitions, and inter-program communication without deploying to a real network.
+
+```rust
+use gtest::{Program, System};
+
+#[test]
+fn test_counter_program() {
+    let system = System::new();
+    system.init_logger();
+
+    let program = Program::from_file(
+        &system,
+        "target/wasm32-gear/release/counter_app.opt.wasm",
+    );
+
+    // Initialize the program
+    let result = program.send_bytes(42, b"init");
+    assert!(!result.main_failed());
+
+    // Send increment message
+    let result = program.send_bytes(42, b"Counter/Increment");
+    assert!(!result.main_failed());
+}
+```
+
+→ [gtest Framework](/docs/developing/build/testing-gtest)
+
+## Integration Tests with gclient
+
+For full end-to-end tests that interact with a local Vara node, use the [gclient testing framework](/docs/developing/build/testing-gclient). This spins up a local node and lets you deploy and interact with your program in a realistic environment.
+
+→ [gclient Framework](/docs/developing/build/testing-gclient)
+
+## Local Development Loop
+
+```
+Edit code → cargo test → cargo build --release → Deploy to testnet → Test via CLI/SDK
+```
+
+**Tips for fast iteration:**
+
+1. Test business logic with `cargo test` first — it's instant
+2. Build WASM only when you need to deploy: `cargo build --release`
+3. Use the same `salt` when redeploying to keep the same Mirror address during development
+4. Monitor executor logs for detailed error messages
+
+## Common Debugging Patterns
+
+### Check Build Output
+
+Make sure your build produces both artifacts:
+
+```bash
+ls target/wasm32-gear/release/*.opt.wasm
+ls target/wasm32-gear/release/*.idl
+```
+
+### Verify Code Validation
+
+After uploading, check that your code was validated by looking for the `CodeGotValidated` event on the Router contract via Etherscan. If the event shows `valid: false`, check your WASM module. If no event yet, wait for the next executor batch (~12 seconds).
+
+### Debug Message Failures
+
+If your program doesn't respond to messages:
+
+1. **Check Executable Balance** — Most common issue. Verify top-ups/events on explorer or use `@vara-eth/api` executable balance query
+2. **Check initialization** — The first message must come from the program creator
+3. **Check payload encoding** — Regenerate client bindings from the latest IDL
+4. **Check events on Etherscan** — Look for `MessageQueueingRequested` events on the Mirror
+
+### Common Errors
+
+| Error                  | Cause                     | Fix                                                 |
+| ---------------------- | ------------------------- | --------------------------------------------------- |
+| Code validation failed | Invalid WASM module       | Check `cargo build` output for errors               |
+| Message not processed  | Zero Executable Balance   | Call `executableBalanceTopUp` on Mirror             |
+| Init failed            | Wrong initializer address | Only the program creator can send the first message |
+| Payload decode error   | Mismatched types          | Regenerate client from latest IDL                   |
+| Program not found      | Wrong Mirror address      | Verify `PROGRAM_ID` from `createProgram` output     |
+
+## Logging
+
+Within your program, you can use `gstd::debug!` for debug output (visible in executor logs during local testing).
+
+<Callout type="note" title="Production Builds">
+  Debug output is stripped in production builds. It's only available during local development and testing.
+</Callout>
+
+→ [Errors & Troubleshooting](/docs/vara-eth/reference/errors-troubleshooting)

@@ -8,54 +8,46 @@ export type FeatureItem = {
 };
 
 export const FEATURES_DATA: FeatureItem[] = [
-  {
-    title: "Start developing",
-    img: "/images/develop.svg",
+    {
+    title: "Gear Protocol",
+    img: "/images/gear-grey.png",
     description: (
       <>
-        Are you developer? Start building a new generation of Web3 applications
-        right now.
-        <br />
-        <br />
+        A modern technology for building decentralized systems and applications.
       </>
     ),
-    url: "/docs/build",
+    url: "/docs/gear",
   },
   {
-    title: "Become a Validator",
+    title: "Vara Network",
+    img: "/images/favicon.svg",
+    description: (
+      <>
+        Documentation for the L1 Vara Network: accounts, node, staking, governance,
+        tokenomics, bridge, and more.
+      </>
+    ),
+    url: "/docs/vara-network",
+  },
+  {
+    title: "Vara.eth",
+    img: "/images/ve-logo-light.svg",
+    description: (
+      <>
+        Vara.eth: build, deploy, and integrate apps in the Ethereum ecosystem.
+      </>
+    ),
+    url: "/docs/vara-eth",
+  },
+  {
+    title: "Developing on Sails",
     img: "/images/validate.svg",
     description: (
       <>
-        Provide computing resources to keep the Vara Network secure, performant
-        and censorship-resistant. It is not only a responsibility, but also a
-        good reward.
+        Learn how to develop programs for Vara and Vara.eth with Sails framework.
+        From introduction to deployment and testing.
       </>
     ),
-    url: "/docs/staking/validate",
-  },
-  {
-    title: "Become a Nominator",
-    img: "/images/nominate.svg",
-    description: (
-      <>
-        Help maintain the network security by participating as a nominator.
-        Stake your VARA and get reward!
-        <br />
-        <br />
-      </>
-    ),
-    url: "/docs/staking/nominate",
-  },
-  {
-    title: "Explore Vara's Token Economy",
-    img: "/images/tokenomics.svg",
-    description: (
-      <>
-        Learn how every transaction and stake contributes to a robust network.
-        From incentives to governance, Vara opens doors to a new era in
-        decentralized networks.
-      </>
-    ),
-    url: "/docs/tokenomics",
+    url: "/docs/developing",
   },
 ];

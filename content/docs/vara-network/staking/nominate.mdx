@@ -1,0 +1,231 @@
+---
+title: Become Nominator
+---
+
+Nominators are passive participants in any `Proof of Stake (PoS)` consensus mechanism. They indirectly contribute to maintaining the health and security of the network by delegating their tokens to the most reliable validators who actively confirm blocks. Nominators receive rewards for their delegation, which depend on the network's economy and the percentage that the validator takes for themselves.
+
+Being a nominator does not require running your own node or worrying about online uptime.
+
+## Start Nominating
+
+<Callout type="note" title="Minimum Nomination Amount">
+    The minimum amount of VARA required to start nominating validators directly and earning rewards is **50 VARA**.
+
+    If your balance is less than this minimum, consider joining [Nomination Pools](/docs/vara-network/staking/nominate#join-nomination-pools) instead.
+</Callout>
+
+### Via Vara Staking Dashboard
+
+Vara offers a user-friendly staking **[application](https://staking.vara.network/)**, inspired by the Polkadot's staking app, that simplifies the process of staking and nominating validators.
+
+1. To begin your VARA token staking journey, visit Vara staking at **[staking.vara.network](https://staking.vara.network/)**.
+2. Connect your account and navigate to the "Nominate" section.
+3. Click the `Start Nominating` button.
+
+![setup dashboard](/images/docs/staking/dashboard-1.png)
+
+4. Payout Options
+
+    Next, you'll be presented with payout options:
+
+    - **Compound**: Rewards are automatically re-staked and bonded.
+    - **To Your Account**: Rewards are deposited into your account.
+
+    Select the option that suits your preferences and click "Continue" to proceed.
+
+![setup dashboard](/images/docs/staking/dashboard-2.png)
+
+5. Nominating Validators
+
+    Now, it's time to choose your nominations. The staking dashboard provides two methods:
+
+    - **Automatic Optimal Selection**: This feature selects validators for you based on their performance and rewards. It's an excellent option if you're unsure about which validators to nominate.
+    - **Manual Selection**: If you want more control over your nominations, opt for manual selection. Carefully choose the validators you wish to nominate. Nominating multiple validators can help diversify your risk.
+
+![setup dashboard](/images/docs/staking/dashboard-3.png)
+
+6. Define your Bond - specify amount of VARA to be staked, confirm and sign the transaction.
+
+![setup dashboard](/images/docs/staking/dashboard-4.png)
+
+Congratulations! You are now an active nominator. You will now begin earning staking rewards starting from the **next era**.
+
+### Via SubWallet
+
+SubWallet enables VARA staking in a few clicks. See how it's done with the example of a mobile app:
+
+1. Navigate to the `Staking` section in the SubWallet application:
+
+![subwallet staking](/images/docs/staking/subwallet-staking-1.jpg)
+
+2. If you don't see Vara Network there, just use the search function—type 'Vara':
+
+![subwallet staking](/images/docs/staking/subwallet-staking-2.jpg)
+
+3. Specify the amount of VARA to stake and choose up to 16 validators to **Nominate**. Alternatively you can opt for **pool** staking, in this case make sure you have filtered out only **Active pools**:
+
+![subwallet staking](/images/docs/staking/subwallet-staking-3.jpg)
+
+4. Review the specified data and click the `Approve` button:
+
+![subwallet staking](/images/docs/staking/subwallet-staking-4.jpg)
+
+5. That's it! You've successfully staked your VARA. The next time you enter the 'Staking' section, your staking details will be there.
+
+![subwallet staking](/images/docs/staking/subwallet-staking-5.jpg)
+
+### Via Polkadot.\{js\} app
+
+Go to the Polkadot.\{js\} app, navigate to the Network → Staking → [Accounts](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.vara.network#/staking/actions) section, and click `+ Nominator`:
+
+1. Select the stash and controller accounts, along with the amount you wish to bond. You can see in the screenshot what Stash and Controller accounts are. If you have not created your controller account, you can use the same one for both.
+
+![setup nominator](/images/docs/staking/nominator-1.png)
+
+2. Choose a validator (or validators) you'd like to nominate. You can select up to 16 validators, and the algorithm will determine how to distribute your funds effectively for each Era. It's advisable to choose only reliable validators with a good reputation to ensure they won't be slashed.
+
+![setup nominator](/images/docs/staking/nominator-2.png)
+
+3. Click `Bond & Nominate` and sign the transaction. If everything is correct, your bonded VARA will appear in the Nominators list.
+
+![setup nominator](/images/docs/staking/nominator-3.png)
+
+Your nominations will take effect in the next era.
+
+## Nomination pools
+
+Vara Staking Pools empower users to actively participate in the network's development and receive rewards, regardless of their token holdings. With Staking Pools, even if a user has only 1 VARA token, they can start earning rewards by staking natively on Vara. Additionally, anyone who has at least 50 VARA tokens can create their own pool.
+
+These pools enable users to join forces by pooling their VARA tokens together on-chain. Through this collaborative effort, participants can nominate validators and collectively stake their tokens, significantly enhancing the network's scalability and security.
+
+### Create Nomination Pool
+
+#### Via Vara Staking Dashboard
+
+1.	To create your own pool, go to the Pools tab and click the Create Pool button.
+![create pool vara](/images/docs/staking/create_pool_1.jpg)
+2.	Set a custom name for your pool and click Continue.
+![create pool vara](/images/docs/staking/create_pool_2.jpg)
+3.	Select the validators to nominate with the pool’s funds. You can choose automatically from the suggested options or manually.
+![create pool vara](/images/docs/staking/create_pool_3.jpg)
+4.	Assign addresses for the Root, Nominator, and Bouncer roles. By default, these are all set to your currently connected account.
+![create pool vara](/images/docs/staking/create_pool_4.jpg)
+5.	Specify the amount to bond initially to the pool (minimum 50 VARA).
+![create pool vara](/images/docs/staking/create_pool_5.jpg)
+6.	Review the entered parameters, and if everything is correct, click Create Pool and sign the transaction.
+![create pool vara](/images/docs/staking/create_pool_6.jpg)
+7.	Done! Your pool has been created. You can now invite other nominators to nominate through your pool.
+![create pool vara](/images/docs/staking/create_pool_7.jpg)
+
+### Join Nomination Pools
+
+#### Via Vara Staking Dashboard
+
+1. Navigate to the 'Pools' section in the [Vara Staking Dashboard](https://staking.vara.network/#/pools) and click the `Join` button:
+
+![stake pool vara](/images/docs/staking/stakepool-vara-1.png)
+
+2. Select any pool you like:
+
+![stake pool vara](/images/docs/staking/stakepool-vara-2.png)
+
+<Callout type="warn" title="Check Pool Status">
+    Select only pools with **active nominations**. Staking in a pool with a `Not Nominating` status **does not yield rewards**.
+</Callout>
+
+3. Specify the amount of VARA to stake and click `Submit`:
+
+![stake pool vara](/images/docs/staking/stakepool-vara-3.png)
+
+<Callout type="warn" title="Don't Stake Your Full Balance">
+    Always keep a small amount of VARA (e.g., 1-2 VARA) liquid to cover gas fees.
+
+    If you stake your entire balance, you won't be able to pay for the transactions required to **claim rewards** or **unstake** your tokens.
+</Callout>
+
+4. Congratulations! You have successfully staked VARA in the pool. You will begin earning staking rewards from the next era.
+
+![stake pool vara](/images/docs/staking/stakepool-vara-4.png)
+
+<Callout type="idea" title="Manual Rewards Claim">
+    Staking rewards are **not claimed automatically**. You must periodically check your available balance and trigger the claim transaction manually.
+</Callout>
+
+#### Via Polkadot.js app using SubWallet browser as an example
+
+1. If you have some VARA tokens in your account in the SubWallet mobile application, click **[this link](https://mobile.subwallet.app/browser?url=https%3A%2F%2Fslink.subwallet.app%2Fpolkadot-vara)** to open the Polkadot.js application directly in the wallet's browser.
+
+![stake pool polkajs](/images/docs/staking/stakepool_subwallet_2.jpg)
+
+2. Select the `Network` drop-down, and then click `Staking`:
+
+![stake pool polkajs](/images/docs/staking/stakepool_subwallet_3.jpg)
+
+3. Choose `Pools`, navigate to `All pools`, select any desired pool, and click `Join`:
+
+![stake pool polkajs](/images/docs/staking/stakepool_subwallet_4.jpg)
+
+4. Specify your account and the amount of VARA you wish to stake:
+
+![stake pool polkajs](/images/docs/staking/stakepool_subwallet_5.jpg)
+
+5. Review the transaction details and click `Sign and Submit`:
+
+![stake pool polkajs](/images/docs/staking/stakepool_subwallet_6.jpg)
+
+6. Approve the transaction by signing in to the Wallet application:
+
+![stake pool polkajs](/images/docs/staking/stakepool_subwallet_7.jpg)
+
+7. Your nominations will take effect in the next era.
+
+    You can check your stake at `Pools - Own pools` as well as `Accounts - Pooled`:
+
+![stake pool polkajs](/images/docs/staking/stakepool_subwallet_8-1.jpg)
+![stake pool polkajs](/images/docs/staking/stakepool_subwallet_8-2.jpg)
+
+<Callout type="note" title="Desktop Access">
+    These instructions also apply to laptop and desktop devices. You can access the interface directly via [Polkadot.js Apps](https://polkadot.js.org/apps/?rpc=wss://rpc.vara.network#/staking/pools).
+</Callout>
+
+## Rewards and Withdrawals
+
+[Payouts](https://staking.vara.network/#/payouts) represent staking rewards on Vara and depend on the accumulation of 'Era Points' by your nominated validators over time. These rewards are determined at the end of each Era, which spans 12-hour periods.
+
+### Direct Nomination Rewards
+
+To claim staking rewards, a Payout needs to be requested (Claimed). Any nominator supporting the relevant validator can initiate this request. **One request** triggers the reward payout for **all nominators**. Consequently, for most nominators, payouts are received **automatically**.
+
+As per the user's staking options, rewards will either automatically bond with the current bond or can be sent to the stash, controller, or an external account.
+
+The [Nominate](https://staking.vara.network/#/nominate) section of the Vara Staking Portal provides an overview of Bonded Funds and Nominator Status. Additionally, it offers a `Claim` option for available Pending Payouts.
+
+![nomnate overview](/images/docs/staking/nominate-rewards.png)
+
+Depending on the interface used for staking, the available options may vary.
+
+### Pool Nomination Rewards
+
+Unlike direct nominators, [Pool](https://staking.vara.network/#/pools) members are required to **manually claim** their rewards.
+
+Users have two choices for claiming rewards:
+
+- Reinvest them into the pool (`Compound`), increasing the pool share and accumulating further rewards.
+- `Withdraw` them from the pool to the user's account as free (transferable) VARA.
+
+<Callout type="warn" title="Keep a Small Balance for Gas Fees">
+    You must always keep a small balance of free VARA tokens to cover transaction fees (claiming, withdrawing, etc.).
+
+    If your balance is insufficient, **you will not be able to perform any transactions** until you replenish it.
+</Callout>
+
+![nomnate overview](/images/docs/staking/pool-rewards.png)
+
+### Unstaking
+
+When users require their tokens to be transferable, they must unstake them first.
+
+- For direct nominators, click the `Unstake` button in the [Nominate](https://staking.vara.network/#/nominate) section.
+- As a [Pool](https://staking.vara.network/#/pools) member, click `Manage` and then select the `Leave pool` option. Your funds will be unbonded, and your account will exit the nomination pool.
+
+Once unbonded, users' funds will be unlocked **after 7 days**. Users must click the `padlock` icon to withdraw their funds to their wallet.

@@ -1,0 +1,13 @@
+---
+description: Project uses Base UI, not Radix UI for components
+alwaysApply: true
+---
+
+# UI stack: Base UI
+
+This project uses **Base UI** (`@base-ui/react`), not Radix UI.
+
+- Use Base UI primitives and patterns when adding or modifying UI components.
+- Do not suggest or use Radix UI packages (e.g. `@radix-ui/react-*`).
+- Shadcn components in this repo are built on Base UI (see e.g. `src/components/ui/button.tsx` using `@base-ui/react/button`).
+- Base UI does not support `asChild`; to render a different element (e.g. `Link` as a button), use the component’s styling (e.g. `buttonVariants`) on the desired element instead.

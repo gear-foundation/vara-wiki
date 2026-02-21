@@ -11,28 +11,26 @@ Backend services connect to Vara.eth for automation, indexing, monitoring, and b
 
 ### WebSocket RPC
 
-Direct connection to Vara.eth executors for real-time data and pre-confirmations:
+Use `@vara-eth/api` for Vara.eth-side operations (recommended):
 
 ```typescript
-import { WebSocket } from "ws";
+import { VaraEthApi, WsVaraEthProvider, EthereumClient } from "@vara-eth/api";
 
-const ws = new WebSocket("wss://hoodi-reth-rpc.gear-tech.io/ws");
+const ethereumClient = new EthereumClient(publicClient, ROUTER_ADDRESS, signerAdapter);
+await ethereumClient.waitForInitialization();
 
-ws.on("open", () => {
-  ws.send(
-    JSON.stringify({
-      jsonrpc: "2.0",
-      method: "programStorage_stateQuery",
-      params: [programId, "readMethod", encodedArgs],
-      id: 1,
-    })
-  );
-});
+const api = new VaraEthApi(
+  new WsVaraEthProvider("wss://vara-eth-validator-1.gear-tech.io:9944"),
+  ethereumClient
+);
 
-ws.on("message", (data) => {
-  const result = JSON.parse(data.toString());
-  console.log("State:", result);
-});
+// Read program ids
+const ids = await api.query.program.getIds();
+console.log("programs:", ids.length);
+
+// Read full state by state hash
+const state = await api.query.program.readState(stateHash);
+console.log("state:", state);
 ```
 
 See [RPC API](/docs/vara-eth/reference/rpc-api) for the full method reference.

@@ -127,7 +127,7 @@ mirror.sendMessage(payload, 0, false);
 Generate a Solidity interface from the program's IDL:
 
 ```bash
-sails-cli abi --idl program.idl --out IMyProgram.sol
+cargo sails sol --idl-path ./target/wasm32-gear/release/my_program.idl
 ```
 
 This generates a typed Solidity interface:

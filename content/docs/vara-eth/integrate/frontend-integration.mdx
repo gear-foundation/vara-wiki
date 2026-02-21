@@ -15,7 +15,6 @@ Three libraries power frontend integration:
 |---|---|---|
 | [`@vara-eth/api`](https://github.com/gear-tech/gear-js/blob/main/apis/vara-eth/README.md) | Core Vara.eth client — EthereumClient, VaraEthApi, injected transactions, state queries | `npm install @vara-eth/api` |
 | [sails-js](/docs/developing/sails-js) | Typed client generated from your program's IDL — handles payload encoding and decoding | `npm install sails-js` |
-| [@gear-js/api](/docs/vara-network/api) | Lower-level connection to Vara.eth RPC for subscriptions | `npm install @gear-js/api` |
 
 `@vara-eth/api` is the primary SDK. It provides two interaction paths:
 - **Ethereum-side** — `EthereumClient` with `RouterClient`, `MirrorClient`, and `WrappedVaraClient` for on-chain operations
@@ -50,7 +49,7 @@ export const config = {
   ethRpcWs: "wss://hoodi-reth-rpc.gear-tech.io/ws",
 
   // Vara.eth RPC (for pre-confirmations and state queries)
-  varaEthWs: "wss://testnet-ethexe.gear-tech.io/ws",
+  varaEthWs: "wss://vara-eth-validator-1.gear-tech.io:9944",
 
   // Contract addresses
   routerAddress: "0xBC888a8B050B9B76a985d91c815d2c4f2131a58A",
@@ -176,23 +175,40 @@ Pre-confirmations give your dApp sub-second feedback. See [Events & State Readin
 
 ```typescript
 async function handleSwap(tokenA: string, tokenB: string, amount: bigint) {
-  // 1. Show pending state
+  // 1. Show pending state in UI
   setStatus("pending");
 
-  // 2. Send the transaction
+  // 2. Send an Ethereum-side transaction through Mirror
   const tx = await program.dex.swap(tokenA, tokenB, amount);
 
-  // 3. sails-js automatically fetches pre-confirmed result via RPC
-  const result = tx.preConfirmedResult;
-
-  // 4. Update UI immediately with pre-confirmed data
-  setStatus("pre-confirmed");
-  setBalance(result.newBalance);
-
-  // 5. Optionally wait for L1 finality
-  await tx.waitForFinality();
-  setStatus("finalized");
+  // 3. Wait for Ethereum confirmation and then refresh state
+  await tx.wait();
+  const updated = await program.dex.balanceOfCurrentUser();
+  setBalance(updated);
+  setStatus("confirmed");
 }
+```
+
+### Injected Pre-Confirmation Pattern (`@vara-eth/api`)
+
+For sub-second feedback, use Vara.eth-side injected transactions:
+
+```typescript
+import { VaraEthApi, WsVaraEthProvider, EthereumClient } from "@vara-eth/api";
+
+const ethereumClient = new EthereumClient(publicClient, config.routerAddress, signerAdapter);
+await ethereumClient.waitForInitialization();
+
+const api = new VaraEthApi(new WsVaraEthProvider(config.varaEthWs), ethereumClient);
+
+const injected = await api.createInjectedTransaction({
+  destination: config.programId,
+  payload: encodedPayload, // encode with sails-js
+  value: 0n,
+});
+
+await injected.send(); // accepted quickly
+setStatus("pre-confirmed");
 ```
 
 ### Trust Levels

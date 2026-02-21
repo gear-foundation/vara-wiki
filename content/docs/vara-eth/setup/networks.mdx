@@ -9,6 +9,11 @@ Vara.eth runs on Ethereum. The testnet is deployed on **Ethereum Hoodi** (testne
 
 ## Testnet (Ethereum Hoodi)
 
+<Callout type="note" title="Source of Truth">
+  Keep this page as the canonical source for network values (RPC, Chain ID, Router). Other pages link here to avoid
+  stale duplicates.
+</Callout>
+
 | Parameter            | Value                                            |
 | -------------------- | ------------------------------------------------ |
 | **Ethereum Network** | Hoodi Testnet                                    |
@@ -27,11 +32,11 @@ https://vara-eth-validator-1.gear-tech.io
 ```
 
 ```
-wss://vara-eth-validator-1.gear-tech.io
+wss://vara-eth-validator-1.gear-tech.io:9944
 ```
 
 <Callout type="note" title="Endpoint options">
-  More endpoints wss://vara-eth-validator-*.gear-tech.io (from 1 to 4)
+  More endpoints: `wss://vara-eth-validator-{1..4}.gear-tech.io:9944`
 </Callout>
 
 This endpoint is used by the SDK to subscribe to execution results before they're finalized on Ethereum.

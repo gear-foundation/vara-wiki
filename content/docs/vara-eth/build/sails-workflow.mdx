@@ -82,7 +82,7 @@ When you build a Sails program, the compiler generates an `.idl` file alongside 
 
 1. **[sails-js](/docs/developing/sails-js)** — to generate TypeScript client bindings
 2. **Sails CLI** — to generate a Solidity ABI interface
-3. **[Gear IDEA](https://idea.gear-tech.io)** — to display methods in the explorer UI
+3. Explorer/debug tooling — to display methods and inspect interactions during development
 
 ## Events
 
@@ -112,7 +112,7 @@ npx sails-js generate --idl ./my_program.idl --out ./src/lib
 ### Solidity ABI
 
 ```bash
-sails-cli abi ./my_program.idl --out ./MyProgram.abi.json
+cargo sails sol --idl-path ./my_program.idl
 ```
 
 When you deploy with `createProgramWithAbiInterface(...)`, the generated ABI attaches to the Mirror proxy. This means:
@@ -135,7 +135,7 @@ Write Rust → Build → IDL generated → Generate clients → Deploy
 1. Define services with `#[service]` and wire them in `#[program]`
 2. `cargo build --release` produces `.opt.wasm` + `.idl`
 3. Generate client bindings from the IDL
-4. Deploy using `ethexe` CLI or [Gear IDEA](https://idea.gear-tech.io)
+4. Deploy using `ethexe` CLI (or project deployment scripts)
 5. Interact from frontend ([sails-js](/docs/developing/sails-js)), Solidity, or CLI
 
 ## Key Files

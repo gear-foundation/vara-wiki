@@ -32,13 +32,6 @@ ethexe tx create-with-abi "$CODE_ID" "$ABI_INTERFACE_ADDRESS" \
   --sender "$SENDER"
 ```
 
-### Gear IDEA
-
-<Callout type="note" title="Specialized Interface">
-  [Gear IDEA](https://idea.gear-tech.io) is specialized for Gear programs. A dedicated Vara.eth interface may become
-  available in the future.
-</Callout>
-
 ### TypeScript SDK
 
 **Without ABI:**
@@ -54,7 +47,7 @@ await tx.wait();
 **With ABI:**
 
 ```typescript
-const tx = await client.createProgramWithAbi(
+const tx = await client.createProgramWithAbiInterface(
   codeId,
   salt,
   abiInterface, // Generated Solidity ABI
@@ -67,7 +60,7 @@ await tx.wait();
 Deploying with ABI attaches a Solidity interface to your Mirror contract:
 
 **Without ABI:**  
-Only base Mirror methods visible — `sendMessage`, `executableBalanceTopUp`, `claimValue`
+Only base Mirror methods visible — `sendMessage`, `sendReply`, `executableBalanceTopUp`, `claimValue`
 
 **With ABI:**  
 Your custom methods appear on Etherscan under "Write as Proxy" / "Read as Proxy" with decoded parameter names and types

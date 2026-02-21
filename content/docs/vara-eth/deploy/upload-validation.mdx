@@ -31,28 +31,11 @@ ethexe tx upload target/wasm32-gear/release/my_program.opt.wasm \
   --sender "$SENDER"
 ```
 
-### Gear IDEA
-
-<Callout type="note" title="Specialized Interface">
-  [Gear IDEA](https://idea.gear-tech.io) is specialized for Gear programs. A dedicated Vara.eth interface may become
-  available in the future.
+<Callout type="note" title="CLI First, SDK Optional">
+  Use `ethexe` CLI as the default and documented upload path.
+  TypeScript upload flow can be used as an optional alternative if your `@vara-eth/api` version explicitly exposes the
+  upload helpers you need.
 </Callout>
-
-Upload via the web interface:
-
-1. Connect your wallet
-2. Select the `.opt.wasm` file
-3. Submit the transaction
-
-### TypeScript SDK
-
-```typescript
-import { EthereumClient } from '@vara-eth/api';
-
-const client = new EthereumClient(provider, ROUTER_ADDRESS);
-const tx = await client.uploadCode(wasmBlob, codeId);
-await tx.wait();
-```
 
 ## What Happens On-Chain
 
@@ -60,10 +43,10 @@ When you upload, the Router contract records the `codeId` as **pending validatio
 
 1. Router emits `CodeValidationRequested` event
 2. WASM blob is included in the transaction via EIP-4844
-3. `codeId` (keccak256 hash of WASM) is marked as pending
+3. `codeId` (deterministic code hash) is marked as pending
 
 <Callout type="note" title="Deterministic Code ID">
-  The `codeId` is the `keccak256` hash of your WASM binary. Same code always produces the same `codeId`, regardless of
+  `codeId` is a deterministic hash of your WASM binary. Same code always produces the same `codeId`, regardless of
   who uploads it.
 </Callout>
 
@@ -102,7 +85,7 @@ Check on Etherscan by searching for `CodeGotValidated` event on the Router contr
 
 The `CODE_ID` is the unique identifier for your uploaded code:
 
-- 256-bit `keccak256` hash of the WASM binary
+- 256-bit deterministic hash of the WASM binary (`CodeId`)
 - **Deterministic** — same code always produces the same ID
 - **Reusable** — once validated, anyone can create program instances from it
 - **Immutable** — the code behind a `CODE_ID` never changes

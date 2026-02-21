@@ -192,13 +192,14 @@ ethexe tx query "$PROGRAM_ID" \
 
 ## What Just Happened?
 
-1. You wrote a Rust program using the [Sails framework](/docs/developing/build/sails)
-2. Compiled it to WASM and uploaded the blob to Ethereum via [EIP-4844](/docs/vara-eth/reference/glossary#blob-eip-4844)
-3. Executors validated the WASM code off-chain and included the result in a batch
-4. You created a Mirror contract on Ethereum — your program's L1 identity
-5. You sent an initialization message through the Mirror
-6. Executors processed the message, executed the WASM, and committed the state transition back to Ethereum
+You completed the core lifecycle:
 
-Your program is now live on Ethereum, accessible via its Mirror address, with execution powered by the Vara.eth network.
+1. Build and upload code
+2. Create Mirror instance
+3. Fund executable balance
+4. Initialize and interact
 
-→ [Program Basics](/docs/vara-eth/build/program-basics) | [Sails Workflow](/docs/vara-eth/build/sails-workflow)
+Your program is now live on Ethereum via its Mirror address.
+
+→ Full lifecycle details: [Program Basics](/docs/vara-eth/build/program-basics)  
+→ API/design structure: [Sails Workflow](/docs/vara-eth/build/sails-workflow)

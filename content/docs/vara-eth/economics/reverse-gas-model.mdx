@@ -116,7 +116,7 @@ console.log(`Executable balance: ${state.executableBalance} base units`);
 4. No state changes occur — the program is effectively paused
 5. Once funded again, queued messages are processed in order
 
-<Callout type="warn" title="Frontend Warning">
+<Callout type="warning" title="Frontend Warning">
     Users who send messages to an unfunded program still pay L1 gas, but their messages won't be processed until the program is funded. Design your frontend to check Executable Balance and warn users.
 </Callout>
 

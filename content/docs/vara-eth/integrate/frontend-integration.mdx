@@ -54,7 +54,7 @@ npm install @vara-eth/api viem@^2.39.0 kzg-wasm@1.0.0 sails-js
 From your program's IDL file, generate TypeScript bindings:
 
 ```bash
-npx sails-js generate -i ./path/to/your_program.idl -o ./src/generated
+npx sails-js-cli generate ./path/to/your_program.idl --out ./src/generated
 ```
 
 This creates a typed client class with methods matching your program's services and routes. Every method call is automatically encoded to the correct SCALE format. For more details, see [sails-js client generation](/docs/developing/sails-js/client-generation).
@@ -75,6 +75,10 @@ export const config = {
   programId: "0x...", // Your program's Mirror address
 };
 ```
+
+<Callout type="note" title="Addresses Change by Network">
+  Keep addresses in one source of truth: [Contract Addresses](/docs/vara-eth/reference/contract-addresses).
+</Callout>
 
 ## Connecting to a Program
 
@@ -166,9 +170,9 @@ The [IDL](/docs/developing/build/sails/idl) file is the source of truth for your
 ### Generating TypeScript Types
 
 ```bash
-npx sails-js generate \
-  -i ./target/wasm32-gear/release/my_program.idl \
-  -o ./src/generated
+npx sails-js-cli generate \
+  ./target/wasm32-gear/release/my_program.idl \
+  --out ./src/generated
 ```
 
 ### Generating Solidity ABI

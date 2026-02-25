@@ -17,13 +17,14 @@ error: failed to select a version for `sails-rs`
 
 ### WASM build produces no `.opt.wasm`
 
-**Fix**: Make sure you're building with the correct target:
+**Fix**: Build the Sails project normally:
 
 ```bash
-cargo build --release --target wasm32v1-none
+cargo build --release
 ```
 
-And that `wasm-opt` is installed. The `.opt.wasm` file is the optimized version needed for deployment.
+Sails build tooling resolves the target automatically and emits artifacts in `target/wasm32-gear/release/`.
+Also ensure `wasm-opt` is installed. The `.opt.wasm` file is the optimized version needed for deployment.
 
 ### IDL not generated
 
@@ -146,7 +147,7 @@ TypeError: Cannot read property 'encode' of undefined
 **Fix**: Regenerate TypeScript bindings from the latest IDL:
 
 ```bash
-sails-cli js --idl program.idl --out ./src/generated/
+npx sails-js-cli generate program.idl --out ./src/generated/
 ```
 
 Ensure the IDL matches the deployed program version.

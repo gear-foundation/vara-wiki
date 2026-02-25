@@ -180,13 +180,15 @@ ethexe tx query "$MIRROR_ADDRESS" \
 
 ## Sails CLI
 
-The `sails-cli` tool generates client code and ABI from [IDL](/docs/developing/build/sails/idl) files.
+Sails tooling uses two CLIs:
+
+- `cargo sails` for Rust-side workflows
+- `sails-js-cli` for TypeScript client generation
 
 ### Generate TypeScript Client
 
 ```bash
-sails-cli js \
-  --idl program.idl \
+npx sails-js-cli generate program.idl \
   --out ./src/generated/
 ```
 
@@ -195,19 +197,15 @@ Produces typed TypeScript bindings for all services, methods, and events. See [s
 ### Generate Solidity ABI
 
 ```bash
-sails-cli abi \
-  --idl program.idl \
-  --out ./abi/program.abi.json
+cargo sails sol --idl-path program.idl
 ```
 
-Produces an ABI JSON file for use with `createProgramWithAbiInterface` and Etherscan.
+Produces Solidity ABI artifacts for use with `createProgramWithAbiInterface` and Etherscan.
 
 ### Generate Rust Client
 
 ```bash
-sails-cli rust \
-  --idl program.idl \
-  --out ./src/generated/
+cargo sails client-rs program.idl ./src/generated/program_client.rs
 ```
 
 Produces typed Rust client code for inter-program communication.

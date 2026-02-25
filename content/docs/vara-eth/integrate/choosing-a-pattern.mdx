@@ -5,132 +5,64 @@ description: Decide which integration approach is right for your use case.
 
 # Choosing a Pattern
 
-Vara.eth supports multiple integration patterns. This guide helps you pick the right one.
+Vara.eth integration is easiest to choose by **team role** and ownership.
 
-## Decision Matrix
+## Quick Choice by Role
 
-| Factor | Frontend Only | Frontend + Backend | Solidity Hybrid | Full Stack |
-|---|---|---|---|---|
-| **Complexity** | Low | Medium | Medium-High | High |
-| **User interaction** | Direct wallet | Direct wallet | Contract-mediated | Mixed |
-| **Automation** | None | Keepers/bots | On-chain triggers | Full |
-| **Indexing** | Client-side | Server-side DB | On-chain events | The Graph + DB |
-| **Best for** | Simple dApps | Production dApps | DeFi composability | Enterprise |
-
-## Pattern 1: Frontend Only
-
-Your web app connects directly to the Mirror via MetaMask/WalletConnect. No backend needed.
-
-```
-User (Browser) -> MetaMask -> Mirror Contract -> Vara.eth Program
-                                 ^
-                           sails-js SDK
-```
-
-**When to use**:
-- Simple applications (games, voting, basic tokens)
-- Prototyping and MVPs
-- Small user base
-- No automation requirements
-
-**Pros**: Simplest architecture, no server costs, fully decentralized.
-
-**Cons**: No automation, no indexing, limited error recovery, every user action requires a wallet transaction.
-
-## Pattern 2: Frontend + Backend
-
-Web app for users, backend service for automation and indexing.
-
-```
-User (Browser) -> MetaMask -> Mirror <- Keeper Service (Backend)
-                                 ^
-                           REST API <- Database <- Event Indexer
-```
-
-**When to use**:
-- Production dApps with real users
-- Need for historical queries or analytics
-- Scheduled or automated operations
-- Notification systems
-
-**Pros**: Good balance of decentralization and functionality. Users interact directly with the chain, backend handles automation.
-
-**Cons**: Requires server infrastructure. Backend wallet needs ETH for gas.
-
-## Pattern 3: Solidity Hybrid
-
-Existing Solidity contracts interact with Vara.eth for heavy computation.
-
-```
-User -> Your Solidity Contract -> Mirror.sendMessage() -> Vara.eth Program
-                                                               |
-                                                         Heavy compute
-                                                               |
-                                                      Reply event -> Mirror
-                                                               |
-                                                      Keeper reads reply
-                                                               |
-                                                   Calls Solidity contract
-```
-
-**When to use**:
-- Existing DeFi protocols wanting to add complex logic
-- On-chain composability with other Ethereum contracts
-- Pricing engines, risk models, or ML inference
-- Need Solidity contracts to trigger Vara.eth programs
-
-**Pros**: Full Ethereum DeFi composability. Leverage existing Solidity infrastructure.
-
-**Cons**: Async flow requires careful design. Need keeper services for reply handling. Higher gas costs (Solidity -> Mirror -> Program).
-
-## Pattern 4: Full Stack
-
-Complete architecture with frontend, backend, Solidity contracts, and Vara.eth programs.
-
-```
-User (Browser) -> Frontend <-> REST API (Backend)
-       |                          |
-   MetaMask               Keeper/Automation
-       |                          |
-   Mirror  <->  Your Solidity  <->  Mirror
-       |                          |
-   Vara.eth Program A    Vara.eth Program B
-```
-
-**When to use**:
-- Enterprise applications
-- Multi-program architectures
-- Complex DeFi protocols with multiple components
-- Systems requiring both user-facing and automated operations
-
-**Pros**: Maximum flexibility. Can handle any use case.
-
-**Cons**: Highest complexity and operational overhead.
-
-## By Use Case
-
-| Use Case | Recommended Pattern | Reason |
+| Team Role | Start Here | Add Next |
 |---|---|---|
-| **Token / NFT** | Frontend Only or Frontend + Backend | Program handles all token logic. Add backend for indexing. |
-| **DEX / AMM** | Solidity Hybrid + Backend | Solidity for token custody, Vara.eth for pricing engine. Backend for keepers. |
-| **Gaming** | Frontend + Backend | Pre-confirmations for instant gameplay. Backend for matchmaking and leaderboards. |
-| **Social / Content** | Frontend + Backend | Program stores social graph. Backend for feed generation and notifications. |
-| **Enterprise / B2B** | Full Stack | Maximum control, API gateway, monitoring. |
-| **Oracle / Data Feed** | Backend + Solidity Hybrid | Backend fetches data, Vara.eth processes, Solidity consumes. |
+| Frontend | Direct wallet -> Mirror calls | Injected transactions for fast UX |
+| Backend | Event indexing + monitoring + top-ups | Keepers, alerts, API layer |
+| Solidity | Contract -> Mirror async calls | Keeper that reacts to `Reply` events |
 
-## Migration Path
+## Frontend Teams
 
-Start simple, add complexity as needed:
+Use this when users interact directly from wallet-connected UI.
 
 ```
-Frontend Only -> Add Backend (indexing) -> Add Solidity (composability) -> Full Stack
+User (Browser) -> Wallet -> Mirror -> Vara.eth Program
 ```
 
-Each step is additive — you don't need to rewrite existing code. The Mirror contract interface stays the same regardless of who's calling it.
+What frontend usually owns:
+- Connect wallet and send user actions (`sendMessage`)
+- Read state (`calculateReplyForHandle`, `readState`)
+- Show pre-confirmed vs finalized status in UI
 
-## Key Takeaways
+When to add backend:
+- You need history, analytics, notifications, or retries
+- You need operational top-ups for executable balance
 
-- **Start with Frontend Only** unless you have a specific reason not to. The [sails-js](/docs/developing/sails-js) SDK handles most use cases.
-- **Add a Backend** when you need automation, indexing, or API access. This is the most common production pattern.
-- **Use Solidity Hybrid** when you need DeFi composability or when existing Ethereum contracts need to interact with Vara.eth.
-- **Go Full Stack** only for complex enterprise systems. The operational overhead is significant.
+## Backend Teams
+
+Use this when you need production operations around programs.
+
+```
+Frontend -> Mirror
+Backend  -> indexer + DB + keeper + monitoring
+```
+
+What backend usually owns:
+- Index Mirror/Router events
+- Monitor `executableBalance` and top up before depletion
+- Run automation jobs and expose API endpoints for UI
+
+## Solidity Teams
+
+Use this when existing Solidity contracts must trigger Vara.eth computation.
+
+```
+User -> Solidity contract -> Mirror -> Vara.eth Program
+                               |
+                         async Reply event
+                               |
+                          Keeper callback
+```
+
+Important design rule:
+- Flow is asynchronous. Do not expect synchronous return values from `sendMessage`.
+
+## Recommended Rollout
+
+1. Start with frontend + direct Mirror interaction.
+2. Add backend for indexing, monitoring, and automation.
+3. Add Solidity integration only when on-chain composability is required.

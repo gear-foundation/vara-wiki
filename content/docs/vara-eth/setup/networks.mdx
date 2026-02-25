@@ -9,34 +9,16 @@ Vara.eth runs on Ethereum. The testnet is deployed on **Ethereum Hoodi** (testne
 
 ## Testnet (Ethereum Hoodi)
 
-<Callout type="note" title="Source of Truth">
-  Keep this page as the canonical source for network values (RPC, Chain ID, Router). Other pages link here to avoid
-  stale duplicates.
-</Callout>
+Vara.eth is currently running on Ethereum Hoodi testnet.
 
-| Parameter            | Value                                            |
-| -------------------- | ------------------------------------------------ |
-| **Ethereum Network** | Hoodi Testnet                                    |
-| **Chain ID**         | `560048`                                         |
-| **RPC (HTTPS)**      | `https://hoodi-reth-rpc.gear-tech.io`            |
-| **RPC (WebSocket)**  | `wss://hoodi-reth-rpc.gear-tech.io/ws`           |
-| **Router Address**   | `0xBC888a8B050B9B76a985d91c815d2c4f2131a58A`     |
-| **Explorer**         | [hoodi.etherscan.io](https://hoodi.etherscan.io) |
+- Chain ID: `560048`
+- Primary RPC: `https://hoodi-reth-rpc.gear-tech.io`
+- Explorer: [hoodi.etherscan.io](https://hoodi.etherscan.io)
 
-### Vara.eth RPC (for pre-confirmations)
+For the full endpoint matrix (HTTPS, WebSocket, faucet, health checks, and connection examples), use:
 
-To send messages and receive instant pre-confirmed results from executors, connect to the Vara.eth HTTPS/WebSocket endpoints:
+→ [Network Endpoints](/docs/vara-eth/reference/network-endpoints)
 
-```
-https://vara-eth-validator-1.gear-tech.io
-```
+For Router and related contract addresses, use:
 
-```
-wss://vara-eth-validator-1.gear-tech.io:9944
-```
-
-<Callout type="note" title="Endpoint options">
-  More endpoints: `wss://vara-eth-validator-{1..4}.gear-tech.io:9944`
-</Callout>
-
-This endpoint is used by the SDK to subscribe to execution results before they're finalized on Ethereum.
+→ [Contract Addresses](/docs/vara-eth/reference/contract-addresses)

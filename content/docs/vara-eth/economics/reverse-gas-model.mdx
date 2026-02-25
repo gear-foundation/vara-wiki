@@ -101,9 +101,11 @@ await mirror.executableBalanceTopUp(parseUnits("10", 18));
 ### Monitoring
 
 ```typescript
-// Check current balance via RPC
-const balance = await api.executableBalance(programId);
-console.log(`Executable balance: ${formatUnits(balance, 18)} wVARA`);
+// Read state and take executableBalance field
+const mirror = getMirrorClient(programId, signer, publicClient);
+const stateHash = await mirror.stateHash();
+const state = await api.query.program.readState(stateHash);
+console.log(`Executable balance: ${state.executableBalance} base units`);
 ```
 
 ### What Happens When Balance Runs Out

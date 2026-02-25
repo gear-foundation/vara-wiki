@@ -78,6 +78,12 @@ impl CounterProgram {
 }
 ```
 
+<Callout type="note" title="Why static mut is acceptable here">
+  In Vara.eth's actor model, each program processes messages sequentially (single-threaded execution per program), so
+  this simple `static mut` counter example does not have concurrent access. For production contracts and richer state,
+  prefer structured state patterns in Sails services.
+</Callout>
+
 Update `Cargo.toml` to enable ethexe support:
 
 ```toml title="Cargo.toml"
@@ -116,6 +122,10 @@ export RPC="wss://hoodi-reth-rpc.gear-tech.io/ws"
 export ROUTER="0xBC888a8B050B9B76a985d91c815d2c4f2131a58A"
 export SENDER="<YOUR_WALLET_ADDRESS>"
 ```
+
+<Callout type="note" title="Router Address Source">
+  For the latest network addresses, always check [Contract Addresses](/docs/vara-eth/reference/contract-addresses).
+</Callout>
 
 ### Upload the WASM code
 

@@ -39,20 +39,21 @@ ethexe tx create-with-abi "$CODE_ID" "$ABI_INTERFACE_ADDRESS" \
 ```typescript
 import { EthereumClient } from '@vara-eth/api';
 
-const client = new EthereumClient(provider, ROUTER_ADDRESS);
-const tx = await client.createProgram(codeId, salt);
-await tx.wait();
+const client = new EthereumClient(publicClient, ROUTER_ADDRESS, signer);
+await client.waitForInitialization();
+
+const tx = await client.router.createProgram(codeId);
+await tx.sendAndWaitForReceipt();
 ```
 
 **With ABI:**
 
 ```typescript
-const tx = await client.createProgramWithAbiInterface(
+const tx = await client.router.createProgramWithAbiInterface(
   codeId,
-  salt,
-  abiInterface, // Generated Solidity ABI
+  abiInterfaceAddress, // Deployed ABI interface contract address
 );
-await tx.wait();
+await tx.sendAndWaitForReceipt();
 ```
 
 ## Why Deploy With ABI?

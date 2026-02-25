@@ -12,7 +12,7 @@ Messages are the fundamental way to interact with Vara.eth programs. Every user 
 | Field       | Description                                              |
 | ----------- | -------------------------------------------------------- |
 | `payload`   | Encoded method call and arguments (SCALE or ABI-encoded) |
-| `value`     | Optional wVARA amount to send with the message           |
+| `value`     | Optional ETH amount (wei) sent to the program            |
 | `callReply` | Whether to request an on-chain reply                     |
 
 ## Two Sending Paths
@@ -56,8 +56,8 @@ sequenceDiagram
 ```
 
 <Callout type="tip" title="When to Use Each Path">
-  **Ethereum-side**: On-chain value transfer, Solidity composability, L1 receipts **Vara.eth-side**: Instant feedback
-  for users (Web2-like UX), no immediate L1 settlement needed
+  **Ethereum-side**: On-chain value transfer, Solidity composability, L1 receipts. **Vara.eth-side**: Instant feedback
+  for users (Web2-like UX) when immediate L1 settlement is not required.
 </Callout>
 
 Both paths are supported by the [`@vara-eth/api`](https://github.com/gear-tech/gear-js/blob/main/apis/vara-eth/README.md) SDK.
@@ -99,7 +99,7 @@ If the program was deployed with ABI, navigate to the Mirror on [Etherscan](http
 
 ```solidity
 IMirror mirror = IMirror(mirrorAddress);
-mirror.sendMessage(payload, 0, false);
+mirror.sendMessage(payload, false);
 ```
 
 → [Solidity Integration](/docs/vara-eth/integrate/solidity-integration)
@@ -157,35 +157,25 @@ mirror.on('Reply', (payload, value, replyTo, replyCode) => {
 
 ### Pre-Confirmed Replies (Off-Chain)
 
-For instant feedback, use pre-confirmations via the Vara.eth RPC. The [sails-js](/docs/developing/sails-js) SDK handles this automatically:
+For instant feedback, use injected transactions via Vara.eth RPC and wait for the signed promise:
 
 ```typescript
-const tx = await program.counter.increment();
-// Pre-confirmed result — sub-second
-const preConfirmed = tx.preConfirmedResult;
-// Final result — after L1 settlement
-await tx.waitForFinality();
+const injected = await api.createInjectedTransaction({
+  destination: programId,
+  payload: encodedPayload,
+  value: 0n,
+});
+
+const promise = await injected.sendAndWaitForPromise();
+await promise.validateSignature();
+// Decode promise.payload
 ```
 
 → [Events & State Reading](/docs/vara-eth/interact/events-state-reading)
 
 ## Sending with Value
 
-Messages can carry **two types of value**:
-
-### wVARA Value
-
-wVARA (ERC-20 token) is credited to the program's Free Balance:
-
-```typescript
-// Approve Router to spend wVARA first
-await wvara.approve(routerAddress, amount);
-
-// Send message with wVARA value
-await program.vault.deposit({ value: parseUnits('5', 18) });
-```
-
-### Ether Value
+### Ether Value (via `sendMessage`)
 
 Programs can also receive native Ether. The `sendMessage` function on the Mirror is `payable`:
 
@@ -197,12 +187,12 @@ await mirror.sendMessage(payload, false, {
 });
 ```
 
-<Callout type="note" title="Value Flow">
-**wVARA**: User's wVARA → Router → Program's Free Balance  
-**Ether**: User's ETH → Mirror → Program's Owned Balance
-
-→ [wVARA Overview](/docs/vara-eth/economics/wvara-overview)
-
+<Callout type="note" title="wVARA vs ETH">
+  Sending a message with `sendMessage` transfers **ETH** (Owned Balance). Funding execution requires **wVARA**
+  top-up to Executable Balance.
+  <br />
+  <br />
+  → [Funding Executable Balance](/docs/vara-eth/interact/funding-executable-balance)
 </Callout>
 
 ## Gas Considerations

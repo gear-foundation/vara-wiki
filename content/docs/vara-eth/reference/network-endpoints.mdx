@@ -50,18 +50,12 @@ const wsProvider = new ethers.WebSocketProvider(
 
 For pre-confirmations and state queries via the executor P2P network:
 
-```typescript
-import { SailsProgram } from "sails-js";
-
-const program = new SailsProgram({
-  idl: programIdl,
-  address: mirrorAddress,
-  provider,
-});
-
-// State queries go through executor RPC
-const state = await program.myService.readState();
+```text
+wss://vara-eth-validator-1.gear-tech.io:9944
 ```
+
+Use this endpoint with `@vara-eth/api` providers (`WsVaraEthProvider` / `HttpVaraEthProvider`) for injected
+transactions and pre-confirmation flows.
 
 ## Ethereum Mainnet
 

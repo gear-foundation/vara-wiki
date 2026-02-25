@@ -5,7 +5,7 @@ description: Understanding the wVARA token and its role in the Vara.eth ecosyste
 
 # wVARA Overview
 
-wVARA is the utility token that powers the Vara.eth execution economy. It funds program execution, incentivizes validators, and enables value transfers within programs.
+wVARA is the utility token that powers the Vara.eth execution economy. It funds program execution and secures validator incentives.
 
 ## What is wVARA?
 
@@ -13,7 +13,7 @@ wVARA (wrapped VARA) is an ERC-20 token on Ethereum that represents VARA from th
 
 1. **Execution fuel** — Programs pay for computation using wVARA from their Executable Balance
 2. **Validator incentives** — Validators earn wVARA for executing programs and committing batches
-3. **In-program value** — Programs can receive, hold, and transfer wVARA as part of their logic
+3. **Staking collateral** — Operators and vaults use wVARA in the validator economy
 
 For more on VARA tokenomics, see the [Vara Network Tokenomics](/docs/vara-network/tokenomics) page.
 
@@ -71,19 +71,19 @@ Users / Developers
 ```
 
 Additional flows:
-- **Value in messages** — Users can attach wVARA to messages, credited to the program's Free Balance
-- **Value out** — Programs can send wVARA to addresses, claimable via Mirror
-- **Staking** — Validators stake wVARA to participate in the executor set
+- **Top-up flow** — Accounts approve + top up program executable balance via Mirror
+- **Staking** — Validators and vaults use wVARA in Symbiotic-backed security
+- **Bridge/liquidity** — wVARA can be bridged and traded as ERC-20 on Ethereum
 
 ## Balance Types
 
-Each program has **three distinct balances**:
+Each program has **two key balances** you should monitor:
 
 ### Executable Balance (wVARA)
 
 Managed by the Router. Automatically consumed to pay for message execution. Think of it as a prepaid gas tank — when it runs dry, messages queue up but aren't processed.
 
-- Funded via `executableBalanceTopUp(value)` on the Mirror
+- Funded via `executableBalanceTopUp(value)` on the Mirror (with prior ERC-20 approve)
 - Consumed at the `wvaraPerSecond` rate during execution
 - Cannot be withdrawn by the program
 - Can be funded by anyone (developer, users, sponsors)
@@ -91,16 +91,7 @@ Managed by the Router. Automatically consumed to pay for message execution. Thin
 
 See [Funding Executable Balance](/docs/vara-eth/interact/funding-executable-balance) for management details.
 
-### Free Balance (wVARA)
-
-Controlled by the program's logic. Received from incoming messages with wVARA value attached. The program can transfer it to other addresses or programs.
-
-- Credited when messages include wVARA value
-- Spent via `msg::send` with value in program logic
-- Recipients claim via `Mirror.claimValue(claimedId)`
-- Transferred to inheritor on program exit
-
-### Owned Balance (Ether)
+### Program Value Balance (Owned Balance, Ether)
 
 Programs can also hold **native Ether** in addition to wVARA. This is useful for programs that need to interact with ETH-based contracts or hold ETH as part of their logic.
 
@@ -108,6 +99,10 @@ Programs can also hold **native Ether** in addition to wVARA. This is useful for
 - Or via direct Ether transfer to the Mirror contract
 - Controlled by program logic
 - Transferred to inheritor on program exit
+
+In `@vara-eth/api` state reads, these appear as:
+- `state.executableBalance` — execution budget (wVARA base units)
+- `state.balance` — program value balance
 
 <Callout type="info" title="Source">
     See the [Mirror contract source](https://github.com/gear-tech/gear/blob/master/ethexe/contracts/src/Mirror.sol) for the full interface including `payable` methods.

@@ -19,9 +19,8 @@ interface IMirror {
     // Send a message to the Vara.eth program
     function sendMessage(
         bytes calldata payload,
-        uint128 value,
         bool callReply
-    ) external;
+    ) external payable returns (bytes32);
 
     // Top up program's executable balance
     function executableBalanceTopUp(uint128 value) external;
@@ -34,12 +33,13 @@ interface IMirror {
         bytes32 id,
         address source,
         bytes payload,
-        uint128 value
+        uint128 value,
+        bool callReply
     );
     event Reply(bytes payload, uint128 value, bytes32 replyTo, bytes4 replyCode);
     event StateChanged(bytes32 stateHash);
     event Message(bytes32 id, address destination, bytes payload, uint128 value);
-    event ValueClaimed(bytes32 claimedId, address destination, uint128 value);
+    event ValueClaimed(bytes32 claimedId, uint128 value);
 }
 ```
 
@@ -59,14 +59,14 @@ contract VaraClient {
 
     function callProgram(bytes calldata payload) external {
         // Fire-and-forget: message queued, executed by validators
-        mirror.sendMessage(payload, 0, false);
+        mirror.sendMessage(payload, false);
     }
 }
 ```
 
 ### With Value Transfer
 
-To send wVARA along with the message, the caller must first approve the Router to spend wVARA:
+To top up **Executable Balance** in wVARA, approve the program (Mirror address) first, then call `executableBalanceTopUp`:
 
 ```solidity
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -74,20 +74,25 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract VaraDepositor {
     IMirror public mirror;
     IERC20 public wvara;
-    address public router;
 
-    constructor(address _mirror, address _wvara, address _router) {
+    constructor(address _mirror, address _wvara) {
         mirror = IMirror(_mirror);
         wvara = IERC20(_wvara);
-        router = _router;
     }
 
-    function depositToProgram(bytes calldata payload, uint128 amount) external {
-        // Approve Router to pull wVARA
-        wvara.approve(router, amount);
-        // Send message with value
-        mirror.sendMessage(payload, amount, false);
+    function topUpExecutableBalance(uint128 amount) external {
+        // Approve the program (Mirror address) as spender
+        wvara.approve(address(mirror), amount);
+        mirror.executableBalanceTopUp(amount);
     }
+}
+```
+
+To send **ETH value** with a message, use `payable` call value:
+
+```solidity
+function sendWithEth(bytes calldata payload) external payable {
+    mirror.sendMessage{value: msg.value}(payload, false);
 }
 ```
 
@@ -98,7 +103,7 @@ Set `callReply = true` to receive the program's reply as an on-chain event:
 ```solidity
 function callWithReply(bytes calldata payload) external {
     // Reply will be emitted as a Reply event on the Mirror
-    mirror.sendMessage(payload, 0, true);
+    mirror.sendMessage(payload, true);
 }
 ```
 
@@ -119,7 +124,7 @@ bytes memory payload = abi.encodeWithSignature(
     recipient,
     amount
 );
-mirror.sendMessage(payload, 0, false);
+mirror.sendMessage(payload, false);
 ```
 
 ### Using Generated ABI
@@ -188,13 +193,13 @@ mirror.on("Transferred", (from, to, amount) => {
 
 ## Claiming Value
 
-When a Vara.eth program sends value (wVARA) to an address, the recipient claims it through the Mirror:
+When a Vara.eth program sends value to an address, the recipient claims it through the Mirror:
 
 ```solidity
 function claimMyValue(bytes32 claimedId) external {
     // claimedId comes from the Message event emitted by Mirror
     mirror.claimValue(claimedId);
-    // wVARA is transferred to msg.sender
+    // Claimed value is transferred to msg.sender
 }
 ```
 
@@ -230,7 +235,7 @@ contract HybridDEX {
     ) external {
         // 1. Ask Vara.eth program for optimal price/route
         bytes memory query = abi.encode(tokenIn, tokenOut, amountIn);
-        pricingEngine.sendMessage(query, 0, true);
+        pricingEngine.sendMessage(query, true);
         // 2. Reply arrives asynchronously with routing data
         // 3. Off-chain keeper executes the swap using the route
     }
@@ -261,4 +266,4 @@ contract VaraOracle {
 - **Gas costs**: Sending a message via Mirror costs standard Ethereum gas (~60-100k gas). The program's execution cost is paid from its [Executable Balance](/docs/vara-eth/interact/funding-executable-balance), not by the caller.
 - **No synchronous returns**: Unlike typical Solidity function calls, you cannot get a return value from `sendMessage`. Use `callReply = true` and listen for `Reply` events, or read state after `StateChanged`.
 - **ABI vs SCALE**: Deploy programs with ABI for the smoothest Solidity integration. Without ABI, you'll need to SCALE-encode payloads manually.
-- **Value handling**: wVARA transfers require prior approval to the Router contract. The Router manages all value flows between Ethereum and Vara.eth programs.
+- **Value handling**: `sendMessage` carries ETH via `msg.value`. wVARA is used to fund executable balance via `executableBalanceTopUp`, with prior ERC-20 approve to the program (Mirror) address.

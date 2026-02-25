@@ -31,35 +31,7 @@ A decentralized network of validator nodes that execute your WASM program, proce
 
 The central L1 contract that verifies validator signatures, finalizes execution batches, and anchors all state transitions to Ethereum.
 
-```mermaid
-graph TB
-    subgraph eth[Ethereum L1]
-        User[User Transaction]
-        Mirror[Mirror Contract]
-        Router[Router Contract]
-
-        User -->|sendMessage| Mirror
-        Mirror -.->|events| Router
-        Router -->|state updates| Mirror
-    end
-
-    subgraph vara[Vara.eth Network]
-        Exec1[Executor]
-        Exec2[Executor]
-        Exec3[Executor]
-        Program[WASM Program]
-
-        Exec1 <-->|execute| Program
-        Exec2 <-->|execute| Program
-        Exec3 <-->|execute| Program
-    end
-
-    Router -.->|observe events| Exec1
-    Exec1 -->|commit batch| Router
-
-    style eth fill:#e1f5ff
-    style vara fill:#e8f5e9
-```
+![Vara.eth structural overview](/images/docs/vara-eth/diagram-vara-eth.jpg)
 
 ## How It Differs from L2s
 

@@ -37,9 +37,9 @@ A program's wVARA balance managed by the Router, used to pay for message executi
 
 See **Validator**.
 
-### Free Balance
+### Program Value Balance (Owned Balance)
 
-wVARA held by a program's logic, received from incoming messages with value attached. Controlled by the program — it can transfer Free Balance to other addresses or programs via `msg::send`.
+Value held by a program's logic (exposed as `state.balance` in API reads). On the current Mirror flow, message value is carried via payable ETH and then managed by program logic.
 
 ### FROST (Flexible Round-Optimized Schnorr Threshold)
 
@@ -59,7 +59,7 @@ A machine-readable description of a program's interface — its services, method
 
 ### Inheritor
 
-An address specified by a program when it exits. Upon program termination, all remaining balances (Executable Balance, Free Balance, and Owned Balance) are transferred to the inheritor. The inheritor claims the value via `Mirror.transferLockedValueToInheritor()`.
+An address specified by a program when it exits. Upon program termination, remaining balances are transferred to the inheritor, which can claim locked value via `Mirror.transferLockedValueToInheritor()`.
 
 ### Liquid Restaking
 
@@ -67,7 +67,7 @@ The ability to stake tokens in multiple protocols simultaneously, improving capi
 
 ### Message
 
-The fundamental communication primitive in Vara.eth. Messages carry a payload (encoded data), optional value (wVARA or Ether), and are processed asynchronously. Users send messages via Mirror contracts on Ethereum.
+The fundamental communication primitive in Vara.eth. Messages carry a payload (encoded data), optional value (payable ETH via Mirror), and are processed asynchronously. Users send messages via Mirror contracts on Ethereum.
 
 ### Middleware
 

@@ -70,25 +70,24 @@ Once you have wVARA, the main uses are:
 ### Fund a Program
 
 ```typescript
-// Approve Router to spend wVARA
+// Approve program (Mirror address) to spend wVARA
 const wvara = new ethers.Contract(wvaraAddress, erc20Abi, signer);
-await wvara.approve(routerAddress, parseUnits("100", 18));
+await wvara.approve(mirrorAddress, parseUnits("100", 18));
 
 // Top up program's Executable Balance
 const mirror = new ethers.Contract(mirrorAddress, mirrorAbi, signer);
 await mirror.executableBalanceTopUp(parseUnits("100", 18));
 ```
 
-### Attach to Messages
+### Send Message with ETH Value (Optional)
 
-Send wVARA as value with a message:
+Message value on `sendMessage` is ETH (payable), not wVARA:
 
 ```typescript
-// Approve Router first
-await wvara.approve(routerAddress, parseUnits("5", 18));
-
-// Send message with 5 wVARA attached
-await program.vault.deposit({ value: parseUnits("5", 18) });
+const mirror = new ethers.Contract(mirrorAddress, mirrorAbi, signer);
+await mirror.sendMessage(payload, false, {
+  value: ethers.parseEther("0.01"),
+});
 ```
 
 ### Stake as Validator

@@ -194,7 +194,7 @@ The program processes messages from its queue in strict `(blockNumber, txIndex, 
 A program can terminate itself by calling `msg::exit()`. On exit:
 
 - The program specifies an **inheritor address** where remaining balances are transferred
-- Both Executable Balance and Free Balance are transferred to the inheritor
+- Executable Balance and remaining program value are transferred to the inheritor
 - The Mirror contract is marked as `exited` and stops accepting new messages
 
 The inheritor can claim the transferred value via `Mirror.transferLockedValueToInheritor()`.

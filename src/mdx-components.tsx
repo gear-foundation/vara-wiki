@@ -8,6 +8,10 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
 import { Callout } from "@/components/ui/callout";
 
+function Mermaid({ chart }: { chart?: string }) {
+  return <pre className="language-mermaid">{chart}</pre>;
+}
+
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,

@@ -1,0 +1,10 @@
+{
+  "title": "Integrate",
+  "pages": [
+    "frontend-integration",
+    "solidity-integration",
+    "backend-integration",
+    "choosing-a-pattern",
+    "..."
+  ]
+}

@@ -1,0 +1,181 @@
+---
+title: Validators & Staking
+description: How Vara.eth validators work, staking mechanics, and reward distribution.
+---
+
+# Validators & Staking
+
+Validators (also called executors) are the nodes that execute Vara.eth programs off-chain and commit results to Ethereum. They form a permissionless P2P network secured by staking.
+
+## Role of Validators
+
+Validators perform three critical functions:
+
+1. **Execute programs** — Download WASM code, process messages, compute state transitions
+2. **Sign pre-confirmations** — Participate in FROST threshold signatures for sub-second results
+3. **Commit batches** — Submit `StateTransition` data to the Router contract on Ethereum
+
+### Execution Flow
+
+```
+L1 block with messages
+        |
+Validators detect new messages (monitor Router events)
+        |
+Fetch program WASM + current state
+        |
+Execute messages sequentially per program
+        |
+Compute new stateHash
+        |
+FROST threshold signature for pre-confirmation
+        |
+Batch commitment to Router (one validator submits, all sign)
+        |
+Router verifies and updates Mirror state
+```
+
+## Staking
+
+### How Staking Works
+
+Validators participate in the executor set through **Symbiotic** — a liquid restaking protocol on Ethereum. The system uses:
+
+- **Middleware Contract** ([IMiddleware.sol](https://github.com/gear-tech/gear/blob/master/ethexe/contracts/src/IMiddleware.sol)) — Manages validator registration, stake vaults, slashing, and rewards distribution
+- **Stake Vaults** — Operators stake wVARA through Symbiotic vaults with configurable epochs and slashing parameters
+- **Operator Registry** — Validators register as operators and opt-in to the Vara.eth subnetwork
+
+Staking serves two purposes:
+
+- **Sybil resistance** — Prevents spam validators
+- **Economic security** — Slashing for misbehavior ensures honest execution
+
+<Callout type="info" title="Symbiotic Integration">
+    Vara.eth integrates with [Symbiotic](https://docs.symbiotic.fi/) for flexible staking with custom vaults, delegators, and slashing mechanisms. See the [Middleware contract](https://github.com/gear-tech/gear/blob/master/ethexe/contracts/src/Middleware.sol) for implementation details.
+</Callout>
+
+This approach enables **liquid restaking** — staked wVARA can participate in multiple networks simultaneously, improving capital efficiency compared to isolated staking pools.
+
+### Staking Parameters
+
+| Parameter | Description |
+|---|---|
+| Minimum stake | Minimum wVARA required to become a validator |
+| Era duration | Period between validator set rotations |
+| Unbonding period | Time between requesting unstake and receiving tokens |
+| Slashing conditions | Incorrect state commitments, downtime, equivocation |
+
+Exact values are governance-controlled and may change. Check [Network Endpoints](/docs/vara-eth/reference/network-endpoints) for current parameters.
+
+### Becoming a Validator
+
+1. **Register as operator** — Call `Middleware.registerOperator()` after registering in Symbiotic's Operator Registry
+2. **Create stake vault** — Set up a Symbiotic vault with wVARA as collateral, configured with appropriate epoch duration and slashing parameters
+3. **Register vault** — Call `Middleware.registerVault(vault, rewards)` to enable the vault for Vara.eth staking
+4. **Meet hardware requirements** — Run a node capable of WASM execution with sufficient memory and bandwidth
+5. **Run the executor node** — Join the P2P network and begin processing
+6. **Maintain uptime** — Stay online and responsive to earn rewards
+
+### Validator Election
+
+Each era, the Middleware selects validators through `makeElectionAt(timestamp, maxValidators)`:
+
+- Operators are ranked by their total stake across all registered vaults at the election timestamp
+- Top N operators (up to `maxValidators`) are selected for the next era
+- Stake is calculated via `getOperatorStakeAt(operator, timestamp)` which queries Symbiotic vaults
+- The selected validator set is committed on-chain and used for FROST signature verification
+
+## Rewards
+
+### Revenue Sources
+
+Validators earn from:
+
+- **Execution fees** — wVARA consumed from programs' Executable Balances during message processing
+- **Era rewards** — Additional wVARA distributed per era from network inflation or fee pool
+
+### Distribution
+
+Execution fees are distributed proportionally based on:
+- Participation in batch commitments
+- Pre-confirmation signing participation
+- Uptime and responsiveness
+
+### Fee Flow
+
+```
+Program's Executable Balance
+        |
+Message executed (wVARA consumed at wvaraPerSecond rate)
+        |
+Fee pool for the batch
+        |
+Distributed to validators who participated in the batch
+```
+
+## Slashing
+
+Validators can be slashed (lose part of their stake) for:
+
+- **Incorrect execution** — Committing a wrong `stateHash` that doesn't match the program's actual state
+- **Equivocation** — Signing conflicting state transitions for the same block
+- **Extended downtime** — Failing to participate in consensus for extended periods
+
+The Router contract verifies batch commitments. If a committed state is challenged and proven incorrect, the submitting validator's stake is slashed.
+
+<Callout type="info" title="Staking Built-in Actor">
+    On Vara Network, programs can interact with the staking system directly via the [Staking Built-in Actor](/docs/developing/build/builtinactors/bia-staking), enabling programmatic staking operations like bonding, unbonding, nominating, and claiming rewards.
+</Callout>
+
+## FROST Threshold Signatures
+
+Validators use [FROST](https://eprint.iacr.org/2020/852) (Flexible Round-Optimized Schnorr Threshold) signatures for pre-confirmations:
+
+- A threshold (e.g., 2/3) of validators must sign to produce a valid pre-confirmation
+- No single validator can forge a pre-confirmation
+- The aggregated signature is verifiable on-chain
+- Enables sub-second response times without waiting for L1 finality
+
+### Pre-Confirmation Security
+
+Pre-confirmations are backed by the economic security of the validator set. To forge a false pre-confirmation, an attacker would need to control the threshold of validators and risk their combined stake being slashed.
+
+The [BLS12-381 Built-in Actor](/docs/developing/build/builtinactors/bia-bls) on Vara Network provides native BLS cryptographic operations used for efficient signature aggregation in the bridge's ZK proofs.
+
+## Validator Economics
+
+### Revenue Estimation
+
+A validator's revenue depends on:
+- Total wVARA consumed across all programs (network activity)
+- Number of active validators (more validators = smaller share)
+- Validator's uptime and participation rate
+
+### Cost Structure
+
+- **Hardware** — Server with sufficient CPU, RAM, and storage for WASM execution
+- **Bandwidth** — P2P networking and Ethereum RPC access
+- **ETH for gas** — Batch commitment transactions cost ETH
+- **Opportunity cost** — Staked wVARA is locked during the unbonding period
+
+### Profitability
+
+Validators are profitable when:
+
+```
+Execution fee rewards + Era rewards > Hardware costs + Gas costs + Opportunity cost
+```
+
+As network activity grows (more programs, more messages), the total fee pool grows, making validation more attractive.
+
+## Current Status
+
+<Callout type="note" title="Testnet Phase">
+    On testnet, the validator set is operated by the Vara Foundation. Permissionless validation will be available when the network parameters are finalized and mainnet launches.
+</Callout>
+
+To prepare for mainnet validation:
+- Monitor testnet development
+- Set up and test executor nodes
+- Understand the staking and slashing mechanics
+- Join the [Vara community](https://discord.gg/vara) for validator coordination

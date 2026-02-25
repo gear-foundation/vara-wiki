@@ -1,0 +1,87 @@
+---
+title: What is Vara.eth?
+description: A high-performance, bridgeless application platform built directly into Ethereum's ecosystem.
+---
+
+# What is Vara.eth?
+
+Vara.eth is a **high-performance application platform** built directly into Ethereum. It lets you build applications that were previously impossible on-chain — real-time order books, on-chain AI inference, complex game logic — with instant feedback and no gas fees for users.
+
+Your program runs off-chain in a decentralized network of validators, but its state is anchored to Ethereum L1. Users interact through normal Ethereum contracts. No bridging, no new chain, no fragmented liquidity.
+
+Under the hood, Vara.eth uses the [Gear Protocol](/docs/gear) execution engine — the same battle-tested runtime that powers [Vara Network](https://vara.network).
+
+## Mental Model
+
+When you deploy a Vara.eth program, here's what actually happens:
+
+### Program
+
+Your Rust code compiled to WASM. It runs off-chain in the Gear runtime but behaves like an isolated Ethereum contract with its own state and message queue ([actor model](/docs/gear/actor-model)).
+
+### Mirror Contract
+
+The on-chain "face" of your program. Users call it like any Solidity contract: `mirror.sendMessage(payload)`. The Mirror represents your program's state on Ethereum L1.
+
+### Executors
+
+A decentralized network of validator nodes that execute your WASM program, process messages in parallel, and collectively sign the results.
+
+### Router Contract
+
+The central L1 contract that verifies validator signatures, finalizes execution batches, and anchors all state transitions to Ethereum.
+
+![Vara.eth structural overview](/images/docs/vara-eth/diagram-vara-eth.jpg)
+
+## How It Differs from L2s
+
+<Callout type="note" title="Key Distinction">
+  Vara.eth is **not a rollup**. It doesn't produce its own blocks, doesn't maintain shared state, and doesn't require a
+  centralized sequencer. It's an application layer, not a new chain.
+</Callout>
+
+| Feature            | L2 Rollup       | Vara.eth                                    |
+| ------------------ | --------------- | ------------------------------------------- |
+| Own blockchain     | ✅ Yes          | ❌ No (anchored to Ethereum)                |
+| Bridging required  | ✅ Yes          | ❌ No (native L1 contracts)                 |
+| Finality           | Minutes to days | Ethereum-native + instant pre-confirmations |
+| Parallel execution | Limited         | ✅ Native per-program                       |
+| Memory limit       | Gas-constrained | Up to 2 GB per program                      |
+| Who pays gas?      | User pays       | Program pays (reverse gas)                  |
+
+## Two Interaction Paths
+
+| Path | Mechanism | Latency | Cost |
+| --- | --- | --- | --- |
+| **Ethereum-side** | Transaction to Mirror contract on L1 | ~12s (L1 block) | ETH gas + wVARA |
+| **Vara.eth-side** | [Injected transaction](/docs/vara-eth/reference/rpc-api#injected-transactions) directly to validators | Sub-second | No ETH gas |
+
+The **Ethereum-side** path is used for on-chain settlement, value transfers, and Solidity composability. The **Vara.eth-side** path bypasses Ethereum entirely — messages go straight to validator nodes for instant execution and pre-confirmations.
+
+Both paths are unified in the [`@vara-eth/api`](https://github.com/gear-tech/gear-js/blob/main/apis/vara-eth/README.md) TypeScript SDK.
+
+## Key Terminology
+
+**Mirror Contract**  
+The on-chain Ethereum representation of your program. Users send messages to the Mirror.
+
+**Router Contract**  
+Central Ethereum contract that coordinates code registration, program creation, and batch settlement.
+
+**Gear Program**  
+A WASM module that runs inside the [Gear runtime](/docs/gear), representing your application's logic.
+
+**Executable Balance**  
+wVARA tokens that fund your program's execution costs ([reverse gas model](/docs/vara-eth/economics/reverse-gas-model)).
+
+**Pre-confirmation**  
+Instant feedback from executors before the transaction is finalized on Ethereum L1.
+
+**Injected Transaction**  
+A message sent directly to Vara.eth validators, bypassing Ethereum for sub-second execution.
+
+For the full list of terms, see the [Glossary](/docs/vara-eth/reference/glossary).
+
+## Architecture Deep Dive
+
+Vara.eth's architecture is described in detail in the [Vara.eth Whitepaper](https://eth.vara.network/whitepaper), [Technical Documentation](https://eth.vara.network/whitepaper/vara.eth-technical.pdf), and the [GitHub Repository](https://github.com/gear-tech/gear/tree/master/ethexe).

@@ -1,0 +1,124 @@
+---
+title: wVARA Overview
+description: Understanding the wVARA token and its role in the Vara.eth ecosystem.
+---
+
+# wVARA Overview
+
+wVARA is the utility token that powers the Vara.eth execution economy. It funds program execution and secures validator incentives.
+
+## What is wVARA?
+
+wVARA (wrapped VARA) is an ERC-20 token on Ethereum that represents VARA from the [Vara Network](/docs/vara-network). It serves three primary functions:
+
+1. **Execution fuel** — Programs pay for computation using wVARA from their Executable Balance
+2. **Validator incentives** — Validators earn wVARA for executing programs and committing batches
+3. **Staking collateral** — Operators and vaults use wVARA in the validator economy
+
+For more on VARA tokenomics, see the [Vara Network Tokenomics](/docs/vara-network/tokenomics) page.
+
+## wVARA vs ETH
+
+Both tokens play a role in Vara.eth, but for different purposes:
+
+| | ETH | wVARA |
+|---|---|---|
+| **Who pays** | Users | Programs |
+| **What it covers** | L1 transaction gas | Off-chain execution cost |
+| **When it's used** | Every message send | Every message processed |
+| **Where it lives** | User's wallet | Program's Executable Balance |
+
+When a user sends a message to a Vara.eth program:
+- The **user** pays ETH for the Ethereum transaction (L1 gas)
+- The **program** pays wVARA for executing the message (computation cost)
+
+This separation is the **Reverse Gas Model** — users don't need wVARA to interact with programs.
+
+## Token Mechanics
+
+### ERC-20 on Ethereum
+
+wVARA is a standard ERC-20 token deployed on Ethereum. You can hold it in any Ethereum wallet, transfer it, trade it on DEXes, and use it in DeFi protocols.
+
+**Contract address (Hoodi testnet)**: Check [Contract Addresses](/docs/vara-eth/reference/contract-addresses) for the latest.
+
+### Supply and Bridging
+
+wVARA is minted when VARA is bridged from the Vara Network to Ethereum, and burned when bridged back. The total supply of wVARA on Ethereum corresponds to the amount of VARA locked in the [bridge](/docs/vara-network/bridge).
+
+For technical details on the bridge mechanism, see the [Bridge Technical Overview](/docs/vara-network/bridge/bridge_technical).
+
+### Decimals
+
+wVARA uses 18 decimals, consistent with most ERC-20 tokens:
+
+```
+1 wVARA = 1_000_000_000_000_000_000 (1e18) base units
+```
+
+## Where wVARA Flows
+
+```
+Users / Developers
+       |
+  Fund programs (executableBalanceTopUp)
+       |
+  Executable Balance (Router-managed)
+       |
+  Consumed per message execution
+       |
+  Distributed to Validators
+```
+
+Additional flows:
+- **Top-up flow** — Accounts approve + top up program executable balance via Mirror
+- **Staking** — Validators and vaults use wVARA in Symbiotic-backed security
+- **Bridge/liquidity** — wVARA can be bridged and traded as ERC-20 on Ethereum
+
+## Balance Types
+
+Each program has **two key balances** you should monitor:
+
+### Executable Balance (wVARA)
+
+Managed by the Router. Automatically consumed to pay for message execution. Think of it as a prepaid gas tank — when it runs dry, messages queue up but aren't processed.
+
+- Funded via `executableBalanceTopUp(value)` on the Mirror (with prior ERC-20 approve)
+- Consumed at the `wvaraPerSecond` rate during execution
+- Cannot be withdrawn by the program
+- Can be funded by anyone (developer, users, sponsors)
+- Transferred to inheritor on program exit
+
+See [Funding Executable Balance](/docs/vara-eth/interact/funding-executable-balance) for management details.
+
+### Program Value Balance (Owned Balance, Ether)
+
+Programs can also hold **native Ether** in addition to wVARA. This is useful for programs that need to interact with ETH-based contracts or hold ETH as part of their logic.
+
+- Funded via `sendMessage{ value: ethAmount }` (payable)
+- Or via direct Ether transfer to the Mirror contract
+- Controlled by program logic
+- Transferred to inheritor on program exit
+
+In `@vara-eth/api` state reads, these appear as:
+- `state.executableBalance` — execution budget (wVARA base units)
+- `state.balance` — program value balance
+
+<Callout type="info" title="Source">
+    See the [Mirror contract source](https://github.com/gear-tech/gear/blob/master/ethexe/contracts/src/Mirror.sol) for the full interface including `payable` methods.
+</Callout>
+
+## Getting wVARA
+
+### Testnet
+
+Free testnet wVARA from the faucet at [eth.vara.network/testnet](https://eth.vara.network/testnet).
+
+### Mainnet
+
+wVARA will be available via:
+- Bridging VARA from [Vara Network](/docs/vara-network) via the [bridge](/docs/vara-network/bridge/bridge_guide)
+- DEX trading on Ethereum
+- Earning as a validator
+
+See [Getting wVARA](/docs/vara-eth/economics/getting-wvara) for detailed instructions.

@@ -1,0 +1,83 @@
+---
+title: Network Endpoints
+description: RPC endpoints, chain IDs, and connection details for Vara.eth networks.
+---
+
+# Network Endpoints
+
+## Hoodi Testnet
+
+The current active testnet for Vara.eth development.
+
+| Parameter | Value |
+|---|---|
+| **Network name** | Vara.eth (Hoodi) |
+| **Chain ID** | `560048` |
+| **RPC (HTTPS)** | `https://hoodi-reth-rpc.gear-tech.io` |
+| **RPC (WebSocket)** | `wss://hoodi-reth-rpc.gear-tech.io/ws` |
+| **Base L1** | Ethereum Hoodi testnet |
+| **Block explorer** | [hoodi.etherscan.io](https://hoodi.etherscan.io) |
+| **Faucet** | [eth.vara.network/testnet](https://eth.vara.network/testnet) |
+| **Gear IDEA** | [idea.gear-tech.io](https://idea.gear-tech.io) |
+
+### MetaMask Configuration
+
+```
+Network Name:  Hoodi Testnet
+RPC URL:       https://hoodi-reth-rpc.gear-tech.io
+Chain ID:      560048
+Currency:      ETH
+Explorer:      https://hoodi.etherscan.io
+```
+
+### ethers.js Connection
+
+```typescript
+import { ethers } from "ethers";
+
+// HTTPS (for queries and transactions)
+const provider = new ethers.JsonRpcProvider(
+  "https://hoodi-reth-rpc.gear-tech.io"
+);
+
+// WebSocket (for subscriptions and real-time events)
+const wsProvider = new ethers.WebSocketProvider(
+  "wss://hoodi-reth-rpc.gear-tech.io/ws"
+);
+```
+
+### Vara.eth RPC (Executor Network)
+
+For pre-confirmations and state queries via the executor P2P network:
+
+```text
+wss://vara-eth-validator-1.gear-tech.io:9944
+```
+
+Use this endpoint with `@vara-eth/api` providers (`WsVaraEthProvider` / `HttpVaraEthProvider`) for injected
+transactions and pre-confirmation flows.
+
+## Ethereum Mainnet
+
+<Callout type="note" title="Coming Soon">
+    Mainnet endpoints will be published here when available.
+</Callout>
+
+## Network Health
+
+### Check RPC Status
+
+```bash
+curl -X POST https://hoodi-reth-rpc.gear-tech.io \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+```
+
+### Check Chain ID
+
+```bash
+curl -X POST https://hoodi-reth-rpc.gear-tech.io \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}'
+# Should return "0x88bb0" (560048)
+```

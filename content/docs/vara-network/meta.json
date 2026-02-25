@@ -1,0 +1,29 @@
+{
+  "title": "Vara Network",
+  "description": "Network overview, node, staking, governance and bridge",
+  "root": true,
+  "icon": "Globe",
+  "pages": [
+    "---Introduction---",
+    "index",
+    "quick-start",
+    "about",
+    "account",
+    "---Network & Infrastructure---",
+    "node",
+    "bridge",
+    "indexers",
+    "---Economics & Governance---",
+    "tokenomics",
+    "staking",
+    "governance",
+        "---API & CLI---",
+    "api",
+    "...gcli",
+    "...",
+    "---Resources---",
+    "examples",
+    "general",
+    "..."
+  ]
+}

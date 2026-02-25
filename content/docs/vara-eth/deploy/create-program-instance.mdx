@@ -1,0 +1,151 @@
+---
+title: Create Program Instance
+description: Deploy a program instance from validated code and understand Mirror contracts.
+---
+
+# Create Program Instance
+
+Once your code is validated, you can create one or more program instances from it. Each instance gets its own Mirror contract on Ethereum, its own state, and its own Executable Balance.
+
+## Creation Methods
+
+### CLI
+
+**Without ABI:**
+
+```bash
+ethexe tx create "$CODE_ID" \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+**With ABI:**
+
+```bash
+# First deploy ABI interface contract, then:
+ethexe tx create-with-abi "$CODE_ID" "$ABI_INTERFACE_ADDRESS" \
+  --salt 0x0000000000000000000000000000000000000000000000000000000000000000 \
+  --initializer "$SENDER" \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+### TypeScript SDK
+
+**Without ABI:**
+
+```typescript
+import { EthereumClient } from '@vara-eth/api';
+
+const client = new EthereumClient(publicClient, ROUTER_ADDRESS, signer);
+await client.waitForInitialization();
+
+const tx = await client.router.createProgram(codeId);
+await tx.sendAndWaitForReceipt();
+```
+
+**With ABI:**
+
+```typescript
+const tx = await client.router.createProgramWithAbiInterface(
+  codeId,
+  abiInterfaceAddress, // Deployed ABI interface contract address
+);
+await tx.sendAndWaitForReceipt();
+```
+
+## Why Deploy With ABI?
+
+Deploying with ABI attaches a Solidity interface to your Mirror contract:
+
+**Without ABI:**  
+Only base Mirror methods visible — `sendMessage`, `sendReply`, `executableBalanceTopUp`, `claimValue`
+
+**With ABI:**  
+Your custom methods appear on Etherscan under "Write as Proxy" / "Read as Proxy" with decoded parameter names and types
+
+**Benefits:**
+
+- Etherscan shows your custom methods
+- MetaMask can call methods directly
+- Hardhat/Foundry can interact as a standard contract
+- Other Solidity contracts can call your program with typed interfaces
+
+## Generating ABI from IDL
+
+If your program is built with [Sails](/docs/developing/build/sails), generate a Solidity interface from the IDL:
+
+```bash
+cargo sails sol --idl-path ./target/wasm32-gear/release/my_program.idl
+```
+
+This produces `MyProgram.sol` with:
+
+- Solidity interface matching your Sails services
+- ABI contract definition
+- Callback definitions for handling replies
+
+**Deploy the ABI contract** to Ethereum (via Foundry, Hardhat, or any tool), then use its address when creating your program.
+
+→ [Solidity Integration](/docs/vara-eth/integrate/solidity-integration)
+
+## Salt & Deterministic Addressing
+
+The program's address is computed deterministically:
+
+```
+Mirror Address = CREATE2(Router, keccak256(codeId, salt))
+ActorId = keccak256(codeId, salt)
+```
+
+**This means:**
+
+- Same code + same salt = same address (across deployments)
+- Different salt = different address (multiple instances of same code)
+- You can predict the address before deploying
+
+→ [EIP-1167 Minimal Proxy](/docs/vara-eth/reference/glossary#eip-1167-minimal-proxy)
+
+## What Gets Deployed
+
+When you call `createProgram`, the Router:
+
+1. Verifies the `codeId` is in `Validated` state
+2. Computes the deterministic address from `(codeId, salt)`
+3. Deploys a `MirrorProxy` contract at that address (EIP-1167 minimal proxy)
+4. Calls `Mirror.initialize(...)` on the new proxy
+5. Emits `ProgramCreated(actorId, codeId)` event
+
+## After Creation
+
+The program exists on Ethereum but is **not yet initialized**. You need to:
+
+1. **Fund it** — Top up the Executable Balance with wVARA
+2. **Initialize it** — Send the first message (constructor call)
+
+```
+createProgram → Fund (wVARA) → Initialize (first message) → Active
+```
+
+**Example initialization command:**
+
+```bash
+ethexe tx send-message "$PROGRAM_ID" "0x..." 0 \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+→ [Funding Executable Balance](/docs/vara-eth/interact/funding-executable-balance) | [Initialization](/docs/vara-eth/interact/initialization)
+
+## Multiple Instances
+
+You can deploy many instances from the same `CODE_ID` using different salts. Each instance has independent state, balance, and lifecycle.
+
+**Use cases:**
+
+- Multi-tenant applications (one instance per user/organization)
+- Testing different configurations of the same program
+- Deploying sharded versions for horizontal scaling

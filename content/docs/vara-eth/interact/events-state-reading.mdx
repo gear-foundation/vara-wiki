@@ -16,10 +16,10 @@ Standard Ethereum events emitted by the Mirror contract when a batch is committe
 | Event | Description |
 |---|---|
 | `StateChanged(bytes32 stateHash)` | Program state was updated |
-| `MessageQueueingRequested(bytes32 id, address source, bytes payload, uint128 value)` | A message was queued |
+| `MessageQueueingRequested(bytes32 id, address source, bytes payload, uint128 value, bool callReply)` | A message was queued |
 | `Reply(bytes payload, uint128 value, bytes32 replyTo, bytes4 replyCode)` | Program replied to a message |
 | `Message(bytes32 id, address destination, bytes payload, uint128 value)` | Program sent an outgoing message |
-| `ValueClaimed(bytes32 claimedId, address destination, uint128 value)` | Value was claimed |
+| `ValueClaimed(bytes32 claimedId, uint128 value)` | Value was claimed |
 
 ### Custom Program Events
 
@@ -51,21 +51,19 @@ Pre-confirmations provide **sub-second results** before Ethereum L1 finality (~1
 5. The SDK fetches and verifies the attestation
 6. Your app displays the result immediately
 
-### Using Pre-Confirmations (sails-js)
+### Using Pre-Confirmations (Injected Transaction)
 
 ```typescript
-async function handleAction() {
-  // 1. Send the transaction
-  const tx = await program.myService.doSomething(args);
+const injected = await api.createInjectedTransaction({
+  destination: programId,
+  payload: encodedPayload, // encode payload via sails-js
+  value: 0n,
+});
 
-  // 2. Get pre-confirmed result — sub-second
-  const preConfirmed = tx.preConfirmedResult;
-  updateUI(preConfirmed);
+const promise = await injected.sendAndWaitForPromise();
+await promise.validateSignature();
 
-  // 3. Optionally wait for L1 finality
-  await tx.waitForFinality();
-  markAsFinalized();
-}
+// Decode and apply immediate result from promise.payload
 ```
 
 ### Pre-Confirmed vs Finalized

@@ -22,6 +22,25 @@ Three libraries power frontend integration:
 
 Use `sails-js` alongside `@vara-eth/api` to encode/decode payloads from your program's [IDL](/docs/developing/build/sails/idl). See the full [RPC API reference](/docs/vara-eth/reference/rpc-api) for detailed SDK documentation.
 
+## Method Coverage by Flow
+
+This section maps the full product flow to concrete methods, so frontend teams can see what is handled in UI and what is typically handled by ops/backend.
+
+| Flow Step | Primary Method(s) | Typical Owner |
+|---|---|---|
+| Upload code | `ethexe tx upload ... --watch` | DevOps / release pipeline |
+| Create program | `router.createProgram(...)` or `router.createProgramWithAbiInterface(...)` | Backend / deploy scripts |
+| Top up executable balance | `wvara.approve(...)` + `mirror.executableBalanceTopUp(...)` | Backend / keeper |
+| Send user action (L1 path) | `mirror.sendMessage(...)` (via `sails-js` typed call) | Frontend |
+| Send fast action (injected path) | `api.createInjectedTransaction(...)` + `sendAndWaitForPromise()` | Frontend (advanced UX) |
+| Read canonical state | `mirror.stateHash()` + `api.query.program.readState(...)` | Frontend / backend |
+| Read computed value (no write) | `api.call.program.calculateReplyForHandle(...)` | Frontend / backend |
+
+<Callout type="note" title="Frontend Scope">
+  Frontend usually owns interaction and reads. Upload/create/top-up are usually operational flows (backend scripts, CI, or
+  manual CLI) and should not be hardcoded into browser UI.
+</Callout>
+
 ## Project Setup
 
 ### Install Dependencies
@@ -126,7 +145,7 @@ async function addHoodiNetwork() {
     method: "wallet_addEthereumChain",
     params: [
       {
-        chainId: "0x88B30", // 560048 in hex
+        chainId: "0x88bb0", // 560048 in hex
         chainName: "Ethereum Hoodi Testnet",
         rpcUrls: ["https://hoodi-reth-rpc.gear-tech.io"],
         nativeCurrency: {
@@ -207,8 +226,12 @@ const injected = await api.createInjectedTransaction({
   value: 0n,
 });
 
-await injected.send(); // accepted quickly
+const promise = await injected.sendAndWaitForPromise();
+await promise.validateSignature(); // cryptographic check
+
 setStatus("pre-confirmed");
+const replyPayload = promise.payload;
+// decode replyPayload with sails-js
 ```
 
 ### Trust Levels

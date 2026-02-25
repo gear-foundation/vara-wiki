@@ -16,9 +16,9 @@ The `executableBalanceTopUp` function on the Mirror contract is the primary way 
 ```typescript
 import { ethers, parseUnits } from 'ethers';
 
-// 1. Approve Router to spend wVARA
+// 1. Approve program (Mirror address) to spend wVARA
 const wvara = new ethers.Contract(wvaraAddress, erc20Abi, signer);
-await wvara.approve(routerAddress, parseUnits('100', 18));
+await wvara.approve(mirrorAddress, parseUnits('100', 18));
 
 // 2. Top up the program's Executable Balance
 const mirror = new ethers.Contract(mirrorAddress, mirrorAbi, signer);
@@ -26,7 +26,7 @@ await mirror.executableBalanceTopUp(parseUnits('100', 18));
 ```
 
 <Callout type="note" title="Approval Required">
-  You must first approve the Router contract (not the Mirror) to spend your wVARA tokens.
+  You must first approve the program address (Mirror) as spender for your wVARA tokens.
 </Callout>
 
 ### CLI
@@ -87,9 +87,11 @@ Different funding strategies suit different applications:
 ### TypeScript SDK
 
 ```typescript
-// Via RPC
-const balance = await api.executableBalance(programId);
-console.log(`Executable balance: ${ethers.formatUnits(balance, 18)} wVARA`);
+// Read state by current state hash, then use executableBalance field
+const mirror = getMirrorClient(programId, signer, publicClient);
+const stateHash = await mirror.stateHash();
+const state = await api.query.program.readState(stateHash);
+console.log(`Executable balance: ${state.executableBalance} base units`);
 ```
 
 ### CLI
@@ -102,7 +104,7 @@ ethexe tx query "$PROGRAM_ID" \
 ```
 
 In `v1.10.0`, this command shows mirror metadata and ETH balance.
-For executable (wVARA) balance monitoring, use `@vara-eth/api` (`api.executableBalance(programId)`) or your own RPC-based monitoring.
+For executable (wVARA) balance monitoring in SDK, read state through `api.query.program.readState(...)` and use `state.executableBalance`.
 
 Set up automated alerts when balance drops below a threshold to avoid service interruption.
 
@@ -111,4 +113,4 @@ Set up automated alerts when balance drops below a threshold to avoid service in
 | Balance                | Purpose                                    | Who Controls                            |
 | ---------------------- | ------------------------------------------ | --------------------------------------- |
 | **Executable Balance** | Pays for program execution (compute costs) | Router (consumed automatically)         |
-| **Free Balance**       | General-purpose wallet for the program     | Program logic (can withdraw or convert) |
+| **Program Value Balance (Owned Balance)** | Value held by program logic (payable flow) | Program logic (via Mirror payable flow) |

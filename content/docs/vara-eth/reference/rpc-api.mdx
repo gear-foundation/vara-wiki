@@ -345,24 +345,36 @@ For direct JSON-RPC access without the SDK:
 ### Connection
 
 ```
-HTTPS: https://hoodi-reth-rpc.gear-tech.io
-WSS:   wss://hoodi-reth-rpc.gear-tech.io/ws
+Ethereum RPC (L1): https://hoodi-reth-rpc.gear-tech.io
+Vara.eth RPC:      http://127.0.0.1:9944
+Vara.eth WS:       ws://127.0.0.1:9944
 ```
 
 ### Standard Ethereum Methods
 
-All standard `eth_*` methods are supported (`eth_blockNumber`, `eth_call`, `eth_sendRawTransaction`, `eth_getLogs`, etc.).
+Use Ethereum RPC for standard `eth_*` methods (`eth_blockNumber`, `eth_call`, `eth_sendRawTransaction`, `eth_getLogs`, etc.).
 
 ### Vara.eth Extension Methods
 
 | Method | Description |
 |---|---|
-| `programStorage_stateQuery` | Query program state by calling a read-only method |
-| `programStorage_stateHash` | Get current state hash for a program |
-| `programStorage_executableBalance` | Query Executable Balance |
-| `programStorage_programInfo` | Get program metadata (code ID, status, Mirror address) |
-| `ethexe_preConfirmation` | Get pre-confirmed result with FROST signature |
-| `ethexe_networkInfo` | Get executor network info (active validators, era, parameters) |
+| `program_ids` | List known program IDs |
+| `program_codeId` | Get code ID for a program |
+| `program_readState` | Read full program state by state hash |
+| `program_calculateReplyForHandle` | Read-only simulation of a message call |
+| `block_header` | Get latest block header (or by hash) |
+| `injected_sendTransaction` | Send an injected transaction to validators |
+| `injected_sendTransactionAndWatch` / `injected_sendTransactionAndWatchUnsubscribe` | Subscribe to injected tx promise and unsubscribe |
+
+Additional node methods (not wrapped by high-level SDK helpers):
+
+| Method | Description |
+|---|---|
+| `program_readQueue` / `program_readWaitlist` / `program_readStash` / `program_readMailbox` | Inspect internal program queues/storage fragments |
+| `program_readFullState` | Read extended full state snapshot |
+| `program_readPages` / `program_readPageData` | Inspect memory pages/page data |
+| `block_events` / `block_outcome` | Inspect block-level request events and transitions |
+| `code_getOriginal` / `code_getInstrumented` | Fetch uploaded/or instrumented code blobs |
 
 ### Error Codes
 
@@ -372,7 +384,4 @@ All standard `eth_*` methods are supported (`eth_blockNumber`, `eth_call`, `eth_
 | `-32601` | Method not found |
 | `-32602` | Invalid params |
 | `-32603` | Internal error |
-| `-32000` | Program not found |
-| `-32001` | Code not validated |
-| `-32002` | State query failed |
-| `-32003` | Pre-confirmation unavailable |
+| `8000` | Node runtime/database/internal error (ethexe RPC service-specific) |

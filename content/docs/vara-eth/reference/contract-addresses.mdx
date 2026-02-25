@@ -20,7 +20,7 @@ For Vara Network bridge contract addresses (Verifier, MessageQueue, BridgingPaym
 
 ### Finding a Program's Mirror Address
 
-The Mirror address is deterministic and emitted in the `ProgramCreated` event:
+The Mirror address is deterministic and available as `actorId` in the `ProgramCreated` event:
 
 ```typescript
 import { ethers } from "ethers";
@@ -28,8 +28,8 @@ import { ethers } from "ethers";
 const router = new ethers.Contract(ROUTER_ADDRESS, routerAbi, provider);
 
 // Listen for new programs
-router.on("ProgramCreated", (actorId, mirrorAddress) => {
-  console.log(`Program ${actorId} -> Mirror at ${mirrorAddress}`);
+router.on("ProgramCreated", (actorId, codeId) => {
+  console.log(`Program ${actorId} created from code ${codeId}`);
 });
 ```
 
@@ -51,21 +51,23 @@ interface IRouter {
     // Create a new program instance
     function createProgram(
         bytes32 codeId,
-        bytes32 salt
+        bytes32 salt,
+        address overrideInitializer
     ) external returns (address);
 
     // Create with ABI for Etherscan integration
     function createProgramWithAbiInterface(
         bytes32 codeId,
         bytes32 salt,
-        string calldata abiJson
+        address overrideInitializer,
+        address abiInterface
     ) external returns (address);
 
     // Events
-    event ProgramCreated(bytes32 actorId, address mirror);
-    event CodeGotValidated(bytes32 codeId, bool valid);
-    event BatchCommitted(bytes32 batchHash);
-    event CodeValidationRequested(bytes32 codeId, bytes32 blobTxHash);
+    event ProgramCreated(address actorId, bytes32 indexed codeId);
+    event CodeGotValidated(bytes32 codeId, bool indexed valid);
+    event BatchCommitted(bytes32 hash);
+    event CodeValidationRequested(bytes32 codeId);
 }
 ```
 

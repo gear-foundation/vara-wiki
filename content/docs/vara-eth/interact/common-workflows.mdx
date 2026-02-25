@@ -15,8 +15,8 @@ The simplest pattern: send a message, wait for execution, then read the updated 
 // 1. Send a message
 const tx = await program.counter.increment();
 
-// 2. Wait for pre-confirmation (sub-second)
-const result = tx.preConfirmedResult;
+// 2. Wait for Ethereum confirmation
+await tx.wait();
 
 // 3. Read updated state
 const value = await program.counter.get();
@@ -24,17 +24,14 @@ const value = await program.counter.get();
 
 ## Send with Value
 
-Attach wVARA to a message for programs that accept deposits:
+Attach ETH to a message for programs that accept payable calls:
 
 ```typescript
-// Approve Router to spend wVARA
-await wvara.approve(routerAddress, amount);
-
-// Send message with value
-const tx = await program.vault.deposit({ value: parseUnits('10', 18) });
+// Send message with 0.01 ETH value
+const tx = await program.vault.deposit({ value: ethers.parseEther('0.01') });
 ```
 
-The attached value is credited to the program's Free Balance, which the program logic can then distribute or hold.
+The attached value is credited through the Mirror payable flow and handled by program logic during execution.
 
 ## Event-Driven Pattern
 
@@ -66,15 +63,17 @@ Build responsive UIs by showing pre-confirmed results immediately, then updating
 async function handleSwap(tokenA, tokenB, amount) {
   setStatus('pending');
 
-  const tx = await program.dex.swap(tokenA, tokenB, amount);
+  const injected = await api.createInjectedTransaction({
+    destination: programId,
+    payload: encodedPayload, // encode via sails-js
+    value: 0n,
+  });
 
-  // Instant feedback
+  const promise = await injected.sendAndWaitForPromise();
+  await promise.validateSignature();
+
   setStatus('pre-confirmed');
-  setBalance(tx.preConfirmedResult.newBalance);
-
-  // Final confirmation
-  await tx.waitForFinality();
-  setStatus('finalized');
+  // decode promise.payload and update UI
 }
 ```
 
@@ -90,7 +89,7 @@ contract MyDeFi {
 
     function requestPrice(address token) external {
         bytes memory payload = abi.encode(token);
-        pricingEngine.sendMessage(payload, 0, true);
+        pricingEngine.sendMessage(payload, true);
     }
 }
 ```

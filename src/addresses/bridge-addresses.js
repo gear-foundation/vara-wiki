@@ -7,6 +7,7 @@ export const eth = {
   usdc: "0x263898d2f6f8E153F1e4DD4CAEF86C93784fCf33",
   usdt: "0x7728A33EBEBCfa852cf7f7Fc377BfC87C24a701A",
   WETH: "0xE0decAa66aED871ac9eb924443D1Bf333Fdb062E",
+  wbtc: "0xa56a332d34b2db33ebc41dc0194afd28cb20d19b",
   wtvara: "0xE1ab85A8B4d5d5B6af0bbD0203EB322DF33d0464",
   erc20Manager: "0xA17187De490dB5F7160822dA197bcAc39d64baCb",
   erc20ManagerProxy: "0xD2a0951DBCfdA8de36Ab315A57C30F0784d01342",
@@ -44,6 +45,7 @@ export const vara = {
   wusdc: "0x9f332e61589e0850dce6d8e6070ea5618de33d9f134a4a35d6d1164dc9002f48",
   wusdt: "0x464511231a1afe9108a689ed3dbbb047ca308d6f5dfb86453e4df5612a2d668a",
   weth: "0xba764e2836b28806be10fe6f674d89d1e0c86898d25728f776588f03bddc6f58",
+  wbtc: "0xc1ec06d99efcffd863f9c2ad2bc76f656aff861acf06f438046c64e5b41e3fd9",
   tokenizedVara:
     "0xd0f89cfd994c92bb743a5a69049609b796e2026e05318f7eef621a5e31df3d4b",
 };

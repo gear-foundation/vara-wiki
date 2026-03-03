@@ -27,3 +27,9 @@ next-env.d.ts
 
 .idea
 .helpers
+
+# docusaurus generated cache
+.docusaurus
+
+# temp files
+.tmp

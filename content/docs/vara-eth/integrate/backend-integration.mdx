@@ -7,6 +7,30 @@ description: Server-side patterns for integrating with Vara.eth programs.
 
 Backend services connect to Vara.eth for automation, indexing, monitoring, and bridging off-chain systems with on-chain programs.
 
+## Method Coverage by Flow
+
+Backend usually orchestrates the full lifecycle, not only reads/events.
+
+| Flow Step | Method(s) | Notes |
+|---|---|---|
+| Upload code | `ethexe tx upload ... --watch` | Canonical path for code submission/validation |
+| Create program | `router.createProgram(...)` | Standard deployment |
+| Create with ABI | `router.createProgramWithAbiInterface(...)` | Needed for typed Solidity/Etherscan proxy UX |
+| Top up balance | `wvara.approve(...)` + `mirror.executableBalanceTopUp(...)` | Required before processing user workload |
+| Send message (L1) | `mirror.sendMessage(...)` | Standard Ethereum-side path |
+| Send message (fast) | `api.createInjectedTransaction(...)` + `sendAndWaitForPromise()` | Vara.eth-side pre-confirmation path |
+| Read canonical state | `mirror.stateHash()` + `api.query.program.readState(...)` | Hash from L1, body from Vara.eth API |
+| Read computed query | `api.call.program.calculateReplyForHandle(...)` | Read-only execution without sending tx |
+
+### Tx Lifecycle Helpers (`@vara-eth/api`)
+
+Useful when building robust backend workers:
+
+- `ethereumClient.waitForInitialization()` — wait until Router/WVARA clients are ready
+- `tx.sendAndWaitForReceipt()` — reliable write completion point
+- `tx.estimateGas()` — preflight for operational safety
+- `tx.findEvent(...)` / `tx.getProgramId()` — event-based extraction for pipelines
+
 ## Connection Methods
 
 ### WebSocket RPC

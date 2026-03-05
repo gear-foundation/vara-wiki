@@ -29,13 +29,9 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
       <DocsDescription className="mb-0">
         {page.data.description}
       </DocsDescription>
+      {/* header section */}
       <div className="flex flex-row gap-2 items-center border-b pb-6">
-        <LLMCopyButton markdownUrl={`/api/pages/raw/${page.slugs.join("/")}`} />
-        {/*<ViewOptions*/}
-        {/*  markdownUrl={`/api/pages/raw/${page.slugs.join("/")}`}*/}
-        {/*  // update it to match your repo*/}
-        {/*  githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/docs/${page.path}`}*/}
-        {/*/>*/}
+        {/* Additional header controls can go here */}
       </div>
       <DocsBody>
         <MDX
@@ -45,6 +41,11 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
           })}
         />
       </DocsBody>
+
+      {/* copy button moved to bottom */}
+      <div className="mt-8 flex justify-end">
+        <LLMCopyButton markdownUrl={`/api/pages/raw/${page.slugs.join("/")}`} />
+      </div>
     </DocsPage>
   );
 }

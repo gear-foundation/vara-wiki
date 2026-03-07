@@ -5,7 +5,8 @@ description: How Vara.eth validators work, staking mechanics, and reward distrib
 
 # Validators & Staking
 
-Validators (also called executors) are the nodes that execute Vara.eth programs off-chain and commit results to Ethereum. They form a permissionless P2P network secured by staking.
+Validators (also called executors) are the nodes that execute Vara.eth programs off-chain and commit results to Ethereum.
+The current testnet phase uses a controlled validator set (PoA). Permissionless staking is planned for a later phase.
 
 ## Role of Validators
 
@@ -67,14 +68,11 @@ This approach enables **liquid restaking** — staked wVARA can participate in m
 
 Exact values are governance-controlled and may change. Check [Network Endpoints](/docs/vara-eth/reference/network-endpoints) for current parameters.
 
-### Becoming a Validator
+### Validator Onboarding Status
 
-1. **Register as operator** — Call `Middleware.registerOperator()` after registering in Symbiotic's Operator Registry
-2. **Create stake vault** — Set up a Symbiotic vault with wVARA as collateral, configured with appropriate epoch duration and slashing parameters
-3. **Register vault** — Call `Middleware.registerVault(vault, rewards)` to enable the vault for Vara.eth staking
-4. **Meet hardware requirements** — Run a node capable of WASM execution with sufficient memory and bandwidth
-5. **Run the executor node** — Join the P2P network and begin processing
-6. **Maintain uptime** — Stay online and responsive to earn rewards
+During the current PoA testnet phase, validator onboarding is not open to the public.
+
+The expected permissionless flow (register operator, register vault, run node) will be enabled in later phases once parameters and rollout milestones are announced.
 
 ### Validator Election
 
@@ -171,7 +169,7 @@ As network activity grows (more programs, more messages), the total fee pool gro
 ## Current Status
 
 <Callout type="note" title="Testnet Phase">
-    On testnet, the validator set is operated by the Vara Foundation. Permissionless validation will be available when the network parameters are finalized and mainnet launches.
+    On testnet, the validator set is operated in a controlled PoA mode. Permissionless validation and open staking are planned for future phases.
 </Callout>
 
 To prepare for mainnet validation:

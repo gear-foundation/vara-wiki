@@ -48,6 +48,6 @@ export const FEATURES_DATA: FeatureItem[] = [
         From introduction to deployment and testing.
       </>
     ),
-    url: "/docs/developing",
+    url: "/docs/developing/build",
   },
 ];

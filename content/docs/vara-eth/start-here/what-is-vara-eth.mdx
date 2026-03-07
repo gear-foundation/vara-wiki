@@ -42,8 +42,8 @@ The central L1 contract that verifies validator signatures, finalizes execution 
 
 | Feature            | L2 Rollup       | Vara.eth                                    |
 | ------------------ | --------------- | ------------------------------------------- |
-| Own blockchain     | ✅ Yes          | ❌ No (anchored to Ethereum)                |
-| Bridging required  | ✅ Yes          | ❌ No (native L1 contracts)                 |
+| Own blockchain     | ❌ Yes (separate chain) | ✅ No (anchored to Ethereum L1)      |
+| Bridging required  | ❌ Yes          | ✅ No (native L1 contracts)                 |
 | Finality           | Minutes to days | Ethereum-native + instant pre-confirmations |
 | Parallel execution | Limited         | ✅ Native per-program                       |
 | Memory limit       | Gas-constrained | Up to 2 GB per program                      |

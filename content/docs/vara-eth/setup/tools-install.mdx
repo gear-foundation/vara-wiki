@@ -1,0 +1,147 @@
+---
+title: Tools Install
+description: Install all required tools for Vara.eth development — Rust, Sails CLI, and ethexe CLI.
+---
+
+# Tools Install
+
+Vara.eth development requires a few tools. This guide walks through installing each one.
+
+## Rust Toolchain
+
+Vara.eth programs are written in Rust and compiled to WASM. Install the Rust toolchain:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+Add the WASM compilation target:
+
+```bash
+rustup target add wasm32v1-none
+```
+
+<Callout type="note" title="Target Handling in Sails">
+  Sails builds with `cargo build --release` and manages the effective WASM target for you. Do not pass a manual
+  `--target` flag in normal Sails workflows. Build artifacts are generated in `target/wasm32-gear/release/`.
+</Callout>
+
+Verify:
+
+```bash
+rustc --version
+cargo --version
+```
+
+<Callout type="note" title="Minimum Version">
+  Rust 1.80+ is recommended. Run `rustup update` if you need to upgrade.
+</Callout>
+
+## Sails CLI
+
+[Sails](/docs/developing/build/sails) is the developer toolkit for writing Gear programs. The CLI scaffolds projects, builds WASM binaries, and generates interfaces.
+
+Install via Cargo:
+
+```bash
+cargo install sails-cli
+```
+
+Verify:
+
+```bash
+cargo sails --version
+```
+
+### Key Commands
+
+| Command                             | Description                        |
+| ----------------------------------- | ---------------------------------- |
+| `cargo sails new <name>`            | Create a new Sails program project |
+| `cargo build --release`             | Compile your program to WASM       |
+| `cargo sails sol --idl-path <path>` | Generate Solidity ABI from IDL     |
+| `npx sails-js-cli generate <idl> --out <dir>` | Generate TypeScript client from IDL |
+
+<Callout type="tip" title="Automatic Artifacts">
+  When you build with `cargo build --release`, Sails automatically generates `.opt.wasm` and `.idl` files in
+  `target/wasm32-gear/release/`.
+</Callout>
+
+→ [Sails Library](/docs/developing/build/sails)
+
+## ethexe CLI
+
+The `ethexe` CLI is the command-line tool for interacting with Vara.eth — uploading code, creating programs, sending messages, and reading state.
+
+Download the latest binary:
+
+```bash
+# Visit https://get.gear.rs for platform-specific downloads
+curl -L https://get.gear.rs/ethexe -o ethexe
+chmod +x ethexe
+```
+
+Verify:
+
+```bash
+ethexe --version
+```
+
+### Key Commands
+
+| Command                                         | Description                                  |
+| ----------------------------------------------- | -------------------------------------------- |
+| `ethexe key insert <key>`                       | Store a private key for signing transactions |
+| `ethexe tx upload <wasm>`                       | Upload WASM code to Ethereum                 |
+| `ethexe tx create <code_id>`                    | Create a new program instance (Mirror)       |
+| `ethexe tx send-message <program_id> <payload> <value>` | Send message to a program           |
+| `ethexe tx query <program_id>`                           | Query mirror state on Ethereum      |
+
+→ [CLI Reference](/docs/vara-eth/reference/cli-reference)
+
+## Optional: Foundry
+
+If you plan to interact with Vara.eth from Solidity or deploy ABI interface contracts:
+
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+```
+
+This gives you `forge`, `cast`, and `anvil` for Solidity development.
+
+<Callout type="note">
+  Hardhat works too — Vara.eth Mirror contracts are standard Ethereum contracts visible in Etherscan, Tenderly, and any
+  EVM framework.
+</Callout>
+
+## Optional: TypeScript SDK
+
+For frontend development or using the TypeScript SDK:
+
+```bash
+npm install @vara-eth/api sails-js
+```
+
+**[@vara-eth/api](https://github.com/gear-tech/gear-js/blob/main/apis/vara-eth/README.md)** — Core SDK with EthereumClient, VaraEthApi, injected transactions, state queries  
+**sails-js** — Payload encoding/decoding from your program's IDL
+
+Use CLI generation without global install:
+
+```bash
+npx sails-js-cli generate ./target/wasm32-gear/release/my_program.idl --out ./src/generated
+```
+
+→ [Frontend Integration](/docs/vara-eth/integrate/frontend-integration)
+
+## Verify Your Setup
+
+Quick checklist:
+
+- `rustc --version` → 1.80+
+- `rustup target list --installed` → includes `wasm32v1-none`
+- `cargo sails --version` → installed
+- `ethexe --version` → installed
+- MetaMask connected to Hoodi with test tokens
+
+→ [Wallet Setup](/docs/vara-eth/setup/wallet-setup) | [Networks](/docs/vara-eth/setup/networks)

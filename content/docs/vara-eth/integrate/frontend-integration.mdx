@@ -1,0 +1,364 @@
+---
+title: Frontend Integration
+description: Connect web frontends to Vara.eth programs using TypeScript and JavaScript SDKs.
+---
+
+# Frontend Integration
+
+Vara.eth programs are designed to feel like standard Ethereum smart contracts from a frontend perspective. You connect a wallet, call methods, listen to events — all through familiar tools. The key difference is under the hood: your calls go to a Mirror contract on L1, which routes them to off-chain WASM execution with instant pre-confirmed results.
+
+## SDK Overview
+
+Three libraries power frontend integration:
+
+| Library | Purpose | Install |
+|---|---|---|
+| [`@vara-eth/api`](https://github.com/gear-tech/gear-js/blob/main/apis/vara-eth/README.md) | Core Vara.eth client — EthereumClient, VaraEthApi, injected transactions, state queries | `npm install @vara-eth/api` |
+| [sails-js](/docs/developing/sails-js) | Typed client generated from your program's IDL — handles payload encoding and decoding | `npm install sails-js` |
+
+`@vara-eth/api` is the primary SDK. It provides two interaction paths:
+- **Ethereum-side** — `EthereumClient` with `RouterClient`, `MirrorClient`, and `WrappedVaraClient` for on-chain operations
+- **Vara.eth-side** — `VaraEthApi` with injected transactions and `calculateReplyForHandle` for direct validator communication (pre-confirmations, instant reads)
+
+Use `sails-js` alongside `@vara-eth/api` to encode/decode payloads from your program's [IDL](/docs/developing/build/sails/idl). See the full [RPC API reference](/docs/vara-eth/reference/rpc-api) for detailed SDK documentation.
+
+## Method Coverage by Flow
+
+This section maps the full product flow to concrete methods, so frontend teams can see what is handled in UI and what is typically handled by ops/backend.
+
+| Flow Step | Primary Method(s) | Typical Owner |
+|---|---|---|
+| Upload code | `ethexe tx upload ... --watch` | DevOps / release pipeline |
+| Create program | `router.createProgram(...)` or `router.createProgramWithAbiInterface(...)` | Backend / deploy scripts |
+| Top up executable balance | `wvara.approve(...)` + `mirror.executableBalanceTopUp(...)` | Backend / keeper |
+| Send user action (L1 path) | `mirror.sendMessage(...)` (via `sails-js` typed call) | Frontend |
+| Send fast action (injected path) | `api.createInjectedTransaction(...)` + `sendAndWaitForPromise()` | Frontend (advanced UX) |
+| Read canonical state | `mirror.stateHash()` + `api.query.program.readState(...)` | Frontend / backend |
+| Read computed value (no write) | `api.call.program.calculateReplyForHandle(...)` | Frontend / backend |
+
+<Callout type="note" title="Frontend Scope">
+  Frontend usually owns interaction and reads. Upload/create/top-up are usually operational flows (backend scripts, CI, or
+  manual CLI) and should not be hardcoded into browser UI.
+</Callout>
+
+## Project Setup
+
+### Install Dependencies
+
+```bash
+npm install @vara-eth/api viem@^2.39.0 kzg-wasm@1.0.0 sails-js
+```
+
+### Generate Typed Client
+
+From your program's IDL file, generate TypeScript bindings:
+
+```bash
+npx sails-js-cli generate ./path/to/your_program.idl --out ./src/generated
+```
+
+This creates a typed client class with methods matching your program's services and routes. Every method call is automatically encoded to the correct SCALE format. For more details, see [sails-js client generation](/docs/developing/sails-js/client-generation).
+
+### Environment Configuration
+
+```typescript title="config.ts"
+export const config = {
+  // Ethereum RPC (Hoodi testnet)
+  ethRpcHttp: "https://hoodi-reth-rpc.gear-tech.io",
+  ethRpcWs: "wss://hoodi-reth-rpc.gear-tech.io/ws",
+
+  // Vara.eth RPC (for pre-confirmations and state queries)
+  varaEthWs: "wss://vara-eth-validator-1.gear-tech.io:9944",
+
+  // Contract addresses
+  routerAddress: "0xBC888a8B050B9B76a985d91c815d2c4f2131a58A",
+  programId: "0x...", // Your program's Mirror address
+};
+```
+
+<Callout type="note" title="Addresses Change by Network">
+  Keep addresses in one source of truth: [Contract Addresses](/docs/vara-eth/reference/contract-addresses).
+</Callout>
+
+## Connecting to a Program
+
+### With sails-js (Recommended)
+
+```typescript
+import { ethers } from "ethers";
+import { MyProgram } from "./generated";
+
+// Connect wallet
+const provider = new ethers.BrowserProvider(window.ethereum);
+const signer = await provider.getSigner();
+
+// Create typed program instance
+const program = new MyProgram(signer, config.programId);
+
+// Call methods with full type safety
+const result = await program.myService.myMethod(arg1, arg2);
+```
+
+### With ethers.js + ABI (Alternative)
+
+If the program was deployed with `createProgramWithAbiInterface(...)`, you can interact through the standard Ethereum ABI:
+
+```typescript
+import { ethers } from "ethers";
+import abi from "./MyProgramAbi.json";
+
+const provider = new ethers.BrowserProvider(window.ethereum);
+const signer = await provider.getSigner();
+
+const mirror = new ethers.Contract(config.programId, abi, signer);
+
+// Call like a normal Ethereum contract
+const tx = await mirror.myMethod(arg1, arg2);
+await tx.wait();
+```
+
+<Callout type="idea" title="Etherscan Compatibility">
+    The ABI approach works natively with Etherscan's "Write as Proxy" interface, making debugging and manual testing straightforward.
+</Callout>
+
+## MetaMask Integration
+
+Vara.eth uses standard Ethereum transactions, so MetaMask works out of the box. Users sign transactions to the Mirror contract on L1 — no custom wallet adapters or network switching required.
+
+### Connecting MetaMask
+
+```typescript
+async function connectWallet() {
+  if (!window.ethereum) {
+    throw new Error("MetaMask not found");
+  }
+
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+  const address = await signer.getAddress();
+
+  return { provider, signer, address };
+}
+```
+
+### Adding Hoodi Testnet
+
+```typescript
+async function addHoodiNetwork() {
+  await window.ethereum.request({
+    method: "wallet_addEthereumChain",
+    params: [
+      {
+        chainId: "0x88bb0", // 560048 in hex
+        chainName: "Ethereum Hoodi Testnet",
+        rpcUrls: ["https://hoodi-reth-rpc.gear-tech.io"],
+        nativeCurrency: {
+          name: "ETH",
+          symbol: "ETH",
+          decimals: 18,
+        },
+      },
+    ],
+  });
+}
+```
+
+## Type Generation from IDL
+
+The [IDL](/docs/developing/build/sails/idl) file is the source of truth for your program's interface. It describes services, methods, parameters, return types, and events.
+
+### Generating TypeScript Types
+
+```bash
+npx sails-js-cli generate \
+  ./target/wasm32-gear/release/my_program.idl \
+  --out ./src/generated
+```
+
+### Generating Solidity ABI
+
+```bash
+cargo sails sol --idl-path ./target/wasm32-gear/release/my_program.idl
+```
+
+### What Gets Generated
+
+The sails-js generator produces:
+
+- **Program class** — main entry point with typed methods for each service
+- **Type definitions** — TypeScript interfaces matching your Rust structs and enums
+- **Event types** — typed event listeners for program emissions
+- **Encoding/decoding** — automatic SCALE serialization, invisible to the developer
+
+## Handling Pre-Confirmations in UX
+
+Pre-confirmations give your dApp sub-second feedback. See [Events & State Reading](/docs/vara-eth/interact/events-state-reading) for the full explanation.
+
+### Optimistic UI Pattern
+
+```typescript
+async function handleSwap(tokenA: string, tokenB: string, amount: bigint) {
+  // 1. Show pending state in UI
+  setStatus("pending");
+
+  // 2. Send an Ethereum-side transaction through Mirror
+  const tx = await program.dex.swap(tokenA, tokenB, amount);
+
+  // 3. Wait for Ethereum confirmation and then refresh state
+  await tx.wait();
+  const updated = await program.dex.balanceOfCurrentUser();
+  setBalance(updated);
+  setStatus("confirmed");
+}
+```
+
+### Injected Pre-Confirmation Pattern (`@vara-eth/api`)
+
+For sub-second feedback, use Vara.eth-side injected transactions:
+
+```typescript
+import { VaraEthApi, WsVaraEthProvider, EthereumClient } from "@vara-eth/api";
+
+const ethereumClient = new EthereumClient(publicClient, config.routerAddress, signerAdapter);
+await ethereumClient.waitForInitialization();
+
+const api = new VaraEthApi(new WsVaraEthProvider(config.varaEthWs), ethereumClient);
+
+const injected = await api.createInjectedTransaction({
+  destination: config.programId,
+  payload: encodedPayload, // encode with sails-js
+  value: 0n,
+});
+
+const promise = await injected.sendAndWaitForPromise();
+await promise.validateSignature(); // cryptographic check
+
+setStatus("pre-confirmed");
+const replyPayload = promise.payload;
+// decode replyPayload with sails-js
+```
+
+### Trust Levels
+
+| Trust Level | When to Use | Example |
+|---|---|---|
+| **Full trust** | UI updates, display data | Show swap result, game state |
+| **Caution** | Financial decisions | Display pending balance with indicator |
+| **Wait for finality** | High-value settlements | Large transfers, withdrawals |
+
+## Listening to Events
+
+### Mirror Events (Standard Ethereum)
+
+```typescript
+const provider = new ethers.WebSocketProvider(config.ethRpcWs);
+const mirror = new ethers.Contract(config.programId, mirrorAbi, provider);
+
+mirror.on("StateChanged", (stateHash, event) => {
+  console.log("New state:", stateHash);
+});
+
+mirror.on("Message", (id, destination, payload, value, event) => {
+  console.log("Outgoing message from program");
+});
+```
+
+### Custom Program Events (via Sails)
+
+```typescript
+// With sails-js typed events
+program.on("SwapExecuted", (event) => {
+  console.log(`Swapped ${event.amountIn} for ${event.amountOut}`);
+  updateTradeHistory(event);
+});
+```
+
+## Reading State
+
+### Via RPC (Free, Instant)
+
+```typescript
+// Typed state query via sails-js
+const balance = await program.token.balanceOf(userAddress);
+const totalSupply = await program.token.totalSupply();
+// These are free — no L1 transaction needed
+```
+
+## Error Handling
+
+```typescript
+try {
+  const tx = await program.myService.myMethod(args);
+  const result = await tx.wait();
+} catch (error) {
+  if (error.code === "INSUFFICIENT_FUNDS") {
+    showError("Insufficient ETH for transaction fee");
+  } else if (error.message.includes("ExecutableBalance")) {
+    showError("Program temporarily unavailable. Please try again later.");
+  } else if (error.message.includes("not initialized")) {
+    showError("Program is not yet active");
+  } else {
+    showError("Transaction failed: " + error.message);
+  }
+}
+```
+
+| Error | Cause | Solution |
+|---|---|---|
+| User rejected transaction | MetaMask popup declined | Show retry prompt |
+| Insufficient ETH | Not enough ETH for L1 gas | Prompt user to fund wallet |
+| Executable balance zero | Program has no wVARA | Developer must top up program |
+| Program not initialized | First message not sent | Initialize the program first |
+| Encoding error | Wrong payload format | Check IDL matches your program version |
+
+## Complete Example: React dApp
+
+```typescript
+import { useState } from "react";
+import { ethers } from "ethers";
+import { MyProgram } from "./generated";
+
+function App() {
+  const [program, setProgram] = useState<MyProgram | null>(null);
+  const [counter, setCounter] = useState<number>(0);
+  const [status, setStatus] = useState<string>("disconnected");
+
+  async function connect() {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const p = new MyProgram(signer, PROGRAM_ADDRESS);
+    setProgram(p);
+    setStatus("connected");
+
+    // Load initial state
+    const value = await p.counter.get();
+    setCounter(Number(value));
+  }
+
+  async function increment() {
+    if (!program) return;
+    setStatus("sending...");
+
+    const tx = await program.counter.increment();
+
+    // Pre-confirmed result — sub-second
+    setCounter((prev) => prev + 1);
+    setStatus("pre-confirmed");
+
+    // Wait for L1 finality
+    await tx.waitForFinality();
+    setStatus("finalized");
+  }
+
+  return (
+    <div>
+      <button onClick={connect}>Connect Wallet</button>
+      <p>Counter: {counter}</p>
+      <button onClick={increment} disabled={!program}>
+        Increment
+      </button>
+      <p>Status: {status}</p>
+    </div>
+  );
+}
+```

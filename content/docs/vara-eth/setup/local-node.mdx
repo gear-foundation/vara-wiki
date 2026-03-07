@@ -1,0 +1,155 @@
+---
+title: Local Node
+description: Run Vara.eth locally for development and debugging.
+---
+
+# Local Node
+
+For advanced development and debugging, you can run a local Vara.eth node in two modes:
+
+1. **Node-only mode (recommended default)** — connect your local node to an existing Ethereum Router (for example, Hoodi). No local Router deployment required.
+2. **Full local stack** — run local Ethereum + deploy Router yourself + connect node to it.
+
+## Prerequisites
+
+Before starting, complete [Tools Install](/docs/vara-eth/setup/tools-install) (at minimum: `ethexe` CLI).
+
+## Mode 1: Node-Only (No Router Deployment)
+
+Use this when you already have a Router address (for example on Hoodi).
+
+```bash
+ethexe run \
+  --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
+  --ethereum-router "0xBC888a8B050B9B76a985d91c815d2c4f2131a58A" \
+  --rpc-port 9944
+```
+
+<Callout type="tip" title="Best Default for Docs Readers">
+  Most developers do not need to deploy Router locally. Node-only mode is enough to inspect behavior, test RPC flows,
+  and run integration checks against an existing network Router.
+</Callout>
+
+## Mode 2: Full Local Stack (Deploy Router Yourself)
+
+Use this when you want a fully isolated environment.
+
+### 1) Start local Ethereum
+
+```bash
+anvil --port 8545 --block-time 2
+```
+
+### 2) Deploy Router/WVARA contracts
+
+```bash
+git clone https://github.com/gear-tech/gear.git
+cd gear/ethexe/contracts
+forge install
+forge script script/Router.s.sol:RouterScript \
+  --rpc-url "ws://127.0.0.1:8545" \
+  --broadcast
+```
+
+### 3) Get deployed Router proxy address
+
+```bash
+export ROUTER=$(jq -r '.transactions[] | select(.contractName=="TransparentUpgradeableProxy") | .contractAddress' \
+  broadcast/Router.s.sol/31337/run-latest.json | head -n1)
+echo "$ROUTER"
+```
+
+### 4) Run ethexe node against local Router
+
+```bash
+ethexe run \
+  --ethereum-rpc "ws://127.0.0.1:8545" \
+  --ethereum-router "$ROUTER" \
+  --rpc-port 9944
+```
+
+## Available Endpoints
+
+Once running, these endpoints become available:
+
+| Endpoint            | Address                                      | Description                               |
+| ------------------- | -------------------------------------------- | ----------------------------------------- |
+| **Ethexe RPC**      | `http://127.0.0.1:9944`                      | Main RPC endpoint for Vara.eth operations |
+| **Ethereum RPC**    | `ws://127.0.0.1:8545`                        | Ethereum-compatible RPC (Anvil)           |
+| **Router Contract** | `<your-router-address>`                      | Router used by your node                  |
+
+## Quick Test
+
+Verify the node is running:
+
+```bash
+# Check Ethexe RPC
+curl http://127.0.0.1:9944 -X POST -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+
+# Check Ethereum RPC
+cast block-number --rpc-url http://127.0.0.1:8545
+```
+
+## Advanced Configuration
+
+### Custom RPC Port
+
+```bash
+ethexe run \
+  --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
+  --ethereum-router "0xBC888a8B050B9B76a985d91c815d2c4f2131a58A" \
+  --rpc-port 8080
+```
+
+### Disable P2P Networking
+
+```bash
+ethexe run \
+  --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
+  --ethereum-router "0xBC888a8B050B9B76a985d91c815d2c4f2131a58A" \
+  --no-network
+```
+
+### Enable Debug Logging
+
+```bash
+RUST_LOG=debug ethexe run \
+  --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
+  --ethereum-router "0xBC888a8B050B9B76a985d91c815d2c4f2131a58A"
+```
+
+<Callout type="tip" title="Reset State">
+Stop the node and delete the local database to reset:
+
+```bash
+rm -rf ~/.ethexe/db
+```
+
+</Callout>
+
+## Troubleshooting
+
+**"Connection refused" on port 8545**  
+→ Start Anvil manually: `anvil --port 8545` (only for full local stack)
+
+**"Contract not found"**  
+→ Re-deploy Router contracts and update `--ethereum-router`
+
+**Slow compilation**  
+→ Use prebuilt `ethexe` binary if you do not need custom source changes
+
+## Switch Back to Testnet
+
+To use the Hoodi testnet again:
+
+1. Stop your local node
+2. Run `ethexe tx` commands with Hoodi RPC/router values (or put them into `.ethexe.toml`):
+   ```bash
+   ethexe tx query "$PROGRAM_ID" \
+     --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
+     --ethereum-router "0xBC888a8B050B9B76a985d91c815d2c4f2131a58A" \
+     --sender "$SENDER"
+   ```
+
+→ [Networks](/docs/vara-eth/setup/networks)

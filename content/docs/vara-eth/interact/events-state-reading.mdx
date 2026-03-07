@@ -1,0 +1,152 @@
+---
+title: Events & State Reading
+description: Listen to program events, read state, and use pre-confirmations for instant results.
+---
+
+# Events & State Reading
+
+Vara.eth programs emit events and expose state queries. Combined with pre-confirmations, this enables responsive dApps that feel like Web2 while running on Ethereum.
+
+## Event Types
+
+### Mirror Events (L1)
+
+Standard Ethereum events emitted by the Mirror contract when a batch is committed:
+
+| Event | Description |
+|---|---|
+| `StateChanged(bytes32 stateHash)` | Program state was updated |
+| `MessageQueueingRequested(bytes32 id, address source, bytes payload, uint128 value, bool callReply)` | A message was queued |
+| `Reply(bytes payload, uint128 value, bytes32 replyTo, bytes4 replyCode)` | Program replied to a message |
+| `Message(bytes32 id, address destination, bytes payload, uint128 value)` | Program sent an outgoing message |
+| `ValueClaimed(bytes32 claimedId, uint128 value)` | Value was claimed |
+
+### Custom Program Events
+
+Events defined in your Rust code (via [Sails events](/docs/developing/build/sails/events)) are re-emitted as native Ethereum logs by the Mirror. Standard Ethereum tooling (The Graph, ethers.js, custom indexers) can subscribe to these logs without custom decoders.
+
+```typescript
+// Listen for custom events via sails-js
+program.on("SwapExecuted", (event) => {
+  console.log(`Swapped ${event.amountIn} for ${event.amountOut}`);
+});
+
+// Or via ethers.js
+const mirror = new ethers.Contract(mirrorAddress, abi, provider);
+mirror.on("Transferred", (from, to, amount) => {
+  console.log(`Transfer: ${from} → ${to}: ${amount}`);
+});
+```
+
+## Pre-Confirmations
+
+Pre-confirmations provide **sub-second results** before Ethereum L1 finality (~13 minutes). They are the key to building responsive applications on Vara.eth.
+
+### How Pre-Confirmations Work
+
+1. User sends a message to the Mirror (standard Ethereum tx)
+2. Once the tx is included in an L1 block, executors immediately execute the program
+3. Executors sign the result using [FROST threshold signatures](https://eprint.iacr.org/2020/852)
+4. The signed result is available via the [Vara.eth RPC](/docs/vara-eth/reference/rpc-api)
+5. The SDK fetches and verifies the attestation
+6. Your app displays the result immediately
+
+### Using Pre-Confirmations (Injected Transaction)
+
+```typescript
+const injected = await api.createInjectedTransaction({
+  destination: programId,
+  payload: encodedPayload, // encode payload via sails-js
+  value: 0n,
+});
+
+const promise = await injected.sendAndWaitForPromise();
+await promise.validateSignature();
+
+// Decode and apply immediate result from promise.payload
+```
+
+### Pre-Confirmed vs Finalized
+
+| Aspect | Pre-Confirmed | Finalized |
+|---|---|---|
+| Latency | Sub-second after L1 block | ~13 minutes (Ethereum finality) |
+| Security | Threshold validator signatures | Full Ethereum consensus |
+| Reorg risk | Possible (if Ethereum reorgs) | None |
+| Use for | UI updates, previews, real-time UX | Settlements, irreversible actions |
+
+### When to Trust Pre-Confirmations
+
+- **Trust fully**: UI updates, game state, dashboard displays, notifications
+- **Trust with caution**: Financial operations where a short reorg could matter
+- **Wait for finality**: High-value settlements, cross-protocol composability
+
+Display a visual indicator (e.g., a "confirming..." label) for pre-confirmed data that hasn't reached finality yet.
+
+## Reading State
+
+### Via `calculateReplyForHandle` (Recommended)
+
+The [`@vara-eth/api`](https://github.com/gear-tech/gear-js/blob/main/apis/vara-eth/README.md) SDK provides `calculateReplyForHandle` — a **read-only query** that simulates a message and returns what the program would reply. No transaction, no gas, instant:
+
+```typescript
+import { VaraEthApi, WsVaraEthProvider } from "@vara-eth/api";
+
+const api = new VaraEthApi(
+  new WsVaraEthProvider("ws://vara-eth-node:9944"),
+  ethereumClient
+);
+
+// Encode query payload using sails-js
+const queryPayload = sails.services.Counter.queries.GetValue.encodePayload();
+
+// Simulate the message (free, read-only)
+const reply = await api.call.program.calculateReplyForHandle(
+  await ethereumClient.getAccountAddress(),
+  programId,
+  queryPayload
+);
+
+// Decode result
+const value = sails.services.Counter.queries.GetValue.decodeResult(
+  reply.payload
+);
+```
+
+This is useful for:
+- Reading program state without modifying it
+- Testing message payloads before sending
+- Building responsive UIs with instant state reads
+
+### Via Vara.eth Program Queries
+
+```typescript
+// List all programs
+const programIds = await api.query.program.getIds();
+
+// Get code ID
+const codeId = await api.query.program.codeId(programId);
+
+// Read full state by hash
+const stateHash = await mirror.stateHash();
+const state = await api.query.program.readState(stateHash);
+```
+
+### Via Etherscan (With ABI)
+
+If an ABI interface was attached at deployment, read methods appear under "Read as Proxy" on Etherscan.
+
+### Via CLI
+
+```bash
+ethexe tx query "$PROGRAM_ID" \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+This will display:
+- State hash
+- Nonce
+- Balances (ETH and wVARA)
+- Initializer and inheritor addresses

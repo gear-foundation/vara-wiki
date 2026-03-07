@@ -1,0 +1,269 @@
+---
+title: Solidity Integration
+description: Interact with Vara.eth programs from Ethereum smart contracts.
+---
+
+# Solidity Integration
+
+Existing Ethereum contracts can call Vara.eth programs through the Mirror contract interface. This enables hybrid architectures where Solidity handles on-chain DeFi composability while Vara.eth handles heavy computation.
+
+## Mirror Interface
+
+Every Vara.eth program has a Mirror contract on Ethereum. Your Solidity contracts interact with this Mirror using the `IMirror` interface:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.26;
+
+interface IMirror {
+    // Send a message to the Vara.eth program
+    function sendMessage(
+        bytes calldata payload,
+        bool callReply
+    ) external payable returns (bytes32);
+
+    // Top up program's executable balance
+    function executableBalanceTopUp(uint128 value) external;
+
+    // Claim value sent back by the program
+    function claimValue(bytes32 claimedId) external;
+
+    // Events emitted by the Mirror
+    event MessageQueueingRequested(
+        bytes32 id,
+        address source,
+        bytes payload,
+        uint128 value,
+        bool callReply
+    );
+    event Reply(bytes payload, uint128 value, bytes32 replyTo, bytes4 replyCode);
+    event StateChanged(bytes32 stateHash);
+    event Message(bytes32 id, address destination, bytes payload, uint128 value);
+    event ValueClaimed(bytes32 claimedId, uint128 value);
+}
+```
+
+See [Contract Addresses](/docs/vara-eth/reference/contract-addresses) for the full Router and Mirror interfaces.
+
+## Sending Messages from Solidity
+
+### Basic Call
+
+```solidity
+contract VaraClient {
+    IMirror public mirror;
+
+    constructor(address _mirror) {
+        mirror = IMirror(_mirror);
+    }
+
+    function callProgram(bytes calldata payload) external {
+        // Fire-and-forget: message queued, executed by validators
+        mirror.sendMessage(payload, false);
+    }
+}
+```
+
+### With Value Transfer
+
+To top up **Executable Balance** in wVARA, approve the program (Mirror address) first, then call `executableBalanceTopUp`:
+
+```solidity
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+contract VaraDepositor {
+    IMirror public mirror;
+    IERC20 public wvara;
+
+    constructor(address _mirror, address _wvara) {
+        mirror = IMirror(_mirror);
+        wvara = IERC20(_wvara);
+    }
+
+    function topUpExecutableBalance(uint128 amount) external {
+        // Approve the program (Mirror address) as spender
+        wvara.approve(address(mirror), amount);
+        mirror.executableBalanceTopUp(amount);
+    }
+}
+```
+
+To send **ETH value** with a message, use `payable` call value:
+
+```solidity
+function sendWithEth(bytes calldata payload) external payable {
+    mirror.sendMessage{value: msg.value}(payload, false);
+}
+```
+
+### Requesting a Reply
+
+Set `callReply = true` to receive the program's reply as an on-chain event:
+
+```solidity
+function callWithReply(bytes calldata payload) external {
+    // Reply will be emitted as a Reply event on the Mirror
+    mirror.sendMessage(payload, true);
+}
+```
+
+<Callout type="note" title="Asynchronous Replies">
+    Replies are emitted as events, not as synchronous return values. The execution happens asynchronously — your contract sends a message, and the reply arrives in a later transaction (the batch commitment).
+</Callout>
+
+## Encoding Payloads
+
+Vara.eth programs use SCALE encoding by default. When a program is deployed with ABI (recommended), the Mirror accepts standard ABI-encoded payloads.
+
+### With ABI (Recommended)
+
+```solidity
+// Encode a call to: TokenService::Transfer(to, amount)
+bytes memory payload = abi.encodeWithSignature(
+    "Transfer(address,uint256)",
+    recipient,
+    amount
+);
+mirror.sendMessage(payload, false);
+```
+
+### Using Generated ABI
+
+Generate a Solidity interface from the program's IDL:
+
+```bash
+cargo sails sol --idl-path ./target/wasm32-gear/release/my_program.idl
+```
+
+This generates a typed Solidity interface:
+
+```solidity
+import {IMyProgram} from "./IMyProgram.sol";
+
+contract Client {
+    IMyProgram public program;
+
+    function doSomething() external {
+        // Type-safe call via generated interface
+        program.myService_myMethod(arg1, arg2);
+    }
+}
+```
+
+## Listening for Events
+
+### Reply Events
+
+```solidity
+contract ReplyListener {
+    IMirror public mirror;
+
+    // Called by off-chain service when Reply event is detected
+    function handleReply(
+        bytes calldata payload,
+        uint128 value,
+        bytes32 replyTo,
+        bytes4 replyCode
+    ) external {
+        // replyCode == 0x00000000 means success
+        require(replyCode == bytes4(0), "Program returned error");
+        // Decode and use payload...
+    }
+}
+```
+
+### State Change Events
+
+```typescript
+// Off-chain listener (ethers.js)
+mirror.on("StateChanged", (stateHash) => {
+  console.log(`Program state updated: ${stateHash}`);
+});
+```
+
+### Custom Program Events
+
+Programs can define custom events that are re-emitted as native EVM logs by the Mirror:
+
+```typescript
+mirror.on("Transferred", (from, to, amount) => {
+  console.log(`Transfer: ${from} -> ${to}: ${amount}`);
+});
+```
+
+## Claiming Value
+
+When a Vara.eth program sends value to an address, the recipient claims it through the Mirror:
+
+```solidity
+function claimMyValue(bytes32 claimedId) external {
+    // claimedId comes from the Message event emitted by Mirror
+    mirror.claimValue(claimedId);
+    // Claimed value is transferred to msg.sender
+}
+```
+
+## Architecture Patterns
+
+### Computation Offloading
+
+Keep DeFi composability in Solidity, offload heavy logic to Vara.eth:
+
+```
+User -> Solidity Router -> Mirror.sendMessage() -> Vara.eth Program
+                                                       |
+                                                Heavy computation
+                                                       |
+                                                Reply event <- Mirror
+                                                       |
+                                          Off-chain service reads reply
+                                                       |
+                                          Triggers next Solidity action
+```
+
+### Hybrid DeFi
+
+```solidity
+contract HybridDEX {
+    IMirror public pricingEngine;  // Vara.eth handles complex pricing
+    IUniswap public uniswap;       // Solidity handles token swaps
+
+    function executeSwap(
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn
+    ) external {
+        // 1. Ask Vara.eth program for optimal price/route
+        bytes memory query = abi.encode(tokenIn, tokenOut, amountIn);
+        pricingEngine.sendMessage(query, true);
+        // 2. Reply arrives asynchronously with routing data
+        // 3. Off-chain keeper executes the swap using the route
+    }
+}
+```
+
+### Oracle/Aggregator
+
+```solidity
+contract VaraOracle {
+    IMirror public oracle;
+    mapping(bytes32 => uint256) public prices;
+
+    function updatePrice(
+        bytes32 asset,
+        uint256 price,
+        bytes calldata proof
+    ) external {
+        // Verify proof from Vara.eth execution
+        prices[asset] = price;
+    }
+}
+```
+
+## Important Considerations
+
+- **Asynchronous execution**: Messages sent via `sendMessage` are not executed immediately. They enter the program's message queue and are processed by executors in the next batch.
+- **Gas costs**: Sending a message via Mirror costs standard Ethereum gas (~60-100k gas). The program's execution cost is paid from its [Executable Balance](/docs/vara-eth/interact/funding-executable-balance), not by the caller.
+- **No synchronous returns**: Unlike typical Solidity function calls, you cannot get a return value from `sendMessage`. Use `callReply = true` and listen for `Reply` events, or read state after `StateChanged`.
+- **ABI vs SCALE**: Deploy programs with ABI for the smoothest Solidity integration. Without ABI, you'll need to SCALE-encode payloads manually.
+- **Value handling**: `sendMessage` carries ETH via `msg.value`. wVARA is used to fund executable balance via `executableBalanceTopUp`, with prior ERC-20 approve to the program (Mirror) address.

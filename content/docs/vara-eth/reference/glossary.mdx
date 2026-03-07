@@ -1,0 +1,138 @@
+---
+title: Glossary
+description: Definitions of key terms used in the Vara.eth ecosystem.
+---
+
+# Glossary
+
+### Actor Model
+
+A concurrency model where each program is an isolated "actor" with its own state and message queue. Actors communicate exclusively through asynchronous messages. Vara.eth uses this model — each program processes messages sequentially, but different programs execute in parallel. See [Gear Protocol Actor Model](/docs/gear/actor-model) for a deep dive.
+
+### ActorId
+
+A 256-bit identifier for a program within the Vara.eth runtime. Derived from the program's creation parameters (`keccak256(codeId, salt)`). Used for inter-program messaging. Not the same as the Mirror address (which is a 20-byte Ethereum address).
+
+### Batch
+
+A collection of state transitions for multiple programs, committed to Ethereum in a single transaction by validators. Batches are the settlement unit — all state changes within a batch are atomic on L1.
+
+### Blob (EIP-4844)
+
+Binary Large Object introduced by Ethereum's Dencun upgrade. Vara.eth uses blobs to upload WASM code to Ethereum efficiently. Blobs are temporary (~18 days) but their commitment (hash) is permanent. Archive nodes retain full blob data.
+
+### Code ID
+
+`keccak256(wasm_bytes)` — a deterministic hash of the WASM binary. Used to reference validated code. Multiple program instances can share the same Code ID (same logic, different state). Once validated, anyone can create instances from it.
+
+### EIP-1167 (Minimal Proxy)
+
+An Ethereum standard for lightweight proxy contracts. Each Mirror is an EIP-1167 proxy pointing to the MirrorProxy implementation. This keeps deployment costs low while enabling each program to have its own contract address.
+
+### Executable Balance
+
+A program's wVARA balance managed by the Router, used to pay for message execution. Automatically consumed during processing at the `wvaraPerSecond` rate. If zero, messages queue but aren't executed. Can be funded by anyone. See [Funding Executable Balance](/docs/vara-eth/interact/funding-executable-balance).
+
+### Executor
+
+See **Validator**.
+
+### Program Value Balance (Owned Balance)
+
+Value held by a program's logic (exposed as `state.balance` in API reads). On the current Mirror flow, message value is carried via payable ETH and then managed by program logic.
+
+### FROST (Flexible Round-Optimized Schnorr Threshold)
+
+A [threshold signature scheme](https://eprint.iacr.org/2020/852) used by validators for pre-confirmations. A threshold (e.g., 2/3) of validators must sign to produce a valid signature, enabling sub-second response times without waiting for L1 finality.
+
+### Gear
+
+The runtime and virtual machine that powers Vara.eth. [Gear](/docs/gear) processes WASM programs using the actor model with message passing, memory isolation, and deterministic execution. Also powers [Vara Network](/docs/vara-network).
+
+### Injected Transaction
+
+A Vara.eth-native transaction sent directly to validator nodes, bypassing Ethereum L1. Signed with an Ethereum private key but submitted off-chain. Cheaper (no ETH gas) and faster (sub-second) than Ethereum-side messages. References an Ethereum block for security anchoring. Used for pre-confirmations and fast UX. See [RPC API](/docs/vara-eth/reference/rpc-api#injected-transactions).
+
+### IDL (Interface Definition Language)
+
+A machine-readable description of a program's interface — its services, methods, types, and events. Generated automatically from Rust code by the [Sails framework](/docs/developing/build/sails). Used to generate client bindings for [TypeScript](/docs/developing/sails-js), Solidity, and Rust.
+
+### Inheritor
+
+An address specified by a program when it exits. Upon program termination, remaining balances are transferred to the inheritor, which can claim locked value via `Mirror.transferLockedValueToInheritor()`.
+
+### Liquid Restaking
+
+The ability to stake tokens in multiple protocols simultaneously, improving capital efficiency. Vara.eth uses [Symbiotic](https://docs.symbiotic.fi/) for liquid restaking, where validators stake wVARA through vaults that can participate in multiple networks.
+
+### Message
+
+The fundamental communication primitive in Vara.eth. Messages carry a payload (encoded data), optional value (payable ETH via Mirror), and are processed asynchronously. Users send messages via Mirror contracts on Ethereum.
+
+### Middleware
+
+An Ethereum smart contract ([IMiddleware.sol](https://github.com/gear-tech/gear/blob/master/ethexe/contracts/src/IMiddleware.sol)) that manages validator operations through Symbiotic. Handles operator registration, stake vault management, election of validators for each era, rewards distribution, and slashing execution. Sits between the Router and the Symbiotic ecosystem.
+
+### MirrorProxy (Small)
+
+A gas-optimized variant of the Mirror proxy for programs with minimal state. Two implementations exist: standard `MirrorProxy` and `MirrorProxySmall`. The `isSmall` flag is set during program creation to select the appropriate implementation.
+
+### Mirror
+
+An Ethereum smart contract (EIP-1167 proxy) that represents a Vara.eth program on L1. Every program has exactly one Mirror. Users interact with the Mirror to send messages, fund execution, and read events. See [Contract Addresses](/docs/vara-eth/reference/contract-addresses) for the interface.
+
+### MirrorProxy
+
+The singleton implementation contract that all Mirror proxies delegate to. Contains the actual logic for message queuing, event emission, and value management.
+
+### Pre-confirmation
+
+A sub-second response from the executor network indicating the expected result of a message, before it's committed to Ethereum. Backed by FROST threshold signatures. Not yet final — finality requires L1 settlement. See [Events & State Reading](/docs/vara-eth/interact/events-state-reading).
+
+### Program
+
+A WASM application running on Vara.eth. Programs have isolated state, process messages sequentially, and can communicate with other programs. Think of them as smart contracts with their own execution environment and up to 2 GB of memory.
+
+### Reverse Gas Model
+
+Vara.eth's cost model where programs pay for their own execution (via Executable Balance) rather than users. Users only pay standard Ethereum gas for the L1 transaction. See [Reverse Gas Model](/docs/vara-eth/economics/reverse-gas-model).
+
+### Router
+
+The core settlement contract on Ethereum. Manages code validation, program creation, batch commitments, and the validator set. Single instance per network. See [Contract Addresses](/docs/vara-eth/reference/contract-addresses).
+
+### Sails
+
+A Rust framework for building Vara.eth programs. Provides macros (`#[service]`, `#[program]`), automatic [IDL generation](/docs/developing/build/sails/idl), type-safe message handling, and client code generation. See [Sails Library](/docs/developing/build/sails).
+
+### SCALE (Simple Concatenated Aggregate Little-Endian)
+
+A compact binary encoding format used by Substrate-based chains. Vara.eth uses SCALE internally for message encoding. When ABI is enabled, the Mirror translates between ABI and SCALE transparently.
+
+### Salt
+
+Random bytes used in `CREATE2` address computation. Combined with Code ID to produce a deterministic Mirror address. Different salts with the same Code ID create different program instances.
+
+### StateTransition
+
+The result of executing messages for a program — includes the new state hash, outgoing messages, events, and value transfers. Committed to Ethereum as part of a batch.
+
+### stateHash
+
+A cryptographic commitment (hash) to a program's complete state. Stored on-chain in the Mirror contract. Updated with each batch commitment. Enables state verification without storing full state on L1.
+
+### Validator (Executor)
+
+A node in the Vara.eth P2P network that executes programs, signs pre-confirmations, and commits batches to Ethereum. Validators stake wVARA and earn execution fees. See [Validators & Staking](/docs/vara-eth/economics/validators-staking).
+
+### WASM (WebAssembly)
+
+A portable binary instruction format. Vara.eth programs compile from Rust to WASM, which is then executed by validators in a sandboxed environment with deterministic execution guarantees. See [Gear WASM documentation](/docs/gear/WASM).
+
+### wVARA (Wrapped VARA)
+
+An ERC-20 token on Ethereum representing VARA from the [Vara Network](/docs/vara-network). Used to fund program execution (Executable Balance), transfer value within programs, and stake as a validator. See [wVARA Overview](/docs/vara-eth/economics/wvara-overview).
+
+### wvaraPerSecond
+
+A network parameter that determines the rate at which Executable Balance is consumed during message execution. Set by governance. Higher values mean higher execution costs.

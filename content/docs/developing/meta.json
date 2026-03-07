@@ -1,0 +1,14 @@
+{
+  "title": "Developing on Sails",
+  "description": "How to build programs with Sail framework",
+  "icon": "Code",
+  "root": true,
+  "pages": [
+    "---Build (Rust)---",
+    "build/index",
+    "...build",
+    "---IDEs & Frameworks---",
+    "idea",
+    "sails-js"
+  ]
+}

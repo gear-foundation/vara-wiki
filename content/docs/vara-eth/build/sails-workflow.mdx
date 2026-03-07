@@ -1,0 +1,149 @@
+---
+title: Sails Workflow
+description: Structure your programs with services, routes, events, and generated client types using the Sails framework.
+---
+
+# Sails Workflow
+
+[Sails](https://github.com/gear-tech/sails) is the developer framework for building Vara.eth programs. It provides Rust macros for defining services and interfaces, generates IDL files for interoperability, and produces client bindings for TypeScript and Solidity.
+
+For the full Sails reference, see the [Sails Library documentation](/docs/developing/build/sails).
+
+## Why Sails?
+
+Without Sails, you'd manually encode/decode messages in SCALE format, write ABI interfaces by hand, and build your own client libraries. Sails automates all of this:
+
+**`#[service]`** — Define your program's API with typed methods  
+**`#[program]`** — Wire services into a program entry point  
+**IDL generation** — Automatic [Interface Definition Language](/docs/developing/build/sails/idl) from your Rust code  
+**ABI generation** — Solidity interface for Etherscan and Ethereum tooling  
+**Client bindings** — TypeScript ([sails-js](/docs/developing/sails-js)) and Rust clients generated from IDL
+
+## Services & Routes
+
+A **service** is a logical grouping of related methods. A **program** exposes one or more services via named routes.
+
+→ [Sails Routing](/docs/developing/build/sails/routing)
+
+### Mutable vs Read-Only Methods
+
+**Methods taking `&mut self`** — Modify program state, called via transactions (messages)  
+**Methods taking `&self`** — Read-only queries, called via RPC without submitting a transaction
+
+### Example: Multi-Service Program
+
+```rust
+#[derive(Default)]
+pub struct TokenService;
+
+#[service]
+impl TokenService {
+    pub fn transfer(&mut self, to: ActorId, amount: u128) -> bool {
+        // Transfer logic — modifies state
+        true
+    }
+
+    pub fn balance_of(&self, owner: ActorId) -> u128 {
+        // Read-only — no transaction needed
+        0
+    }
+}
+
+#[derive(Default)]
+pub struct AdminService;
+
+#[service]
+impl AdminService {
+    pub fn set_config(&mut self, key: String, value: String) {
+        // Admin-only state modification
+    }
+}
+
+#[derive(Default)]
+pub struct MyProgram;
+
+#[program]
+impl MyProgram {
+    pub fn init() -> Self { Self }
+
+    // Two services exposed via named routes
+    pub fn token(&self) -> TokenService { TokenService }
+    pub fn admin(&self) -> AdminService { AdminService }
+}
+```
+
+## IDL — Interface Definition Language
+
+When you build a Sails program, the compiler generates an `.idl` file alongside the WASM. The IDL is the **source of truth** for your program's interface — it describes every service, method, type, and event.
+
+→ [IDL Specification](/docs/developing/build/sails/idl)
+
+**The IDL is used by:**
+
+1. **[sails-js](/docs/developing/sails-js)** — to generate TypeScript client bindings
+2. **Sails CLI** — to generate a Solidity ABI interface
+3. Explorer/debug tooling — to display methods and inspect interactions during development
+
+## Events
+
+Programs can emit [events](/docs/developing/build/sails/events) that are delivered as native Ethereum logs through the Mirror contract.
+
+### How Events Reach Ethereum
+
+1. The program emits an event frame to a reserved address (`ETH_EVENT_ADDR`)
+2. Executors include the frame in the `StateTransition`
+3. The Mirror contract parses the frame and re-emits it as a native EVM log (`log1..log4`)
+4. Ethereum indexers (The Graph, custom indexers) can subscribe to these logs normally
+
+This gives you a **1:1 mapping** of program events to Ethereum logs — no custom decoders needed.
+
+## Type Generation
+
+From the IDL, you can generate strongly typed clients for any platform.
+
+### TypeScript (sails-js)
+
+```bash
+npx sails-js-cli generate ./my_program.idl --out ./src/lib
+```
+
+→ [sails-js Client Generation](/docs/developing/sails-js/client-generation)
+
+### Solidity ABI
+
+```bash
+cargo sails sol --idl-path ./my_program.idl
+```
+
+When you deploy with `createProgramWithAbiInterface(...)`, the generated ABI attaches to the Mirror proxy. This means:
+
+- **Etherscan** shows your methods under "Write as Proxy" / "Read as Proxy"
+- **MetaMask** can call your program like any Ethereum contract
+- **Hardhat/Foundry** can interact with your program using standard tooling
+
+### Rust Client
+
+For backend services or inter-program communication, Sails also generates Rust client types from the IDL.
+
+## Development Flow
+
+```
+Write Rust → Build → IDL generated → Generate clients → Deploy
+(#[service])  (cargo)  (.idl file)     (TS / Solidity)   (ethexe CLI)
+```
+
+1. Define services with `#[service]` and wire them in `#[program]`
+2. `cargo build --release` produces `.opt.wasm` + `.idl`
+3. Generate client bindings from the IDL
+4. Deploy using `ethexe` CLI (or project deployment scripts)
+5. Interact from frontend ([sails-js](/docs/developing/sails-js)), Solidity, or CLI
+
+## Key Files
+
+| File             | Purpose                                             |
+| ---------------- | --------------------------------------------------- |
+| `app/src/lib.rs` | Program logic (services, state, events)             |
+| `build.rs`       | Build configuration                                 |
+| `Cargo.toml`     | Dependencies with `sails-rs` and `ethexe` feature   |
+| `*.opt.wasm`     | Compiled WASM binary (deploy this)                  |
+| `*.idl`          | Generated interface definition (share with clients) |

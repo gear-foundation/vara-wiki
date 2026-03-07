@@ -1,0 +1,215 @@
+---
+title: CLI Reference
+description: Complete reference for the ethexe and Sails CLI tools.
+---
+
+# CLI Reference
+
+The `ethexe` CLI is the primary command-line tool for interacting with Vara.eth. It handles code upload, program creation, message sending, and state queries.
+
+## Installation
+
+```bash
+# Install from the Gear repository
+cargo install --git https://github.com/gear-tech/gear ethexe-cli
+
+# Verify installation
+ethexe --version
+```
+
+## Global Options
+
+For `ethexe tx` commands, use:
+
+| Option | Description |
+|---|---|
+| `--ethereum-rpc <URL>` | Ethereum RPC endpoint (alias: `--eth-rpc`) |
+| `--ethereum-router <ADDRESS>` | Router contract address (alias: `--eth-router`) |
+| `--sender <ADDRESS>` | Sender address (must exist in key store) |
+| `--key-store <PATH>` | Path to key store directory |
+
+Top-level option for any command:
+
+| Option | Description |
+|---|---|
+| `--cfg <PATH>` | Path to `.ethexe.toml` config file (use `none` to disable) |
+
+## Commands
+
+### `ethexe tx upload`
+
+Upload WASM code to Ethereum as an [EIP-4844 blob](/docs/vara-eth/reference/glossary#blob-eip-4844).
+
+```bash
+ethexe tx upload path/to/program.opt.wasm \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+**Options:**
+- `--watch` / `-w` — Wait for code validation approval
+- `--legacy` / `-l` — Use old blob transaction format
+
+**Output**: Transaction hash, code ID (Blake2b256 hash), and validation status if `--watch` is used.
+
+### `ethexe tx create`
+
+Create a new program instance from validated code.
+
+```bash
+ethexe tx create "$CODE_ID" \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+**Positional Arguments:**
+- `<code-id>` — Code ID (required)
+
+**Options:**
+- `--salt` / `-s` — 32-byte salt in hex (optional, random if omitted)
+- `--initializer` / `-i` — Initializer address (optional, defaults to sender)
+
+**Output**: Mirror contract address and actor ID.
+
+### `ethexe tx create-with-abi`
+
+Create a program with an ABI interface contract for Etherscan integration.
+
+```bash
+ethexe tx create-with-abi "$CODE_ID" "$ABI_INTERFACE_ADDRESS" \
+  --salt 0x0000000000000000000000000000000000000000000000000000000000000000 \
+  --initializer "$SENDER" \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+**Positional Arguments:**
+- `<code-id>` — Code ID
+- `<abi-interface>` — Address of deployed ABI interface contract
+
+**Options:**
+- `--salt` / `-s` — Salt (optional)
+- `--initializer` / `-i` — Initializer (optional)
+
+**Output**: Mirror contract address linked to ABI interface.
+
+### `ethexe tx send-message`
+
+Send a message to a Vara.eth program.
+
+```bash
+ethexe tx send-message "$MIRROR_ADDRESS" "0x..." 0 \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+**Positional Arguments:**
+- `<mirror>` — Mirror contract address
+- `<payload>` — Hex-encoded message payload
+- `<value>` — ETH value to send (in wei)
+
+**Options:**
+- `--call-reply` / `-c` — Force mirror to call destination actor on reply
+- `--watch` / `-w` — Wait for reply (currently not implemented in v1.10.0)
+
+### `ethexe tx executable-balance-top-up`
+
+Top up a program's [Executable Balance](/docs/vara-eth/interact/funding-executable-balance) (wVARA).
+
+```bash
+ethexe tx executable-balance-top-up "$MIRROR_ADDRESS" 10000000000000000000 \
+  --approve \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+**Positional Arguments:**
+- `<mirror>` — Mirror contract address
+- `<value>` — wVARA amount (in base units)
+
+**Options:**
+- `--approve` / `-a` — Automatically approve wVARA spending
+
+### `ethexe tx owned-balance-top-up`
+
+Top up a program's Owned Balance (native ETH).
+
+```bash
+ethexe tx owned-balance-top-up "$MIRROR_ADDRESS" 1000000000000000000 \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+**Positional Arguments:**
+- `<mirror>` — Mirror contract address
+- `<value>` — ETH amount (in wei)
+
+### `ethexe tx query`
+
+Query Mirror contract state including balances, state hash, and metadata.
+
+```bash
+ethexe tx query "$MIRROR_ADDRESS" \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+**Positional Arguments:**
+- `<mirror>` — Mirror contract address
+
+**Output:**
+- Router address
+- State hash
+- Nonce
+- Exited status
+- Inheritor address
+- Initializer address
+- ETH balance (Owned Balance)
+
+<Callout type="note" title="Executable Balance Check">
+  In `v1.10.0`, `ethexe tx query` shows mirror state and ETH balance. For executable (wVARA) balance, use
+  `@vara-eth/api` (RPC) or inspect `ExecutableBalanceTopUpRequested`/related state transitions on explorer tooling.
+</Callout>
+
+## Sails CLI
+
+Sails tooling uses two CLIs:
+
+- `cargo sails` for Rust-side workflows
+- `sails-js-cli` for TypeScript client generation
+
+### Generate TypeScript Client
+
+```bash
+npx sails-js-cli generate program.idl \
+  --out ./src/generated/
+```
+
+Produces typed TypeScript bindings for all services, methods, and events. See [sails-js client generation](/docs/developing/sails-js/client-generation) for details.
+
+### Generate Solidity ABI
+
+```bash
+cargo sails sol --idl-path program.idl
+```
+
+Produces Solidity ABI artifacts for use with `createProgramWithAbiInterface` and Etherscan.
+
+### Generate Rust Client
+
+```bash
+cargo sails client-rs program.idl ./src/generated/program_client.rs
+```
+
+Produces typed Rust client code for inter-program communication.
+
+## Version Note
+
+This page is aligned with `ethexe` `v1.10.0` command set.

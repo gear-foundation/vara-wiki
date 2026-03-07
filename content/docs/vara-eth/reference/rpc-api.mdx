@@ -1,0 +1,387 @@
+---
+title: RPC API
+description: Vara.eth API — two interaction paths, injected transactions, state queries, and pre-confirmations.
+---
+
+# RPC API
+
+Vara.eth provides **two interaction paths** for communicating with programs:
+
+1. **Ethereum-side** — Send messages through Mirror contracts on Ethereum L1. Standard Ethereum transactions, settled on-chain.
+2. **Vara.eth-side** — Send messages directly to Vara.eth validator nodes, bypassing Ethereum. Faster, cheaper, used for pre-confirmations and state queries.
+
+Both paths are unified in the [`@vara-eth/api`](https://github.com/gear-tech/gear-js/tree/main/apis/vara-eth) TypeScript library.
+
+## SDK: `@vara-eth/api`
+
+The primary client library for Vara.eth. Built on [viem](https://viem.sh/), it provides typed interfaces for both Ethereum-side and Vara.eth-side operations.
+
+```bash
+npm install @vara-eth/api viem@^2.39.0 kzg-wasm@1.0.0
+```
+
+### Initialization
+
+```typescript
+import { VaraEthApi, WsVaraEthProvider, EthereumClient } from "@vara-eth/api";
+import { walletClientToSigner } from "@vara-eth/api/signer";
+import { createPublicClient, createWalletClient, http } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+
+// Ethereum clients (viem)
+const publicClient = createPublicClient({
+  transport: http("https://hoodi-reth-rpc.gear-tech.io"),
+});
+const account = privateKeyToAccount("0x...");
+const walletClient = createWalletClient({
+  account,
+  transport: http("https://hoodi-reth-rpc.gear-tech.io"),
+});
+
+// Convert viem WalletClient to ISigner
+const signer = walletClientToSigner(walletClient);
+
+// EthereumClient — wraps Router, Mirror, and wVARA contracts
+const ethereumClient = new EthereumClient(
+  publicClient,
+  routerAddress,
+  signer
+);
+await ethereumClient.waitForInitialization();
+
+// VaraEthApi — connects to Vara.eth validator nodes
+const api = new VaraEthApi(
+  new WsVaraEthProvider("ws://localhost:9944"),
+  ethereumClient
+);
+
+// Access contract clients
+const router = ethereumClient.router; // RouterClient
+const wvara = ethereumClient.wvara;   // WrappedVaraClient
+```
+
+### Key Classes
+
+| Class | Description |
+|---|---|
+| `VaraEthApi` | Main API for Vara.eth-side operations (queries, injected tx, state reads) |
+| `EthereumClient` | Ethereum-side wrapper (Router, Mirror, wVARA contracts) |
+| `RouterClient` | Interface to the Router contract (code validation, program creation) |
+| `MirrorClient` | Interface to Mirror contracts (send messages, top up balance, state hash) |
+| `WrappedVaraClient` | ERC-20 wVARA token operations (approve, balanceOf, allowance) |
+
+Source contracts: [Router.sol](https://github.com/gear-tech/gear/blob/master/ethexe/contracts/src/Router.sol), [Mirror.sol](https://github.com/gear-tech/gear/blob/master/ethexe/contracts/src/Mirror.sol), [WrappedVara.sol](https://github.com/gear-tech/gear/blob/master/ethexe/contracts/src/WrappedVara.sol)
+
+---
+
+## Ethereum-Side Operations
+
+Standard Ethereum transactions through Mirror contracts on L1.
+
+### Program Creation
+
+```typescript
+const codeId = "0x..."; // From ethexe CLI upload
+
+// Create program from validated code
+const tx = await router.createProgram(codeId);
+await tx.sendAndWaitForReceipt();
+const programId = await tx.getProgramId();
+
+// Or with Solidity ABI for Etherscan compatibility
+const tx2 = await router.createProgramWithAbiInterface(codeId, abiAddress);
+await tx2.sendAndWaitForReceipt();
+```
+
+### Sending Messages
+
+```typescript
+import { getMirrorClient } from "@vara-eth/api";
+
+const mirror = getMirrorClient(programId, signer, publicClient);
+
+// Send message (payload encoded via sails-js)
+const tx = await mirror.sendMessage(payload, 0n);
+await tx.send();
+
+// Get message details
+const message = await tx.getMessage();
+console.log("Message ID:", message.id);
+
+// Wait for reply
+const { waitForReply } = await tx.setupReplyListener();
+const { payload: replyPayload, replyCode, value } = await waitForReply;
+```
+
+<Callout type="note" title="Payload Encoding">
+    Use [sails-js](https://github.com/gear-tech/sails/tree/master/js) to encode payloads and decode replies from your program's IDL. See [Sails-JS documentation](/docs/developing/sails-js).
+</Callout>
+
+### Managing Executable Balance
+
+```typescript
+// Check wVARA balance
+const balance = await wvara.balanceOf(ethereumClient.accountAddress);
+
+// Approve program to spend wVARA
+const approveTx = await wvara.approve(programId, BigInt(10 * 1e12));
+await approveTx.sendAndWaitForReceipt();
+
+// Top up program's Executable Balance
+const topUpTx = await mirror.executableBalanceTopUp(BigInt(10 * 1e12));
+const { status } = await topUpTx.sendAndWaitForReceipt();
+```
+
+### Checking Program State (Ethereum-side)
+
+```typescript
+// Code validation status
+const codeState = await router.codeState(codeId);
+// 'Validated' | 'Rejected' | 'Unknown'
+
+// Program's code ID
+const programCodeId = await router.programCodeId(programId);
+
+// State hash from Mirror
+const stateHash = await mirror.stateHash();
+
+// Program nonce
+const nonce = await mirror.nonce();
+```
+
+### TxManager
+
+All contract write methods return a `TxManager` that handles the transaction lifecycle:
+
+```typescript
+const tx = await router.createProgram(codeId);
+
+// Send and get hash
+const response = await tx.send();
+console.log("Tx hash:", response.hash);
+
+// Send and wait for receipt
+const receipt = await tx.sendAndWaitForReceipt();
+
+// Estimate gas
+const gasEstimate = await tx.estimateGas();
+
+// Find events in receipt
+const event = await tx.findEvent("ProgramCreated");
+```
+
+---
+
+## Vara.eth-Side Operations
+
+Direct communication with Vara.eth validator nodes. This is the **primary path for pre-confirmations** and read-only state queries -- faster and cheaper than going through Ethereum.
+
+### Connecting to Vara.eth Nodes
+
+```typescript
+import { VaraEthApi, WsVaraEthProvider, HttpVaraEthProvider } from "@vara-eth/api";
+
+// WebSocket — for subscriptions and real-time updates
+const api = new VaraEthApi(
+  new WsVaraEthProvider("ws://localhost:9944"),
+  ethereumClient
+);
+
+// HTTP — for one-time queries
+const api = new VaraEthApi(
+  new HttpVaraEthProvider("http://localhost:9944"),
+  ethereumClient
+);
+
+// Disconnect when done
+await api.provider.disconnect();
+```
+
+### Injected Transactions
+
+Injected transactions are **Vara.eth-native transactions sent directly to validators**, bypassing Ethereum entirely. They are:
+
+- Signed with your Ethereum private key but submitted off-chain
+- Cheaper (no Ethereum gas costs)
+- Faster (no L1 block time wait)
+- Reference an Ethereum block for security anchoring
+
+This is the primary mechanism for pre-confirmations.
+
+```typescript
+// Create injected transaction
+const injected = await api.createInjectedTransaction({
+  destination: programId,
+  payload: encodedPayload,
+  value: 0n,
+  // Auto-populated if not provided:
+  // recipient: validator address (auto-selected)
+  // referenceBlock: recent Ethereum block hash
+  // salt: random salt for uniqueness
+});
+
+// Send transaction
+const result = await injected.send();
+
+// Send and wait for promise (includes reply)
+const promise = await injected.sendAndWaitForPromise();
+
+// Validate the FROST threshold signature
+await promise.validateSignature();
+```
+
+#### Configuring Injected Transactions
+
+```typescript
+const injected = await api.createInjectedTransaction({
+  destination: programId,
+  payload: encodedPayload,
+  value: 1000n,
+  referenceBlock: blockHash,    // Specific Ethereum block
+  salt: "0x030405",             // Custom salt
+  recipient: validatorAddress,  // Specific validator
+});
+
+// Modify using fluent API
+injected
+  .setValue(2000n)
+  .setSalt("0x060708");
+
+// Access properties
+const messageId = injected.messageId;
+
+// Update fields
+await injected.setReferenceBlock();     // Fetch latest block
+await injected.setRecipient();          // Auto-select validator
+await injected.setRecipient(address);   // Specific validator
+```
+
+### Querying Program Data
+
+```typescript
+// List all program IDs
+const programIds = await api.query.program.getIds();
+
+// Get program's code ID
+const codeId = await api.query.program.codeId(programId);
+
+// Read full program state by state hash
+const stateHash = await mirror.stateHash();
+const state = await api.query.program.readState(stateHash);
+
+if ("Active" in state.program) {
+  console.log("Program is active");
+  console.log("Balance:", state.balance);
+}
+```
+
+### Reading State via `calculateReplyForHandle`
+
+Perform **read-only queries** on program state without sending transactions or paying gas. This simulates a message and returns what the program would reply:
+
+```typescript
+// Encode query payload using sails-js
+const queryPayload = sails.services.Counter.queries.GetValue.encodePayload();
+
+// Calculate reply (read-only, free)
+const reply = await api.call.program.calculateReplyForHandle(
+  await ethereumClient.getAccountAddress(), // Source address
+  programId,                                 // Program to query
+  queryPayload                               // Encoded query
+);
+
+// Decode result using sails-js
+const value = sails.services.Counter.queries.GetValue.decodeResult(
+  reply.payload
+);
+console.log("Current counter value:", value);
+```
+
+This is useful for:
+- Reading program state without modifying it
+- Testing message payloads before sending
+- Querying computed values from programs
+- Building responsive UIs with instant state reads
+
+---
+
+## Interaction Flow Summary
+
+```
+                    ┌──────────────────────┐
+                    │     Your dApp        │
+                    └──────┬───────┬───────┘
+                           │       │
+              Ethereum-side│       │Vara.eth-side
+                           │       │
+                    ┌──────▼──┐ ┌──▼──────────┐
+                    │ Mirror  │ │  VaraEthApi  │
+                    │Contract │ │  (direct)    │
+                    └──────┬──┘ └──┬───────────┘
+                           │       │
+                    ┌──────▼───────▼──────────┐
+                    │   Vara.eth Validators   │
+                    │   (WASM execution)      │
+                    └─────────┬───────────────┘
+                              │
+                    ┌─────────▼───────────────┐
+                    │   Ethereum L1           │
+                    │   (batch settlement)    │
+                    └─────────────────────────┘
+```
+
+| Path | Use Case | Cost | Latency |
+|---|---|---|---|
+| **Ethereum-side** (Mirror) | On-chain settlement, value transfers, Solidity integration | ETH gas + wVARA | ~12s (L1 block) |
+| **Vara.eth-side** (Injected) | Pre-confirmations, fast UX, state queries | No ETH gas | Sub-second |
+| **Read-only** (calculateReply) | State queries, testing payloads | Free | Instant |
+
+---
+
+## JSON-RPC Methods (Low-Level)
+
+For direct JSON-RPC access without the SDK:
+
+### Connection
+
+```
+Ethereum RPC (L1): https://hoodi-reth-rpc.gear-tech.io
+Vara.eth RPC:      http://127.0.0.1:9944
+Vara.eth WS:       ws://127.0.0.1:9944
+```
+
+### Standard Ethereum Methods
+
+Use Ethereum RPC for standard `eth_*` methods (`eth_blockNumber`, `eth_call`, `eth_sendRawTransaction`, `eth_getLogs`, etc.).
+
+### Vara.eth Extension Methods
+
+| Method | Description |
+|---|---|
+| `program_ids` | List known program IDs |
+| `program_codeId` | Get code ID for a program |
+| `program_readState` | Read full program state by state hash |
+| `program_calculateReplyForHandle` | Read-only simulation of a message call |
+| `block_header` | Get latest block header (or by hash) |
+| `injected_sendTransaction` | Send an injected transaction to validators |
+| `injected_sendTransactionAndWatch` / `injected_sendTransactionAndWatchUnsubscribe` | Subscribe to injected tx promise and unsubscribe |
+
+Additional node methods (not wrapped by high-level SDK helpers):
+
+| Method | Description |
+|---|---|
+| `program_readQueue` / `program_readWaitlist` / `program_readStash` / `program_readMailbox` | Inspect internal program queues/storage fragments |
+| `program_readFullState` | Read extended full state snapshot |
+| `program_readPages` / `program_readPageData` | Inspect memory pages/page data |
+| `block_events` / `block_outcome` | Inspect block-level request events and transitions |
+| `code_getOriginal` / `code_getInstrumented` | Fetch uploaded/or instrumented code blobs |
+
+### Error Codes
+
+| Code | Meaning |
+|---|---|
+| `-32600` | Invalid request |
+| `-32601` | Method not found |
+| `-32602` | Invalid params |
+| `-32603` | Internal error |
+| `8000` | Node runtime/database/internal error (ethexe RPC service-specific) |

@@ -1,0 +1,100 @@
+---
+title: Upload & Validation
+description: Upload your WASM program to Ethereum and understand the code validation process.
+---
+
+# Upload & Validation
+
+Deploying a Vara.eth program starts with uploading your compiled WASM code to Ethereum and having it validated by the executor network.
+
+## What Gets Uploaded
+
+Your compiled `.opt.wasm` file is uploaded to Ethereum as an **EIP-4844 blob** — a special data type designed for large payloads.
+
+**Why blobs:**
+
+- Significantly cheaper than calldata storage
+- WASM code is the canonical source for executors
+- Blob data is pruned after ~18 days, but archive nodes retain it permanently
+
+→ [EIP-4844 Blob](/docs/vara-eth/reference/glossary#blob-eip-4844)
+
+## Upload Methods
+
+### CLI
+
+```bash
+ethexe tx upload target/wasm32-gear/release/my_program.opt.wasm \
+  --watch \
+  --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
+  --ethereum-router "0xBC888a8B050B9B76a985d91c815d2c4f2131a58A" \
+  --sender "$SENDER"
+```
+
+<Callout type="note" title="CLI First, SDK Optional">
+  Use `ethexe` CLI as the default and documented upload path.
+  TypeScript upload flow can be used as an optional alternative if your `@vara-eth/api` version explicitly exposes the
+  upload helpers you need.
+</Callout>
+
+## What Happens On-Chain
+
+When you upload, the Router contract records the `codeId` as **pending validation**:
+
+1. Router emits `CodeValidationRequested` event
+2. WASM blob is included in the transaction via EIP-4844
+3. `codeId` (deterministic code hash) is marked as pending
+
+<Callout type="note" title="Deterministic Code ID">
+  `codeId` is a deterministic hash of your WASM binary. Same code always produces the same `codeId`, regardless of
+  who uploads it.
+</Callout>
+
+## Validation Process
+
+After the upload transaction is included in an Ethereum block:
+
+1. Executors observe the `CodeValidationRequested` event
+2. Executors fetch the WASM blob from the Ethereum block
+3. Executors validate the WASM module:
+   - Valid WebAssembly binary
+   - Required Gear runtime entry points present
+   - Memory allocation within 2 GB limit
+   - Compatible with current Sails/Gear runtime
+4. Executors include a `CodeCommitment` in the next batch
+5. Router applies the commitment: if valid, code is marked `Validated`
+
+## Check Validation Status
+
+Check on Etherscan by searching for `CodeGotValidated` event on the Router contract:
+
+- **Event found with `valid: true`** — Code is validated and ready to use
+- **Event found with `valid: false`** — Code failed validation, check WASM module
+- **No event yet** — Wait for the next executor batch (~12 seconds)
+
+## Validation Failures
+
+| Failure              | Cause                                           |
+| -------------------- | ----------------------------------------------- |
+| Invalid WASM         | Binary is not a valid WebAssembly module        |
+| Missing entry points | Required Gear runtime exports are missing       |
+| Memory overflow      | Program requests more than 2 GB limit           |
+| Incompatible runtime | WASM compiled against unsupported Sails version |
+
+## CODE_ID
+
+The `CODE_ID` is the unique identifier for your uploaded code:
+
+- 256-bit deterministic hash of the WASM binary (`CodeId`)
+- **Deterministic** — same code always produces the same ID
+- **Reusable** — once validated, anyone can create program instances from it
+- **Immutable** — the code behind a `CODE_ID` never changes
+
+<Callout type="tip" title="Code Sharing">
+  You can share your `CODE_ID` with other developers. They can deploy their own instances of your program without
+  re-uploading the code.
+</Callout>
+
+## Cost
+
+Uploading code costs standard Ethereum gas for the transaction, plus the EIP-4844 blob fee. On testnet, this is free (use [faucet](/docs/vara-eth/setup/wallet-setup) ETH).

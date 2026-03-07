@@ -1,0 +1,68 @@
+---
+title: Choosing a Pattern
+description: Decide which integration approach is right for your use case.
+---
+
+# Choosing a Pattern
+
+Vara.eth integration is easiest to choose by **team role** and ownership.
+
+## Quick Choice by Role
+
+| Team Role | Start Here | Add Next |
+|---|---|---|
+| Frontend | Direct wallet -> Mirror calls | Injected transactions for fast UX |
+| Backend | Event indexing + monitoring + top-ups | Keepers, alerts, API layer |
+| Solidity | Contract -> Mirror async calls | Keeper that reacts to `Reply` events |
+
+## Frontend Teams
+
+Use this when users interact directly from wallet-connected UI.
+
+```
+User (Browser) -> Wallet -> Mirror -> Vara.eth Program
+```
+
+What frontend usually owns:
+- Connect wallet and send user actions (`sendMessage`)
+- Read state (`calculateReplyForHandle`, `readState`)
+- Show pre-confirmed vs finalized status in UI
+
+When to add backend:
+- You need history, analytics, notifications, or retries
+- You need operational top-ups for executable balance
+
+## Backend Teams
+
+Use this when you need production operations around programs.
+
+```
+Frontend -> Mirror
+Backend  -> indexer + DB + keeper + monitoring
+```
+
+What backend usually owns:
+- Index Mirror/Router events
+- Monitor `executableBalance` and top up before depletion
+- Run automation jobs and expose API endpoints for UI
+
+## Solidity Teams
+
+Use this when existing Solidity contracts must trigger Vara.eth computation.
+
+```
+User -> Solidity contract -> Mirror -> Vara.eth Program
+                               |
+                         async Reply event
+                               |
+                          Keeper callback
+```
+
+Important design rule:
+- Flow is asynchronous. Do not expect synchronous return values from `sendMessage`.
+
+## Recommended Rollout
+
+1. Start with frontend + direct Mirror interaction.
+2. Add backend for indexing, monitoring, and automation.
+3. Add Solidity integration only when on-chain composability is required.

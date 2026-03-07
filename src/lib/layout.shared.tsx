@@ -3,8 +3,8 @@ import { IconLogo } from "@/components/icons/icon-logo";
 
 const LINKS: LinkItemType[] = [
   {
-    text: "Vara Network",
-    url: "https://vara.network/",
+    text: "Vara Ecosystem",
+    url: "https://start.vara.network/",
     external: true,
   },
   {
@@ -39,7 +39,7 @@ export function homepageOptions(): BaseLayoutProps {
     links: [
       {
         text: "Documentation",
-        url: "/docs/welcome",
+        url: "/docs/vara-network",
       },
       ...existingLinks,
     ],

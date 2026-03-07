@@ -1,0 +1,116 @@
+---
+title: Funding Executable Balance
+description: Manage your program's Executable Balance to keep it processing messages.
+---
+
+# Funding Executable Balance
+
+Every Vara.eth program needs wVARA in its **Executable Balance** to pay for computation. This is the core of the [reverse gas model](/docs/vara-eth/economics/reverse-gas-model) — users pay ETH for L1 transactions, but the program itself pays wVARA for execution.
+
+## How to Fund
+
+### Mirror Contract (Primary Method)
+
+The `executableBalanceTopUp` function on the Mirror contract is the primary way to fund a program. Anyone can call it.
+
+```typescript
+import { ethers, parseUnits } from 'ethers';
+
+// 1. Approve program (Mirror address) to spend wVARA
+const wvara = new ethers.Contract(wvaraAddress, erc20Abi, signer);
+await wvara.approve(mirrorAddress, parseUnits('100', 18));
+
+// 2. Top up the program's Executable Balance
+const mirror = new ethers.Contract(mirrorAddress, mirrorAbi, signer);
+await mirror.executableBalanceTopUp(parseUnits('100', 18));
+```
+
+<Callout type="note" title="Approval Required">
+  You must first approve the program address (Mirror) as spender for your wVARA tokens.
+</Callout>
+
+### CLI
+
+```bash
+ethexe tx executable-balance-top-up "$PROGRAM_ID" 10000000000000000000 \
+  --approve \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+**Parameters:**
+
+- `$PROGRAM_ID` — Mirror contract address
+- `10000000000000000000` — Amount in base units (10 wVARA in this example)
+- `--approve` — Automatically approve wVARA spending before top-up
+
+### Etherscan
+
+Navigate to the Mirror address on Etherscan. Under "Write as Proxy" (or "Write Contract"), find `executableBalanceTopUp` and enter the amount.
+
+## How Execution Is Charged
+
+1. Each message gets a small **free compute threshold** — simple operations may cost nothing
+2. Beyond the threshold, CPU time is metered at a configurable `wvaraPerSecond` rate
+3. The consumed amount is deducted from the Executable Balance
+4. Consumed wVARA is distributed to validators as rewards
+
+→ [Validators & Staking](/docs/vara-eth/economics/validators-staking)
+
+## Funding Models
+
+Different funding strategies suit different applications:
+
+**Developer-Funded (Patron Model)** — Developer pre-funds the program. Best for onboarding, demos, consumer-facing apps, and games where you want zero-friction UX.
+
+**Revenue-Funded** — Program logic collects fees (e.g., swap fees in a DEX) and the developer periodically tops up from revenue. Best for DeFi protocols and fee-generating services.
+
+**User-Funded** — Users contribute to the Executable Balance directly. Best for per-action pricing, premium features, or pay-per-use services.
+
+**Sponsor-Funded** — DAOs, grants, or ecosystem partners fund programs. Best for public goods, community tools, and infrastructure.
+
+## What Happens When Balance Runs Out
+
+1. New messages are **queued but not executed**
+2. The program's state remains frozen at the last committed state
+3. No events are emitted for queued messages
+4. Once balance is replenished, queued messages resume processing in order
+
+<Callout type="warning" title="User Experience Impact">
+  Users who send messages to an unfunded program still pay L1 gas, but their messages won't execute. Design your
+  frontend to check Executable Balance and warn users before they transact.
+</Callout>
+
+## Monitoring Balance
+
+### TypeScript SDK
+
+```typescript
+// Read state by current state hash, then use executableBalance field
+const mirror = getMirrorClient(programId, signer, publicClient);
+const stateHash = await mirror.stateHash();
+const state = await api.query.program.readState(stateHash);
+console.log(`Executable balance: ${state.executableBalance} base units`);
+```
+
+### CLI
+
+```bash
+ethexe tx query "$PROGRAM_ID" \
+  --ethereum-rpc "$RPC" \
+  --ethereum-router "$ROUTER" \
+  --sender "$SENDER"
+```
+
+In `v1.10.0`, this command shows mirror metadata and ETH balance.
+For executable (wVARA) balance monitoring in SDK, read state through `api.query.program.readState(...)` and use `state.executableBalance`.
+
+Set up automated alerts when balance drops below a threshold to avoid service interruption.
+
+### What Types of Balances Does a Program Have?
+
+| Balance                | Purpose                                    | Who Controls                            |
+| ---------------------- | ------------------------------------------ | --------------------------------------- |
+| **Executable Balance** | Pays for program execution (compute costs) | Router (consumed automatically)         |
+| **Program Value Balance (Owned Balance)** | Value held by program logic (payable flow) | Program logic (via Mirror payable flow) |

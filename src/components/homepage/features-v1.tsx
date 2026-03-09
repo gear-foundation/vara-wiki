@@ -20,9 +20,9 @@ import { FEATURES_DATA, type FeatureItem } from "@/lib/data/features.data";
 export function HomepageFeaturesV1() {
   return (
     <section className="container">
-      <div className="flex flex-nowrap gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
         {FEATURES_DATA.map((props, idx) => (
-          <div key={idx} className="flex-1 min-w-0">
+          <div key={idx}>
             <FeatureCard {...props} />
           </div>
         ))}

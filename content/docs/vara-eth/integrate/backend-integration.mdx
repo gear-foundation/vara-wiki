@@ -44,7 +44,7 @@ const ethereumClient = new EthereumClient(publicClient, ROUTER_ADDRESS, signerAd
 await ethereumClient.waitForInitialization();
 
 const api = new VaraEthApi(
-  new WsVaraEthProvider("wss://vara-eth-validator-1.gear-tech.io:9944"),
+  new WsVaraEthProvider("wss://vara-eth-validator-1.gear-tech.io"),
   ethereumClient
 );
 

@@ -46,15 +46,24 @@ const wsProvider = new ethers.WebSocketProvider(
 );
 ```
 
-### Vara.eth RPC (Executor Network)
-
-For pre-confirmations and state queries via the executor P2P network:
+### Beacon RPC (Hoodi)
 
 ```text
-wss://vara-eth-validator-1.gear-tech.io:9944
+https://hoodi-lighthouse-rpc.gear-tech.io
 ```
 
-Use this endpoint with `@vara-eth/api` providers (`WsVaraEthProvider` / `HttpVaraEthProvider`) for injected
+### Vara.eth RPC (Validator Network)
+
+For pre-confirmations and state queries via the validator P2P network:
+
+```text
+wss://vara-eth-validator-1.gear-tech.io
+wss://vara-eth-validator-2.gear-tech.io
+wss://vara-eth-validator-3.gear-tech.io
+wss://vara-eth-validator-4.gear-tech.io
+```
+
+Use any of these endpoints with `@vara-eth/api` providers (`WsVaraEthProvider` / `HttpVaraEthProvider`) for injected
 transactions and pre-confirmation flows.
 
 ## Ethereum Mainnet

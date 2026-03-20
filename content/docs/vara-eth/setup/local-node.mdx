@@ -21,7 +21,7 @@ Use this when you already have a Router address (for example on Hoodi).
 ```bash
 ethexe run \
   --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
-  --ethereum-router "0xBC888a8B050B9B76a985d91c815d2c4f2131a58A" \
+  --ethereum-router "0xE549b0AfEdA978271FF7E712232B9F7f39A0b060" \
   --rpc-port 9944
 ```
 
@@ -98,7 +98,7 @@ cast block-number --rpc-url http://127.0.0.1:8545
 ```bash
 ethexe run \
   --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
-  --ethereum-router "0xBC888a8B050B9B76a985d91c815d2c4f2131a58A" \
+  --ethereum-router "0xE549b0AfEdA978271FF7E712232B9F7f39A0b060" \
   --rpc-port 8080
 ```
 
@@ -107,7 +107,7 @@ ethexe run \
 ```bash
 ethexe run \
   --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
-  --ethereum-router "0xBC888a8B050B9B76a985d91c815d2c4f2131a58A" \
+  --ethereum-router "0xE549b0AfEdA978271FF7E712232B9F7f39A0b060" \
   --no-network
 ```
 
@@ -116,7 +116,7 @@ ethexe run \
 ```bash
 RUST_LOG=debug ethexe run \
   --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
-  --ethereum-router "0xBC888a8B050B9B76a985d91c815d2c4f2131a58A"
+  --ethereum-router "0xE549b0AfEdA978271FF7E712232B9F7f39A0b060"
 ```
 
 <Callout type="tip" title="Reset State">
@@ -148,7 +148,7 @@ To use the Hoodi testnet again:
    ```bash
    ethexe tx query "$PROGRAM_ID" \
      --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
-     --ethereum-router "0xBC888a8B050B9B76a985d91c815d2c4f2131a58A" \
+     --ethereum-router "0xE549b0AfEdA978271FF7E712232B9F7f39A0b060" \
      --sender "$SENDER"
    ```
 

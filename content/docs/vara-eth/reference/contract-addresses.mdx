@@ -9,9 +9,9 @@ description: Deployed contract addresses for Vara.eth on all networks.
 
 | Contract | Address | Description |
 |---|---|---|
-| **Router** | `0xBC888a8B050B9B76a985d91c815d2c4f2131a58A` | Core settlement contract. Manages code validation, program creation, and batch commitments. |
+| **Router** | `0xE549b0AfEdA978271FF7E712232B9F7f39A0b060` | Core settlement contract. Manages code validation, program creation, and batch commitments. |
 | **Middleware** | Check Router or testnet UI | Validator management contract integrated with [Symbiotic](https://docs.symbiotic.fi/). Handles operator registration, stake vaults, election, rewards, and slashing. |
-| **wVARA** | Check Router or testnet UI | ERC-20 wrapped VARA token. |
+| **wVARA** | `0xE1ab85A8B4d5d5B6af0bbD0203EB322DF33d0464` | ERC-20 wrapped VARA token. |
 | **Mirror (per program)** | Deterministic per program | Each program gets its own Mirror proxy. Address = `CREATE2(Router, keccak256(codeId, salt))`. |
 | **MirrorProxy** | Implementation singleton | EIP-1167 minimal proxy implementation used by all Mirror instances. |
 | **MirrorProxySmall** | Implementation singleton | Gas-optimized variant for programs with minimal state. |

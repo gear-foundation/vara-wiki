@@ -47,7 +47,7 @@ export const vara = {
   weth: "0xba764e2836b28806be10fe6f674d89d1e0c86898d25728f776588f03bddc6f58",
   wbtc: "0xc1ec06d99efcffd863f9c2ad2bc76f656aff861acf06f438046c64e5b41e3fd9",
   tokenizedVara:
-    "0xd0f89cfd994c92bb743a5a69049609b796e2026e05318f7eef621a5e31df3d4b",
+    "0xa1a37e5a36e8a53921f6bedefadec91dc510636079a22238e9edf8233aaa494e",
 };
 
 // Vara (Mainnet) contract addresses

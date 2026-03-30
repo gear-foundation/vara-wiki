@@ -1,0 +1,238 @@
+---
+title: Factory Pattern for Child Program Instantiation
+---
+
+import MermaidDiagram from "@/components/mermaid";
+
+## About
+
+A factory program is a common pattern for deploying multiple child programs from a single on-chain entry point. Instead of creating each child program through external orchestration, the factory keeps the template `code_id` in storage and instantiates new child programs on demand.
+
+This approach is useful when a system needs many isolated program instances that share the same code template. Typical examples include user-specific vaults, strategy instances, game rooms, isolated markets, or tenant-specific service programs.
+
+The minimal pattern in this example stores only one value in the factory state: the `code_id` of the child template. A service method then uses `ProgramGenerator::create_program_bytes_with_gas_for_reply(...)` to create a new child program, waits for the initialization reply, emits an event with the new `ActorId`, and returns the address to the caller.
+
+## Why the pattern matters
+
+A factory centralizes program creation and makes deployment flows deterministic from the perspective of clients and indexers. Instead of requiring off-chain logic to manage template identifiers and child initialization, the factory exposes a stable contract-level interface for instantiation.
+
+This structure is especially useful when many child programs must be created from the same template, tracked through events, and initialized through a consistent payload format.
+
+## Pattern overview
+
+The pattern contains two programs: a factory and a child template. The factory stores the child template `code_id` and exposes a `create_program()` command. The child template exposes its own constructor and service methods after instantiation.
+
+When `create_program()` is called, the factory reads the stored `code_id`, builds the initialization payload, starts child creation through `ProgramGenerator`, waits for the reply, emits `FactoryEvents::ProgramCreated(address)`, and returns the newly created program address.
+
+That design keeps child deployment logic inside the factory while keeping child business logic inside the child program itself.
+
+## Architecture
+
+<MermaidDiagram
+  chart={`
+flowchart TD
+    U[User]
+    F["FactoryService"]
+    S["Factory storage: code_id"]
+    G["ProgramGenerator"]
+    C["Child program template"]
+    N["New child program instance"]
+    E["ProgramCreated event"]
+
+    U -->|"create_program()"| F
+    F -->|read code_id| S
+    F -->|create_program_bytes_with_gas_for_reply| G
+    G -->|instantiate from code_id| C
+    C -->|constructor payload| N
+    F -->|emit event| E
+    F -->|return ActorId| U
+`}
+/>
+
+## Main components
+
+### Factory storage
+
+The factory keeps a minimal state object containing only the child template identifier.
+
+```rust
+struct Storage {
+    code_id: CodeId,
+}
+```
+
+That design is sufficient when the factory does not need ownership metadata, registries of created children, or per-user deployment state. The example focuses only on the instantiation path.
+
+### Factory service
+
+The factory service provides the command that creates a child program. It borrows the factory storage, reads the stored `code_id`, prepares the constructor payload, and performs the async child creation flow.
+
+```rust
+struct FactoryService<'a> {
+    storage: &'a RefCell<Storage>,
+}
+```
+
+The service also exposes a small helper for read-only storage access through `RefCell`.
+
+### Child template
+
+The child program is a normal Sails program with its own constructor and its own exposed service. In this minimal example, the child constructor takes no parameters and the child service exposes one command that returns a string.
+
+```rust
+#[sails_rs::service]
+impl FactoryChild {
+    #[export]
+    pub fn do_something(&mut self) -> String {
+        "Hello from FactoryChild!".to_string()
+    }
+}
+```
+
+The factory does not implement child business logic. Its responsibility is only to instantiate the child correctly.
+
+## Child program structure
+
+The child template remains independent from the factory. It defines its own constructor and its own service exposure.
+
+```rust
+#[derive(Default)]
+pub struct Program(());
+
+#[sails_rs::program]
+impl Program {
+    pub fn new() -> Self {
+        Self(())
+    }
+
+    pub fn factory_child(&self) -> FactoryChild {
+        FactoryChild::new()
+    }
+}
+```
+
+That separation is important. The factory controls creation, while the child program controls post-deployment behavior.
+
+## Creation flow
+
+The core factory method is `create_program()`.
+
+```rust
+#[export(unwrap_result)]
+pub async fn create_program(&mut self) -> Result<ActorId, FactoryError> {
+    let code_id = { self.get().code_id };
+
+    let payload = "New".encode();
+
+    let create_program_future = ProgramGenerator::create_program_bytes_with_gas_for_reply(
+        code_id,
+        payload,
+        10_000_000_000,
+        0,
+        10_000_000_000,
+    )
+    .map_err(|_e| FactoryError::CreateProgramStartFailed)?;
+
+    let (address, _) = create_program_future
+        .await
+        .map_err(|_e| FactoryError::CreateProgramReplyFailed)?;
+
+    self.emit_event(FactoryEvents::ProgramCreated(address))
+        .map_err(|_e| FactoryError::EmitEventFailed)?;
+
+    Ok(address)
+}
+```
+
+The method performs four steps:
+
+1. read the stored child template `code_id`;
+2. encode the constructor payload for the child program;
+3. start child creation and wait for the initialization reply;
+4. emit an event and return the new child address.
+
+The payload is encoded manually as `"New".encode()`, which matches the child constructor route used in this minimal example.
+
+## Creation sequence
+
+<MermaidDiagram
+  chart={`
+sequenceDiagram
+    participant User
+    participant Factory as FactoryService
+    participant Storage
+    participant Generator as ProgramGenerator
+    participant Child as Child Template
+    participant Instance as Child Instance
+
+    User->>Factory: create_program()
+    Factory->>Storage: read code_id
+    Factory->>Factory: payload = "New".encode()
+    Factory->>Generator: create_program_bytes_with_gas_for_reply(...)
+    Generator->>Child: instantiate template
+    Child->>Instance: run constructor
+    Generator-->>Factory: reply(address, reply_payload)
+    Factory-->>User: return ActorId
+`}
+/>
+
+## Constructor payload and initialization contract
+
+The factory and the child template must agree on the constructor payload format. In this pattern, the factory sends `"New".encode()`, which assumes that the child program accepts the corresponding constructor route with no additional parameters.
+
+For example, if the child constructor accepts one parameter such as `owner: ActorId`, the payload must include both the constructor route and that argument:
+
+```rust
+let payload = {
+    let owner = msg::source();
+    let mut payload = Vec::new();
+    "New".encode_to(&mut payload);
+    owner.encode_to(&mut payload);
+    payload
+};
+```
+In that case, the child constructor would look conceptually like this:
+
+```rust
+#[sails_rs::program]
+impl Program {
+    pub fn new(owner: ActorId) -> Self {
+        Self(())
+    }
+}
+```
+
+In other words, the factory and the child template must agree on the constructor ABI: the route name, the parameter types, and the parameter order.
+
+That contract is one of the most important parts of the pattern. If the child constructor changes, the factory payload must be updated accordingly. The factory and the child template must therefore evolve together.
+
+## Security requirements
+
+- Store only a trusted child template `code_id`.
+- Keep the factory payload format aligned with the child constructor format.
+- Treat child creation and child initialization as separate failure boundaries.
+- Emit creation events so off-chain systems can track new instances reliably.
+- Size gas for both creation start and constructor reply conservatively.
+
+## Practical guidance for production systems
+
+This pattern is a good fit when many child programs must be created from one template and tracked through a stable contract interface. Production implementations often extend the minimal version with access control, per-user deployment rules, registries of created children, template upgrades, or richer constructor payloads.
+
+In more advanced systems, the factory may also persist metadata about each deployed child, enforce caller permissions, or support several child templates rather than one. The minimal example here is still useful because it isolates the core mechanics of on-chain program instantiation and reply handling.
+
+## Source code
+
+Pattern repository:
+
+- [`vara-dapp-patterns/contracts/factory`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/contracts/factory)
+- [`vara-dapp-patterns/contracts/factory-child`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/contracts/factory-child)
+
+Related documentation:
+
+- [Sails](/docs/developing/build/sails)
+
+## Summary
+
+The Factory Pattern for Child Program Instantiation provides a compact way to deploy multiple child programs from a single Sails-based factory. The factory stores the child template `code_id`, constructs the initialization payload, creates the child through `ProgramGenerator`, waits for the constructor reply, and emits an event with the new address.
+
+This structure keeps deployment logic centralized, keeps child business logic separate, and gives clients a stable interface for creating new program instances. It is a strong foundation for more advanced factory systems that require access control, registries, richer initialization parameters, or multi-template support.

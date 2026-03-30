@@ -1,0 +1,296 @@
+---
+title: Service Wrapper Pattern
+---
+
+import MermaidDiagram from "@/components/mermaid";
+
+## About
+
+This pattern shows how to keep a base service reusable, inject policy through a separate wrapper, and compose higher-level services around the wrapped interface. The example uses three roles: a base service that owns one domain capability, a wrapper service that overrides selected methods to enforce policy, and a consumer service that depends on the wrapped exposure while keeping its own independent state.
+
+The important idea is architectural rather than domain-specific. The base service should remain small and reusable. The wrapper should add policy without rewriting the base module. The consumer should depend on the selected exposure rather than duplicating logic or reaching into shared storage directly.
+
+In this example, the base service is an oracle, the wrapper adds admin-only writes, and the consumer is a market module. The same pattern can be reused for many other domains where core logic, access control, and higher-level workflows should remain separate.
+
+## Why the pattern matters
+
+Many contract systems need the same core module under different policy regimes. One deployment may expose the base service directly for testing. Another may require an admin-only wrapper. A third may place the same module behind multisig or governance checks. If policy is embedded directly into the base module, reuse becomes harder and domain logic becomes entangled with authorization logic.
+
+The wrapper pattern avoids that coupling. The base service keeps its domain primitives, the wrapper owns policy, and consumer services depend on the chosen wrapped interface. The program boundary then becomes the toggle point that decides which exposure is public and how dependent modules are wired.
+
+## Pattern overview
+
+The pattern has three layers. A base service owns the core logic and storage access. A wrapper service extends the base service and overrides selected methods to add policy. A consumer service depends on the wrapped service and applies application-level rules while persisting its own local state.
+
+In this example, the base `OracleService` stores the current price and exposes `update_price` and `get_price`. The wrapper service extends the oracle and restricts `update_price` to the admin account. The consumer `MarketService` reads the wrapped oracle price, applies quote and slippage logic, and stores market-specific state independently from oracle storage.
+
+## Architecture
+
+<MermaidDiagram
+  chart={`
+flowchart TD
+    A[Privileged Caller]
+    U[Regular User]
+
+    subgraph Program
+        W["Wrapper Service"]
+        B["Base Service"]
+        BS["Base State"]
+        C["Consumer Service"]
+        CS["Consumer State"]
+    end
+
+    A -->|guarded write path| W
+    W -->|override selected methods| B
+    B -->|read / write| BS
+
+    U -->|read or command flow| C
+    C -->|depends on wrapper exposure| W
+    C -->|persist consumer state| CS
+`}
+/>
+
+The example implementation maps these roles as follows:
+
+- **Base service** → `OracleService`
+- **Wrapper service** → `admin_oracle`
+- **Consumer service** → `MarketService`
+
+## Main components
+
+### Base service
+
+The base service owns one domain capability and remains free of policy-specific decisions. In the example below, the base service is an oracle that stores and returns a price.
+
+```rust
+#[sails_rs::service]
+impl<'a> OracleService<'a> {
+    #[export]
+    pub fn update_price(&mut self, new_price: u128) {
+        *self.get_mut_price() = new_price;
+    }
+
+    #[export]
+    pub fn get_price(&self) -> u128 {
+        *self.price.borrow()
+    }
+}
+```
+
+That design keeps the module reusable. Another program may expose it directly, wrap it with access control, or place it behind governance without changing the base implementation.
+
+### Wrapper service
+
+The wrapper extends the base service and overrides only the methods that require additional policy. In this example, the wrapper checks that the caller is the admin before allowing price updates.
+
+```rust
+#[sails_rs::service(extends = [OracleService<'a>])]
+impl<'a> Service<'a> {
+    #[export(unwrap_result)]
+    pub fn update_price(&mut self, value: u128) -> Result<(), AdminError> {
+        self.ensure_admin()?;
+        *self.oracle.get_mut_price() = value;
+        Ok(())
+    }
+}
+```
+
+The wrapper reuses the base read path and injects policy only where needed. That is the core idea of the pattern.
+
+For `extends = [OracleService<'a>]`, Sails also requires a conversion from the extending service into the extended one:
+
+```rust
+impl<'a> From<Service<'a>> for OracleService<'a> {
+    fn from(s: Service<'a>) -> Self {
+        s.oracle
+    }
+}
+```
+
+That conversion enables typed extension while keeping the wrapper strongly typed and explicit.
+
+### Consumer service
+
+The consumer depends on the wrapped service rather than on raw storage or duplicated base logic. In this example, the market service reads the oracle price through the wrapped exposure and maintains its own independent state.
+
+```rust
+pub struct MarketService<'a> {
+    admin_oracle: ServiceExposure<Service<'a>>,
+    market: &'a RefCell<MarketStorage>,
+}
+```
+
+This is an important part of the pattern. The consumer does not implement its own price storage and does not reapply wrapper policy manually. It depends on the selected service exposure provided by the program.
+
+### Independent consumer storage
+
+The consumer keeps its own state independently from the base service.
+
+```rust
+pub struct MarketStorage {
+    pub last_quote_usd: u128,
+    pub last_trader: ActorId,
+}
+```
+
+This separation preserves clear ownership boundaries. The base service remains responsible for domain primitives, while the consumer remains responsible for workflow-specific state.
+
+## Program composition
+
+The program boundary is where the actual module toggle happens. The program decides whether the base service is exposed directly, wrapped, or kept internal.
+
+```rust
+pub struct Program {
+    oracle: RefCell<u128>,
+    market: RefCell<MarketStorage>,
+    admin: ActorId,
+}
+
+#[sails_rs::program]
+impl Program {
+    pub fn new() -> Self {
+        Self {
+            oracle: RefCell::new(0),
+            market: RefCell::new(MarketStorage::default()),
+            admin: msg::source(),
+        }
+    }
+
+    pub fn admin_oracle(&self) -> Service<'_> {
+        Service::new(OracleService::new(&self.oracle), self.admin)
+    }
+
+    pub fn market(&self) -> MarketService<'_> {
+        MarketService::new(self.admin_oracle(), &self.market)
+    }
+}
+```
+
+In this composition, the base oracle is not exposed directly. The wrapped `admin_oracle()` becomes the intended mutation path, and the consumer `market()` is wired against that wrapped exposure.
+
+## Guarded override flow
+
+<MermaidDiagram
+  chart={`
+sequenceDiagram
+    participant Privileged as Privileged Caller
+    participant Wrapper as Wrapper Service
+    participant Base as Base Service
+    participant State as Base State
+
+    Privileged->>Wrapper: guarded update
+    Wrapper->>Wrapper: enforce policy
+    Wrapper->>Base: call base write path
+    Base->>State: write state
+    Wrapper-->>Privileged: success
+`}
+/>
+
+The example implementation uses an admin check, but the same structure could enforce multisig approval, governance gating, pause checks, feature flags, or role-based authorization.
+
+## Consumer dependency flow
+
+<MermaidDiagram
+  chart={`
+sequenceDiagram
+    participant User
+    participant Consumer as Consumer Service
+    participant Wrapper as Wrapper Service
+    participant Base as Base Service
+    participant BState as Base State
+    participant CState as Consumer State
+
+    User->>Consumer: user command
+    Consumer->>Wrapper: read through wrapped exposure
+    Wrapper->>Base: delegated read path
+    Base->>BState: read domain value
+    Base-->>Consumer: current value
+    Consumer->>Consumer: apply consumer-specific checks
+    Consumer->>CState: persist local state
+    Consumer-->>User: result
+`}
+/>
+
+The key point is not the domain-specific quote itself. The key point is that the consumer depends on the wrapped interface rather than on raw shared storage or duplicated base logic.
+
+## Cross-service read path
+
+The quote path in the example is a simple illustration of a consumer reading from the wrapped base service.
+
+```rust
+#[export(unwrap_result)]
+pub fn quote_usd(&self, amount_tokens: u128) -> Result<u128, MarketError> {
+    let price = self.admin_oracle.oracle.get_price();
+
+    if *price == 0 {
+        return Err(MarketError::OraclePriceIsZero);
+    }
+
+    Ok(amount_tokens.saturating_mul(*price) / PRICE_SCALE)
+}
+```
+
+What matters here is not the quote formula itself. The important part is that the consumer pulls the current value through the selected service exposure and applies its own local rules on top.
+
+## Command path with local persistence
+
+The command path uses the same dependency but persists consumer-specific state.
+
+```rust
+#[export(unwrap_result)]
+pub fn open_position(
+    &mut self,
+    amount_tokens: u128,
+    max_acceptable_price: u128,
+) -> Result<u128, MarketError> {
+    let price = self.admin_oracle.oracle.get_price();
+
+    if *price == 0 {
+        return Err(MarketError::OraclePriceIsZero);
+    }
+    if *price > max_acceptable_price {
+        return Err(MarketError::SlippageExceeded);
+    }
+
+    let quote = amount_tokens.saturating_mul(*price) / PRICE_SCALE;
+
+    let mut m = self.market_mut();
+    m.last_quote_usd = quote;
+    m.last_trader = msg::source();
+
+    Ok(quote)
+}
+```
+
+This keeps responsibilities separate. The base service owns the primitive value, the wrapper owns policy, and the consumer owns application-specific validation and persistence.
+
+## Security requirements
+
+- Do not expose the raw base write path if the wrapper is intended to be the only mutation path.
+- Override only the methods that require additional policy.
+- Keep policy checks localized in the wrapper rather than duplicating them across consumers.
+- Ensure that consumer services depend on the intended wrapped exposure.
+- Document domain-specific invariants separately from the wrapper itself.
+
+## Practical guidance for production systems
+
+This pattern is a good fit when a reusable module must support multiple policy variants or multiple consumer modules. The strongest production use of the pattern comes from preserving a strict separation of responsibilities: the base module owns domain primitives, the wrapper owns policy, and the consumer owns application-specific validation and storage.
+
+Production implementations often extend this structure with richer base data, admin rotation, multisig or governance wrappers, consumer-specific validation modules, and tests that verify both unauthorized access rejection and correct consumer behavior under the selected wrapped exposure.
+
+## Source code
+
+Pattern repository:
+
+- [`vara-dapp-patterns/contracts/module-toggles/oracle`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/contracts/module-toggles/oracle)
+- [`vara-dapp-patterns/contracts/module-toggles/oracle-admin-wrapper`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/contracts/module-toggles/oracle-admin-wrapper)
+
+Related documentation:
+
+- [Sails](/docs/developing/build/sails)
+
+## Summary
+
+The Service Wrapper Pattern makes it possible to keep a base module reusable while injecting policy through a separate wrapper layer. A consumer service can then depend on the wrapped interface without duplicating the base logic or sharing responsibility for policy checks.
+
+In this example, the base service is an oracle, the wrapper adds admin-only writes, and the consumer is a market module. The same structure can be reused in many other domains where core logic, policy, and higher-level composition should remain separate.

@@ -1,0 +1,259 @@
+---
+title: Delayed Self-Messages with Version Guards
+---
+
+import MermaidDiagram from "@/components/mermaid";
+
+## About
+
+Delayed self-messages are a common tool for implementing deferred actions in Sails-based programs. Typical use cases include lock expiration, cooldown completion, timeout processing, delayed cleanup, and deferred state transitions. The mechanism is simple: a program schedules a message to itself and handles it at a later block.
+
+The main engineering risk lies in stale delayed messages. A message scheduled under an earlier state may arrive after the state has already changed. Without additional protection, such a message may apply an outdated transition and corrupt the current state.
+
+This pattern introduces a minimal and reliable solution based on a versioned state record. Every scheduled delayed message carries the version that was current at scheduling time. Every meaningful state change bumps the stored version. When the delayed message arrives, the program applies the transition only if the version still matches and the expiration condition is still valid.
+
+## Why the pattern matters
+
+A delayed action is executed in the future, not at the moment it is scheduled. During that gap, the underlying state may change through renewal, cancellation, or replacement. As a result, a delayed message that was valid at scheduling time may become invalid at execution time.
+
+A version guard solves that problem without queue-level cancellation. The program allows delayed messages to arrive and rejects them safely when they no longer match the current state.
+
+## Pattern overview
+
+The pattern stores one lock record per user. Each record contains an active flag, an expiration block, and a monotonically increasing version. Every delayed self-message carries the user and the version observed when expiration was scheduled.
+
+Starting a lock schedules a delayed expiration and stores the active record. Renewing a lock schedules a new delayed expiration with a higher version. Cancelling a lock deactivates the record and bumps the version. When a delayed expiration arrives, the program applies it only if the caller is the program itself, the lock is still active, the version still matches, and the current block has reached the recorded expiration point.
+
+## Architecture
+
+<MermaidDiagram
+  chart={`
+flowchart TD
+    U[User]
+    P["DelayedSelfMessage Service"]
+    S["State: locks by user"]
+    Q["Delayed self-message queue"]
+    E["expire(user, version)"]
+
+    U -->|start / renew / cancel| P
+    P -->|read / update lock| S
+    P -->|schedule delayed self-message| Q
+    Q -->|later delivery| E
+    E -->|validate self-call, version, block| S
+    E -->|deactivate if current| S
+`}
+/>
+
+## Main components
+
+### Lock record
+
+The lock record is the core state unit of the pattern. It captures whether the lock is currently active, the block at which expiration is allowed, and the current version used to invalidate stale delayed messages.
+
+```rust
+#[derive(Debug, Clone, PartialEq, Eq, Encode, Decode, TypeInfo)]
+#[codec(crate = sails_rs::scale_codec)]
+#[scale_info(crate = sails_rs::scale_info)]
+pub struct Lock {
+    pub active: bool,
+    pub expires_at: u32,
+    pub version: u64,
+}
+```
+
+The `version` field is the critical protection mechanism. Any state transition that changes the semantic meaning of the lock must produce a new version.
+
+### State storage
+
+The service keeps one map of locks indexed by user address.
+
+```rust
+pub struct State {
+    locks: HashMap<ActorId, Lock>,
+}
+```
+
+This layout is intentionally minimal. The pattern focuses on correctness of delayed execution rather than on domain-specific storage complexity.
+
+### Manual request encoding
+
+The delayed self-message is built manually as an internal Sails request for the `Expire` call. The payload includes the target user and the expected lock version.
+
+```rust
+fn encode_expire_request(user: ActorId, version: u64) -> Vec<u8> {
+    let mut request = Vec::new();
+    SERVICE_NAME.encode_to(&mut request);
+    EXPIRE_ACTION.encode_to(&mut request);
+    (user, version).encode_to(&mut request);
+    request
+}
+```
+
+That design makes the delayed message explicit and easy to reason about. The expiration handler receives all data required for stale-message validation.
+
+### Delayed scheduling
+
+The service schedules the delayed self-message through `msg::send_bytes_with_gas_delayed(...)`.
+
+```rust
+fn schedule_expire(
+    &self,
+    user: ActorId,
+    version: u64,
+    delay_blocks: u32,
+) -> Result<(), Error> {
+    let request = Self::encode_expire_request(user, version);
+
+    msg::send_bytes_with_gas_delayed(
+        exec::program_id(),
+        request,
+        DELAY_GAS,
+        0,
+        delay_blocks,
+    )
+    .map_err(|_| Error::ScheduleFailed)?;
+
+    Ok(())
+}
+```
+
+The delayed message targets `exec::program_id()`, which guarantees that expiration is handled internally by the same program.
+
+## Lifecycle operations
+
+### Start
+
+A `start(delay_blocks)` call creates a new active lock for the caller. The operation rejects zero delay and rejects an already active lock. If the user had an older inactive record, the next version is derived from the previous one.
+
+The service first schedules the delayed self-message and only then persists the new state. This ordering prevents the program from storing an active lock if scheduling fails.
+
+<MermaidDiagram
+  chart={`
+sequenceDiagram
+    participant User
+    participant Service
+    participant Queue as Delayed Queue
+    participant State
+
+    User->>Service: start(delay_blocks)
+    Service->>Service: validate non-zero delay
+    Service->>State: read existing lock
+    Service->>Queue: schedule expire(user, version)
+    Service->>State: store active lock
+    Service-->>User: Event::Started
+`}
+/>
+
+### Renew
+
+A `renew(delay_blocks)` call extends an existing active lock. The operation requires an active record and bumps the version before scheduling the new delayed expiration. Any previously scheduled expiration for the older version becomes stale immediately.
+
+<MermaidDiagram
+  chart={`
+sequenceDiagram
+    participant User
+    participant Service
+    participant Queue as Delayed Queue
+    participant State
+
+    User->>Service: renew(delay_blocks)
+    Service->>State: load active lock
+    Service->>Service: next_version = old_version + 1
+    Service->>Queue: schedule expire(user, next_version)
+    Service->>State: overwrite lock with new version and expires_at
+    Service-->>User: Event::Renewed
+`}
+/>
+
+### Cancel
+
+A `cancel()` call deactivates the lock and bumps the version. That single state transition is enough to invalidate all delayed expirations created for earlier versions.
+
+```rust
+fn deactivate(lock: &mut Lock) {
+    lock.active = false;
+    lock.version = lock.version.saturating_add(1);
+}
+```
+
+Cancellation does not attempt to remove already scheduled delayed messages. Instead, it guarantees that any future arrival of those messages is stale by construction.
+
+### Expire
+
+An `expire(user, version)` call is the delayed handler. It may be executed only by the program itself. The handler ignores four cases without error: missing lock, already inactive lock, stale version, and early arrival before `expires_at`.
+
+Only a current, active, self-triggered, non-early message may deactivate the lock and emit `Event::Expired`.
+
+## Expiration flow
+
+<MermaidDiagram
+  chart={`
+sequenceDiagram
+    participant Queue as Delayed Queue
+    participant Program as Program
+    participant State
+
+    Queue->>Program: expire(user, version)
+    Program->>Program: verify msg::source() == exec::program_id()
+    Program->>State: load lock by user
+    Program->>Program: check active flag
+    Program->>Program: check version match
+    Program->>Program: check block_height >= expires_at
+    Program->>State: deactivate lock
+    Program-->>Queue: Event::Expired
+`}
+/>
+
+## Version-based stale message protection
+
+The version field is the core correctness mechanism of the pattern. A delayed message is scheduled with the version that is current at scheduling time. Any later renewal or cancellation increments the stored version. When the delayed message arrives, a version mismatch proves that the message belongs to an outdated state transition.
+
+> Only the delayed message created for the current lock version may expire the lock.
+
+## Effective safety checks
+
+The expiration handler combines several independent checks:
+
+- self-call verification through `msg::source() == exec::program_id()`;
+- existence of a lock record for the target user;
+- active-state verification;
+- version equality between message and storage;
+- block-height verification against `expires_at`.
+
+Each check blocks a distinct class of failure. Together, they make delayed expiration idempotent and safe under renewals, cancellations, repeated deliveries, and race-like timing conditions.
+
+## Integration in business logic
+
+This pattern is suitable for any deferred transition that must remain valid only while a specific state version remains current. The same approach can be reused for lock expiration, reservation release, delayed order invalidation, cooldown completion, deferred cleanup of temporary state, and timeout-based workflow transitions.
+
+The domain-specific state may be more complex than a single lock record, but the integration principle remains the same: store a versioned record, schedule a self-message carrying that version, and reject stale executions on arrival.
+
+## Security requirements
+
+- Accept delayed expiration only from `exec::program_id()`.
+- Treat version mismatches as stale-message rejections.
+- Recheck `expires_at` at execution time, even for delayed messages.
+- Bump the version on every state change that invalidates older delayed actions.
+- Reject zero-delay scheduling when the pattern requires a real defer boundary.
+
+## Practical guidance for production systems
+
+This pattern is appropriate for deferred transitions that may be superseded by later user actions. Recommended practices include keeping the state record small, bumping the version on every invalidating change, and treating stale delayed messages as expected no-op outcomes rather than exceptional failures.
+
+Production implementations should also size delayed-call gas conservatively, test early-delivery and stale-delivery paths explicitly, and emit lifecycle events that allow off-chain systems to reconstruct the current lock state reliably.
+
+## Source code
+
+Pattern repository:
+
+- [`vara-dapp-patterns/contracts/delayed-self-message`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/contracts/delayed-self-message)
+
+Related documentation:
+
+- [Sails](/docs/developing/build/sails)
+
+## Summary
+
+The Delayed Self-Messages with Version Guards pattern provides a compact way to implement deferred self-execution safely in Sails-based programs. By coupling every delayed action with a state version and revalidating that version on arrival, the program prevents outdated messages from applying stale transitions.
+
+This approach is well suited to expiration, cooldown, timeout, and deferred cleanup flows where scheduled actions may be superseded before execution.

@@ -68,9 +68,57 @@ transactions and pre-confirmation flows.
 
 ## Ethereum Mainnet
 
-<Callout type="note" title="Coming Soon">
-    Mainnet endpoints will be published here when available.
-</Callout>
+| Parameter | Value |
+|---|---|
+| **Network name** | Vara.eth (Mainnet) |
+| **Chain ID** | `1` |
+| **RPC (HTTPS)** | `https://mainnet-reth-rpc.gear-tech.io` |
+| **RPC (WebSocket)** | `wss://mainnet-reth-rpc.gear-tech.io/ws` |
+| **Base L1** | Ethereum Mainnet |
+| **Block explorer** | [etherscan.io](https://etherscan.io) |
+
+### MetaMask Configuration
+
+```
+Network Name:  Ethereum Mainnet
+RPC URL:       https://mainnet-reth-rpc.gear-tech.io
+Chain ID:      1
+Currency:      ETH
+Explorer:      https://etherscan.io
+```
+
+### ethers.js Connection
+
+```typescript
+import { ethers } from "ethers";
+
+// HTTPS (for queries and transactions)
+const provider = new ethers.JsonRpcProvider(
+  "https://mainnet-reth-rpc.gear-tech.io"
+);
+
+// WebSocket (for subscriptions and real-time events)
+const wsProvider = new ethers.WebSocketProvider(
+  "wss://mainnet-reth-rpc.gear-tech.io/ws"
+);
+```
+
+### Beacon RPC (Mainnet)
+
+```text
+https://mainnet-lighthouse-rpc.gear-tech.io
+```
+
+### Vara.eth RPC (Validator Network)
+
+For pre-confirmations and state queries via the validator P2P network:
+
+```text
+wss://validator-1-eth.vara.network
+wss://validator-2-eth.vara.network
+wss://validator-3-eth.vara.network
+wss://validator-4-eth.vara.network
+```
 
 ## Network Health
 

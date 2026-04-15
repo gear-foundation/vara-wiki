@@ -23,21 +23,21 @@ Your compiled `.opt.wasm` file is uploaded to Ethereum as an **EIP-4844 blob** �
 
 ### CLI
 
-<Tabs groupId="network" items={['🟢 Mainnet', '🟡 Testnet (Hoodi)']} persist>
-<Tab value="🟢 Mainnet">
-```bash
-ethexe tx upload target/wasm32-gear/release/my_program.opt.wasm \
-  --watch \
-  --ethereum-rpc "wss://mainnet-reth-rpc.gear-tech.io/ws" \
-  --ethereum-router "0x9C13FE9242dfe2ba2Cd446480A9308279aA74cb6" \
-  --sender "$SENDER"
-```
-</Tab><Tab value="🟡 Testnet (Hoodi)" default>
+<Tabs groupId="network" items={['🟡 Testnet (Hoodi)', '🟢 Mainnet']} persist>
+<Tab value="🟡 Testnet (Hoodi)" default>
 ```bash
 ethexe tx upload target/wasm32-gear/release/my_program.opt.wasm \
   --watch \
   --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
   --ethereum-router "0xE549b0AfEdA978271FF7E712232B9F7f39A0b060" \
+  --sender "$SENDER"
+```
+</Tab><Tab value="🟢 Mainnet">
+```bash
+ethexe tx upload target/wasm32-gear/release/my_program.opt.wasm \
+  --watch \
+  --ethereum-rpc "wss://mainnet-reth-rpc.gear-tech.io/ws" \
+  --ethereum-router "0x9C13FE9242dfe2ba2Cd446480A9308279aA74cb6" \
   --sender "$SENDER"
 ```
 </Tab>

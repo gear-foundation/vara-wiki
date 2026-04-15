@@ -63,6 +63,8 @@ See [RPC API](/docs/vara-eth/reference/rpc-api) for the full method reference.
 
 Monitor Mirror events via standard Ethereum JSON-RPC:
 
+<Tabs groupId="network" items={['🟡 Testnet (Hoodi)', '🟢 Mainnet']} persist>
+<Tab value="🟡 Testnet (Hoodi)" default>
 ```typescript
 import { ethers } from "ethers";
 
@@ -80,11 +82,56 @@ mirror.on("Message", (id, destination, payload, value) => {
   console.log(`Program sent message to ${destination}`);
 });
 ```
+</Tab><Tab value="🟢 Mainnet">
+```typescript
+import { ethers } from "ethers";
+
+const provider = new ethers.WebSocketProvider(
+  "wss://mainnet-reth-rpc.gear-tech.io/ws"
+);
+
+const mirror = new ethers.Contract(mirrorAddress, mirrorAbi, provider);
+
+mirror.on("StateChanged", (stateHash) => {
+  console.log(`New state hash: ${stateHash}`);
+});
+
+mirror.on("Message", (id, destination, payload, value) => {
+  console.log(`Program sent message to ${destination}`);
+});
+```
+</Tab>
+</Tabs>
 
 ### sails-js (Node.js)
 
 Use the typed SDK for server-side operations:
 
+<Tabs groupId="network" items={['🟢 Mainnet', '🟡 Testnet (Hoodi)']} persist>
+<Tab value="🟢 Mainnet">
+```typescript
+import { SailsProgram } from "sails-js";
+import { ethers } from "ethers";
+
+const provider = new ethers.JsonRpcProvider(
+  "https://mainnet-reth-rpc.gear-tech.io"
+);
+const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+
+const program = new SailsProgram({
+  idl: programIdl,
+  address: mirrorAddress,
+  provider,
+  signer: wallet,
+});
+
+// Read state (free, no tx)
+const balance = await program.token.balanceOf(userAddress);
+
+// Send message (requires ETH for gas)
+await program.token.transfer(recipient, amount);
+```
+</Tab><Tab value="🟡 Testnet (Hoodi)" default>
 ```typescript
 import { SailsProgram } from "sails-js";
 import { ethers } from "ethers";
@@ -107,6 +154,8 @@ const balance = await program.token.balanceOf(userAddress);
 // Send message (requires ETH for gas)
 await program.token.transfer(recipient, amount);
 ```
+</Tab>
+</Tabs>
 
 ## Common Backend Patterns
 

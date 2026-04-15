@@ -5,7 +5,7 @@ description: Build and deploy your first Vara.eth program in 5 minutes.
 
 # Quick Start
 
-This guide takes you from zero to a deployed program on Vara.eth testnet. You'll create a simple counter program, deploy it to Ethereum Hoodi, and interact with it.
+This guide takes you from zero to a deployed program on Vara.eth. You'll create a simple counter program, deploy it to Ethereum, and interact with it.
 
 <Callout type="tip" title="Prefer to learn hands-on?">
   Try the **[Interactive Tutorial](https://eth.vara.network/tutorials)** — walk through the full on-chain flow (program creation, funding, message passing, get a reply) step by step, entirely in the browser. Zero local setup required.
@@ -113,10 +113,12 @@ This produces two artifacts in `target/wasm32-gear/release/`:
 - `counter_app.opt.wasm` — the compiled WASM binary
 - `counter_app.idl` — the [Interface Definition Language](/docs/developing/build/sails/idl) file describing your program's API
 
-## 4. Deploy to Testnet
+## 4. Deploy
 
 Set up your environment:
 
+<Tabs groupId="network" items={['🟡 Testnet (Hoodi)', '🟢 Mainnet']} persist>
+<Tab value="🟡 Testnet (Hoodi)" default>
 ```bash
 # Insert your private key (testnet wallet only!)
 ethexe key insert <YOUR_PRIVATE_KEY>
@@ -126,6 +128,18 @@ export RPC="wss://hoodi-reth-rpc.gear-tech.io/ws"
 export ROUTER="0xE549b0AfEdA978271FF7E712232B9F7f39A0b060"
 export SENDER="<YOUR_WALLET_ADDRESS>"
 ```
+</Tab><Tab value="🟢 Mainnet">
+```bash
+# Insert your private key
+ethexe key insert <YOUR_PRIVATE_KEY>
+
+# Set variables for convenience
+export RPC="wss://mainnet-reth-rpc.gear-tech.io/ws"
+export ROUTER="0x9C13FE9242dfe2ba2Cd446480A9308279aA74cb6"
+export SENDER="<YOUR_WALLET_ADDRESS>"
+```
+</Tab>
+</Tabs>
 
 <Callout type="note" title="Router Address Source">
   For the latest network addresses, always check [Contract Addresses](/docs/vara-eth/reference/contract-addresses).

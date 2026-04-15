@@ -23,6 +23,8 @@ Your compiled `.opt.wasm` file is uploaded to Ethereum as an **EIP-4844 blob** �
 
 ### CLI
 
+<Tabs groupId="network" items={['🟡 Testnet (Hoodi)', '🟢 Mainnet']} persist>
+<Tab value="🟡 Testnet (Hoodi)" default>
 ```bash
 ethexe tx upload target/wasm32-gear/release/my_program.opt.wasm \
   --watch \
@@ -30,6 +32,16 @@ ethexe tx upload target/wasm32-gear/release/my_program.opt.wasm \
   --ethereum-router "0xE549b0AfEdA978271FF7E712232B9F7f39A0b060" \
   --sender "$SENDER"
 ```
+</Tab><Tab value="🟢 Mainnet">
+```bash
+ethexe tx upload target/wasm32-gear/release/my_program.opt.wasm \
+  --watch \
+  --ethereum-rpc "wss://mainnet-reth-rpc.gear-tech.io/ws" \
+  --ethereum-router "0x9C13FE9242dfe2ba2Cd446480A9308279aA74cb6" \
+  --sender "$SENDER"
+```
+</Tab>
+</Tabs>
 
 <Callout type="note" title="CLI First, SDK Optional">
   Use `ethexe` CLI as the default and documented upload path.
@@ -97,4 +109,4 @@ The `CODE_ID` is the unique identifier for your uploaded code:
 
 ## Cost
 
-Uploading code costs standard Ethereum gas for the transaction, plus the EIP-4844 blob fee. On testnet, this is free (use [faucet](/docs/vara-eth/setup/wallet-setup) ETH).
+Uploading code costs standard Ethereum gas for the transaction, plus the EIP-4844 blob fee. On testnet, use [faucet](/docs/vara-eth/setup/wallet-setup) ETH. On mainnet, standard Ethereum gas fees apply.

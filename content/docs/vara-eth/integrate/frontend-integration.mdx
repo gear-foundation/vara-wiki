@@ -61,6 +61,8 @@ This creates a typed client class with methods matching your program's services 
 
 ### Environment Configuration
 
+<Tabs groupId="network" items={['🟡 Testnet (Hoodi)', '🟢 Mainnet']} persist>
+<Tab value="🟡 Testnet (Hoodi)" default>
 ```typescript title="config.ts"
 export const config = {
   // Ethereum RPC (Hoodi testnet)
@@ -75,6 +77,23 @@ export const config = {
   programId: "0x...", // Your program's Mirror address
 };
 ```
+</Tab><Tab value="🟢 Mainnet">
+```typescript title="config.ts"
+export const config = {
+  // Ethereum RPC (Mainnet)
+  ethRpcHttp: "https://mainnet-reth-rpc.gear-tech.io",
+  ethRpcWs: "wss://mainnet-reth-rpc.gear-tech.io/ws",
+
+  // Vara.eth RPC (for pre-confirmations and state queries)
+  varaEthWs: "wss://validator-1-eth.vara.network",
+
+  // Contract addresses
+  routerAddress: "0x9C13FE9242dfe2ba2Cd446480A9308279aA74cb6",
+  programId: "0x...", // Your program's Mirror address
+};
+```
+</Tab>
+</Tabs>
 
 <Callout type="note" title="Addresses Change by Network">
   Keep addresses in one source of truth: [Contract Addresses](/docs/vara-eth/reference/contract-addresses).

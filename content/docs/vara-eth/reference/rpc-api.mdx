@@ -22,13 +22,14 @@ npm install @vara-eth/api viem@^2.39.0 kzg-wasm@1.0.0
 
 ### Initialization
 
+<Tabs groupId="network" items={['🟡 Testnet (Hoodi)', '🟢 Mainnet']} persist>
+<Tab value="🟡 Testnet (Hoodi)" default>
 ```typescript
 import { VaraEthApi, WsVaraEthProvider, EthereumClient } from "@vara-eth/api";
 import { walletClientToSigner } from "@vara-eth/api/signer";
 import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
-// Ethereum clients (viem)
 const publicClient = createPublicClient({
   transport: http("https://hoodi-reth-rpc.gear-tech.io"),
 });
@@ -38,10 +39,8 @@ const walletClient = createWalletClient({
   transport: http("https://hoodi-reth-rpc.gear-tech.io"),
 });
 
-// Convert viem WalletClient to ISigner
 const signer = walletClientToSigner(walletClient);
 
-// EthereumClient — wraps Router, Mirror, and wVARA contracts
 const ethereumClient = new EthereumClient(
   publicClient,
   routerAddress,
@@ -49,16 +48,49 @@ const ethereumClient = new EthereumClient(
 );
 await ethereumClient.waitForInitialization();
 
-// VaraEthApi — connects to Vara.eth validator nodes
 const api = new VaraEthApi(
   new WsVaraEthProvider("ws://localhost:9944"),
   ethereumClient
 );
 
-// Access contract clients
 const router = ethereumClient.router; // RouterClient
 const wvara = ethereumClient.wvara;   // WrappedVaraClient
 ```
+</Tab><Tab value="🟢 Mainnet">
+```typescript
+import { VaraEthApi, WsVaraEthProvider, EthereumClient } from "@vara-eth/api";
+import { walletClientToSigner } from "@vara-eth/api/signer";
+import { createPublicClient, createWalletClient, http } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+
+const publicClient = createPublicClient({
+  transport: http("https://mainnet-reth-rpc.gear-tech.io"),
+});
+const account = privateKeyToAccount("0x...");
+const walletClient = createWalletClient({
+  account,
+  transport: http("https://mainnet-reth-rpc.gear-tech.io"),
+});
+
+const signer = walletClientToSigner(walletClient);
+
+const ethereumClient = new EthereumClient(
+  publicClient,
+  routerAddress,
+  signer
+);
+await ethereumClient.waitForInitialization();
+
+const api = new VaraEthApi(
+  new WsVaraEthProvider("ws://localhost:9944"),
+  ethereumClient
+);
+
+const router = ethereumClient.router; // RouterClient
+const wvara = ethereumClient.wvara;   // WrappedVaraClient
+```
+</Tab>
+</Tabs>
 
 ### Key Classes
 
@@ -345,7 +377,13 @@ For direct JSON-RPC access without the SDK:
 ### Connection
 
 ```
+# Mainnet
+Ethereum RPC (L1): https://mainnet-reth-rpc.gear-tech.io
+
+# Testnet (Hoodi)
 Ethereum RPC (L1): https://hoodi-reth-rpc.gear-tech.io
+
+# Vara.eth validator nodes (local or public)
 Vara.eth RPC:      http://127.0.0.1:9944
 Vara.eth WS:       ws://127.0.0.1:9944
 ```

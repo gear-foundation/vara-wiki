@@ -52,37 +52,6 @@ Validators earn wVARA for:
 
 See [Validators & Staking](/docs/vara-eth/economics/validators-staking) for details.
 
-## Using wVARA
-
-Once you have wVARA, the main uses are:
-
-### Fund a Program
-
-```typescript
-// Approve program (Mirror address) to spend wVARA
-const wvara = new ethers.Contract(wvaraAddress, erc20Abi, signer);
-await wvara.approve(mirrorAddress, parseUnits("100", 18));
-
-// Top up program's Executable Balance
-const mirror = new ethers.Contract(mirrorAddress, mirrorAbi, signer);
-await mirror.executableBalanceTopUp(parseUnits("100", 18));
-```
-
-### Send Message with ETH Value (Optional)
-
-Message value on `sendMessage` is ETH (payable), not wVARA:
-
-```typescript
-const mirror = new ethers.Contract(mirrorAddress, mirrorAbi, signer);
-await mirror.sendMessage(payload, false, {
-  value: ethers.parseEther("0.01"),
-});
-```
-
-### Stake as Validator
-
-Permissionless validator onboarding is not open in the current PoA phase. See [Validators & Staking](/docs/vara-eth/economics/validators-staking) for current status and rollout plans.
-
 ## Token Address
 
 | Network | wVARA Address |

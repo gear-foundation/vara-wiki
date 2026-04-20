@@ -1,0 +1,121 @@
+---
+title: Query Provider
+---
+
+## About
+
+React Query is often configured with assumptions that work well for REST dashboards: background refetching, automatic retries, and cache freshness windows measured in seconds or minutes.
+
+Blockchain applications tend to need a different model. State changes are often driven by explicit transactions, and data refresh is usually safest when tied to known lifecycle points such as “a mutation just succeeded” or “a block-based event finished.”
+
+The `QueryProvider` pattern gives the app one React Query client configured around those assumptions.
+
+## Why the pattern matters
+
+If background cache behavior is too aggressive in a Vara app, the UI can become noisy or misleading:
+
+- a tab focus event may trigger an unexpected RPC read,
+- retries may hide deterministic contract errors,
+- stale/fresh heuristics may conflict with explicit transaction-driven invalidation.
+
+This pattern chooses predictability over automation.
+
+## Core code
+
+```tsx
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      gcTime: 0,
+      staleTime: Infinity,
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
+
+export function QueryProvider({ children }: PropsWithChildren) {
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+}
+```
+
+The implementation is small, but the defaults are opinionated.
+
+## Default configuration explained
+
+### Infinite Stale Time
+
+Queries are treated as fresh until the app explicitly invalidates them.
+
+That matches blockchain UX well because successful transactions are often the natural invalidation trigger.
+
+### Immediate Garbage Collection
+
+Once no component is observing a query, React Query may garbage-collect it immediately.
+
+This keeps the cache lifecycle easy to reason about: active screens hold data; inactive screens re-read or get invalidated explicitly.
+
+### No Refetch on Window Focus
+
+Switching tabs should not silently trigger a new round of chain queries unless the app deliberately wants that behavior.
+
+### No Automatic Retry
+
+In blockchain flows, many errors are deterministic:
+
+- bad arguments,
+- contract rejection,
+- insufficient balance,
+- invalid reply decoding assumptions.
+
+Automatically retrying those failures often makes the UX worse rather than better.
+
+## How this pattern fits into the larger flow
+
+In a typical Vara app:
+
+1. Query data is loaded and held by React Query.
+2. A mutation executes a transaction.
+3. After success, the app invalidates only the affected queries.
+
+That gives the app an explicit cause-and-effect model instead of a background polling model.
+
+## Mutation-driven invalidation example
+
+The intended usage is to invalidate data after known successful execution:
+
+```tsx
+const queryClient = useQueryClient();
+
+const execute = useProgramTxMutation({
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['program-state', programId] });
+  },
+});
+```
+
+That is different from “refetch whenever the tab gains focus.” The UI updates because a specific chain operation succeeded.
+
+## When to override defaults
+
+Some screens may still need more aggressive behavior. For example, a block explorer-style screen may want polling:
+
+```tsx
+useQuery({
+  queryKey: ['latest-events'],
+  queryFn: fetchLatestEvents,
+  refetchInterval: 3000,
+});
+```
+
+The pattern keeps global defaults conservative and lets individual queries opt into special behavior.
+
+## Production guidance
+
+- Invalidate queries after known successful mutations instead of relying on freshness timers.
+- Add query-specific overrides only when a screen truly needs different behavior.
+- Keep the global client conservative. It is easier to opt a query into more aggressive behavior than to unwind too much global automation later.
+
+## Source code
+
+- [`frontend/patterns/providers/query-provider`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/frontend/patterns/providers/query-provider)

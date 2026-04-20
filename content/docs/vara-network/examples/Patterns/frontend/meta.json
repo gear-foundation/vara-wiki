@@ -1,0 +1,12 @@
+{
+  "title": "Frontend",
+  "pages": [
+    "prepare-program-tx",
+    "program-tx-mutation",
+    "verified-sign-and-send",
+    "provider-composition",
+    "query-provider",
+    "ez-transactions",
+    "..."
+  ]
+}

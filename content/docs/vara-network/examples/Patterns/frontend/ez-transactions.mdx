@@ -1,0 +1,319 @@
+---
+title: EZ Transactions
+---
+
+## About
+
+The `gear-ez-transactions` example is the most complete frontend pattern in `vara-dapp-patterns`. It combines two UX goals that often appear together in consumer-facing dApps:
+
+- gasless execution, where a voucher pays network fees,
+- signless execution, where an ephemeral browser key signs repeated actions instead of opening the wallet for every click.
+
+Unlike the smaller hook patterns, this example is about the full end-to-end flow rather than one isolated abstraction.
+
+## Why the pattern matters
+
+Gasless and signless are tightly related but solve different problems:
+
+- gasless answers “who pays for execution?”,
+- signless answers “who signs repeated actions?”.
+
+The critical architectural detail is that signless session creation itself still costs gas. That means the correct sequence is not arbitrary:
+
+1. voucher first,
+2. signless session second,
+3. repeated signless actions afterward.
+
+This pattern is valuable because it makes that sequencing explicit in frontend code.
+
+## High-level flow
+
+```text
+Wallet connected
+    ↓
+Frontend requests voucher from backend
+    ↓
+Voucher becomes active for target program
+    ↓
+User enables signless session
+    ↓
+Frontend creates ephemeral key pair in browser
+    ↓
+Session creation call is sent on-chain
+    ↓
+Subsequent calls use ephemeral key + voucher-funded gas
+```
+
+## Provider-level architecture
+
+The app-level provider stack looks like this:
+
+```tsx
+<QueryClientProvider client={queryClient}>
+  <ApiProvider initialArgs={{ endpoint: NODE_ADDRESS }}>
+    <AccountProvider>
+      <AlertProvider>
+        <EzTransactionsProvider
+          backendAddress={GASLESS_BACKEND}
+          allowedActions={[]}
+        >
+          <App />
+        </EzTransactionsProvider>
+      </AlertProvider>
+    </AccountProvider>
+  </ApiProvider>
+</QueryClientProvider>
+```
+
+That order matters:
+
+- the API provider gives chain access,
+- the account provider gives wallet context,
+- the ez-transactions provider builds on both.
+
+## Main example flow
+
+The example component `SwitchSignless.tsx` coordinates several moving parts:
+
+- reads the connected account,
+- loads the target program,
+- automatically requests a gasless voucher,
+- exposes a UI toggle for signless session creation,
+- prepares transaction parameters through `usePrepareEzTransactionParams`,
+- sends the prepared transaction through a custom `useSignAndSend` helper.
+
+The point is not just to show the hooks, but to show the order in which they cooperate.
+
+The component starts by reading wallet, signless, and gasless state:
+
+```tsx
+const { account } = useAccount();
+const signless = useSignlessTransactions();
+const gasless = useGaslessTransactions();
+```
+
+Then it loads the target Sails-generated program client:
+
+```tsx
+const { data: program } = useProgram({
+  library: Program,
+  id: import.meta.env.VITE_PROGRAMID,
+});
+```
+
+This is where the frontend binds the UI flow to a concrete deployed program.
+
+## Automatic voucher request
+
+When the user connects and gasless mode is enabled, the component requests a voucher only once per account:
+
+```tsx
+const hasRequestedOnceRef = useRef(false);
+
+useEffect(() => {
+  if (!account?.address || !gasless.isEnabled || hasRequestedOnceRef.current)
+    return;
+
+  hasRequestedOnceRef.current = true;
+
+  const requestVoucherSafely = async () => {
+    if (gasless.voucherStatus?.enabled) return;
+    await gasless.requestVoucher(account.address);
+  };
+
+  void requestVoucherSafely();
+}, [account?.address, gasless.isEnabled]);
+```
+
+Why this matters:
+
+- React 18 StrictMode can mount components twice in development,
+- page-level effects can rerun unexpectedly,
+- the app should not create duplicate vouchers for the same user.
+
+The `useRef` flag is a simple guard against duplicate issuance attempts from the frontend side.
+
+The example also resets that guard when the connected account changes:
+
+```tsx
+useEffect(() => {
+  hasRequestedOnceRef.current = false;
+}, [account?.address]);
+```
+
+Without that reset, switching wallets could accidentally prevent the new account from receiving its own voucher request.
+
+## Preparing ez-transaction parameters
+
+The bridge between session state and normal Gear JS transaction preparation is `usePrepareEzTransactionParams()`.
+
+Its role is to provide the extra parameters needed when delegated execution is active, such as:
+
+- `sessionForAccount`,
+- account or signer adjustments,
+- gasless voucher information.
+
+That lets the final transaction-preparation step remain close to the normal Gear JS API instead of branching everywhere in UI code.
+
+The actual send handler shows the full orchestration:
+
+```tsx
+const handleSendHello = async () => {
+  if (!signless.isActive) {
+    alert("Activate the signless session first");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const { sessionForAccount, ...params } =
+      await prepareEzTransactionParams(false);
+
+    if (!sessionForAccount) throw new Error("Missing sessionForAccount");
+
+    const { transaction } = await prepareTransactionAsync({
+      args: [null],
+      value: 0n,
+      ...params,
+    });
+
+    signAndSend(transaction, {
+      onSuccess: () => setLoading(false),
+      onError: () => setLoading(false),
+    });
+  } catch (e) {
+    setLoading(false);
+  }
+};
+```
+
+This is the core frontend flow:
+
+- verify signless state,
+- request ez-transaction parameters,
+- prepare a normal program transaction with those parameters,
+- hand the prepared transaction to the custom sender.
+
+## Balance resolution before send
+
+The custom `useSignAndSend` helper composes ez-transaction state with a balance guard:
+
+```ts
+const { checkBalance } = useCheckBalance({
+  signlessPairVoucherId: signless.voucher?.id,
+  gaslessVoucherId: gasless.voucherId,
+});
+```
+
+Then, before submission, it reads the estimated gas directly from the prepared extrinsic:
+
+```ts
+const calculatedGas = BigInt(transaction.extrinsic.args[2].toString());
+```
+
+That is useful because the prepared transaction already contains the gas estimate. The hook does not need to recalculate it.
+
+The sender then waits for the program response before reporting success:
+
+```ts
+void transaction
+  .signAndSend()
+  .then(({ response }) =>
+    response().then(() => {
+      onSuccess?.();
+    })
+  )
+  .catch((error: unknown) => {
+    onError?.();
+    alert.error("Transaction failed");
+  });
+```
+
+This is more than a raw extrinsic submission. The frontend waits for the Gear/Sails response before treating the action as successful.
+
+## The balance-check flow
+
+`useCheckBalance(...)` resolves the balance source in a strict order:
+
+1. gasless voucher,
+2. signless pair voucher,
+3. user wallet balance.
+
+Then it computes the minimum required balance:
+
+```ts
+required = existentialDeposit + gasLimit * valuePerGas
+```
+
+Only if the balance source can cover that amount does the callback continue into `signAndSend()`.
+
+This is one of the most practical parts of the example, because it prevents avoidable on-chain failures before the transaction is submitted.
+
+The actual balance guard is:
+
+```ts
+const chainBalance = BigInt(balance?.toString() ?? "0");
+const valuePerGas = BigInt(api.valuePerGas.toString());
+const chainEDeposit = BigInt(api.existentialDeposit.toString());
+const required = chainEDeposit + limit * valuePerGas;
+
+if (chainBalance < required) {
+  alert.error(
+    `Low balance on ${stringShorten(addressToCheck ?? "", 8)}`
+  );
+  onError?.();
+  return;
+}
+
+callback();
+```
+
+That makes the balance check explicit and user-facing before the app attempts the on-chain call.
+
+## Signless session UI
+
+The `EnableSignlessSession` component handles the signless lifecycle:
+
+- generate ephemeral key pair in the browser,
+- submit `create_session(...)`,
+- store the browser-side key material,
+- later delete the session and local key material when signless mode is turned off.
+
+The allowed actions array must match the contract-side `ActionsForSession` variants exactly. That alignment between frontend and contract allowlist is the key security boundary of the signless model.
+
+In the example, the allowlist is visible at the component boundary:
+
+```tsx
+<EnableSignlessSession
+  type="switcher"
+  requiredBalance={0}
+  allowedActions={ALLOWED_SIGNLESS_ACTIONS}
+/>
+```
+
+That makes the connection between frontend UX and contract-side permissions easy to audit.
+
+## What this pattern teaches
+
+This example is useful because it shows the full coordination problem, not just one helper:
+
+- provider setup,
+- voucher bootstrap,
+- signless bootstrap,
+- delegated transaction parameter preparation,
+- balance check,
+- final submission.
+
+That makes it much closer in spirit to the detailed contract articles.
+
+## Practical guidance for production apps
+
+- Treat gasless and signless as separate but coordinated layers.
+- Do not create signless sessions before gas funding is ready.
+- Prevent duplicate voucher requests in the frontend even if the backend is also idempotent.
+- Keep the signless allowlist narrow and aligned with contract-side action enums.
+- Show the user clear state transitions: voucher pending, signless active, delegated execution ready.
+
+## Source code
+
+- [`frontend/patterns/ez-transactions`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/frontend/patterns/ez-transactions)

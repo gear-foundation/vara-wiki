@@ -1,0 +1,174 @@
+---
+title: Provider Composition
+---
+
+## About
+
+React apps on Vara often need the same global stack: network API context, wallet/account context, alerts, query cache, routing, theming, and sometimes extra protocol-specific providers such as signless or gasless helpers.
+
+The `withProviders` pattern centralizes that stack into one reusable wrapper. That sounds cosmetic at first, but it becomes architectural once provider order starts to matter.
+
+## Why the pattern matters
+
+When providers are assembled ad hoc in `main.tsx` or `App.tsx`, three problems appear quickly:
+
+- provider order becomes accidental,
+- test setup becomes repetitive,
+- app bootstrapping logic spreads across multiple files.
+
+On Vara, provider order is especially important because later layers often assume the presence of earlier blockchain-specific context.
+
+## High-level flow
+
+The pattern works in three steps:
+
+1. Define the core provider stack around Vara-specific dependencies.
+2. Allow application-specific providers to be appended in a controlled order.
+3. Return a higher-order component that wraps the application tree consistently everywhere.
+
+## Core code
+
+```tsx
+export function createWithProviders({
+  config,
+  extraProviders = [],
+  alertTemplate,
+  alertContainerClassName,
+}: WithProvidersOptions) {
+  const providers: AnyProvider[] = [
+    ({ children }) => <ApiProvider endpoint={config.nodeEndpoint}>{children}</ApiProvider>,
+    ({ children }) => <AccountProvider appName={config.appName}>{children}</AccountProvider>,
+    ({ children }) => (
+      <AlertProvider template={alertTemplate} containerClassName={alertContainerClassName}>
+        {children}
+      </AlertProvider>
+    ),
+    ...extraProviders,
+  ];
+
+  return function withProviders(Component: ComponentType) {
+    return function Wrapped() {
+      return providers.reduceRight(
+        (children, Provider) => <Provider>{children}</Provider>,
+        <Component />,
+      );
+    };
+  };
+}
+```
+
+The pattern keeps the core Gear/Vara providers fixed and makes the app-specific layers extensible.
+
+## Type shape
+
+The helper deliberately accepts only providers that wrap `children`:
+
+```ts
+type AnyProvider = ComponentType<PropsWithChildren>;
+
+type WithProvidersOptions = {
+  config: AppRuntimeConfig;
+  extraProviders?: AnyProvider[];
+  alertTemplate?: ComponentType<any>;
+  alertContainerClassName?: string;
+};
+```
+
+That constraint keeps provider composition predictable. Each extra provider can be inserted into the stack without custom props at the composition site.
+
+## Main components
+
+### API provider
+
+The API provider establishes the WebSocket connection to the Vara node:
+
+```tsx
+function ApiProvider({ children, endpoint }: ProviderProps & { endpoint: string }) {
+  return <GearApiProvider initialArgs={{ endpoint }}>{children}</GearApiProvider>;
+}
+```
+
+Everything else that depends on network access builds on top of this layer.
+
+### Account provider
+
+The account provider exposes wallet state and extension integration:
+
+```tsx
+function AccountProvider({ children, appName }: ProviderProps & { appName: string }) {
+  return <GearAccountProvider appName={appName}>{children}</GearAccountProvider>;
+}
+```
+
+Without it, transaction helpers cannot access the connected account or signer.
+
+### Alert provider
+
+The alert provider centralizes notification behavior while still allowing the application to inject custom UI templates.
+
+### Extra providers
+
+`extraProviders` are where application-level composition happens:
+
+- `QueryProvider`,
+- router provider,
+- theme provider,
+- `EzTransactionsProvider`,
+- analytics or app-specific context providers.
+
+That keeps the boundary between protocol bootstrapping and app bootstrapping clear.
+
+## How `reduceRight` builds the tree
+
+The final wrapper uses `reduceRight(...)`:
+
+```tsx
+return providers.reduceRight(
+  (children, Provider) => <Provider>{children}</Provider>,
+  <Component />,
+);
+```
+
+That means the first provider in the array becomes the outermost provider in the rendered tree. Provider order is encoded directly in the array instead of being scattered across JSX.
+
+## Recommended provider order
+
+1. API provider
+2. Account provider
+3. Alert provider
+4. Query provider
+5. Router, theme, and protocol-specific providers
+
+Why this order:
+
+- API must exist before account-aware or chain-aware logic.
+- Account must exist before execution helpers.
+- Alerts can sit above most app behavior.
+- Query and router providers are application-facing layers built on top of the base protocol stack.
+
+## Full app-level usage
+
+```tsx
+const withProviders = createWithProviders({
+  config: {
+    nodeEndpoint: 'wss://testnet.vara.network',
+    appName: 'My Vara App',
+  },
+  extraProviders: [QueryProvider, BrowserRouter],
+});
+
+export default withProviders(App);
+```
+
+This makes entrypoint code cleaner while keeping the provider graph explicit.
+
+## Practical guidance for production apps
+
+- Keep the core provider list minimal and protocol-focused.
+- Push app-specific providers into `extraProviders` rather than hardcoding them into the helper.
+- Treat provider order as part of the app architecture, not as incidental JSX nesting.
+- Reuse the same wrapper in tests so component behavior matches the real app environment.
+
+## Source code
+
+- [`frontend/patterns/providers/with-providers`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/frontend/patterns/providers/with-providers)

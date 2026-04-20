@@ -1,0 +1,257 @@
+---
+title: REST Gateway for Sails Programs
+---
+
+## About
+
+The REST gateway pattern exposes Vara programs through a conventional HTTP API. Instead of making every frontend client understand Sails call construction, SCALE-encoded arguments, signing, and reply handling, a trusted backend translates HTTP requests into on-chain program calls.
+
+The example in `infrastructure/gateway` uses Express plus Sails-JS to implement that translation layer.
+
+## Why the pattern matters
+
+This pattern is useful whenever an application needs a trusted off-chain actor:
+
+- automated flows,
+- server-managed signer keys,
+- multi-step orchestration,
+- HTTP access for third-party clients,
+- simplified frontend integration.
+
+It is the backend counterpart to the contract and frontend patterns: the contract defines the ABI, the frontend defines UX, and the gateway defines a trusted integration surface.
+
+## High-level architecture
+
+At startup, the server performs one-time initialization:
+
+1. connect to the Vara network,
+2. load the backend wallet,
+3. create Sails instances for the relevant programs,
+4. store those dependencies in `app.locals`.
+
+Then request handling follows a layered flow:
+
+1. Express route receives an HTTP request,
+2. controller reads shared dependencies from `req.app.locals`,
+3. service constructs a typed Sails call,
+4. service estimates gas,
+5. service signs and submits the extrinsic,
+6. service waits for the program reply,
+7. controller returns JSON to the client.
+
+In practice this pattern is split into three code layers:
+
+- `src/index.ts` for bootstrapping and shared dependency ownership,
+- `src/controllers/contract.controller.ts` for HTTP-facing request handling,
+- `src/services/contract.service.ts` for Sails-JS and on-chain orchestration.
+
+## Startup flow
+
+The most important structural decision is that initialization happens once and the result is shared:
+
+```ts
+this.app.locals.api = api;
+this.app.locals.factorySails = factorySails;
+this.app.locals.poolFactorySails = poolFactorySails;
+this.app.locals.signer = signer;
+```
+
+Why this matters:
+
+- controllers do not need to import globals,
+- startup and request-time concerns stay separate,
+- tests can replace `app.locals` with mocks or fixtures.
+
+The startup method in `src/index.ts` is the core of that architecture:
+
+```ts
+private async initializeVaraNetwork(): Promise<void> {
+  const api = await createGearApi(NETWORK);
+  const signer = await gearKeyringByWalletData(WALLET_NAME, WALLET_MNEMONIC);
+
+  const factorySails = await sailsInstance(
+    api,
+    FACTORY_CONTRACT_ID,
+    FACTORY_IDL
+  );
+
+  const poolFactorySails = await sailsInstance(
+    api,
+    POOL_FACTORY_CONTRACT_ID,
+    POOL_FACTORY_IDL
+  );
+
+  this.app.locals.api = api;
+  this.app.locals.factorySails = factorySails;
+  this.app.locals.poolFactorySails = poolFactorySails;
+  this.app.locals.signer = signer;
+}
+```
+
+That is where raw configuration turns into live chain dependencies that every request can reuse.
+
+## Sails instance creation
+
+The gateway relies on preconfigured Sails instances that bind:
+
+- a network API connection,
+- a program ID,
+- the corresponding IDL.
+
+That lets request handlers use typed function and query calls rather than building payloads manually on every request.
+
+The controller layer then becomes intentionally small: read request parameters, grab dependencies from `req.app.locals`, call the service, and return structured JSON.
+
+Conceptually it looks like:
+
+```ts
+const { factorySails, signer } = req.app.locals;
+const result = await ContractService.createProgram(factorySails, signer, req.body);
+return res.json({ success: true, data: result });
+```
+
+That is a healthy backend boundary: controllers own HTTP, services own chain logic.
+
+## Command flow in detail
+
+For write operations, the gateway follows the same command lifecycle:
+
+1. Build the typed Sails command.
+2. Attach the backend signer.
+3. Attach value if the program call requires it.
+4. Calculate gas.
+5. Submit the extrinsic.
+6. Wait for the program-level reply.
+
+That sequence is important because program reply handling is part of the contract-level success condition, not just an optional extra.
+
+## Core command fragment
+
+The pattern is summarized well by this call chain:
+
+```ts
+const transaction = await sails.services.Service.functions
+  .CreateProgram(initConfig)
+  .withAccount(signer)
+  .withValue(BigInt(ONE_VARA))
+  .calculateGas();
+
+const { response } = await transaction.signAndSend();
+const result = await response();
+```
+
+Each stage means something distinct:
+
+- `CreateProgram(initConfig)` builds the typed message,
+- `withAccount(signer)` selects the trusted backend signer,
+- `withValue(...)` attaches the value required by the runtime or contract,
+- `calculateGas()` simulates and sizes the call,
+- `signAndSend()` submits the extrinsic,
+- `response()` waits for the actual program reply.
+
+The same file also shows a more complete backend orchestration flow in `createPool(...)`:
+
+```ts
+const transaction = await factorySails.services.Service.functions
+  .CreatePool(tokenA, tokenB)
+  .withAccount(signer)
+  .withValue(BigInt(ONE_VARA))
+  .calculateGas();
+
+const { response } = await transaction.signAndSend();
+await response();
+
+const pairAddress = await this.getPairAddress(
+  poolFactorySails,
+  tokenA,
+  tokenB
+);
+```
+
+This is a good example of why a backend gateway is useful. It can combine:
+
+- one mutating call,
+- one follow-up query,
+- one clean HTTP response.
+
+The client does not need to reproduce that orchestration itself.
+
+## Query flow
+
+Read-only operations follow a simpler path:
+
+- no signer,
+- no gas calculation,
+- no extrinsic submission,
+- only a `.call()` against the query.
+
+This distinction is one of the cleanest reasons to keep the service layer explicit: command and query paths are structurally different, even when they belong to the same contract.
+
+A minimal query helper from the service layer looks like this:
+
+```ts
+static async getAdmins(sails: Sails): Promise<string[]> {
+  return sails.services.Service.queries.Admins().call() as Promise<string[]>;
+}
+```
+
+That makes the command/query split visually obvious in the codebase:
+
+- `.functions.*` for state-changing operations,
+- `.queries.*.call()` for read-only operations.
+
+## Why `app.locals` is a good fit
+
+The gateway stores shared dependencies in `app.locals` rather than in module-level singletons. That keeps ownership explicit:
+
+- server startup owns dependency creation,
+- controllers own request parsing,
+- services own blockchain interaction.
+
+That separation makes the code easier to reason about and much easier to test.
+
+## Composite backend operations
+
+One of the strongest examples in the service layer is `createProgramAndPool(...)`.
+
+It performs a two-step dependent workflow:
+
+1. deploy a new VFT program,
+2. extract the returned address,
+3. create a pool for that newly deployed token.
+
+Core fragment:
+
+```ts
+const programResponse = await this.createProgram(
+  factorySails,
+  signer,
+  initConfig
+);
+
+const response = programResponse as { programCreated?: { address: HexString } };
+const tokenAddress = response.programCreated.address;
+
+const pairAddress = await this.createPoolWithRegisteredToken(
+  factorySails,
+  poolFactorySails,
+  signer,
+  tokenAddress,
+  registeredToken
+);
+```
+
+This is where the gateway clearly stops being a thin proxy and becomes an orchestration service.
+
+## Production guidance
+
+- Keep signer keys only on the backend.
+- Treat `calculateGas()` as part of the normal command flow, not as an optional optimization.
+- Keep controller code thin and move blockchain logic into services.
+- Return structured JSON responses that reflect both HTTP and program-level success.
+- Be explicit about which routes are trusted backend operations and which are safe read-only queries.
+- Prefer service methods that model business operations rather than one-to-one wrappers for every low-level call.
+
+## Source code
+
+- [`infrastructure/gateway`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/infrastructure/gateway)

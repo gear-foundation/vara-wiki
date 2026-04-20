@@ -1,0 +1,243 @@
+---
+title: Token-Gated Authentication
+---
+
+## About
+
+The token-gated authentication pattern implements a Vara-native sign-in-with-wallet flow and combines it with on-chain access control. A user signs a structured message, the server verifies the signature, checks the user’s VFT balance on-chain, and then issues a JWT that downstream services can trust for a limited time.
+
+This is the backend equivalent of taking on-chain ownership and turning it into a practical Web application session.
+
+## Why the pattern matters
+
+Many apps want access to depend on token ownership, but they do not want to re-query the chain on every request. That would be expensive, slow, and difficult to operationalize across many downstream endpoints.
+
+This pattern solves that by separating responsibilities:
+
+- the chain decides whether the user currently satisfies the balance threshold,
+- the auth server decides whether to issue or refresh a JWT,
+- downstream services consume the JWT rather than reading the chain directly on every request.
+
+## High-level authentication flow
+
+The server’s authentication flow is:
+
+1. issue a nonce,
+2. have the client sign a structured message containing nonce, domain, chain ID, and timestamps,
+3. consume and validate the nonce,
+4. verify signature correctness,
+5. query on-chain token balance,
+6. compare against the configured threshold,
+7. issue JWT on success.
+
+That flow combines standard web-session mechanics with Vara-native signature verification and on-chain reads.
+
+The implementation is split into three focused modules:
+
+- `src/server.ts` owns HTTP routing and auth lifecycle,
+- `src/auth.ts` owns nonce, schema, signature, and JWT helpers,
+- `src/gear.ts` owns address normalization and VFT balance reads.
+
+## The nonce layer
+
+The nonce system exists to prevent replay attacks.
+
+`src/auth.ts` implements:
+
+```ts
+export const nonceStore = new Map<string, number>();
+
+export function issueNonce(ttlSec: number): string {
+  const nonce = randomUUID();
+  nonceStore.set(nonce, Date.now() + ttlSec * 1_000);
+  return nonce;
+}
+
+export function consumeNonce(nonce: string): boolean {
+  const exp = nonceStore.get(nonce);
+  if (!exp) return false;
+  nonceStore.delete(nonce);
+  return exp > Date.now();
+}
+```
+
+The key property is delete-on-read semantics: once a nonce is consumed, it cannot be reused even if the original signed message is intercepted.
+
+That small property is what turns a signed message into a real login challenge instead of a replayable proof.
+
+## Verification flow in detail
+
+The `/auth/verify` route is the security-critical path.
+
+Its order of operations matters:
+
+1. validate the request body with Zod,
+2. extract signed fields from the message,
+3. consume the nonce,
+4. validate domain and chain ID if configured,
+5. validate message freshness,
+6. verify the wallet signature,
+7. query VFT balance on-chain,
+8. issue JWT if the threshold is met.
+
+The route code follows that order directly:
+
+```ts
+const { address, message, signature } = SignedMessageSchema.parse(req.body);
+
+if (!consumeNonce(nonce)) {
+  return sendError(res, 400, "Invalid or expired nonce");
+}
+
+if (!verifySignature(address, message, signature)) {
+  return sendError(res, 401, "Invalid signature");
+}
+
+const balRaw = await getVFTBalance(address, api);
+```
+
+This order is deliberate. Cheap structural checks happen before cryptography, and cryptography happens before the chain query.
+
+The route also enforces server-level message binding before querying the chain:
+
+```ts
+if (EXPECTED_DOMAIN && domain !== EXPECTED_DOMAIN) {
+  return sendError(res, 400, "Invalid domain");
+}
+if (EXPECTED_CHAIN_ID && chainId !== EXPECTED_CHAIN_ID) {
+  return sendError(res, 400, "Invalid chainId");
+}
+```
+
+That prevents the same signed payload from being accepted in the wrong application or wrong chain context when those guards are configured.
+
+## Signature verification
+
+Signature verification uses Polkadot/Substrate cryptography:
+
+```ts
+export function verifySignature(
+  address: string,
+  message: string,
+  signature: string
+): boolean {
+  const { isValid } = signatureVerify(message, signature, address);
+  return isValid;
+}
+```
+
+That is what makes the pattern Vara-native rather than an Ethereum-style SIWE clone.
+
+The request schema is also validated before cryptography begins:
+
+```ts
+export const SignedMessageSchema = z.object({
+  address: z.string().min(3),
+  message: z.string().min(5),
+  signature: z.string().min(10),
+});
+```
+
+That keeps malformed inputs out of the expensive and security-critical parts of the flow.
+
+## On-chain entitlement check
+
+After signature verification, the server reads token balance with a generated Sails client:
+
+```ts
+const program = new Program(api, VFT_PROGRAM_ID as HexString);
+const svc = new Service(program);
+const normalized = toHexAddress(accountAddress);
+
+const result = await svc.balanceOf(normalized);
+```
+
+That is an important detail. The server is not just using a generic storage query; it is using the program’s own client-facing API shape.
+
+The address normalization helper is part of that flow:
+
+```ts
+export const toHexAddress = (addr: string): HexString => {
+  try {
+    if (addr?.startsWith("0x") && addr.length > 2) return addr as HexString;
+    const decoded = decodeAddress(addr);
+    return u8aToHex(decoded) as HexString;
+  } catch {
+    return addr as HexString;
+  }
+};
+```
+
+That lets the auth server accept both SS58-style wallet addresses and hex account IDs while still querying the VFT contract in the format it expects.
+
+## JWT issuance and refresh
+
+On success, the server issues:
+
+```ts
+return jwt.sign({ sub: address, hasAccess: true }, secret, {
+  expiresIn: `${ttlMin}m`,
+});
+```
+
+This is what lets downstream services treat the auth server as the source of entitlement for a bounded time window.
+
+The refresh path adds another useful layer. If `RECHECK_ON_REFRESH` is enabled, the server queries the balance again before renewing the token. That creates a soft revocation model:
+
+- if the user still meets the threshold, refresh succeeds,
+- if the user sold or transferred the tokens, refresh fails and access naturally expires.
+
+The refresh route makes that policy explicit:
+
+```ts
+if (remain > REFRESH_MIN_REMAIN) {
+  return res.json({ jwt: token, remainingSec: remain, refreshed: false });
+}
+
+if (RECHECK_ON_REFRESH) {
+  const api = await getApi();
+  const balRaw = await getVFTBalance(payload.sub, api);
+  // compare balance against threshold again before renewing
+}
+```
+
+This is a good example of chain state being used as an input to backend auth policy rather than as the auth session itself.
+
+## Why this is a good backend pattern
+
+This example is not just about one endpoint. It models a full auth lifecycle:
+
+- nonce issuance,
+- signature-based login,
+- entitlement check,
+- JWT refresh,
+- optional chain revalidation on refresh.
+
+That makes it a strong analogue to the more detailed contract articles, because it explains both the building blocks and the full operational flow.
+
+The `/entitlement` route closes the loop by giving downstream services a lightweight authorization check:
+
+```ts
+app.get("/entitlement", (req, res) => {
+  const payload = jwt.verify(token, JWT_SECRET) as {
+    sub: string;
+    hasAccess: boolean;
+  };
+  return res.json({ ok: true, address: payload.sub, hasAccess: payload.hasAccess });
+});
+```
+
+So the backend pattern is not only about login. It is about turning on-chain ownership into reusable Web authorization.
+
+## Production guidance
+
+- Keep nonce handling single-use and short-lived.
+- Bind signed messages to expected domain and chain ID where possible.
+- Re-check balance on refresh if access should track token ownership over time.
+- Keep JWT TTL short enough that off-chain access cannot drift too far from on-chain reality.
+- Normalize addresses before contract reads so the auth layer accepts both SS58 and hex-style inputs safely.
+- Keep nonce helpers, chain-read helpers, and HTTP routes in separate modules so the auth path stays auditable.
+
+## Source code
+
+- [`infrastructure/token-gate-server`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/infrastructure/token-gate-server)

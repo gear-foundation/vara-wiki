@@ -1,0 +1,22 @@
+---
+title: Contract Patterns
+---
+
+The contract examples in `vara-dapp-patterns/contracts` focus on small, production-oriented Sails patterns that solve one architectural problem at a time.
+
+## Included patterns
+
+| Pattern | Problem it solves | Source |
+| --- | --- | --- |
+| [Delayed Self-Messages with Version Guards](/docs/vara-network/examples/Patterns/contracts/delayed-message) | Safe deferred actions when delayed messages may arrive after state changed | [`contracts/delayed-self-message`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/contracts/delayed-self-message) |
+| [Factory Pattern for Child Program Instantiation](/docs/vara-network/examples/Patterns/contracts/factory) | Creating many isolated program instances from one template `CodeId` | [`contracts/factory`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/contracts/factory) |
+| [Service Wrapper Pattern](/docs/vara-network/examples/Patterns/contracts/service-wrapper-pattern) | Injecting policy into a reusable base service without rewriting domain logic | [`contracts/module-toggles`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/contracts/module-toggles) |
+| [Signless & Gasless Sessions](/docs/vara-network/examples/Patterns/contracts/signless-gasless) | Delegated execution with action allowlists and temporary session keys | [`contracts/signless-gasless`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/contracts/signless-gasless) |
+
+## What makes these examples useful
+
+Each example stays small enough to audit quickly, but still shows the moving parts that matter in a real app: storage ownership, explicit error boundaries, internal scheduling, service composition, and delegation flow.
+
+<Callout type="note" title="Why this section matters">
+    These patterns are most useful when you are not looking for a full product template, but for one reliable building block you can transplant into a larger program.
+</Callout>

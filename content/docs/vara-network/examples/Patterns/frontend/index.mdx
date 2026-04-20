@@ -1,0 +1,26 @@
+---
+title: Frontend Patterns
+---
+
+The frontend examples in `vara-dapp-patterns/frontend` show how to organize React-side interaction with Vara programs without hiding the important execution boundaries.
+
+## Included patterns
+
+| Pattern | Focus | Source |
+| --- | --- | --- |
+| [Preparing Program Transactions](/docs/vara-network/examples/Patterns/frontend/prepare-program-tx) | Turn UI parameters into a ready-to-sign transaction | [`frontend/patterns/hooks/prepare-program-tx`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/frontend/patterns/hooks/prepare-program-tx) |
+| [Executing Prepared Transactions with React Query](/docs/vara-network/examples/Patterns/frontend/program-tx-mutation) | Wrap `signAndSend()` into a mutation with consistent state | [`frontend/patterns/hooks/program-tx-mutation`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/frontend/patterns/hooks/program-tx-mutation) |
+| [Verified Sign & Send](/docs/vara-network/examples/Patterns/frontend/verified-sign-and-send) | Confirm real program-level success, not just block inclusion | [`frontend/patterns/hooks/verified-sign-and-send`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/frontend/patterns/hooks/verified-sign-and-send) |
+| [Provider Composition](/docs/vara-network/examples/Patterns/frontend/provider-composition) | Centralize API, account, alert, query, router, and theme providers | [`frontend/patterns/providers/with-providers`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/frontend/patterns/providers/with-providers) |
+| [Query Provider](/docs/vara-network/examples/Patterns/frontend/query-provider) | Configure React Query for explicit blockchain-style invalidation | [`frontend/patterns/providers/query-provider`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/frontend/patterns/providers/query-provider) |
+| [EZ Transactions](/docs/vara-network/examples/Patterns/frontend/ez-transactions) | Combine signless sessions and gasless vouchers in the browser | [`frontend/patterns/ez-transactions`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/frontend/patterns/ez-transactions) |
+
+## A useful mental model
+
+These examples intentionally separate three stages:
+
+1. Prepare a valid extrinsic.
+2. Execute it in a controlled way.
+3. Verify that the program actually succeeded.
+
+That split makes React code easier to test, easier to reuse across components, and less likely to mix UI state with chain-specific error handling.

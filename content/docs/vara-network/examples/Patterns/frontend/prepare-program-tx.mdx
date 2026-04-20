@@ -1,0 +1,264 @@
+---
+title: Preparing Program Transactions
+---
+
+## About
+
+Frontend code that interacts with Vara programs usually repeats the same preparation work in many places: check that the program client exists, check that a wallet is connected, transform UI state into ordered contract arguments, and then call Gear JS hooks to build a ready-to-send transaction.
+
+The `usePrepareProgramTx` pattern isolates that work into one dedicated hook. It owns the preparation phase only. It does not sign, send, retry, or verify the result.
+
+That separation is important because transaction preparation and transaction execution fail for different reasons and should usually be debugged independently.
+
+## Why the pattern matters
+
+Without a preparation layer, React code often ends up with the same logic duplicated across forms, action buttons, drawers, and modals:
+
+- validation of whether a program client was loaded,
+- validation of whether an account is connected,
+- manual mapping from domain parameters into tuple arguments,
+- manual forwarding of optional gas settings.
+
+That makes the app harder to evolve. If the target method signature changes, several UI components may need to be updated at once. A small wrapper hook gives the app one consistent place where “UI params become extrinsic params.”
+
+## Pattern overview
+
+The pattern wraps `usePrepareProgramTransaction(...)` from `@gear-js/react-hooks`.
+
+High-level flow:
+
+1. A component passes in `program`, `serviceName`, `functionName`, and `mapArgs`.
+2. The hook reads the currently connected account through `useAccount()`.
+3. The hook exposes `canPrepare`, which becomes `true` only when both the program and account are available.
+4. The hook exposes `prepare(params)`.
+5. `prepare(params)` converts `params` into the ordered argument array expected by the program method.
+6. The hook calls `prepareTransactionAsync(...)` and returns the prepared transaction object.
+
+## Core code
+
+The actual hook is intentionally compact:
+
+```ts
+export function usePrepareProgramTx<TParams>(options: PrepareProgramTxOptions<TParams>) {
+  const { program, serviceName, functionName, mapArgs, gasLimit } = options;
+
+  const { account } = useAccount();
+
+  const { prepareTransactionAsync } = usePrepareProgramTransaction({
+    program,
+    serviceName,
+    functionName,
+  });
+
+  const canPrepare = Boolean(program && account);
+
+  const prepare = useCallback(
+    async (params: TParams): Promise<SignAndSendableTransaction> => {
+      if (!program) throw new Error('Program instance is not available');
+      if (!account) throw new Error('No account connected');
+
+      const { transaction } = (await prepareTransactionAsync({
+        args: mapArgs(params),
+        ...(gasLimit ? { gasLimit } : {}),
+      })) as PrepareTransactionAsyncResult;
+
+      return transaction;
+    },
+    [program, account, prepareTransactionAsync, mapArgs, gasLimit],
+  );
+
+  return {
+    program,
+    account,
+    canPrepare,
+    prepare,
+  };
+}
+```
+
+Even though it is short, it creates a clean architectural boundary.
+
+## Main components
+
+### Program Instance
+
+`program` is the loaded Sails or Gear JS client instance for the target contract.
+
+Typical usage with a generated program client looks like this:
+
+```tsx
+const { data: program } = useProgram({
+  library: Program,
+  id: import.meta.env.VITE_PROGRAM_ID,
+});
+
+const transferTx = usePrepareProgramTx({
+  program,
+  serviceName: 'Vft',
+  functionName: 'transfer',
+  mapArgs: ({ to, amount }) => [to, amount],
+});
+```
+
+If `program` is missing, the app is not ready to prepare a transaction. That usually means one of the following:
+
+- the program client is still loading,
+- the program ID is wrong,
+- the app failed to initialize the generated client.
+
+The hook treats that as a preparation failure rather than letting the error leak deeper into the submission phase.
+
+### Service and Function Names
+
+These identify the exact exported method that should be prepared.
+
+For example, a VFT transfer targets the `Vft` service and its `transfer` function:
+
+```tsx
+usePrepareProgramTx({
+  program,
+  serviceName: 'Vft',
+  functionName: 'transfer',
+  mapArgs: ({ to, amount }) => [to, amount],
+});
+```
+
+That is useful because the same component-level pattern can be reused for multiple commands. The hook is not coupled to any domain-specific method name.
+
+### Argument Mapper
+
+`mapArgs` is the heart of the pattern. It transforms UI-friendly input into the ordered tuple expected by the contract method.
+
+```tsx
+const { prepare, canPrepare } = usePrepareProgramTx({
+  program,
+  serviceName,
+  functionName,
+  mapArgs: (params) => [params.to, params.amount],
+});
+```
+
+That lets the component keep its own domain model while the hook owns the ABI-facing model.
+
+A fuller example with a typed form model:
+
+```tsx
+type TransferForm = {
+  to: string;
+  amount: bigint;
+};
+
+const transferTx = usePrepareProgramTx<TransferForm>({
+  program,
+  serviceName: 'Vft',
+  functionName: 'transfer',
+  mapArgs: (form) => [form.to, form.amount],
+});
+```
+
+### Optional Gas Limit
+
+Some flows want to override gas explicitly, while others let the underlying tooling estimate it. The hook supports both paths without mixing them into the UI component.
+
+```tsx
+const prepared = usePrepareProgramTx({
+  program,
+  serviceName: 'Service',
+  functionName: 'heavyOperation',
+  gasLimit: 100_000_000_000n,
+  mapArgs: ({ id }) => [id],
+});
+```
+
+## Full flow in a component
+
+A typical flow looks like this:
+
+```tsx
+const { prepare, canPrepare } = usePrepareProgramTx({
+  program,
+  serviceName: 'Vft',
+  functionName: 'transfer',
+  mapArgs: ({ to, amount }) => [to, amount],
+});
+
+const onTransfer = async () => {
+  if (!canPrepare) return;
+
+  const tx = await prepare({ to, amount });
+  await tx.signAndSend();
+};
+```
+
+The important detail is that the component still controls when to execute, but it does not own the low-level preparation rules.
+
+## What `prepareTransactionAsync(...)` receives
+
+The call into Gear JS hooks is small but important:
+
+```ts
+const { transaction } = await prepareTransactionAsync({
+  args: mapArgs(params),
+  ...(gasLimit ? { gasLimit } : {}),
+});
+```
+
+The hook intentionally builds only the object needed by the lower-level transaction builder:
+
+- `args` is the method argument source after mapping,
+- `gasLimit` is included only when the caller explicitly provided it,
+- signing information is not attached here,
+- callbacks and UI state are not handled here.
+
+That means the resulting transaction can be sent by a simple mutation, by a verified sender, or by a custom signless/gasless execution layer.
+
+## Reusable command-specific hook
+
+In a real app, you would often wrap the generic pattern with a domain-specific hook:
+
+```tsx
+export function usePrepareVftTransfer(program: unknown) {
+  return usePrepareProgramTx({
+    program,
+    serviceName: 'Vft',
+    functionName: 'transfer',
+    mapArgs: ({ to, amount }: { to: string; amount: bigint }) => [to, amount],
+  });
+}
+```
+
+That gives components a business-friendly API while keeping the generic transaction-preparation logic in one place.
+
+## Failure boundaries
+
+This pattern is useful precisely because it makes preparation errors explicit.
+
+Typical preparation failures include:
+
+- missing program instance,
+- missing connected account,
+- invalid argument mapping,
+- unsupported gas override shape.
+
+Those are different from later execution failures such as wallet rejection, RPC errors, or program-level reply errors.
+
+## Relationship with other frontend patterns
+
+This pattern is usually the first stage in a larger frontend flow:
+
+1. [Preparing Program Transactions](/docs/vara-network/examples/Patterns/frontend/prepare-program-tx)
+2. [Executing Prepared Transactions with React Query](/docs/vara-network/examples/Patterns/frontend/program-tx-mutation) or [Verified Sign & Send](/docs/vara-network/examples/Patterns/frontend/verified-sign-and-send)
+3. Query invalidation or optimistic UI updates
+
+That staged design mirrors what is already done in the contract articles: one pattern, one responsibility.
+
+## Practical guidance for production apps
+
+- Keep `mapArgs` as close as possible to the ABI boundary.
+- Do not mix alerts, retries, or mutation state into the preparation hook.
+- Treat `canPrepare` as a UI hint, not as your only guard. The runtime checks inside `prepare(...)` still matter.
+- Reuse one preparation hook per command shape instead of rebuilding argument tuples inline in components.
+
+## Source code
+
+- [`frontend/patterns/hooks/prepare-program-tx`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/frontend/patterns/hooks/prepare-program-tx)

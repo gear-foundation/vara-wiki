@@ -1,0 +1,249 @@
+---
+title: Gasless Voucher Server
+---
+
+## About
+
+The gasless voucher server is the off-chain service that makes voucher-based UX practical. It holds the issuer account, submits voucher extrinsics, exposes a REST API for frontend clients, and manages the lifecycle of vouchers tied to a specific target program.
+
+Without this backend layer, a frontend can know that gasless UX is desirable, but it has no trusted place to keep the issuer key or coordinate voucher issuance safely.
+
+## Why the pattern matters
+
+Gasless UX is not a single call. A real application needs to manage the full voucher lifecycle:
+
+- issue a voucher for a user,
+- avoid issuing duplicates unnecessarily,
+- inspect whether a voucher is active,
+- prolong it when more balance or time is needed,
+- revoke it when the session or entitlement should end.
+
+That is why the example is a server pattern rather than a one-off helper.
+
+## High-level flow
+
+There are two layers in the implementation:
+
+1. the HTTP server in `src/index.ts`,
+2. the chain-facing `GaslessService` in `src/lib.ts`.
+
+The flow for voucher issuance looks like this:
+
+1. frontend calls `POST /gasless/voucher/request`,
+2. Express validates the request body,
+3. the route calls `gaslessService.issueIfNeeded(...)`,
+4. `GaslessService` checks whether an active voucher already exists,
+5. if none exists, it builds `api.voucher.issue(...)`,
+6. the backend signer submits the extrinsic,
+7. the service waits for `VoucherIssued`,
+8. the route returns `{ voucherId }` to the client.
+
+The HTTP route in `src/index.ts` stays intentionally small:
+
+```ts
+app.post("/gasless/voucher/request", async (req, res) => {
+  const { account, amount = 20_000_000_000_000, durationInSec = 3_600 } = req.body;
+
+  if (!account) {
+    return res.status(400).json({ error: "account is required" });
+  }
+
+  const voucherId: HexString = await gaslessService.issueIfNeeded(
+    account,
+    programId,
+    amount,
+    Number(durationInSec)
+  );
+
+  return res.status(200).json({ voucherId });
+});
+```
+
+That is a good backend sign: the route owns input validation and HTTP response shape, while the service owns every chain-specific concern.
+
+## Why `issueIfNeeded(...)` matters
+
+The route uses an idempotent entrypoint:
+
+```ts
+const voucherId: HexString = await gaslessService.issueIfNeeded(
+  account,
+  programId,
+  amount,
+  Number(durationInSec)
+);
+```
+
+This is more than a convenience. Frontends often request gasless support on mount, reconnect, or page refresh. Without an idempotent server-side path, those UX patterns could burn issuer funds by creating duplicate vouchers.
+
+The implementation protects against duplication in two different ways:
+
+1. `inFlightVoucherIssues` prevents the same `(account, programId)` request from being started twice concurrently,
+2. `api.voucher.getAllForAccount(account)` checks whether an acceptable voucher already exists on-chain.
+
+That is exactly the kind of backend logic that is easy to miss if the article only describes the endpoint shape.
+
+## Service-level architecture
+
+`GaslessService` owns:
+
+- the Gear API connection,
+- the voucher issuer account,
+- an in-memory submission queue,
+- in-flight deduplication for voucher creation,
+- helper methods for issue, status, prolong, revoke, and lookup.
+
+That separation keeps HTTP concerns out of the chain-integration layer.
+
+The service constructor makes that boundary explicit:
+
+```ts
+constructor() {
+  this.api = new GearApi({ providerAddress: process.env.NODE_URL });
+  this.voucherAccount = this.getVoucherAccount();
+}
+```
+
+The route layer never deals with API construction or signer loading directly.
+
+## Deduplication and queueing
+
+Two details in `GaslessService` are especially important for a production-oriented design.
+
+### In-flight deduplication
+
+The service stores in-flight voucher requests in:
+
+```ts
+private readonly inFlightVoucherIssues = new Map<VoucherIssueKey, Promise<HexString>>();
+```
+
+This prevents duplicate concurrent issuance attempts for the same `(account, programId)` pair.
+
+### Submission queue
+
+The service also serializes issuer operations through:
+
+```ts
+private submissionQueue: Promise<void> = Promise.resolve();
+```
+
+That matters because nonce handling on a single signer account becomes fragile under concurrency.
+
+These two fields are some of the most important backend-specific code in the example. Without them, the service would appear correct in light testing and then become unstable under concurrent usage.
+
+## Core issuance flow
+
+The chain-side issuance happens through `issueInternal(...)`:
+
+1. wait for API and crypto readiness,
+2. convert duration from seconds to blocks,
+3. normalize the spender account,
+4. build `api.voucher.issue(...)`,
+5. fetch the next nonce,
+6. sign and send with the issuer account,
+7. wait for `VoucherIssued`,
+8. cache voucher metadata for later reads.
+
+The core fragment is:
+
+```ts
+const { extrinsic } = await this.api.voucher.issue(
+  accountId,
+  amount,
+  durationInBlocks,
+  [programId],
+  false
+);
+```
+
+Then the service resolves only when the block contains `VoucherIssued`.
+
+The event-driven promise is the most important code block in the file:
+
+```ts
+const voucherId = await new Promise<HexString>((resolve, reject) => {
+  extrinsic.signAndSend(
+    this.voucherAccount,
+    { nonce },
+    ({ events, status }) => {
+      if (!status.isInBlock) return;
+
+      const viEvent = events.find(
+        ({ event }) => event.method === "VoucherIssued"
+      );
+
+      if (viEvent) {
+        const data = viEvent.event.data as any;
+        const id = data.voucherId.toHex() as HexString;
+        voucherInfoStorage[id] = { durationInSec, amount };
+        resolve(id);
+        return;
+      }
+
+      const efEvent = events.find(
+        ({ event }) => event.method === "ExtrinsicFailed"
+      );
+      reject(
+        efEvent
+          ? this.api.getExtrinsicFailedError(efEvent.event)
+          : new Error("VoucherIssued event not found in block")
+      );
+    }
+  );
+});
+```
+
+That is what lets the backend return a concrete `voucherId` only after it has real evidence of success.
+
+## Why event-based resolution is used
+
+The service does not assume that submitting the extrinsic is enough. It waits for chain events so that it can:
+
+- extract the actual `voucherId`,
+- distinguish success from `ExtrinsicFailed`,
+- return a concrete result to the frontend.
+
+That mirrors the same philosophy as the stronger contract/frontend patterns: real success should be tied to the relevant event boundary.
+
+## Status and normalization flow
+
+The status route contains one more small but useful backend detail:
+
+```ts
+const normalizedId = voucherId.startsWith("0x")
+  ? (voucherId as `0x${string}`)
+  : (`0x${voucherId}` as `0x${string}`);
+```
+
+This makes the HTTP interface slightly more forgiving while keeping the service layer strict about identifier format.
+
+## Status, prolong, and revoke flows
+
+The server also exposes:
+
+- `GET /gasless/voucher/:voucherId/status`
+- `POST /prolong`
+- `POST /revoke`
+
+These routes are important because gasless UX is rarely just “issue once and forget.” Long-lived sessions and repeated interactions often require voucher inspection or renewal.
+
+Even though those routes are short, they expose non-trivial service behavior:
+
+- sequenced signer operations,
+- voucher lifecycle mutation,
+- error mapping from chain failures into HTTP responses,
+- one place for nonce-sensitive issuer activity.
+
+## Production guidance
+
+- Make issuance idempotent from the server side, not only from the frontend side.
+- Serialize submissions per issuer account or use a dedicated nonce manager.
+- Scope vouchers tightly to the intended program.
+- Keep issuer keys only on the backend.
+- Treat event-based confirmation as the real success boundary for issuance.
+- Keep route handlers tiny and push event handling, nonce sensitivity, and voucher lifecycle rules into the service layer.
+
+## Source code
+
+- [`infrastructure/gasless-server`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/infrastructure/gasless-server)

@@ -1,0 +1,22 @@
+---
+title: Backend Patterns
+---
+
+The backend examples in `vara-dapp-patterns/infrastructure` cover the trusted off-chain services that often sit beside a Vara application.
+
+## Included patterns
+
+| Pattern | Focus | Source |
+| --- | --- | --- |
+| [REST Gateway for Sails Programs](/docs/vara-network/examples/Patterns/backend/rest-gateway) | Expose on-chain commands and queries through a conventional HTTP API | [`infrastructure/gateway`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/infrastructure/gateway) |
+| [Gasless Voucher Server](/docs/vara-network/examples/Patterns/backend/gasless-voucher-server) | Issue, prolong, revoke, and inspect vouchers on behalf of users | [`infrastructure/gasless-server`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/infrastructure/gasless-server) |
+| [Token-Gated Authentication](/docs/vara-network/examples/Patterns/backend/token-gated-auth) | Verify wallet signatures, read VFT balances, and issue JWT access tokens | [`infrastructure/token-gate-server`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/infrastructure/token-gate-server) |
+
+## When you need these patterns
+
+Use a backend pattern when your architecture needs one of the following:
+
+- a trusted signer that should not live in the browser,
+- voucher lifecycle management for gasless UX,
+- server-side authentication or authorization based on on-chain state,
+- a conventional REST interface for frontend or third-party clients.

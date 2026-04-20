@@ -1,0 +1,256 @@
+---
+title: Verified Sign & Send
+---
+
+## About
+
+Basic extrinsic helpers often stop as soon as a transaction is included in a block. On Vara, that is not always enough. An extrinsic may succeed at the runtime level and still fail at the program level through a reply error, queued-message error, or decoded contract-level rejection.
+
+The `useVerifiedSignAndSend` pattern is designed for the stronger success condition: not just “the chain accepted the extrinsic,” but “the intended program interaction completed without an error reply.”
+
+## Why the pattern matters
+
+This distinction is especially important in Gear-style flows where:
+
+- the extrinsic submits a message,
+- the runtime queues one or more program messages,
+- the actual contract result appears later as a reply event.
+
+If the frontend treats `inBlock` as final success, it can easily show a false positive.
+
+## High-level flow
+
+The hook executes an extrinsic and then verifies success in several stages:
+
+1. wait until the result reaches `inBlock` or `finalized`,
+2. scan events for `ExtrinsicFailed`,
+3. collect all `gear.MessageQueued` events,
+4. resolve the block hash,
+5. fetch reply events for queued messages,
+6. decode reply errors with the correct type registry,
+7. reject if any reply indicates program-level failure.
+
+That full chain is what makes the pattern meaningfully stronger than a plain submission helper.
+
+## Core code
+
+The two key parts are event collection and reply decoding.
+
+The hook first builds an O(1) lookup table for program registries:
+
+```ts
+const registryByProgramId = useMemo(
+  () => new Map(programs.map((p) => [p.programId, p.registry] as const)),
+  [programs],
+);
+```
+
+That matters because the same extrinsic can queue messages for more than one program, and each reply must be decoded against the correct registry.
+
+Runtime and queue scanning:
+
+```ts
+for (const { event } of events) {
+  const { method, section } = event;
+
+  if (section === 'gear' && method === 'MessageQueued') {
+    queued.push(event.data as MessageQueuedData);
+  }
+
+  if (method === 'ExtrinsicFailed') {
+    const error = api.getExtrinsicFailedError(event);
+    settleOnce(() => reject(new Error(`${error.method}: ${docs}`)));
+    return;
+  }
+}
+```
+
+Reply verification:
+
+```ts
+const reply = await api.message.getReplyEvent(programId, id.toHex(), blockHash);
+
+const detailsOpt = reply.data.message.details;
+if (detailsOpt.isNone) return;
+
+const { details, payload } = reply.data.message;
+return throwOnErrorReply(details.unwrap().code, payload, api.specVersion, registry);
+```
+
+The first part asks whether the extrinsic failed at the runtime level. The second asks whether the program failed after the message was accepted.
+
+## Submission callback in detail
+
+The central callback waits for the selected status boundary and then performs verification:
+
+```ts
+const statusCallback = (result: ISubmittableResult) => {
+  if (!shouldResolve(result)) return;
+
+  const { events, status } = result;
+  const queued: MessageQueuedData[] = [];
+
+  for (const { event } of events) {
+    // collect MessageQueued and reject on ExtrinsicFailed
+  }
+
+  const blockHash = (status.isInBlock ? status.asInBlock : status.asFinalized).toHex();
+
+  checkErrorReplies(blockHash, queued)
+    .then(() => settleOnce(() => resolve()))
+    .catch((err) => settleOnce(() => reject(err)));
+};
+```
+
+This is the frontend-side bridge between Substrate status updates and Gear reply verification.
+
+## Signer paths
+
+The hook supports two signing paths.
+
+If `addressOrPair` is provided, it signs directly:
+
+```ts
+const unsub = await extrinsic.signAndSend(addressOrPair, statusCallback);
+```
+
+If not, it uses the connected extension account:
+
+```ts
+const { address, signer } = account!;
+const unsub = await extrinsic.signAndSend(address, { signer }, statusCallback);
+```
+
+This makes the pattern usable for normal wallet flows and for custom account-pair flows, including session-style execution.
+
+## Settle-once handling
+
+The hook guards promise resolution with `settleOnce(...)`:
+
+```ts
+let settled = false;
+
+const settleOnce = (fn: () => void) => {
+  if (settled) return;
+  settled = true;
+  fn();
+};
+```
+
+That is important because `signAndSend` callbacks can fire multiple times as status changes.
+
+## Main components
+
+### Program Registries
+
+The hook accepts a list of `{ programId, registry }` pairs:
+
+```ts
+export type ProgramRegistry = {
+  programId: HexString;
+  registry: TypeRegistry;
+};
+```
+
+That mapping is necessary because reply payloads must be decoded with the right registry for the program that emitted them.
+
+Typical usage:
+
+```tsx
+const verifiedSend = useVerifiedSignAndSend({
+  programs: [
+    {
+      programId: VFT_PROGRAM_ID,
+      registry: vftProgram.registry,
+    },
+  ],
+});
+```
+
+If a program is omitted, the hook can still catch runtime failures, but it cannot decode typed reply errors for that program.
+
+### Resolution Boundary
+
+`resolveOn` chooses the status boundary:
+
+- `inBlock`: faster,
+- `finalized`: slower but stronger.
+
+This is a practical tradeoff between responsiveness and certainty.
+
+```tsx
+const fastSend = useVerifiedSignAndSend({
+  programs,
+  resolveOn: 'inBlock',
+});
+
+const finalitySend = useVerifiedSignAndSend({
+  programs,
+  resolveOn: 'finalized',
+});
+```
+
+Use `inBlock` for responsive UX and `finalized` when the operation is high-value or should wait for the stronger chain boundary.
+
+### Signer Source
+
+The submission path supports either:
+
+- the connected extension account, or
+- an explicit `addressOrPair`.
+
+That makes the pattern reusable in both standard wallet flows and more specialized signing flows.
+
+Standard extension-account execution:
+
+```tsx
+await verifiedSend.mutateAsync({
+  extrinsic,
+});
+```
+
+Explicit keypair or session signer execution:
+
+```tsx
+await verifiedSend.mutateAsync({
+  extrinsic,
+  addressOrPair: sessionPair,
+});
+```
+
+## Full execution flow
+
+Internally the hook performs a Promise-based orchestration around `extrinsic.signAndSend(...)`:
+
+1. choose the signer source,
+2. subscribe to status updates,
+3. ignore updates until the configured status boundary,
+4. inspect events,
+5. build the block hash,
+6. query replies,
+7. resolve only if no runtime or program-level error is found,
+8. unsubscribe once the Promise settles.
+
+The unsubscribe cleanup matters because `signAndSend(...)` often returns an unsubscribe handle that should not be left open after success or failure.
+
+## When to use this pattern
+
+This pattern is a strong fit for flows where “real success” matters:
+
+- token transfers,
+- session creation,
+- factory-style multi-step interactions,
+- operations that drive user-visible balances or state transitions.
+
+It is especially useful when the frontend should not continue until it is sure the contract logic accepted the operation.
+
+## Practical guidance for production apps
+
+- Provide registries for every program whose replies matter.
+- Prefer `finalized` for high-value flows where reorg resistance matters.
+- Keep transaction preparation separate; this hook should stay focused on execution and verification.
+- Surface decoded reply errors to the user rather than collapsing everything into a generic submission failure.
+
+## Source code
+
+- [`frontend/patterns/hooks/verified-sign-and-send`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/frontend/patterns/hooks/verified-sign-and-send)

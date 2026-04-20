@@ -1,0 +1,184 @@
+---
+title: Executing Prepared Transactions with React Query
+---
+
+## About
+
+After a Vara transaction has been prepared, the UI still needs to execute it, track pending state, react to errors, and run post-success callbacks. The `useProgramTxMutation` pattern solves that layer by wrapping a prepared transaction’s `signAndSend()` method in a React Query mutation.
+
+This pattern is intentionally simple. It does not know how the transaction was built, and it does not attempt deep program-level verification. Its responsibility is to make execution state predictable.
+
+## Why the pattern matters
+
+Many dApps start with component-local code such as:
+
+```tsx
+setLoading(true);
+try {
+  const tx = await prepare(params);
+  await tx.signAndSend();
+  // success handling
+} catch (error) {
+  // error handling
+} finally {
+  setLoading(false);
+}
+```
+
+That works at first, but the state model becomes inconsistent as the app grows. Different components interpret loading, retry, and error behavior differently.
+
+React Query gives the app one shared abstraction for mutation lifecycle:
+
+- pending,
+- success,
+- error,
+- retries,
+- `onSuccess`,
+- `onError`,
+- `onSettled`.
+
+## Pattern overview
+
+The flow is deliberately narrow:
+
+1. Another layer prepares a transaction.
+2. `useProgramTxMutation()` receives that prepared transaction.
+3. The mutation checks that the object has a callable `signAndSend`.
+4. The mutation executes `signAndSend()`.
+5. React Query manages the resulting lifecycle state.
+
+## Core code
+
+```ts
+export function useProgramTxMutation<TResult = unknown>(
+  mutationOptions?: ProgramTxMutationOptions<TResult>,
+) {
+  return useMutation<TResult, Error, SignAndSendableTransaction<TResult>>({
+    mutationFn: (transaction) => {
+      if (!transaction?.signAndSend) {
+        throw new Error('Invalid transaction object provided');
+      }
+
+      return transaction.signAndSend();
+    },
+    ...mutationOptions,
+  });
+}
+```
+
+That small wrapper is enough to move execution state out of local component logic and into a shared mutation model.
+
+## Main components
+
+### Prepared transaction input
+
+The mutation expects a value shaped like:
+
+```ts
+type SignAndSendableTransaction<TResult = unknown> = {
+  signAndSend: () => Promise<TResult>;
+};
+```
+
+That means this pattern stays decoupled from the exact preparation hook that produced the transaction.
+
+### Mutation lifecycle
+
+Because this is a normal React Query mutation, consumers automatically get:
+
+- `mutate`,
+- `mutateAsync`,
+- `isPending`,
+- `isSuccess`,
+- `isError`,
+- `error`,
+- retry and callback support.
+
+This makes it a good fit for ordinary “click button, send command” flows.
+
+## Full flow in a component
+
+```tsx
+const { prepare } = usePrepareProgramTx({
+  program,
+  serviceName: 'Vft',
+  functionName: 'transfer',
+  mapArgs: ({ to, amount }) => [to, amount],
+});
+
+const execute = useProgramTxMutation({
+  onSuccess: () => {
+    // invalidate queries, close modal, show success alert
+  },
+});
+
+const onTransfer = async () => {
+  const tx = await prepare({ to, amount });
+  await execute.mutateAsync(tx);
+};
+```
+
+Notice how this keeps the flow staged:
+
+- prepare first,
+- execute second,
+- react to execution state third.
+
+## Mutation options in practice
+
+Because the hook forwards normal React Query mutation options, the component can keep domain reactions outside the execution primitive:
+
+```tsx
+const execute = useProgramTxMutation({
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['vft-balance', account?.address] });
+    alert.success('Transfer submitted');
+  },
+  onError: (error) => {
+    alert.error(error.message);
+  },
+});
+```
+
+This is the main benefit of using React Query here. The hook stays generic, while each screen decides how to respond to success or failure.
+
+## Why the input guard exists
+
+The mutation starts with:
+
+```ts
+if (!transaction?.signAndSend) {
+  throw new Error('Invalid transaction object provided');
+}
+```
+
+That protects the execution layer from accidentally receiving a failed preparation result, a plain object, or an undefined value from a conditional flow.
+
+## What this pattern does not do
+
+This pattern deliberately avoids solving three other concerns:
+
+- It does not prepare the transaction.
+- It does not inspect chain events or Gear replies.
+- It does not decide whether the UI should trust block inclusion as success.
+
+That restraint is useful. If you need stronger guarantees, the next layer is [Verified Sign & Send](/docs/vara-network/examples/Patterns/frontend/verified-sign-and-send).
+
+## When this pattern is enough
+
+Use this pattern when:
+
+- a standard runtime submission is sufficient for UX,
+- the app already performs verification elsewhere,
+- you want React Query’s lifecycle management without adding reply decoding logic.
+
+## Production guidance
+
+- Use `mutateAsync` when you want linear async control flow in the component.
+- Use `onSuccess` to trigger invalidation of related queries.
+- Keep domain-specific alerts and navigation outside the hook via mutation callbacks.
+- Upgrade to a verified execution pattern for flows where block inclusion is not a strong enough success condition.
+
+## Source code
+
+- [`frontend/patterns/hooks/program-tx-mutation`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master/frontend/patterns/hooks/program-tx-mutation)

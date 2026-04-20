@@ -1,0 +1,31 @@
+---
+title: Vara dApp Patterns
+---
+
+This section documents the reusable patterns collected in the [`gear-foundation/vara-dapp-patterns`](https://github.com/gear-foundation/vara-dapp-patterns/tree/master) repository.
+
+The repository is organized around three practical layers of a Vara application:
+
+| Area | Focus | Includes |
+| --- | --- | --- |
+| [Contracts](/docs/vara-network/examples/Patterns/contracts) | On-chain design and execution flow | factories, delayed self-messages, service wrappers, session-based delegation |
+| [Frontend](/docs/vara-network/examples/Patterns/frontend) | React integration and transaction UX | transaction preparation, execution hooks, verified sending, provider composition, signless and gasless UI flows |
+| [Backend](/docs/vara-network/examples/Patterns/backend) | Trusted off-chain services around Vara programs | REST gateways, voucher servers, token-gated authentication |
+
+<Callout type="info" title="Source Repository">
+    All examples in this section are based on the public repository: [gear-foundation/vara-dapp-patterns](https://github.com/gear-foundation/vara-dapp-patterns/tree/master).
+</Callout>
+
+## How to use these patterns
+
+Use the contract patterns when the main question is how the program should store state, compose services, or schedule internal work.
+
+Use the frontend patterns when you need predictable transaction orchestration in React, especially if your app prepares extrinsics in one place and executes them in another.
+
+Use the backend patterns when your architecture includes trusted signers, voucher lifecycle management, REST APIs, or access-control services driven by on-chain state.
+
+## Recommended reading order
+
+1. Start with [Contracts](/docs/vara-network/examples/Patterns/contracts) if you are shaping program behavior.
+2. Continue with [Frontend](/docs/vara-network/examples/Patterns/frontend) if you need wallet, provider, or transaction UX patterns.
+3. Finish with [Backend](/docs/vara-network/examples/Patterns/backend) when your system includes gateways, relayers, or token-gated access.

@@ -2,51 +2,56 @@
 title: Message Routing
 ---
 
-Message **routing** doesn't have a mandatory representation in code, but can be altered by using the `#[route]`
-attribute applied to the public methods of structs labelled with the `#[program]` or `#[service]` attribute.
-The concept itself is about rules for dispatching an incoming request message to
-a specific service's method using service and method names. By default, every
-service exposed via program is exposed using the name of the service constructor
-method converted into *PascalCase*. For example:
+Message **routing** controls how an incoming request is dispatched to
+a specific service method. Routing rules are altered by the `route`
+argument of the `#[export]` attribute, applied to public methods on
+structs labelled with `#[program]` or `#[service]`. By default, every
+service exposed by a program is exposed under the service-constructor
+name converted to *PascalCase*; every service method is exposed under
+its method name converted to *PascalCase*. For example:
 
 ```rust
 #[program]
 impl MyProgram {
-    // The `MyPing` service is exposed as `PingSvc`
-    #[export]
+    // The `MyPing` service is exposed under the default route `PingSvc`
+    // (the service-constructor name in PascalCase).
     pub fn ping_svc(&self) -> MyPing {
-        ...
+        MyPing::default()
     }
 }
 ```
 
-This default behavior can be changed by applying the `#[route]` attribute:
+The default name can be overridden via `#[export(route = "...")]`. The
+supplied string is normalised to PascalCase before it is used as the
+route name:
 
 ```rust
 #[program]
 impl MyProgram {
-    // The `MyPing` service is exposed as `Ping`
-    #[route("ping")] // The specified name will be converted into PascalCase
+    // The `MyPing` service is exposed as `Ping`.
+    // The given route is converted into PascalCase.
+    #[export(route = "ping")]
     pub fn ping_svc(&self) -> MyPing {
-        ...
+        MyPing::default()
     }
 }
 ```
 
-The same rules are applicable to service method names:
+The same `route` argument works on service methods:
 
 ```rust
 #[service]
 impl MyPing {
-    // The `do_ping` method is exposed as `Ping`
-    #[route("ping")]
+    // `do_ping` is exposed as `Ping`.
+    #[export(route = "ping")]
     pub fn do_ping(&mut self) {
-        ...
+        // ...
     }
 
-    // The `ping_count` method is exposed as `PingCount`
+    // `ping_count` is exposed using its default name `PingCount`.
+    #[export]
     pub fn ping_count(&self) -> u64 {
-        ...
+        0
     }
 }
 ```

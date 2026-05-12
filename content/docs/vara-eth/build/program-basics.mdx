@@ -26,14 +26,12 @@ cd my-program
 
 ```toml
 [dependencies]
-sails-rs = { version = "0.10.1", features = ["ethexe"] }
-parity-scale-codec = { version = "3", default-features = false }
-scale-info = { version = "2", default-features = false }
+sails-rs = { version = "1.0.0", features = ["ethexe"] }
 ```
 
 **The `ethexe` feature** enables Ethereum-specific functionality — event emission to L1, Mirror contract integration, and settlement flows.
 
-**`parity-scale-codec` and `scale-info`** are needed if your program defines custom types for encoding/decoding messages.
+Sails 1.0.0 re-exports the SCALE codec and scale-info traits through the `#[sails_type]` attribute, so user code defining custom types no longer needs direct dependencies on `parity-scale-codec` or `scale-info`.
 
 → [Sails Framework](/docs/developing/build/sails) | [Quick Start](/docs/vara-eth/build/quickstart)
 
@@ -53,6 +51,7 @@ pub struct CounterService;
 
 #[service]
 impl CounterService {
+    #[export]
     pub fn increment(&mut self) -> i64 {
         unsafe {
             COUNTER += 1;
@@ -60,6 +59,7 @@ impl CounterService {
         }
     }
 
+    #[export]
     pub fn get(&self) -> i64 {
         unsafe { COUNTER }
     }
@@ -81,13 +81,16 @@ impl CounterProgram {
 ```
 
 <Callout type="tip" title="Custom Data Types">
-If you use custom structures in messages or state, derive encoding traits:
+If your program uses custom structs or enums in messages or state,
+annotate them with `#[sails_type]`. The attribute re-exports the SCALE
+codec and scale-info traits with the correct paths — no manual `Encode`
+/ `Decode` / `TypeInfo` derives or `#[codec(crate=...)]` boilerplate
+needed.
 
 ```rust
-use parity_scale_codec::{Decode, Encode};
-use scale_info::TypeInfo;
+use sails_rs::prelude::*;
 
-#[derive(Encode, Decode, TypeInfo)]
+#[sails_type]
 pub struct MyData {
     pub value: u64,
     pub owner: ActorId,

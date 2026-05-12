@@ -26,17 +26,18 @@ cargo test
 #[cfg(test)]
 mod tests {
     use super::*;
+    use sails_rs::gstd::services::Service;
 
     #[test]
     fn test_increment() {
-        let mut service = CounterService;
+        let mut service = CounterService.expose(0);
         let result = service.increment();
         assert_eq!(result, 1);
     }
 
     #[test]
     fn test_decrement_from_zero() {
-        let mut service = CounterService;
+        let mut service = CounterService.expose(0);
         let result = service.decrement();
         assert_eq!(result, -1);
     }

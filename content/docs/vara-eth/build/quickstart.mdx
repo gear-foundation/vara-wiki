@@ -47,6 +47,7 @@ pub struct CounterService;
 #[service]
 impl CounterService {
     /// Increment the counter and return the new value
+    #[export]
     pub fn increment(&mut self) -> i64 {
         unsafe {
             COUNTER += 1;
@@ -55,6 +56,7 @@ impl CounterService {
     }
 
     /// Decrement the counter and return the new value
+    #[export]
     pub fn decrement(&mut self) -> i64 {
         unsafe {
             COUNTER -= 1;
@@ -63,6 +65,7 @@ impl CounterService {
     }
 
     /// Read the current counter value
+    #[export]
     pub fn get(&self) -> i64 {
         unsafe { COUNTER }
     }
@@ -98,12 +101,10 @@ Update `Cargo.toml` to enable ethexe support:
 [package]
 name = "counter-app"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-sails-rs = { version = "0.10.1", features = ["ethexe"] }
-parity-scale-codec = { version = "3", default-features = false }
-scale-info = { version = "2", default-features = false }
+sails-rs = { version = "1.0.0", features = ["ethexe"] }
 ```
 
 ## 3. Build

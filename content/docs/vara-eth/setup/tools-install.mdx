@@ -60,7 +60,8 @@ cargo sails --version
 | `cargo sails new <name>`            | Create a new Sails program project |
 | `cargo build --release`             | Compile your program to WASM       |
 | `cargo sails sol --idl-path <path>` | Generate Solidity ABI from IDL     |
-| `npx sails-js-cli generate <idl> --out <dir>` | Generate TypeScript client from IDL |
+| `cargo sails client-js <idl> [<out.ts>]` | Generate TypeScript client from IDL |
+| `cargo sails client-rs <idl>`       | Generate Rust client from IDL      |
 
 <Callout type="tip" title="Automatic Artifacts">
   When you build with `cargo build --release`, Sails automatically generates `.opt.wasm` and `.idl` files in
@@ -126,10 +127,10 @@ npm install @vara-eth/api sails-js
 **[@vara-eth/api](https://github.com/gear-tech/gear-js/blob/main/apis/vara-eth/README.md)** — Core SDK with EthereumClient, VaraEthApi, injected transactions, state queries  
 **sails-js** — Payload encoding/decoding from your program's IDL
 
-Use CLI generation without global install:
+Generate the TypeScript client from your program's IDL using the Sails CLI:
 
 ```bash
-npx sails-js-cli generate ./target/wasm32-gear/release/my_program.idl --out ./src/generated
+cargo sails client-js ./target/wasm32-gear/release/my_program.idl ./src/generated/lib.ts
 ```
 
 → [Frontend Integration](/docs/vara-eth/integrate/frontend-integration)

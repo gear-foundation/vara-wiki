@@ -54,7 +54,7 @@ npm install @vara-eth/api viem@^2.39.0 kzg-wasm@1.0.0 sails-js
 From your program's IDL file, generate TypeScript bindings:
 
 ```bash
-npx sails-js-cli generate ./path/to/your_program.idl --out ./src/generated
+cargo sails client-js ./path/to/your_program.idl ./src/generated/lib.ts
 ```
 
 This creates a typed client class with methods matching your program's services and routes. Every method call is automatically encoded to the correct SCALE format. For more details, see [sails-js client generation](/docs/developing/sails-js/client-generation).
@@ -189,9 +189,9 @@ The [IDL](/docs/developing/build/sails/idl) file is the source of truth for your
 ### Generating TypeScript Types
 
 ```bash
-npx sails-js-cli generate \
+cargo sails client-js \
   ./target/wasm32-gear/release/my_program.idl \
-  --out ./src/generated
+  ./src/generated/lib.ts
 ```
 
 ### Generating Solidity ABI

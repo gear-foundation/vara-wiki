@@ -147,7 +147,7 @@ TypeError: Cannot read property 'encode' of undefined
 **Fix**: Regenerate TypeScript bindings from the latest IDL:
 
 ```bash
-npx sails-js-cli generate program.idl --out ./src/generated/
+cargo sails client-js program.idl ./src/generated/lib.ts
 ```
 
 Ensure the IDL matches the deployed program version.

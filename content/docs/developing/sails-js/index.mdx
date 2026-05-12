@@ -12,9 +12,9 @@ The Sails-JS library is a powerful tool designed to help developers interact wit
 
    - **Fine-Grained Control**: Developers may want to manage low-level operations or handle side effects of the library's abstractions themselves. Using the raw `Sails` object gives you the flexibility to customize interactions as needed. Parsing the IDL at runtime can be also be advantageous if you need to work with multiple IDL files.
 
-2. **Generating Client Libraries with `sails-js-cli`**
+2. **Generating Client Libraries with `cargo sails client-js`**
 
-   The `sails-js-cli` command-line tool automates the generation of TypeScript client libraries from a given IDL file. The tool produces a `lib.ts` file that you can import into your TypeScript project. This generated library provides strongly typed classes and methods corresponding to your application's services, functions, queries, and events, making it easier and faster to interact with your deployed application.
+   The Sails CLI (`sails-cli`) provides the `cargo sails client-js` command, which generates a TypeScript client library from a given IDL file. The tool produces a single `.ts` file you can import into your TypeScript project. This generated library provides strongly typed classes and methods corresponding to your application's services, functions, queries, and events, making it easier and faster to interact with your deployed application.
 
    *Why Choose This Method?*
 
@@ -40,6 +40,6 @@ To begin using `sails-js`, choose the method that best fits your development wor
 
 - **Quick Start with Generated Client Library**
 
-  If you prefer a faster setup and a straightforward way to interact with your application, the generated client library is an excellent starting point. It abstracts away many complexities, making it ideal for developers who want to focus on application logic. See the [Client Generation](/docs/developing/sails-js/client-generation) section for guidance on using the `sails-js-cli` tool and integrating the generated `lib.ts` into your project.
+  If you prefer a faster setup and a straightforward way to interact with your application, the generated client library is an excellent starting point. It abstracts away many complexities, making it ideal for developers who want to focus on application logic. See the [Client Generation](/docs/developing/sails-js/client-generation) section for guidance on using `cargo sails client-js` and integrating the generated `.ts` file into your project.
 
 **The Sails-JS code is available on [GitHub](https://github.com/gear-tech/sails).**

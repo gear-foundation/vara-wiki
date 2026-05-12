@@ -257,48 +257,68 @@ pub fn tokens_for_owner(&self, owner: ActorId) -> Vec<(TokenId, TokenMetadata)>
 The extended service incorporates the following interface:
 
 ```rust
-type TokenMetadata = struct {
-  name: str,
-  description: str,
-  media: str,
-  reference: str,
-};
-
-constructor {
-  New : (name: str, symbol: str);
-};
+!@sails: 1.0.0
 
 service Vnft {
-  Burn : (from: actor_id, token_id: u256) -> null;
-  GrantAdminRole : (to: actor_id) -> null;
-  GrantBurnerRole : (to: actor_id) -> null;
-  GrantMinterRole : (to: actor_id) -> null;
-  Mint : (to: actor_id, token_metadata: TokenMetadata) -> null;
-  RevokeAdminRole : (from: actor_id) -> null;
-  RevokeBurnerRole : (from: actor_id) -> null;
-  RevokeMinterRole : (from: actor_id) -> null;
-  Approve : (approved: actor_id, token_id: u256) -> null;
-  Transfer : (to: actor_id, token_id: u256) -> null;
-  TransferFrom : (from: actor_id, to: actor_id, token_id: u256) -> null;
-  query Admins : () -> vec actor_id;
-  query Burners : () -> vec actor_id;
-  query Minters : () -> vec actor_id;
-  query TokenId : () -> u256;
-  query TokenMetadataById : (token_id: u256) -> opt TokenMetadata;
-  query TokensForOwner : (owner: actor_id) -> vec struct { u256, TokenMetadata };
-  query BalanceOf : (owner: actor_id) -> u256;
-  query GetApproved : (token_id: u256) -> actor_id;
-  query Name : () -> str;
-  query OwnerOf : (token_id: u256) -> actor_id;
-  query Symbol : () -> str;
+    events {
+        Minted { to: actor, token_metadata: TokenMetadata },
+        Burned { from: actor, token_id: u256 },
+        Transfer { from: actor, to: actor, token_id: u256 },
+        Approval { owner: actor, approved: actor, token_id: u256 },
+    }
+    functions {
+        Burn(from: actor, token_id: u256);
+        GrantAdminRole(to: actor);
+        GrantBurnerRole(to: actor);
+        GrantMinterRole(to: actor);
+        Mint(to: actor, token_metadata: TokenMetadata);
+        RevokeAdminRole(from: actor);
+        RevokeBurnerRole(from: actor);
+        RevokeMinterRole(from: actor);
+        Approve(approved: actor, token_id: u256);
+        Transfer(to: actor, token_id: u256);
+        TransferFrom(from: actor, to: actor, token_id: u256);
+        @query
+        Admins() -> [actor];
+        @query
+        Burners() -> [actor];
+        @query
+        Minters() -> [actor];
+        @query
+        TokenId() -> u256;
+        @query
+        TokenMetadataById(token_id: u256) -> Option<TokenMetadata>;
+        @query
+        TokensForOwner(owner: actor) -> [(u256, TokenMetadata)];
+        @query
+        BalanceOf(owner: actor) -> u256;
+        @query
+        GetApproved(token_id: u256) -> actor;
+        @query
+        Name() -> String;
+        @query
+        OwnerOf(token_id: u256) -> actor;
+        @query
+        Symbol() -> String;
+    }
+    types {
+        struct TokenMetadata {
+            name: String,
+            description: String,
+            media: String,
+            reference: String,
+        }
+    }
+}
 
-  events {
-    Minted: struct { to: actor_id, token_metadata: TokenMetadata };
-    Burned: struct { from: actor_id, token_id: u256 };
-    Transfer: struct { from: actor_id, to: actor_id, token_id: u256 };
-    Approval: struct { owner: actor_id, approved: actor_id, token_id: u256 };
-  }
-};
+program VnftProgram {
+    constructors {
+        New(name: String, symbol: String);
+    }
+    services {
+        Vnft: Vnft;
+    }
+}
 ```
 
 <Callout type="note" title="Extended VNFT Implementation">

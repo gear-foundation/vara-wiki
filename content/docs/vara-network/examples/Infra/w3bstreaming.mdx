@@ -169,7 +169,7 @@ pub fn edit_profile(
             subscriptions: Vec::new(),
         });
 
-    self.notify_on(Event::ProfileEdited)
+    self.emit_event(Event::ProfileEdited)
         .expect("Notification Error");
 }
 ```
@@ -204,7 +204,7 @@ pub fn new_stream(
             description,
         },
     );
-    self.notify_on(Event::StreamIsScheduled { id: stream_id })
+    self.emit_event(Event::StreamIsScheduled { id: stream_id })
         .expect("Notification Error");
 }
 ```
@@ -235,7 +235,7 @@ pub fn delete_stream(&mut self, stream_id: String) {
     } else {
         panic!("You are not broadcaster");
     }
-    self.notify_on(Event::StreamDeleted { id: stream_id })
+    self.emit_event(Event::StreamDeleted { id: stream_id })
         .expect("Notification Error");
 }
 ```
@@ -277,7 +277,7 @@ pub fn edit_stream(
         panic!("Id is not exist");
     }
 
-    self.notify_on(Event::StreamEdited)
+    self.emit_event(Event::StreamEdited)
         .expect("Notification Error");
 }
 ```
@@ -309,7 +309,7 @@ pub fn subscribe(&mut self, account_id: ActorId) {
         })
     });
 
-    self.notify_on(Event::Subscribed)
+    self.emit_event(Event::Subscribed)
         .expect("Notification Error");
 }
 ```

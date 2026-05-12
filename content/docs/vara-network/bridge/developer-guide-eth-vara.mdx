@@ -145,7 +145,7 @@ A minimal implementation that emits an internal event on receipt:
 use sails_rs::prelude::*;
 
 #[sails_rs::event]
-#[derive(Encode, Decode, TypeInfo)]
+#[sails_rs::sails_type]
 pub enum Event {
     ReceiptSubmitted(u64, u32),
 }

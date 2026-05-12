@@ -286,11 +286,11 @@ The private key (`sk`) must be stored locally (`localStorage` or `sessionStorage
 When registering in a game, the **public key** is sent to the smart contract in Little Endian format:
 
 ```rust
-type PublicKey = struct {
-  x: [u8; 32],
-  y: [u8; 32],
-  z: [u8; 32],
-};
+struct PublicKey {
+    x: [u8; 32],
+    y: [u8; 32],
+    z: [u8; 32],
+}
 ```
 
 ---
@@ -374,7 +374,8 @@ const { proof, publicSignals } = await groth16.fullProve(
 Once cards are under a single encryption layer, a player reads them from the contract:
 
 ```rust
-query PlayerCards : (player_id: actor_id) -> opt [EncryptedCard; 2];
+@query
+PlayerCards(player_id: actor) -> Option<[EncryptedCard; 2]>;
 ```
 
 The client decrypts them locally using their private key, converting coordinates from bytes (Little Endian) to `BigInt`.

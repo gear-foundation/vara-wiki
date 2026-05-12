@@ -19,50 +19,58 @@ The DNS smart contract facilitates efficient management of DNS programs and thei
 A DNS contract has the following interface:
 
 ```rust
-type ContractInfo = struct {
-    admins: vec actor_id,    // List of administrator IDs for the program
-    program_id: actor_id,    // Unique identifier for the program
-    registration_time: str,  // Timestamp when the program was registered
-};
+!@sails: 1.0.0
 
 service Dns {
-    // Adds a new admin to the specified program
-    AddAdminToProgram : (name: str, new_admin: actor_id) -> null;
-    // Registers a new program with the given name and ID
-    AddNewProgram : (name: str, program_id: actor_id) -> null;
-    // Changes the program ID for the specified program    
-    ChangeProgramId : (name: str, new_program_id: actor_id) -> null;
-    // Deletes the smart contract instance
-    DeleteMe : () -> null;
-    // Deletes the specified program
-    DeleteProgram : (name: str) -> null;
-    // Removes an admin from the specified program
-    RemoveAdminFromProgram : (name: str, admin_to_remove: actor_id) -> null;
-    
-    // Retrieves all registered programs and their info
-    query AllContracts : () -> vec struct { str, ContractInfo };
-    // Retrieves all actor IDs
-    query GetAllAddresses : () -> vec actor_id;
-    // Retrieves all program names                   
-    query GetAllNames : () -> vec str;          
-    // Retrieves contract info for the specified program name           
-    query GetContractInfoByName : (name: str) -> opt ContractInfo;
-    // Retrieves the program name for the specified program ID
-    query GetNameByProgramId : (program_id: actor_id) -> opt str;
-
     events {
         // Emitted when a new program is added
-        NewProgramAdded: struct { name: str, contract_info: ContractInfo };
+        NewProgramAdded { name: String, contract_info: ContractInfo },
         // Emitted when a program ID is changed
-        ProgramIdChanged: struct { name: str, contract_info: ContractInfo };
+        ProgramIdChanged { name: String, contract_info: ContractInfo },
         // Emitted when a program is deleted
-        ProgramDeleted: struct { name: str };          
-        // Emitted when an admin is added to a program                     
-        AdminAdded: struct { name: str, contract_info: ContractInfo };
+        ProgramDeleted { name: String },
+        // Emitted when an admin is added to a program
+        AdminAdded { name: String, contract_info: ContractInfo },
         // Emitted when an admin is removed from a program
-        AdminRemoved: struct { name: str, contract_info: ContractInfo };
+        AdminRemoved { name: String, contract_info: ContractInfo },
     }
-};
+    functions {
+        // Adds a new admin to the specified program
+        AddAdminToProgram(name: String, new_admin: actor);
+        // Registers a new program with the given name and ID
+        AddNewProgram(name: String, program_id: actor);
+        // Changes the program ID for the specified program
+        ChangeProgramId(name: String, new_program_id: actor);
+        // Deletes the smart contract instance
+        DeleteMe();
+        // Deletes the specified program
+        DeleteProgram(name: String);
+        // Removes an admin from the specified program
+        RemoveAdminFromProgram(name: String, admin_to_remove: actor);
+        // Retrieves all registered programs and their info
+        @query
+        AllContracts() -> [(String, ContractInfo)];
+        // Retrieves all actor IDs
+        @query
+        GetAllAddresses() -> [actor];
+        // Retrieves all program names
+        @query
+        GetAllNames() -> [String];
+        // Retrieves contract info for the specified program name
+        @query
+        GetContractInfoByName(name: String) -> Option<ContractInfo>;
+        // Retrieves the program name for the specified program ID
+        @query
+        GetNameByProgramId(program_id: actor) -> Option<String>;
+    }
+    types {
+        struct ContractInfo {
+            admins: [actor],         // List of administrator IDs for the program
+            program_id: actor,       // Unique identifier for the program
+            registration_time: String, // Timestamp when the program was registered
+        }
+    }
+}
 ```
 
 

@@ -259,7 +259,7 @@ pub async fn add_liquidity(&mut self, amount_a: U256, amount_b: U256) -> bool {
         storage.k_last = storage.reserve_a * storage.reserve_b;
         storage.swap_status = SwapStatus::Ready;
 
-        self.notify_on(Event::AddedLiquidity {
+        self.emit_event(Event::AddedLiquidity {
             sender,
             amount_a,
             amount_b,
@@ -329,7 +329,7 @@ pub async fn remove_liquidity(&mut self, amount: U256) {
     storage.k_last = storage.reserve_a * storage.reserve_b;
     storage.swap_status = SwapStatus::Ready;
 
-    self.notify_on(Event::RemovedLiquidity {
+    self.emit_event(Event::RemovedLiquidity {
         sender,
         amount_a,
         amount_b,
@@ -422,7 +422,7 @@ pub async fn swap(&mut self, in_amount: U256, out_is_a: bool) {
     *out_reserve -= out_amount;
     storage.swap_status = SwapStatus::Ready;
 
-    self.notify_on(Event::Swap {
+    self.emit_event(Event::Swap {
         kind: if out_is_a {
             SwapKind::AForB
         } else {
@@ -472,7 +472,7 @@ pub async fn continue_swap(&mut self) {
 
     storage.swap_status = SwapStatus::Ready;
 
-    self.notify_on(Event::Swap {
+    self.emit_event(Event::Swap {
         kind: if out_is_a {
             SwapKind::AForB
         } else {
@@ -518,7 +518,7 @@ pub async fn sync(&mut self) {
     storage.reserve_a = balances_a;
     storage.reserve_b = balances_b;
 
-    self.notify_on(Event::Sync {
+    self.emit_event(Event::Sync {
         reserve_a: storage.reserve_a,
         reserve_b: storage.reserve_b,
     })

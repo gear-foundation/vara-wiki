@@ -87,47 +87,56 @@ pub fn init(owner_id: ActorId, vmt_contract: ActorId) -> Self {
 The concert program includes the following interface:
 
 ```rust
-type TokenMetadata = struct {
-  title: opt str,
-  description: opt str,
-  media: opt str,
-  reference: opt str,
-};
-
-type State = struct {
-  owner_id: actor_id,
-  contract_id: actor_id,
-  name: str,
-  description: str,
-  ticket_ft_id: u256,
-  creator: actor_id,
-  number_of_tickets: u256,
-  tickets_left: u256,
-  date: u128,
-  buyers: vec actor_id,
-  id_counter: u256,
-  concert_id: u256,
-  running: bool,
-  metadata: vec struct { actor_id, vec struct { u256, opt TokenMetadata } },
-  token_id: u256,
-};
-
-constructor {
-  New : (owner_id: actor_id, vmt_contract: actor_id);
-};
+!@sails: 1.0.0
 
 service Concert {
-  BuyTickets : (amount: u256, mtd: vec opt TokenMetadata) -> null;
-  Create : (creator: actor_id, name: str, description: str, number_of_tickets: u256, date: u128, token_id: u256) -> null;
-  HoldConcert : () -> null;
-  query GetStorage : () -> State;
+    events {
+        Creation { creator: actor, concert_id: u256, number_of_tickets: u256, date: u128 },
+        Hold { concert_id: u256 },
+        Purchase { concert_id: u256, amount: u256 },
+    }
+    functions {
+        BuyTickets(amount: u256, mtd: [Option<TokenMetadata>]);
+        Create(creator: actor, name: String, description: String, number_of_tickets: u256, date: u128, token_id: u256);
+        HoldConcert();
+        @query
+        GetStorage() -> State;
+    }
+    types {
+        struct TokenMetadata {
+            title: Option<String>,
+            description: Option<String>,
+            media: Option<String>,
+            reference: Option<String>,
+        }
+        struct State {
+            owner_id: actor,
+            contract_id: actor,
+            name: String,
+            description: String,
+            ticket_ft_id: u256,
+            creator: actor,
+            number_of_tickets: u256,
+            tickets_left: u256,
+            date: u128,
+            buyers: [actor],
+            id_counter: u256,
+            concert_id: u256,
+            running: bool,
+            metadata: [(actor, [(u256, Option<TokenMetadata>)])],
+            token_id: u256,
+        }
+    }
+}
 
-  events {
-    Creation: struct { creator: actor_id, concert_id: u256, number_of_tickets: u256, date: u128 };
-    Hold: struct { concert_id: u256 };
-    Purchase: struct { concert_id: u256, amount: u256 };
-  }
-};
+program ConcertProgram {
+    constructors {
+        New(owner_id: actor, vmt_contract: actor);
+    }
+    services {
+        Concert: Concert;
+    }
+}
 ```
 
 ## Conclusion

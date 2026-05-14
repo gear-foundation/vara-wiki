@@ -46,21 +46,34 @@ appropriate method based on the method's name. On the method's completion, its r
 is encoded and returned as a response to a caller.
 
 ```rust
+use sails_rs::prelude::*;
+
+struct MyService;
+
 #[service]
 impl MyService {
-    // This is a command
+    // Command — has &mut self, mutates state.
     #[export]
-    pub fn do_something(&mut self, p1: u32, p2: String) -> &'static [u8] {
-        ...
+    pub fn do_something(&mut self, p1: u32, p2: String) -> Vec<u8> {
+        // ...
+        Vec::new()
     }
 
-    // This is a query
+    // Query — has &self, returns data only.
     #[export]
     pub fn some_value(&self, p1: Option<bool>) -> String {
-        ...
+        // ...
+        String::new()
     }
 }
 ```
+
+The `#[export]` attribute is what makes a method part of the service's
+public ABI. Methods without `#[export]` are private helpers and are
+not exposed in the IDL or routed to from incoming messages. Program
+constructors that return `Result<Self, _>` must use
+`#[export(unwrap_result)]` so the macro can unwrap the success arm
+into the program state.
 
 ## Program
 
@@ -81,21 +94,33 @@ a matching service for actual processing. After that, the result is encoded and 
 as a response to a caller. Only one program is allowed per application.
 
 ```rust
+pub struct MyProgram;
+
 #[program]
 impl MyProgram {
-    // Application constructor
-    pub fn new() -> Self {
-        ...
+    /// Application constructor — called once at program upload.
+    pub fn default() -> Self {
+        Self
     }
 
-    // Yet another application constructor
-    pub fn from_u32(p1: u32) -> Self {
-        ...
+    /// Fallible application constructor — `unwrap_result` makes the macro
+    /// treat the inner `Self` as the success path and propagate `Err`
+    /// as the failure path.
+    #[export(unwrap_result)]
+    pub fn new(p1: u32) -> Result<Self, String> {
+        if p1 == 0 {
+            return Err("p1 must be non-zero".to_string());
+        }
+        Ok(Self)
     }
 
-    // Service constructor
+    // Exposed service constructor — called every time a message
+    // is routed to this service.
     pub fn ping_svc(&self) -> MyPing {
-        ...
+        MyPing::default()
     }
 }
 ```
+
+Add `#[program(payable)]` if the program needs to accept value-bearing
+messages.

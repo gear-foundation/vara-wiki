@@ -112,46 +112,46 @@ pub async fn init(
 ### Service functions
 
 ```
+!@sails: 1.0.0
+
 service CarRacesService {
-  
-  // Admin actions
-  //----------------------------------
+    events {
+        RoundInfo(RoundInfo),
+        GameFinished { player: actor },
+        Killed { inheritor: actor },
+    }
+    functions {
+        // Admin actions
+        AddAdmin(admin: actor);
+        RemoveAdmin(admin: actor);
+        UpdateConfig(config: ServicesConfig);
+        AllowMessages(messages_allowed: bool);
+        Kill(inheritor: actor);
+        AddStrategyIds(car_ids: [actor]);
+        RemoveGameInstance(account: actor);
+        RemoveInstances(player_ids: Option<[actor]>);
 
-  AddAdmin : (admin: actor_id) -> null;
-  RemoveAdmin : (admin: actor_id) -> null;
-  UpdateConfig : (config: ServicesConfig) -> null;
-  AllowMessages : (messages_allowed: bool) -> null;
-  Kill : (inheritor: actor_id) -> null;
-  AddStrategyIds : (car_ids: vec actor_id) -> null;
-  RemoveGameInstance : (account: actor_id) -> null;
-  RemoveInstances : (player_ids: opt vec actor_id) -> null;
+        // Player (game-related) actions
+        StartGame(session_for_account: Option<actor>);
+        PlayerMove(strategy_move: StrategyAction, session_for_account: Option<actor>);
 
-  // Player (game-related) actions
-  //----------------------------------
-
-  StartGame : (session_for_account: opt actor_id) -> null;
-  PlayerMove : (strategy_move: StrategyAction, session_for_account: opt actor_id) -> null;
-
-  // Queries (read-only operations)
-  //----------------------------------
-
-  query Admins : () -> vec actor_id;
-  query AllGames : () -> vec struct { actor_id, Game };
-  query ConfigState : () -> ServicesConfig;
-  query DnsInfo : () -> opt struct { actor_id, str };
-  query Game : (account_id: actor_id) -> opt Game;
-  query MessagesAllowed : () -> bool;
-  query StrategyIds : () -> vec actor_id;
-
-  // Events
-  //----------------------------------
-
-  events {
-    RoundInfo: RoundInfo;
-    GameFinished: struct { player: actor_id };
-    Killed: struct { inheritor: actor_id };
-  }
-};
+        // Queries (read-only operations)
+        @query
+        Admins() -> [actor];
+        @query
+        AllGames() -> [(actor, Game)];
+        @query
+        ConfigState() -> ServicesConfig;
+        @query
+        DnsInfo() -> Option<(actor, String)>;
+        @query
+        Game(account_id: actor) -> Option<Game>;
+        @query
+        MessagesAllowed() -> bool;
+        @query
+        StrategyIds() -> [actor];
+    }
+}
 ```
 
 ### Logic
@@ -298,10 +298,10 @@ pub async fn player_move(
         // Return the round info as an event or handle an unexpected state.
         match round_info {
             Some(info) => {
-                self.notify_on(Event::RoundInfo(info))
+                self.emit_event(Event::RoundInfo(info))
                     .expect("Notification Error");
                 if game_finished {
-                    self.notify_on(Event::GameFinished { player: msg_src })
+                    self.emit_event(Event::GameFinished { player: msg_src })
                         .expect("Notification Error");
                 }
             }

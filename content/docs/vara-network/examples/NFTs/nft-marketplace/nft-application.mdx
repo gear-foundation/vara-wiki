@@ -84,10 +84,10 @@ const providers = [..., IPFSProvider];
 
 6. Build and upload the [contract](https://github.com/gear-foundation/standards/tree/master/extended-vnft#%EF%B8%8F-building) to the chain and set up the address in the `.env` file. 
 
-Place the `extended_vnft.idl` file in the `api/sails` folder and run sails-cli command:
+Place the `extended_vnft.idl` file in the `api/sails` folder and run the Sails CLI:
 
-```npm
-npx sails-js-cli generate src/api/sails/extended_vnft.idl -o src/api/sails --no-project
+```bash
+cargo sails client-js src/api/sails/extended_vnft.idl src/api/sails/lib.ts
 ```
 
 Check the newly created lib.ts file and add the following two lines at the top:

@@ -180,16 +180,12 @@ ethexe tx query "$MIRROR_ADDRESS" \
 
 ## Sails CLI
 
-Sails tooling uses two CLIs:
-
-- `cargo sails` for Rust-side workflows
-- `sails-js-cli` for TypeScript client generation
+The `sails-cli` Cargo subcommand (`cargo sails`) covers Rust-side workflows, IDL handling, and TypeScript/Solidity/Rust client generation.
 
 ### Generate TypeScript Client
 
 ```bash
-npx sails-js-cli generate program.idl \
-  --out ./src/generated/
+cargo sails client-js program.idl ./src/generated/lib.ts
 ```
 
 Produces typed TypeScript bindings for all services, methods, and events. See [sails-js client generation](/docs/developing/sails-js/client-generation) for details.

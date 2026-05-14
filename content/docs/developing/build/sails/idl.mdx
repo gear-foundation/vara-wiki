@@ -10,6 +10,19 @@ Applications developed with the Sails framework include an auto-generated IDL fi
 - **Services**: Commands and queries for all the services exposed by the program.
 - **Events**: Events utilized within the program.
 
+## IDL versions
+
+Sails 1.0.0 emits IDL v2. The grammar is a declarative PEG (Pest) and
+supports global directives (`!@sails: <version>`, `!@include: <path>`),
+local annotations (`@query`, `@indexed`, `@partial`, `@entry_id: N`),
+inline service composition via `extends { ... }`, and pinned service
+identifiers via the `@<interface_id>` suffix. For the full grammar, see
+the [IDL v2 specification](https://github.com/gear-tech/sails/blob/master/docs/idl-v2-spec.md).
+
+IDL v1 (used by Sails 0.x) is preserved for compatibility with already
+deployed programs and is still parsed by the legacy `sails-idl-parser`
+crate.
+
 ## Examples
 ### Types
 
@@ -18,61 +31,63 @@ This example demonstrates how the custom Rust type `IoTrafficLightState` is repr
 <Tabs items={['Rust', 'IDL']}>
   <Tab value="Rust" default>
     ```rust
-    // Create a struct that can be send to the user who reads state
-    #[derive(Encode, Decode, TypeInfo)]
-    #[codec(crate = sails_rs::scale_codec)]
-    #[scale_info(crate = sails_rs::scale_info)]
+    #[sails_type]
+    #[derive(Clone)]
     pub struct IoTrafficLightState {
-      pub current_light: String,
-      pub all_users: Vec<(ActorId, String)>,
+        pub current_light: String,
+        pub all_users: Vec<(ActorId, String)>,
     }
     ```
   </Tab>
   <Tab value="IDL">
     ```rust
-    type IoTrafficLightState = struct {
-      current_light: str,
-      all_users: vec struct { actor_id, str },
-    };
+    struct IoTrafficLightState {
+        current_light: String,
+        all_users: [(actor, String)],
+    }
     ```
   </Tab>
 </Tabs>
 
 ### Constructors, Services and Events
 
-This code snippet can be examined to understand how more advanced Sails applications are represented in the IDL file. Note the additional keyword `query` in the IDL file for the `name` and `balance_of` methods, which use `&self` instead of `&mut self` as their first parameter.
+The example below illustrates how a Sails program is represented in the
+IDL v2 file. Note that read-only methods (`&self`) are annotated with
+`@query` in the IDL output, and event payloads live inside the
+service's `events { ... }` block.
 
 <Tabs items={['Rust', 'IDL']}>
   <Tab value="Rust" default>
     ```rust
-    #[service]
-    impl Token {
-        pub fn init(name: String) {
-            unsafe {
-                STATE = Some(State {
-                    name,
-                    balances: HashMap::new(),
-                });
-            }
-        }
+    use sails_rs::prelude::*;
 
+    #[event]
+    #[sails_type]
+    pub enum TokenEvent {
+        Minted { to: ActorId, value: U256 },
+        Transferred { from: ActorId, to: ActorId, value: U256 },
+    }
+
+    pub struct Token { /* ... */ }
+
+    #[service(events = TokenEvent)]
+    impl Token {
         #[export]
         pub fn mint(&mut self, to: ActorId, value: U256) {
-            let state = State::get_mut();
-            let balance = state.balances.entry(to).or_insert(U256::zero());
-            *balance += value;
+            // ...
+            self.emit_event(TokenEvent::Minted { to, value }).unwrap();
         }
 
         #[export]
-        pub fn name(&self) -> &'static str {
-            let state = State::get();
-            &state.name
+        pub fn name(&self) -> String {
+            // ...
+            String::new()
         }
 
         #[export]
         pub fn balance_of(&self, account: ActorId) -> U256 {
-            let state = State::get();
-            *state.balances.get(&account).unwrap_or(&U256::zero())
+            // ...
+            U256::zero()
         }
     }
 
@@ -81,29 +96,44 @@ This code snippet can be examined to understand how more advanced Sails applicat
     #[program]
     impl MyProgram {
         pub fn new(name: String) -> Self {
-            Token::init(name);
+            // ...
             Self
         }
 
         pub fn token(&self) -> Token {
-            Token::default()
+            // ...
+            Token { /* ... */ }
         }
     }
     ```
   </Tab>
   <Tab value="IDL">
     ```rust
-    constructor {
-      New : (name: str);
-    };
+    !@sails: 1.0.0
 
     service Token {
-      Mint : (to: actor_id, value: u256) -> null;
-      Transfer : (from: actor_id, to: actor_id, value: u256) -> null;
-      query BalanceOf : (account: actor_id) -> u256;
-      query Name : () -> str;
-    };
+        events {
+            Minted { to: actor, value: u256 },
+            Transferred { from: actor, to: actor, value: u256 },
+        }
+        functions {
+            Mint(to: actor, value: u256);
+            @query
+            Name() -> String;
+            @query
+            BalanceOf(account: actor) -> u256;
+        }
+    }
+
+    program MyProgram {
+        constructors {
+            New(name: String);
+        }
+
+        services {
+            Token: Token;
+        }
+    }
     ```
   </Tab>
 </Tabs>
-

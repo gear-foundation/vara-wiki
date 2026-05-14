@@ -9,42 +9,53 @@ Consider you have `Service A` and `Service B`, possibly sourced from external cr
 This strategy not only facilitates the blending of functionalities but also permits the overriding of specific methods from the original services by defining a method with the same name in the new service. With event names, conflicts are not allowed. Unfortunately, the IDL generation process is the earliest when this can be reported as an error. For example:
 
 ```rust
-struct MyServiceA;
+use sails_rs::prelude::*;
+
+pub struct MyServiceA;
 
 #[service]
 impl MyServiceA {
     #[export]
     pub fn do_a(&mut self) {
-        ...
+        // ...
     }
 }
 
-struct MyServiceB;
+pub struct MyServiceB;
 
 #[service]
 impl MyServiceB {
     #[export]
     pub fn do_b(&mut self) {
-        ...
+        // ...
     }
 }
 
-struct MyServiceC;
+pub struct MyServiceC;
 
 #[service(extends = [MyServiceA, MyServiceB])]
 impl MyServiceC {
-    // New method
+    // New method on the merged service.
     #[export]
     pub fn do_c(&mut self) {
-        ...
+        // ...
     }
 
-    // Overridden method from MyServiceA
-    #[export]
+    // Overrides `do_a` from MyServiceA. Use `overrides = MyServiceA`
+    // when the same method name appears in more than one extended
+    // service and you need to disambiguate.
+    #[export(overrides = MyServiceA)]
     pub fn do_a(&mut self) {
-        ...
+        // ...
     }
 
-    // do_b from MyServiceB will exposed due to the extends argument
+    // `do_b` from MyServiceB is exposed transparently via `extends`.
 }
 ```
+
+When two extended services define a method with the same name, mark the
+overriding method with `#[export(overrides = SomeService)]` so the macro
+knows which inherited method is being replaced. The same attribute is
+used to override a method that exists in only one parent service when
+ambiguity is not at stake — it documents intent and keeps the IDL stable
+under future refactors.

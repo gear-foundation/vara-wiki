@@ -88,7 +88,7 @@ pub fn start_metadata_update(
                 update_period_in_blocks,
             )
         });
-        self.notify_on(Event::MetadataStartedUpdaing {
+        self.emit_event(Event::MetadataStartedUpdaing {
             updates_count,
             update_period_in_blocks,
             token_id,
@@ -172,7 +172,7 @@ pub fn update_metadata(
             updates_count,
         )
     });
-    self.notify_on(Event::MetadataUpdated { token_id, current_media_index })
+    self.emit_event(Event::MetadataUpdated { token_id, current_media_index })
         .expect("Notification Error");
 }
 ```

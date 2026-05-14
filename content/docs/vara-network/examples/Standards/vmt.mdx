@@ -278,52 +278,68 @@ pub fn admins(&self) -> Vec<ActorId>
 The extended VMT service includes the following interface:
 
 ```rust
-type TokenMetadata = struct {
-  title: opt str,
-  description: opt str,
-  media: opt str,
-  reference: opt str,
-};
-
-constructor {
-  New : (name: str, symbol: str, decimals: u8);
-};
+!@sails: 1.0.0
 
 service Vmt {
-  Burn : (from: actor_id, id: u256, amount: u256) -> null;
-  BurnBatch : (from: actor_id, ids: vec u256, amounts: vec u256) -> null;
-  GrantAdminRole : (to: actor_id) -> null;
-  GrantBurnerRole : (to: actor_id) -> null;
-  GrantMinterRole : (to: actor_id) -> null;
-  Mint : (to: actor_id, id: u256, amount: u256, token_metadata: opt TokenMetadata) -> null;
-  MintBatch : (to: actor_id, ids: vec u256, amounts: vec u256, token_metadata: vec opt TokenMetadata) -> null;
-  RevokeAdminRole : (from: actor_id) -> null;
-  RevokeBurnerRole : (from: actor_id) -> null;
-  RevokeMinterRole : (from: actor_id) -> null;
-  Approve : (to: actor_id) -> bool;
-  BatchTransferFrom : (from: actor_id, to: actor_id, ids: vec u256, amounts: vec u256) -> null;
-  TransferFrom : (from: actor_id, to: actor_id, id: u256, amount: u256) -> null;
+    events {
+        Minted { to: actor, ids: [u256], amounts: [u256] },
+        Burned { from: actor, ids: [u256], amounts: [u256] },
+        Approval { from: actor, to: actor },
+        Transfer { from: actor, to: actor, ids: [u256], amounts: [u256] },
+    }
+    functions {
+        Burn(from: actor, id: u256, amount: u256);
+        BurnBatch(from: actor, ids: [u256], amounts: [u256]);
+        GrantAdminRole(to: actor);
+        GrantBurnerRole(to: actor);
+        GrantMinterRole(to: actor);
+        Mint(to: actor, id: u256, amount: u256, token_metadata: Option<TokenMetadata>);
+        MintBatch(to: actor, ids: [u256], amounts: [u256], token_metadata: [Option<TokenMetadata>]);
+        RevokeAdminRole(from: actor);
+        RevokeBurnerRole(from: actor);
+        RevokeMinterRole(from: actor);
+        Approve(to: actor) -> bool;
+        BatchTransferFrom(from: actor, to: actor, ids: [u256], amounts: [u256]);
+        TransferFrom(from: actor, to: actor, id: u256, amount: u256);
+        @query
+        Admins() -> [actor];
+        @query
+        Burners() -> [actor];
+        @query
+        Minters() -> [actor];
+        @query
+        BalanceOf(account: actor, id: u256) -> u256;
+        @query
+        BalanceOfBatch(accounts: [actor], ids: [u256]) -> [u256];
+        @query
+        Decimals() -> u8;
+        @query
+        IsApproved(account: actor, operator: actor) -> bool;
+        @query
+        Name() -> String;
+        @query
+        Symbol() -> String;
+        @query
+        TotalSupply() -> [(u256, u256)];
+    }
+    types {
+        struct TokenMetadata {
+            title: Option<String>,
+            description: Option<String>,
+            media: Option<String>,
+            reference: Option<String>,
+        }
+    }
+}
 
-  query Admins : () -> vec actor_id;
-  query Burners : () -> vec actor_id;
-  query Minters : () -> vec actor_id;
-  query BalanceOf : (account: actor_id, id: u256) -> u256;
-  query BalanceOfBatch : (accounts: vec actor_id, ids: vec u256) -> vec u256;
-  query Decimals : () -> u8;
-
-
-  query IsApproved : (account: actor_id, operator: actor_id) -> bool;
-  query Name : () -> str;
-  query Symbol : () -> str;
-  query TotalSupply : () -> vec struct { u256, u256 };
-
-  events {
-    Minted: struct { to: actor_id, ids: vec u256, amounts: vec u256 };
-    Burned: struct { from: actor_id, ids: vec u256, amounts: vec u256 };
-    Approval: struct { from: actor_id, to: actor_id };
-    Transfer: struct { from: actor_id, to: actor_id, ids: vec u256, amounts: vec u256 };
-  }
-};
+program VmtProgram {
+    constructors {
+        New(name: String, symbol: String, decimals: u8);
+    }
+    services {
+        Vmt: Vmt;
+    }
+}
 ```
 
 <Callout type="note" title="Extended VMT Implementation">

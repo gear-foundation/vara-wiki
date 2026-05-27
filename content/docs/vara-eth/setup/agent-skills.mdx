@@ -1,0 +1,78 @@
+---
+title: Agent Skills
+description: Tool-agnostic playbooks that let AI coding agents author, deploy, and integrate Vara.eth programs end-to-end.
+---
+
+**Vara.eth Skills** is an open-source pack of agentic playbooks specialized for Vara.eth — contract authoring, deployment via `ethexe`, message-passing, frontend wiring, and Solidity integration through generated ABIs.
+
+The skills are tool-agnostic: any AI coding agent that can read files — Claude Code, Codex, Cursor, Copilot — can use them. Just clone the repo and point your agent at the skills directory.
+
+👉 **Repository:** [github.com/gear-foundation/vara-eth-skills](https://github.com/gear-foundation/vara-eth-skills)
+
+<Callout type="tip" title="Building for standard Vara Network instead?">
+  See [Vara Skills](/docs/vara-network/api/tooling/vara-skills) for the Sails-focused pack covering Vara mainnet and testnet.
+</Callout>
+
+## What's Inside
+
+The repo is organized into four layers:
+
+- **Skills** — agent-facing instructions that drive Vara.eth-specific workflows
+- **Playbooks** — step-by-step workflow documentation (ABI generation, `ethexe` CLI, injected transactions, etc.)
+- **References** — review checklists, source map into the `ethexe/` subtree of the [Gear repository](https://github.com/gear-tech/gear), troubleshooting notes
+- **Examples** — runnable, verifiable demos (vault, escrow, digit-recognition frontend)
+
+## Installation
+
+Clone the repository and point your agent at it:
+
+```bash
+git clone https://github.com/gear-foundation/vara-eth-skills
+```
+
+Then load the skills into your agent of choice. The skills are plain Markdown files — any agent that reads context files can use them.
+
+## Skill Catalog
+
+| Skill | Purpose |
+| --- | --- |
+| `vara-eth-contract-writer` | Author Rust Sails contracts for Vara.eth — `ethexe` feature, ABI-safe types, event patterns, executable balance model |
+| `vara-eth-app-builder` | Deploy and integrate around existing contracts — upload WASM, create Mirror, fund executable balance, send messages, read state |
+| `vara-eth-full-app-builder` | Build a complete user-facing dApp — contract + wallet + frontend |
+| `vara-eth-injected-app-builder` | Apps that use [injected transactions](/docs/vara-eth/reference/rpc-api#injected-transactions) for sub-second writes and RPC for state reads |
+| `vara-eth-mirror-adapter-frontend-builder` | Browser frontends that call Solidity adapters backed by Vara.eth |
+| `vara-eth-solidity-integrator` | Solidity contracts that talk to Vara.eth programs through generated ABI interfaces and async callbacks |
+
+## Requirements
+
+- **Rust** with `cargo` and the WASM target — see [Tools Install](/docs/vara-eth/setup/tools-install)
+- **Node.js / npm** for TypeScript examples and frontend builds
+- **Basic Ethereum tooling** familiarity for ABI workflows (only for the Solidity integration skill)
+
+## Verifying Examples
+
+Each example in the repo ships with a verification command. From the repo root:
+
+```bash
+# Rust contract examples
+cargo build --release
+cargo test --release
+
+# Vault TypeScript example
+cd examples/vault
+npm run check
+
+# Digit-recognition injected frontend
+cd examples/digit-recognition-injected-frontend
+npm run check
+npm run build
+
+# Escrow Solidity adapter
+cd examples/escrow
+cargo build --release
+cargo sails sol --idl-path target/wasm32-gear/release/order_escrow.idl
+```
+
+## Implementation Authority
+
+The primary implementation lives in the [`ethexe/`](https://github.com/gear-tech/gear/tree/master/ethexe) subtree of the main Gear repository. All skills and playbooks cite that source for CLI behavior, runtime mechanics, RPC methods, and deployment lifecycle details.

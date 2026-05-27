@@ -1,0 +1,108 @@
+---
+title: Vara Skills
+description: A public library of AI-ready skills that turn coding agents into Vara dApp builders — from spec to deployed program.
+---
+
+**Vara Skills** is an open-source pack of agentic playbooks that gives AI coding agents — Claude Code, Codex, Cursor, and any tool that supports the universal `skills` format — exact, documentation-backed workflows for every step of Gear/Vara Sails development.
+
+Each skill is a self-contained Markdown file the agent reads at runtime.
+
+👉 **Repository:** [github.com/gear-foundation/vara-skills](https://github.com/gear-foundation/vara-skills)
+
+<Callout type="tip" title="Building for Vara.eth instead?">
+  See [Agent Skills](/docs/vara-eth/setup/agent-skills) for the Vara.eth-focused pack covering `ethexe`, Mirror contracts, and Solidity integration.
+</Callout>
+
+## What You Get
+
+- **Documentation-backed workflows** — every skill cites the exact Sails / Gear APIs, real imports, and verified patterns
+- **Auto-routing** — describe what you want and the `ship-sails-app` router picks the right sequence of skills
+- **Tool-agnostic** — the same skill files work across Claude Code, Codex, and any agent that reads a `SKILL.md`
+- **Zero config** — install once, the agent discovers the skills automatically
+- **Open source** — MIT-licensed, community contributions welcome
+
+## Installation
+
+### Claude Code
+
+Install from the marketplace:
+
+```bash
+/plugin marketplace add https://github.com/gear-foundation/vara-skills
+/plugin install vara-skills@vara-skills
+```
+
+For local development (after cloning the repo):
+
+```bash
+/plugin marketplace add .
+/plugin install vara-skills@vara-skills
+```
+
+Use `/reload-plugins` after editing skill files locally.
+
+### Codex
+
+Clone the repo and run the install script:
+
+```bash
+git clone https://github.com/gear-foundation/vara-skills.git
+cd vara-skills
+bash scripts/install-codex-skills.sh
+```
+
+### Any Agent (Universal)
+
+```bash
+npx skills add gear-foundation/vara-skills
+```
+
+## Skill Catalog
+
+The pack is organized by phase. The router skill (`ship-sails-app`) chooses the right path for your task.
+
+### Planning
+
+| Skill | Purpose |
+| --- | --- |
+| `idea-to-spec` | Turn an idea into a structured specification |
+| `gear-architecture-planner` | High-level Gear program architecture |
+| `sails-architecture` | Service and state design in Sails |
+| `task-decomposer` | Break a spec into actionable tasks |
+
+### Build & Implementation
+
+| Skill | Purpose |
+| --- | --- |
+| `sails-dev-env` | Set up the Rust/Sails toolchain |
+| `sails-new-app` | Scaffold a new Sails program |
+| `sails-feature-workflow` | Add features to an existing program |
+| `sails-rust-implementer` | Write Sails services in Rust |
+| `sails-idl-client` | Generate typed clients from the IDL |
+| `sails-frontend` | Build a frontend wired to the program |
+| `sails-indexer` | Set up an indexer for on-chain events |
+| `awesome-sails-vft` | Work with VFT (fungible token) standard |
+| `sails-program-evolution` | Upgrade and evolve deployed programs |
+| `vara-wallet` | Wallet integration patterns |
+
+### Verification
+
+| Skill | Purpose |
+| --- | --- |
+| `sails-gtest` | Write unit/integration tests with `gtest` |
+| `gtest-tdd-loop` | Test-driven development workflow |
+| `sails-local-smoke` | Smoke-test against a local Gear node |
+| `gear-message-execution` | Trace and debug message flow |
+
+### Deep Capability & Maintenance
+
+| Skill | Purpose |
+| --- | --- |
+| `gear-gstd-api-map` | Map of low-level `gstd` APIs |
+| `vara-skills-upgrade` | Keep your local skills up to date |
+
+## Reference dApps
+
+Real dApps built end-to-end with Vara Skills live in a companion repository:
+
+👉 [github.com/gear-foundation/Agentic-development-dapps](https://github.com/gear-foundation/Agentic-development-dapps)

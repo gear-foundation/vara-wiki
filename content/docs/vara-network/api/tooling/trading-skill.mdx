@@ -1,0 +1,110 @@
+---
+title: Trading Skill
+description: An open-source agent skill pack and local CLI that lets AI agents trade VARA and other spot pairs on centralized exchanges — with onboarding, risk limits, and dry-run-first safety.
+---
+
+**Vara Trading Skill** is an open-source pack of agentic playbooks plus a local CLI (`vara-agent`) that turns any AI coding agent — Claude Code, Codex, Cursor — into a hands-on spot trader on centralized exchanges (CEX).
+
+You describe a trade in plain language — *"check the VARA/USDT order book on MEXC"* or *"place a limit buy for 2 USDT at 0.000605"* — and the agent runs the matching command locally on your machine. VARA is the default example, but every command works with any active spot pair the exchange supports.
+
+👉 **Repository:** [github.com/gear-foundation/vara-trading-skill](https://github.com/gear-foundation/vara-trading-skill)
+
+<Callout type="tip" title="Building dApps instead of trading?">
+  See [Vara Skills](/docs/vara-network/api/tooling/vara-skills) — the Sails-focused pack that turns agents into Vara dApp builders.
+</Callout>
+
+<Callout type="warn" title="Crypto trading is risky">
+  This skill places real orders against real exchanges. Start with dry-run mode or small amounts, and only trade funds you can afford to lose. It never gives investment advice — market data is evidence, not a signal to trade.
+</Callout>
+
+## What You Get
+
+- **Agent-driven trading** — describe a trade in natural language; the agent runs the matching command
+- **Three live exchanges** — MEXC, Gate.io, and Coinbase, via [CCXT](https://github.com/ccxt/ccxt)
+- **Dry-run first** — orders simulate by default; live execution needs explicit, per-trade confirmation
+- **Guided onboarding** — a wizard walks through exchange choice, keys, risk limits, validation, and a dry-run
+- **Keys stay local** — credentials live in `~/.vara-trading-agent/.env`; the agent never asks you to paste them into chat
+- **No backend, no daemon** — everything runs on your machine; there is no autonomous 24/7 loop
+
+## Supported Exchanges
+
+| Exchange | Trading | Read-only | Withdrawals |
+| --- | --- | --- | --- |
+| **MEXC** | ✅ | ✅ | ✅ (opt-in) |
+| **Gate.io** | ✅ | ✅ | ✅ (opt-in) |
+| **Coinbase** | ✅ | ✅ | — |
+
+On Coinbase use `VARA/USDC` or `VARA/USD` (no `VARA/USDT`); run `check-market` before adding any pair to your risk limits. Crypto.com, Exolix, Banxa, and DEX/on-chain flows are planned future integrations.
+
+## Installation
+
+```bash
+npm install -g vara-trading-skill
+npx skills add https://github.com/gear-foundation/vara-trading-skill/tree/master/skill-pack -g --all -y
+```
+
+The first command installs the `vara-agent` CLI; the second installs the skill pack so your agent can discover it. Restart your agent session if it doesn't pick up the skill right away.
+
+## Start With an Agent
+
+Once installed, just ask:
+
+```text
+Use vara-trading-skill and set up local trading.
+```
+
+The agent runs `vara-agent init-config` and `vara-agent onboarding interactive`, then guides you through setup. `init-config` creates `~/.vara-trading-agent/.env` — but the agent will **never** ask you to paste API keys into chat. When credentials are needed, you edit that file locally.
+
+## The Onboarding Wizard
+
+Live trading unlocks only after the wizard is complete. It flows through: a risk warning → choosing an exchange → exchange-specific key setup → saving credentials locally → setting risk limits (max trade size, allowed assets, allowed pairs, max slippage) → validation against your account → a dry-run → final confirmation.
+
+Allowed pairs must be listed explicitly — the agent refuses any live order for a pair outside that list.
+
+## API Key Safety
+
+Create a **dedicated** API key per exchange and grant only **read + trade** permissions — never withdrawal or transfer. Keys go into `~/.vara-trading-agent/.env`, which is owner-only and never shared in chat. A secret is often shown once by the exchange, so copy it carefully. Enable IP whitelisting where available, and consider a separate subaccount funded with only what you're willing to trade.
+
+## Command Reference
+
+The skill maps your request to a `vara-agent` command. Market and account commands are read-only — they never place orders:
+
+| Command | Purpose |
+| --- | --- |
+| `routes` | Discover routes for an asset/quote pair |
+| `check-market` | Verify a market; inspect limits and precision |
+| `ticker` / `orderbook` | Current price data / order book depth |
+| `balance` | Non-zero account balances |
+| `open-orders` / `orders` | Active orders / order history |
+| `watch --orders` | Read-only polling for fills and status changes (no daemon) |
+
+Trading commands place or cancel real orders:
+
+| Command | Purpose |
+| --- | --- |
+| `buy` / `sell` | Market spot orders |
+| `limit-buy` / `limit-sell` | Limit spot orders |
+| `cancel-order` | Cancel an order by id (requires `--confirm`) |
+
+Every order command defaults to `--mode dry-run` (simulated). Live execution requires `--mode live`, completed onboarding, and an allowlisted pair.
+
+## Safety Model
+
+- Credentials stay local in `~/.vara-trading-agent/.env`; the agent never asks for or displays them
+- Trading keys carry **read + trade** permissions only
+- Dry-run is the default; live orders need explicit per-trade instruction — the agent never infers a trade from discussion
+- Live orders are limited to the assets and pairs set during onboarding
+- Canceling requires the exact order id plus `--confirm`
+- No autonomous monitoring, conditional orders, or arbitrage — the skill does only what you ask, when you ask
+
+## Withdrawals
+
+API withdrawals are an explicit, high-risk capability, **off by default** and supported on MEXC and Gate.io only. Enabling them requires dedicated withdrawal keys (separate from trading keys), asset/network/address allowlists, per-asset limits, and explicit confirmation flags on every withdrawal.
+
+<Callout type="warn" title="Withdrawals are irreversible">
+  Once accepted by the exchange, a withdrawal can't be undone. Use address allowlists and a small test withdrawal first.
+</Callout>
+
+## Release Scope
+
+The current release covers MEXC, Gate.io, and Coinbase trading, local onboarding, read-only market and account checks, order placement and management, order watching, and explicitly confirmed withdrawals on supported providers. Crypto.com, Exolix swaps, Banxa, DEX trading, autonomous monitoring, conditional orders, and arbitrage remain on the roadmap.

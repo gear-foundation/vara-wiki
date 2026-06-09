@@ -1,0 +1,43 @@
+name: Build and Deploy Vara Wiki
+
+on:
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - '.github/**'
+      - '**.md'
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      env:
+        type: choice
+        description: Target environment
+        required: false
+        options:
+          - dev
+          - stg
+          - prod
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  packages: write
+  actions: write
+  id-token: write
+
+jobs:
+  deploy:
+    uses: gear-ops/actions/.github/workflows/build-deploy.yaml@main
+    with:
+      argocd_server: ${{ vars.ARGOCD_SERVER }}
+      vault_server: ${{ vars.VAULT_SERVER }}
+      app: vara-wiki
+      env: ${{ inputs.env }}
+      dockerfile: Dockerfile
+      context: .
+    secrets:
+      WORKLOADS_REPO_TOKEN: ${{ secrets.WORKLOADS_REPO_TOKEN }}
+      ARGOCD_TOKEN:         ${{ secrets.ARGOCD_TOKEN }}

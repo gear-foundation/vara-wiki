@@ -7,7 +7,6 @@ export const EXTERNAL_LINKS = {
     banxa: "https://gear.banxa.com/?coinType=VARA",
     gateio: "https://www.gate.io/trade/VARA_USDT",
     cryptoCom: "https://crypto.com/price/vara-network",
-    mexc: "https://www.mexc.com/price/VARA",
     bitmart: "https://www.bitmart.com/trade/?type=spot&symbol=VARA_USDT",
   },
   idea: "https://idea.gear-tech.io",

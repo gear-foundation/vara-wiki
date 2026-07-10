@@ -5,7 +5,7 @@ description: An open-source agent skill pack and local CLI that lets AI agents t
 
 **Vara Trading Skill** is an open-source pack of agentic playbooks plus a local CLI (`vara-agent`) that turns any AI coding agent — Claude Code, Codex, Cursor — into a hands-on spot trader on centralized exchanges (CEX).
 
-You describe a trade in plain language — *"check the VARA/USDT order book on MEXC"* or *"place a limit buy for 2 USDT at 0.000605"* — and the agent runs the matching command locally on your machine. VARA is the default example, but every command works with any active spot pair the exchange supports.
+You describe a trade in plain language — *"check the VARA/USDT order book on Gate.io"* or *"place a limit buy for 2 USDT at 0.000605"* — and the agent runs the matching command locally on your machine. VARA is the default example, but every command works with any active spot pair the exchange supports.
 
 👉 **Repository:** [github.com/gear-foundation/vara-trading-skill](https://github.com/gear-foundation/vara-trading-skill)
 
@@ -20,7 +20,7 @@ You describe a trade in plain language — *"check the VARA/USDT order book on M
 ## What You Get
 
 - **Agent-driven trading** — describe a trade in natural language; the agent runs the matching command
-- **Three live exchanges** — MEXC, Gate.io, and Coinbase, via [CCXT](https://github.com/ccxt/ccxt)
+- **Two live exchanges** — Gate.io and Coinbase, via [CCXT](https://github.com/ccxt/ccxt)
 - **Dry-run first** — orders simulate by default; live execution needs explicit, per-trade confirmation
 - **Guided onboarding** — a wizard walks through exchange choice, keys, risk limits, validation, and a dry-run
 - **Keys stay local** — credentials live in `~/.vara-trading-agent/.env`; the agent never asks you to paste them into chat
@@ -30,7 +30,6 @@ You describe a trade in plain language — *"check the VARA/USDT order book on M
 
 | Exchange | Trading | Read-only | Withdrawals |
 | --- | --- | --- | --- |
-| **MEXC** | ✅ | ✅ | ✅ (opt-in) |
 | **Gate.io** | ✅ | ✅ | ✅ (opt-in) |
 | **Coinbase** | ✅ | ✅ | — |
 
@@ -99,7 +98,7 @@ Every order command defaults to `--mode dry-run` (simulated). Live execution req
 
 ## Withdrawals
 
-API withdrawals are an explicit, high-risk capability, **off by default** and supported on MEXC and Gate.io only. Enabling them requires dedicated withdrawal keys (separate from trading keys), asset/network/address allowlists, per-asset limits, and explicit confirmation flags on every withdrawal.
+API withdrawals are an explicit, high-risk capability, **off by default** and supported on Gate.io only. Enabling them requires dedicated withdrawal keys (separate from trading keys), asset/network/address allowlists, per-asset limits, and explicit confirmation flags on every withdrawal.
 
 <Callout type="warn" title="Withdrawals are irreversible">
   Once accepted by the exchange, a withdrawal can't be undone. Use address allowlists and a small test withdrawal first.
@@ -107,4 +106,4 @@ API withdrawals are an explicit, high-risk capability, **off by default** and su
 
 ## Release Scope
 
-The current release covers MEXC, Gate.io, and Coinbase trading, local onboarding, read-only market and account checks, order placement and management, order watching, and explicitly confirmed withdrawals on supported providers. Crypto.com, Exolix swaps, Banxa, DEX trading, autonomous monitoring, conditional orders, and arbitrage remain on the roadmap.
+The current release covers Gate.io and Coinbase trading, local onboarding, read-only market and account checks, order placement and management, order watching, and explicitly confirmed withdrawals on supported providers. Crypto.com, Exolix swaps, Banxa, DEX trading, autonomous monitoring, conditional orders, and arbitrage remain on the roadmap.

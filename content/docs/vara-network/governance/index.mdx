@@ -14,8 +14,8 @@ The goal is to ensure that the Vara Community is represented, led and engaged in
 - **Proposal** - an action or item proposed by a token holder, which is open for voting and discussion by all token holders. This is tied to a specific change to the Vara network, including values for key parameters, code upgrades, or changes to the governance system itself.
 - **Referendum** (plural: referenda) -  a proposal that has met the proposal criteria and entered from the Lead-In period to the Deciding Period. It remains open for token-holder voting for the defined time, before being checked against referendum criteria and entering the Enactment period if successful.
 - **Origin** - a set of permissions that define the source for an operation, which is used to determine the Track that a referendum is posted under.
-- **Track** - an Origin-specific pipeline that outlines the life cycle of proposals. Currently, there are several Tracks available, including Root, Whitelisted, General Admin, Emergency Canceller, and Emergency Killer.
-- **Fellowship** - a group of community members who have special voting rights within Vara and can add certain proposals to the Whitelisted Track.
+- **Track** - an Origin-specific pipeline that outlines the life cycle of proposals. Vara currently has 15 Tracks: Root, Whitelisted Caller, Staking Admin, Treasurer, Fellowship Admin, General Admin, Referendum Canceller, Referendum Killer, Small Tipper, Big Tipper, Small Spender, Medium Spender, Big Spender, Bridge Admin, and Bridge Pauser.
+- **Fellowship** - a group of community members who have special voting rights within Vara and can add certain proposals to the Whitelisted Caller Track.
 - **Approval** - the minimum "Aye" votes as a percentage of overall Conviction-weighted votes needed for an approval.
 - **Support** - the minimum number of "Aye" votes, not taking into consideration Conviction-weighted votes, needed as a percent of the total supply needed for an approval.
 - **Lead-in Period** - the initial proposal voting and discussion period. At this stage, proposals are in an undecided state until they pass some criteria for the given Track, including the Track having capacity, a minimum Prepare Period having passed, and a decision deposit having been paid.
@@ -42,7 +42,7 @@ Vara’s network members can start a referendum at any time. Referenda can be st
 
 An Origin can be thought of as a rich descriptor for a given privilege level. The proposer of the referenda now selects an appropriate Origin for their request based on the proposal's requirements. Each Origin is associated with a single referendum class, and each type is related to a Track.
 
-The Track outlines the lifecycle of the proposal. It is independent of other proposal tracks, which allows the network to tailor the dynamics of referenda based on their implied privilege level. In the example, a runtime upgrade (set_code call) has different implications for the ecosystem than an approval of a treasury tip (reportAwesome call). Therefore different origins need to be established with separate predetermined turnouts, approvals, deposits, and minimum enactment periods.
+The Track outlines the lifecycle of the proposal. It is independent of other proposal tracks, which allows the network to tailor the dynamics of referenda based on their implied privilege level. In the example, a runtime upgrade (set_code call) has different implications for the ecosystem than a small treasury tip (a Small Tipper spend). Therefore different origins need to be established with separate predetermined turnouts, approvals, deposits, and minimum enactment periods.
 
 ### Proposing a Referendum
 
@@ -50,23 +50,57 @@ Vara aims to keep barriers to entry low and allows anyone to start a referendum 
 
 In Gov2, the proposer is given the option to designate the specific Origin for their proposal's execution. Each Origin is linked to a distinct type of referendum class, with some classes having a single corresponding origin, while others consist of multiple Origins. Each class has its own Track, which serves as a pipeline for the proposal to progress through and is entirely separate from the tracks of other classes.
 
-|     Origin Track	    |                                    Description                                   |                               Examples                               |
-|:-------------------:|:--------------------------------------------------------------------------------:|:--------------------------------------------------------------------:|
-| Root                | Highest privilege                                                                | Runtime upgrades, Technical Committee management                     |
-| Whitelisted         | Proposals to be whitelisted by the Technical Committee before getting dispatched | Fast-tracked operations                                              |
-| General Admin	       | For general on-chain decisions                                                   | Changes to XCM fees, Orbiter program, Staking parameters, Registrars |
-| Emergency Canceller | For cancellation of a referendum. Decision Deposit is refunded                   | Wrongly constructed referendum                                       |
-| Emergency Killer    | For killing of bad/malicious referendum. Decision Deposit is slashed             | Malicious referendum                                                 |
+|  ID |     Origin Track     |                                  Description                                  |                            Examples                            |
+|:---:|:--------------------:|:-----------------------------------------------------------------------------:|:---------------------------------------------------------------:|
+|  0  | Root                 | Highest privilege                                                             | Forced runtime changes, changing the ideal validator count      |
+|  1  | Whitelisted Caller   | Root-level operations whitelisted by the Fellowship for a faster turnaround   | Runtime upgrades, adding validator slots, token burns           |
+|  10 | Staking Admin        | Staking-related interventions                                                 | Cancelling pending slashes                                      |
+|  11 | Treasurer            | Treasury management; spends of up to 50,000,000 VARA                          | Large treasury spends, rejecting treasury proposals             |
+|  12 | Fellowship Admin     | Managing the Fellowship                                                       | Inducting, promoting or demoting Fellowship members             |
+|  13 | General Admin        | For general on-chain decisions                                                | Managing identity registrars                                    |
+|  20 | Referendum Canceller | For cancellation of a referendum. Decision Deposit is refunded                | Wrongly constructed referendum                                  |
+|  21 | Referendum Killer    | For killing of bad/malicious referendum. Decision Deposit is slashed          | Malicious referendum                                            |
+|  30 | Small Tipper         | Treasury tips of up to 1,000 VARA                                             | Small community rewards                                         |
+|  31 | Big Tipper           | Treasury tips of up to 5,000 VARA                                             | Larger community rewards                                        |
+|  32 | Small Spender        | Treasury spends of up to 50,000 VARA                                          | Funding small community initiatives                             |
+|  33 | Medium Spender       | Treasury spends of up to 500,000 VARA                                         | Funding medium-sized community initiatives                      |
+|  34 | Big Spender          | Treasury spends of up to 5,000,000 VARA                                       | Funding large ecosystem programs                                |
+|  40 | Bridge Admin         | Administering the Vara ↔ Ethereum bridge                                      | Bridge governance operations                                    |
+|  41 | Bridge Pauser        | Emergency-pausing the Vara ↔ Ethereum bridge                                  | Halting the bridge in an emergency                              |
 
-The existence of distinct tracks enables proposers to customize the characteristics of their referenda according to their associated privilege levels. Referenda executed from more influential Origins will be subject to stricter safety measures, higher voting thresholds, and longer periods of consideration. The Root Origin is subject to the most stringent safeguards and highest thresholds. Origins that confer relatively limited power, such as the Tip Origin, which has the ability to spend a small amount of VARA tokens from the treasury, will have correspondingly shorter consideration periods and lower approval thresholds.
+The existence of distinct tracks enables proposers to customize the characteristics of their referenda according to their associated privilege levels. Referenda executed from more influential Origins will be subject to stricter safety measures, higher voting thresholds, and longer periods of consideration. The Root Origin is subject to the most stringent safeguards and highest thresholds. Origins that confer relatively limited power, such as the Small Tipper Origin, which only has the ability to spend up to 1,000 VARA from the treasury, will have correspondingly shorter consideration periods and lower approval thresholds.
 
 Upon creation, a referendum becomes immediately votable by any member of the community. However, it does not enter a state in which it can be concluded, have its votes tallied, approved, and subsequently enacted. Before transitioning into the Deciding period, referenda must satisfy certain requirements. Until these conditions are met, they remain unresolved. There are three primary conditions that must be fulfilled. 
 
 Firstly, all referenda have a lead-in period, which is a predetermined duration that must elapse following the proposal before the deciding period can commence. This period serves as an initial notice period, during which votes can be cast, thus mitigating the possibility of "decision sniping." Such sniping could occur if an attacker with a significant proportion of voting power attempted to pass a proposal soon after its submission, thereby not allowing the broader voting population sufficient time to consider and vote.
 
-The second requirement is the availability of space for the referendum within its track, as each track has a maximum limit on the number of referenda that can be in the Deciding period simultaneously. The number of proposals allowed on a track is dependent on the privileges of the associated Origin, with more influential Origins resulting in a lower limit. For instance, the Root-level Origin has a limit of one, indicating that only a single high-risk proposal can be in the Deciding state at any given time. On the other hand, the relatively weak Tipping track has less stringent limits since overpopulation of referenda is less of a threat, and it generally makes more sense to have more tips being decided over at any given time. When there is available space, the eligible referendum with the most votes in favor of approval from its class is elevated to the Deciding state.
+The second requirement is the availability of space for the referendum within its track, as each track has a maximum limit on the number of referenda that can be in the Deciding period simultaneously. The number of proposals allowed on a track is dependent on the privileges of the associated Origin, with more influential Origins resulting in a lower limit. For instance, the Root-level Origin has a limit of one, indicating that only a single high-risk proposal can be in the Deciding state at any given time. On the other hand, the relatively weak tipper tracks (Small Tipper and Big Tipper) have less stringent limits since overpopulation of referenda is less of a threat, and it generally makes more sense to have more tips being decided over at any given time. When there is available space, the eligible referendum with the most votes in favor of approval from its class is elevated to the Deciding state.
 
 The final requirement is the payment of a Decision Deposit, which serves to discourage frivolous proposals and prevent spamming or bloating of the system. Although the cost of creating a referendum is low and only covers the on-chain storage required to track it, having a referendum in the Deciding state poses greater risks and consumes limited system resources. To mitigate these risks and reserve space for more serious proposals, a larger deposit must be paid. By requiring a deposit, Vara aims to ensure that proposers carefully consider the potential impact of their proposals and contribute to a healthy decision-making environment.
+
+### Track Parameters
+
+Each Track defines its own capacity (the maximum number of referenda that can be in the Deciding Period at once), Decision Deposit, and set of periods. The values below are read directly from the Vara runtime (`api.consts.referenda.tracks`); the current values for each Track can always be inspected on [Subsquare](https://vara.subsquare.io/referenda).
+
+|  ID |         Track        | Capacity | Decision Deposit (VARA) | Prepare Period | Decision Period | Confirm Period | Min Enactment Period |
+|:---:|:--------------------:|:--------:|:-----------------------:|:--------------:|:---------------:|:--------------:|:--------------------:|
+|  0  | Root                 |     1    |        15,000,000       |     2 hours    |     14 days     |      1 day     |         1 day        |
+|  1  | Whitelisted Caller   |    100   |        1,500,000        |   30 minutes   |     14 days     |   10 minutes   |      10 minutes      |
+|  10 | Staking Admin        |    10    |         750,000         |     2 hours    |     14 days     |     3 hours    |      10 minutes      |
+|  11 | Treasurer            |    10    |         150,000         |     2 hours    |     14 days     |     3 hours    |         1 day        |
+|  12 | Fellowship Admin     |    10    |         750,000         |     2 hours    |     14 days     |     3 hours    |      10 minutes      |
+|  13 | General Admin        |    10    |         750,000         |     2 hours    |     14 days     |     3 hours    |      10 minutes      |
+|  20 | Referendum Canceller |   1,000  |        1,500,000        |     2 hours    |      7 days     |     3 hours    |      10 minutes      |
+|  21 | Referendum Killer    |   1,000  |        7,500,000        |     2 hours    |     14 days     |     3 hours    |      10 minutes      |
+|  30 | Small Tipper         |    200   |           150           |    1 minute    |      7 days     |   10 minutes   |       1 minute       |
+|  31 | Big Tipper           |    100   |          1,500          |   10 minutes   |      7 days     |     1 hour     |      10 minutes      |
+|  32 | Small Spender        |    50    |          15,000         |     4 hours    |     14 days     |    12 hours    |         1 day        |
+|  33 | Medium Spender       |    50    |          30,000         |     4 hours    |     14 days     |      1 day     |         1 day        |
+|  34 | Big Spender          |    50    |          60,000         |     4 hours    |     14 days     |     2 days     |         1 day        |
+|  40 | Bridge Admin         |     3    |        15,000,000       |     4 hours    |     14 days     |     6 hours    |        1 hour        |
+|  41 | Bridge Pauser        |     5    |        3,750,000        |    3 minutes   |     12 hours    |     1 block    |        1 block       |
+
+In addition, submitting any referendum requires a flat Submission Deposit of 1,500 VARA, and a referendum that never satisfies the conditions to enter the Deciding Period times out after 14 days.
 
 ### Voting and Voluntary Locking
 
@@ -83,8 +117,8 @@ The conviction multiplier increases the vote by one every time the number of loc
 |       2      |        2        |       14       |
 |       4      |        3        |       28       |
 |       8      |        4        |       56       |
-|      16      |        5        |       108      |
-|      32      |        6        |       216      |
+|      16      |        5        |       112      |
+|      32      |        6        |       224      |
 
 The maximum number of "doublings" of the lock period is set to 6 (and thus 32 lock periods in total), and one lock period equals 7 days. Only doublings are allowed. You cannot lock for 24 periods and increase your conviction by 5.5.
 
@@ -106,17 +140,17 @@ When a proposal has been submitted, it will have a predetermined **Lead-In Perio
 
 _The Proposal/Referendum Process within The Vara Network_
 
-Once a proposal reaches the **Deciding Period**, it has the potential to be approved. However, this eligibility only lasts for 28 days, after which it will be rejected by default. To pass, a referendum must meet two criteria related to _approval_ and _support_ and must continue to meet these criteria for a specific Confirmation Period. Different referendum classes have varying Confirmation Period lengths, with more influential classes requiring a longer Confirmation Period. This serves as an additional safeguard against whale voters attempting to manipulate the voting process by placing a large enough vote to meet approval criteria unexpectedly.
+Once a proposal reaches the **Deciding Period**, it has the potential to be approved. However, this eligibility only lasts for the duration of the Track's Decision Period — 14 days for most Vara Tracks (see [Track Parameters](#track-parameters)) — after which it will be rejected by default. To pass, a referendum must meet two criteria related to _approval_ and _support_ and must continue to meet these criteria for a specific Confirmation Period. Different referendum classes have varying Confirmation Period lengths, with more influential classes requiring a longer Confirmation Period. This serves as an additional safeguard against whale voters attempting to manipulate the voting process by placing a large enough vote to meet approval criteria unexpectedly.
 
-_Approval_ is defined as the share of approval vote-weight (i.e. after adjustment for conviction) against the total number of vote-weight (for both approval and rejection). Support is gauged by the overall count of approval votes (without adjusting for conviction) in relation to the maximum potential votes allowed in the system. Various referendum classes impose distinct criteria for these metrics, and these criteria may diminish periodically based on a predetermined timetable. Consequently, as the voting unfolds during the 28 days, the thresholds for both support and approval necessary for a proposal to succeed can gradually decrease. However, the thresholds will always start and end at similar levels, with at least 50% approval required.
+_Approval_ is defined as the share of approval vote-weight (i.e. after adjustment for conviction) against the total number of vote-weight (for both approval and rejection). Support is gauged by the overall count of approval votes (without adjusting for conviction) in relation to the maximum potential votes allowed in the system. Various referendum classes impose distinct criteria for these metrics, and these criteria may diminish periodically based on a predetermined timetable. Consequently, as the voting unfolds during the Deciding Period, the thresholds for both support and approval necessary for a proposal to succeed can gradually decrease. However, the thresholds will always start and end at similar levels, with at least 50% approval required.
 
-If a proposal fails to get approved within 28 days, it is automatically rejected, and the Decision Deposit can be refunded. However, if the proposal successfully meets the passing criteria and continues to do so for the Confirmation Period, it is approved and enters the **Enactment Period**, where it is scheduled to execute from its proposed origin after an Enactment Delay.
+If a proposal fails to get approved within its Track's Decision Period, it is automatically rejected, and the Decision Deposit can be refunded. However, if the proposal successfully meets the passing criteria and continues to do so for the Confirmation Period, it is approved and enters the **Enactment Period**, where it is scheduled to execute from its proposed origin after an Enactment Delay.
 
 The Enactment Delay, which is specified during proposal, has a minimum value based on the track. More powerful tracks require a longer Enactment Delay to give the network enough time to prepare for any potential changes introduced by the proposal.
 
-In addition, there is a unique operation called **Cancelation** for intervening with a proposal already being voted on. The process will immediately reject an ongoing referendum regardless of its status. There is also a provision to ensure the deposit of the proposer is slashed if the proposal is malicious or spam.
+In addition, there is a unique operation called **Cancelation** for intervening with a proposal already being voted on. The process will immediately reject an ongoing referendum regardless of its status. There is also a provision to ensure the deposit of the proposer is slashed if the proposal is malicious or spam — this is handled by the separate Referendum Killer Track.
 
-Cancellation is a governance operation that must be voted upon by the network to be executed. The cancellation comes with its Origin and Track, which has a low lead-time and Approval/Support curves with slightly sharper reductions in their thresholds for passing, given that it is invoked with a sense of urgency. 
+Cancellation is a governance operation that must be voted upon by the network to be executed. The cancellation comes with its own Origin and Track (Referendum Canceller), which has a low lead-time and Approval/Support curves with slightly sharper reductions in their thresholds for passing, given that it is invoked with a sense of urgency. 
 
 ## Vara Fellowship
 
@@ -124,9 +158,9 @@ Root-Origin proposals are necessary for system upgrades, fixes, and rescues, but
 
 However, there are times when it is crucial to implement a fix, upgrade, or rescue logic quickly. While there may be widespread agreement on the need for such action, the voting process's safeguards can make executing these changes challenging or impractical due to time constraints alone. In such cases, it can be helpful to oraclize expert opinions to make informed decisions and establish a clear, well-considered action plan on a tight timeline. Gov2 has a governing body called the "Fellowship" to oversee this process.
 
-The Fellowship is a self-governing body with the primary goal of protecting the interests of the Vara community and network participants. A rank is associated with each member so that an organization can determine how well-informed it expects its opinions to be about technical matters and whether those opinions are grounded in sound reasoning and in line with Vara's interests.
+The Fellowship is a self-governing body with the primary goal of protecting the interests of the Vara community and network participants. A rank is associated with each member so that an organization can determine how well-informed it expects its opinions to be about technical matters and whether those opinions are grounded in sound reasoning and in line with Vara's interests. On Vara, ranks range from 0 (Candidates) to 9 (Grand Masters).
 
-The Fellowship is designed to have a broad membership with low barriers to entry. Becoming a candidate member of the Fellowship is as easy as placing a small deposit.
+The Fellowship is designed to have a broad membership with low barriers to entry. Candidate members are inducted by the existing membership, or through a public referendum on the Fellowship Admin Track.
 
 Members of the Fellowship can vote on any given proposal, and the Fellowship considers their collective opinion weighted by their rank.
 
@@ -148,10 +182,10 @@ Demotion happens automatically after a period in which a member cannot defend th
 
 The Whitelist pallet has a singular purpose: to allow one Origin to escalate the privilege level of another Origin for a particular operation.
 
-The Fellowship authorizes an origin known as Whitelisted-Root to be executed with Root-level privileges and will only work with specific specified commands that the Fellowship has assigned. The Whitelist pallet verifies two things:
-1. The origin is the Whitelisted-Root, i.e. that the referendum passed on this track
+The Fellowship (through its members of rank III — Fellows — and above) authorizes an origin known as Whitelisted Caller to be executed with Root-level privileges and will only work with specific specified commands that the Fellowship has assigned. The Whitelist pallet verifies two things:
+1. The origin is the Whitelisted Caller, i.e. that the referendum passed on this track
 2. The Fellowship has indeed whitelisted the proposal.
 
-Only if both conditions are satisfied the operation executes with Root-level privileges. This system enables the ability to have a new parallel Track (Whitelisted-Root Origin), whose parameters allow for a shorter voting turnaround.
+Only if both conditions are satisfied the operation executes with Root-level privileges. This system enables the ability to have a new parallel Track (Whitelisted Caller Origin), whose parameters allow for a shorter voting turnaround.
 
-In addition, a proposal may be blacklisted by Root origin. The blacklisted proposal and the associated referendum are immediately canceled. Also, the hash of this offer cannot reappear in the offer queue. The blacklist is useful in removing erroneous offers that may have been submitted with the same hash.
+In addition, an actively harmful proposal may be killed through the Referendum Killer Track. The referendum is immediately terminated regardless of its status and, unlike a cancellation, its Decision Deposit is slashed. This is useful for stopping malicious or spam proposals that have already entered the pipeline.

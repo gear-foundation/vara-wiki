@@ -5,10 +5,14 @@ description: Run Vara.eth locally for development and debugging.
 
 # Local Node
 
-For advanced development and debugging, you can run a local Vara.eth node in two modes:
+Anyone can run their own Vara.eth node and experiment. There are two modes:
 
-1. **Node-only mode (recommended default)** — connect your local node to an existing Ethereum Router (for example, Hoodi). No local Router deployment required.
-2. **Full local stack** — run local Ethereum + deploy Router yourself + connect node to it.
+1. **Node-only mode** — connect your local node to an existing Ethereum Router (for example, Hoodi). Requires a working Ethereum RPC endpoint.
+2. **Full local stack (recommended)** — run local Ethereum + deploy Router yourself + connect node to it. Fully self-contained.
+
+<Callout type="note" title="Network Availability">
+  Public Vara.eth RPC endpoints (including the gear-tech.io Hoodi ones shown below) are currently offline between campaign phases. The full local stack works regardless — it depends on nothing external.
+</Callout>
 
 ## Prerequisites
 
@@ -25,9 +29,9 @@ ethexe run \
   --rpc-port 9944
 ```
 
-<Callout type="tip" title="Best Default for Docs Readers">
-  Most developers do not need to deploy Router locally. Node-only mode is enough to inspect behavior, test RPC flows,
-  and run integration checks against an existing network Router.
+<Callout type="tip" title="When to Use Node-Only">
+  Node-only mode is enough to inspect behavior, test RPC flows, and run integration checks against an existing network
+  Router — provided you have a working Ethereum RPC for that network.
 </Callout>
 
 ## Mode 2: Full Local Stack (Deploy Router Yourself)

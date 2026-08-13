@@ -7,6 +7,10 @@ description: Connect your Ethereum wallet to Vara.eth testnet and get test token
 
 Vara.eth uses standard Ethereum wallets. If you have MetaMask, you're ready to go.
 
+<Callout type="note" title="Network Availability">
+  Public TestNet access is currently paused — the Vara.eth faucet and public RPC endpoints are offline between campaign phases. To experiment today, run a [full local stack](/docs/vara-eth/setup/local-node), which deploys its own Router and WVARA contracts.
+</Callout>
+
 ## Add Hoodi Network
 
 The fastest way is to visit [Chainlist](https://chainlist.org/chain/560048) and click "Add to MetaMask."
@@ -21,7 +25,7 @@ The fastest way is to visit [Chainlist](https://chainlist.org/chain/560048) and 
 
 You need test ETH on Hoodi to pay for L1 transaction fees (sending messages to Mirror contracts, creating programs).
 
-Visit [eth.vara.network/faucet](https://eth.vara.network/faucet) and request test ETH. Tokens arrive within a few minutes.
+You can get Hoodi ETH from any public Ethereum Hoodi faucet. The Vara.eth faucet is currently offline.
 
 <Callout type="note" title="Why ETH?">
   Even though Vara.eth uses the [reverse gas model](/docs/vara-eth/economics/reverse-gas-model) (programs pay for
@@ -32,7 +36,7 @@ Visit [eth.vara.network/faucet](https://eth.vara.network/faucet) and request tes
 
 wVARA funds your program's [Executable Balance](/docs/vara-eth/interact/funding-executable-balance). Without wVARA, your program cannot execute messages.
 
-Visit [eth.vara.network/faucet](https://eth.vara.network/faucet) to request test wVARA.
+Testnet wVARA was distributed by the Vara.eth faucet, which is currently offline. On a [full local stack](/docs/vara-eth/setup/local-node), the WVARA contract is deployed together with your Router and you control the supply.
 
 Once you have wVARA, fund your program via:
 

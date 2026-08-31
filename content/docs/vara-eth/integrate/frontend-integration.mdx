@@ -5,6 +5,10 @@ description: Connect web frontends to Vara.eth programs using TypeScript and Jav
 
 # Frontend Integration
 
+<Callout type="note" title="Endpoint Availability">
+  The `gear-tech.io` and `vara.network` URLs in the examples below were operated by Gear for the launch campaigns and are no longer served. Swap the Ethereum RPC for any Hoodi or Mainnet provider, and the Vara.eth RPC for [your own node](/docs/vara-eth/setup/local-node) — see [Network Endpoints](/docs/vara-eth/reference/network-endpoints). The code itself is unchanged.
+</Callout>
+
 Vara.eth programs are designed to feel like standard Ethereum smart contracts from a frontend perspective. You connect a wallet, call methods, listen to events — all through familiar tools. The key difference is under the hood: your calls go to a Mirror contract on L1, which routes them to off-chain WASM execution with instant pre-confirmed results.
 
 ## SDK Overview

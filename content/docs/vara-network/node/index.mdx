@@ -194,10 +194,10 @@ make node-release
 ## Run Vara Node
 
 <Callout type="info" title="Starting the Node">
-    Regardless of how you obtained the binary, navigate to its directory and run the node to connect to the **Vara Testnet**:
+    Regardless of how you obtained the binary, navigate to its directory and run the node to connect to **Vara Mainnet**:
 
     ```bash
-    ./gear
+    ./gear --chain=vara
     ```
 </Callout>
 
@@ -213,13 +213,9 @@ To run the Vara node in dev mode:
 gear [subcommand] [options]
 ```
 
-- `--chain=testnet`
-
-  Connect the node to the test network (default option).
-
 - `--chain=vara`
 
-  Connect the node to the Vara network.
+  Connect the node to Vara Mainnet.
 
 - `--dev`
 
@@ -227,7 +223,7 @@ gear [subcommand] [options]
 
 - `purge-chain`
 
-  Remove storage of the selected chain type. Specify the chain connection type `--chain=testnet`, `--chain=vara`, or `--dev`.
+  Remove storage of the selected chain type. Specify the chain connection type `--chain=vara` or `--dev`.
 
 - `help`, `--help`
 

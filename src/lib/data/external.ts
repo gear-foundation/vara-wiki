@@ -21,7 +21,6 @@ export const EXTERNAL_LINKS = {
   validatorsDashboard: "https://validators.vara.network",
   varaEducationJoinForm: "",
   varaBridge: "https://bridge.vara.network",
-  varaBridgeTestnet: "https://testnet-bridge.vara.network/",
   aiCodegen: "https://stg-ai-codegen.vara.network",
   varaStart: "https://stg-start.vara.network",
   varaETH: "https://stg-eth.vara.network",

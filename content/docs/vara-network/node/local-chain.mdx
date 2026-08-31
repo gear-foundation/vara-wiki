@@ -5,13 +5,13 @@ custom_title: Building and Running a Local Vara Chain for Development and Testin
 
 If you're experimenting with runtime logic, benchmarking smart contracts, or just exploring how blockchain consensus actually works under the hood, running a local Vara chain is one of the best ways to do it.
 
-While Vara offers ready-to-use public networks like testnet and mainnet, local environments give you more control. You can modify chain parameters, test custom runtimes, or simulate multi-validator behavior without relying on any external infrastructure.
+While Vara offers a ready-to-use public mainnet, local environments give you more control. You can modify chain parameters, test custom runtimes, or simulate multi-validator behavior without relying on any external infrastructure.
 
 In this guide, you'll learn how to set up and operate a full Vara blockchain network locally, from compiling the runtime to launching validators and connecting through Polkadot.js.
 
 ## Overview
 
-This guide walks you through building and running a local Vara blockchain network for development and testing purposes. While Vara provides testnet and mainnet environments, local development offers complete control over chain parameters, consensus mechanisms, and runtime modifications.
+This guide walks you through building and running a local Vara blockchain network for development and testing purposes. While Vara Mainnet is open to everyone, local development offers complete control over chain parameters, consensus mechanisms, and runtime modifications.
 
 ### When to Use This Approach
 
@@ -648,7 +648,7 @@ podman logs validator-0 > validator-0.log
 
 - **Unsafe RPC Methods**: The `--rpc-methods=unsafe` flag enables dangerous RPC calls. Never use this in production.
 - **CORS Settings**: `--rpc-cors all` allows cross-origin requests from any domain. Restrict this in production.
-- **Private Keys**: The mnemonic `bottom drive obey lake curtain smoke basket hold race lonely fit walk` is publicly known. Never use this for mainnet or valuable testnet assets.
+- **Private Keys**: The mnemonic `bottom drive obey lake curtain smoke basket hold race lonely fit walk` is publicly known. Never use this for mainnet or any valuable assets.
 - **Network Isolation**: Run local networks in isolated environments to prevent accidental connections to mainnet.
 - **Port Exposure**: Be careful about exposing RPC ports to public networks.
 

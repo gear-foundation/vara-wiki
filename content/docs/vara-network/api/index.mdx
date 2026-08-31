@@ -11,12 +11,7 @@ The sections below describe tools for implementing basic functions in a JS appli
 The basic API is implemented on the Substrate layer and is consistent across all Substrate-based networks. The Gear-JS API code is available on [GitHub](https://github.com/gear-tech/gear-js). A complete API overview can be found on the [Polkadot documentation portal](https://polkadot.js.org/docs/).
 
 <Callout type="info" title="Network-Specific API Classes">
-    Vara and Vara Testnet may have different **runtime versions** and extrinsic signatures. To ensure compatibility, use the dedicated API classes:
-
-    * **Vara Mainnet:** Use the `VaraApi` class.
-    * **Vara Testnet:** Use the `VaraTestnetApi` class.
-
-    Using these specialized classes is more convenient and reliable than the generic `GearApi` when operating on Vara networks.
+    For Vara Mainnet, use the dedicated `VaraApi` class. It accounts for the network's **runtime version** and extrinsic signatures, and is more convenient and reliable than the generic `GearApi`.
 </Callout>
 
 ## Installation
@@ -53,10 +48,10 @@ For connection to the local node, use:
 ws://127.0.0.1:9944
 ```
 
-For connection to the Vara Network Testnet, use:
+For connection to Vara Network Mainnet, use:
 
 ```bash
-wss://testnet.vara.network
+wss://rpc.vara.network
 ```
 </Callout>
 
@@ -76,7 +71,7 @@ This simple example demonstrates how to subscribe to new blocks and get chain sp
 ```javascript
 async function connect() {
   const gearApi = await GearApi.create({
-    providerAddress: 'wss://testnet.vara.network',
+    providerAddress: 'wss://rpc.vara.network',
   });
 
   const [chain, nodeName, nodeVersion] = await Promise.all([

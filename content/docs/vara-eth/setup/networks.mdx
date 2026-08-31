@@ -1,14 +1,14 @@
 ---
 title: Networks
-description: Vara.eth network endpoints and configuration for testnet and mainnet.
+description: Vara.eth network endpoints and configuration for the Hoodi and Mainnet deployments.
 ---
 
 # Networks
 
 Vara.eth runs on Ethereum. The testnet is deployed on **Ethereum Hoodi**, and mainnet on **Ethereum Mainnet**.
 
-<Callout type="note" title="Network Availability">
-  Public Vara.eth endpoints (RPC and faucet) are currently offline between campaign phases. The parameters below are kept for reference — to experiment today, [run your own node](/docs/vara-eth/setup/local-node).
+<Callout type="note" title="Endpoint Availability">
+  The `gear-tech.io` RPC endpoints below were operated by Gear for the launch campaigns and are no longer served. Chain IDs, explorers and deployed contracts are unchanged — substitute any Ethereum RPC provider for Hoodi or Mainnet, and [run your own node](/docs/vara-eth/setup/local-node) for the Vara.eth side.
 </Callout>
 
 ## Testnet (Ethereum Hoodi)
@@ -16,7 +16,7 @@ Vara.eth runs on Ethereum. The testnet is deployed on **Ethereum Hoodi**, and ma
 The Vara.eth testnet deployment on Ethereum Hoodi:
 
 - Chain ID: `560048`
-- Primary RPC: `https://hoodi-reth-rpc.gear-tech.io`
+- Ethereum RPC: any Hoodi provider (the retired Gear endpoint was `https://hoodi-reth-rpc.gear-tech.io`)
 - Explorer: [hoodi.etherscan.io](https://hoodi.etherscan.io)
 
 For the full endpoint matrix (HTTPS, WebSocket, health checks, and connection examples), use:
@@ -32,7 +32,7 @@ For Router and related contract addresses, use:
 The Vara.eth mainnet deployment on Ethereum Mainnet:
 
 - Chain ID: `1`
-- Primary RPC: `https://mainnet-reth-rpc.gear-tech.io`
+- Ethereum RPC: any Ethereum Mainnet provider (the retired Gear endpoint was `https://mainnet-reth-rpc.gear-tech.io`)
 - Explorer: [etherscan.io](https://etherscan.io)
 
 For the full endpoint matrix (HTTPS, WebSocket, Beacon, Validator RPCs), use:

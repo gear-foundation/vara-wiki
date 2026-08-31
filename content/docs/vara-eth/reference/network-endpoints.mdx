@@ -5,8 +5,11 @@ description: RPC endpoints, chain IDs, and connection details for Vara.eth netwo
 
 # Network Endpoints
 
-<Callout type="note" title="Network Availability">
-  Public Vara.eth endpoints listed below (RPC, Beacon, validator network) are currently offline between campaign phases and are kept for reference. To experiment today, [run your own node](/docs/vara-eth/setup/local-node).
+<Callout type="note" title="Endpoint Availability">
+  Every `gear-tech.io` / `vara.network` endpoint on this page was operated by Gear for the TestNet and MainNet campaigns and is no longer served. They stay documented because the chain IDs, explorers and deployed contracts are unchanged, and because the roles map cleanly onto replacements:
+
+  - **Ethereum RPC and Beacon RPC** — plain Ethereum endpoints. Substitute any Hoodi or Mainnet provider; everything else keeps working.
+  - **Vara.eth RPC (validator network)** — Gear's own `ethexe` validators. There is no drop-in public replacement; [run your own node](/docs/vara-eth/setup/local-node) to get pre-confirmations and Vara.eth state queries.
 </Callout>
 
 ## Hoodi Testnet
@@ -56,17 +59,17 @@ https://hoodi-lighthouse-rpc.gear-tech.io
 
 ### Vara.eth RPC (Validator Network)
 
-For pre-confirmations and state queries via the validator P2P network:
+For pre-confirmations and state queries via the validator P2P network. These campaign validators are retired — use the RPC port of [your own node](/docs/vara-eth/setup/local-node) instead:
 
 ```text
-wss://vara-eth-validator-1.gear-tech.io
-wss://vara-eth-validator-2.gear-tech.io
-wss://vara-eth-validator-3.gear-tech.io
-wss://vara-eth-validator-4.gear-tech.io
+wss://vara-eth-validator-1.gear-tech.io   (retired)
+wss://vara-eth-validator-2.gear-tech.io   (retired)
+wss://vara-eth-validator-3.gear-tech.io   (retired)
+wss://vara-eth-validator-4.gear-tech.io   (retired)
 ```
 
-Use any of these endpoints with `@vara-eth/api` providers (`WsVaraEthProvider` / `HttpVaraEthProvider`) for injected
-transactions and pre-confirmation flows.
+Whichever endpoint you use, it plugs into the `@vara-eth/api` providers (`WsVaraEthProvider` / `HttpVaraEthProvider`) for injected
+transactions and pre-confirmation flows — a local node exposes the same interface on `ws://127.0.0.1:9944`.
 
 ## Ethereum Mainnet
 
@@ -103,21 +106,23 @@ https://mainnet-lighthouse-rpc.gear-tech.io
 
 ### Vara.eth RPC (Validator Network)
 
-For pre-confirmations and state queries via the validator P2P network:
+For pre-confirmations and state queries via the validator P2P network. These campaign validators are retired — use the RPC port of [your own node](/docs/vara-eth/setup/local-node) instead:
 
 ```text
-wss://validator-1-eth.vara.network
-wss://validator-2-eth.vara.network
-wss://validator-3-eth.vara.network
-wss://validator-4-eth.vara.network
+wss://validator-1-eth.vara.network   (retired)
+wss://validator-2-eth.vara.network   (retired)
+wss://validator-3-eth.vara.network   (retired)
+wss://validator-4-eth.vara.network   (retired)
 ```
 
 ## Network Health
 
+Run these against whichever Ethereum RPC you use — your provider's Hoodi endpoint, or `http://127.0.0.1:8545` on a [full local stack](/docs/vara-eth/setup/local-node).
+
 ### Check RPC Status
 
 ```bash
-curl -X POST https://hoodi-reth-rpc.gear-tech.io \
+curl -X POST <YOUR_HOODI_RPC> \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 ```
@@ -125,7 +130,7 @@ curl -X POST https://hoodi-reth-rpc.gear-tech.io \
 ### Check Chain ID
 
 ```bash
-curl -X POST https://hoodi-reth-rpc.gear-tech.io \
+curl -X POST <YOUR_HOODI_RPC> \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}'
 # Should return "0x88bb0" (560048)

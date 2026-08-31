@@ -10,8 +10,8 @@ Anyone can run their own Vara.eth node and experiment. There are two modes:
 1. **Node-only mode** — connect your local node to an existing Ethereum Router (for example, Hoodi). Requires a working Ethereum RPC endpoint.
 2. **Full local stack (recommended)** — run local Ethereum + deploy Router yourself + connect node to it. Fully self-contained.
 
-<Callout type="note" title="Network Availability">
-  Public Vara.eth RPC endpoints (including the gear-tech.io Hoodi ones shown below) are currently offline between campaign phases. The full local stack works regardless — it depends on nothing external.
+<Callout type="note" title="Endpoint Availability">
+  The Ethereum RPC endpoints Gear operated for the launch campaigns are no longer served, so `--ethereum-rpc` below is a placeholder. Node-only mode still works against the deployed Hoodi and Mainnet Routers — point it at any Ethereum RPC provider for that chain. The full local stack depends on nothing external at all.
 </Callout>
 
 ## Prerequisites
@@ -20,14 +20,16 @@ Before starting, complete [Tools Install](/docs/vara-eth/setup/tools-install) (a
 
 ## Mode 1: Node-Only (No Router Deployment)
 
-Use this when you already have a Router address (for example on Hoodi).
+Use this when you already have a Router address (for example on Hoodi). The Routers from the campaigns are still deployed — see [Contract Addresses](/docs/vara-eth/reference/contract-addresses).
 
 ```bash
 ethexe run \
-  --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
+  --ethereum-rpc "<YOUR_HOODI_RPC_WS>" \
   --ethereum-router "0xE549b0AfEdA978271FF7E712232B9F7f39A0b060" \
   --rpc-port 9944
 ```
+
+`--ethereum-rpc` takes a plain Ethereum node WebSocket URL, so any Hoodi (or Mainnet) provider works.
 
 <Callout type="tip" title="When to Use Node-Only">
   Node-only mode is enough to inspect behavior, test RPC flows, and run integration checks against an existing network
@@ -101,7 +103,7 @@ cast block-number --rpc-url http://127.0.0.1:8545
 
 ```bash
 ethexe run \
-  --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
+  --ethereum-rpc "<YOUR_HOODI_RPC_WS>" \
   --ethereum-router "0xE549b0AfEdA978271FF7E712232B9F7f39A0b060" \
   --rpc-port 8080
 ```
@@ -110,7 +112,7 @@ ethexe run \
 
 ```bash
 ethexe run \
-  --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
+  --ethereum-rpc "<YOUR_HOODI_RPC_WS>" \
   --ethereum-router "0xE549b0AfEdA978271FF7E712232B9F7f39A0b060" \
   --no-network
 ```
@@ -119,7 +121,7 @@ ethexe run \
 
 ```bash
 RUST_LOG=debug ethexe run \
-  --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
+  --ethereum-rpc "<YOUR_HOODI_RPC_WS>" \
   --ethereum-router "0xE549b0AfEdA978271FF7E712232B9F7f39A0b060"
 ```
 
@@ -143,15 +145,15 @@ rm -rf ~/.ethexe/db
 **Slow compilation**  
 → Use prebuilt `ethexe` binary if you do not need custom source changes
 
-## Switch Back to Testnet
+## Switch Back to Hoodi
 
-To use the Hoodi testnet again:
+To point back at the deployed Hoodi Router:
 
 1. Stop your local node
-2. Run `ethexe tx` commands with Hoodi RPC/router values (or put them into `.ethexe.toml`):
+2. Run `ethexe tx` commands with your Hoodi RPC and the Router address (or put them into `.ethexe.toml`):
    ```bash
    ethexe tx query "$PROGRAM_ID" \
-     --ethereum-rpc "wss://hoodi-reth-rpc.gear-tech.io/ws" \
+     --ethereum-rpc "<YOUR_HOODI_RPC_WS>" \
      --ethereum-router "0xE549b0AfEdA978271FF7E712232B9F7f39A0b060" \
      --sender "$SENDER"
    ```

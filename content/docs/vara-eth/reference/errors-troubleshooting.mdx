@@ -70,7 +70,7 @@ wasm-validate program.opt.wasm
 1. **Zero Executable Balance** — Most common. The program has no wVARA to pay for execution.
 2. **Program not initialized** — First message must be from the program creator.
 3. **Payload encoding error** — SCALE or ABI encoding mismatch.
-4. **Validators not processing** — Network issue (rare on testnet).
+4. **Validators not processing** — No executor network is reachable. The campaign validators are retired; run [your own node](/docs/vara-eth/setup/local-node).
 
 **Diagnosis steps**:
 
@@ -168,7 +168,7 @@ Ensure the IDL matches the deployed program version.
 
 ### Pre-confirmation unavailable
 
-**Fix**: Pre-confirmations require the executor network to be operational. On testnet, this may occasionally be unavailable during upgrades. Fall back to waiting for L1 finality.
+**Fix**: Pre-confirmations require a reachable executor network. The Gear-operated validators from the launch campaigns are retired, so point the Vara.eth provider at [your own node](/docs/vara-eth/setup/local-node) — or fall back to waiting for L1 finality, which needs no executor at all.
 
 ## Common Mistakes
 

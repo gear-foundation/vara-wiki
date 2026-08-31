@@ -68,7 +68,7 @@ Provides Gear API context to the app.
 ```jsx
 import { ApiProvider } from '@gear-js/react-hooks';
 
-<ApiProvider initialArgs={{ endpoint: 'wss://testnet.vara.network' }}>{/* ... */}</ApiProvider>;
+<ApiProvider initialArgs={{ endpoint: 'wss://rpc.vara.network' }}>{/* ... */}</ApiProvider>;
 ```
 
 ### AccountProvider
@@ -110,7 +110,7 @@ import { AlertTemplate } from './alert-template';
 
 ```jsx
 <QueryClientProvider client={queryClient}>
-  <ApiProvider initialArgs={{ endpoint: 'wss://testnet.vara.network' }}>
+  <ApiProvider initialArgs={{ endpoint: 'wss://rpc.vara.network' }}>
     <AccountProvider appName="MyApp">
       <AlertProvider template={AlertTemplate}>
         <App />

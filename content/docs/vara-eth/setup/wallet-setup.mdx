@@ -1,14 +1,14 @@
 ---
 title: Wallet Setup
-description: Connect your Ethereum wallet to Vara.eth testnet and get test tokens.
+description: Connect your Ethereum wallet to Vara.eth and fund it for development.
 ---
 
 # Wallet Setup
 
 Vara.eth uses standard Ethereum wallets. If you have MetaMask, you're ready to go.
 
-<Callout type="note" title="Network Availability">
-  Public TestNet access is currently paused — the Vara.eth faucet and public RPC endpoints are offline between campaign phases. To experiment today, run a [full local stack](/docs/vara-eth/setup/local-node), which deploys its own Router and WVARA contracts.
+<Callout type="note" title="Endpoint Availability">
+  The Vara.eth faucet and the Gear-operated RPC endpoints served the launch campaigns and are no longer running. Hoodi itself is unaffected: add the network with any public RPC, and get gas ETH from a public Hoodi faucet. For wVARA, run a [full local stack](/docs/vara-eth/setup/local-node), which deploys its own Router and WVARA contracts and lets you control the supply.
 </Callout>
 
 ## Add Hoodi Network
@@ -25,7 +25,7 @@ The fastest way is to visit [Chainlist](https://chainlist.org/chain/560048) and 
 
 You need test ETH on Hoodi to pay for L1 transaction fees (sending messages to Mirror contracts, creating programs).
 
-You can get Hoodi ETH from any public Ethereum Hoodi faucet. The Vara.eth faucet is currently offline.
+Get Hoodi ETH from any public Ethereum Hoodi faucet, such as [hoodifaucet.io](https://www.hoodifaucet.io/). The Vara.eth campaign faucet is no longer running, but it only ever distributed the same public Hoodi ETH.
 
 <Callout type="note" title="Why ETH?">
   Even though Vara.eth uses the [reverse gas model](/docs/vara-eth/economics/reverse-gas-model) (programs pay for
@@ -36,7 +36,7 @@ You can get Hoodi ETH from any public Ethereum Hoodi faucet. The Vara.eth faucet
 
 wVARA funds your program's [Executable Balance](/docs/vara-eth/interact/funding-executable-balance). Without wVARA, your program cannot execute messages.
 
-Testnet wVARA was distributed by the Vara.eth faucet, which is currently offline. On a [full local stack](/docs/vara-eth/setup/local-node), the WVARA contract is deployed together with your Router and you control the supply.
+The Vara.eth campaign faucet distributed Hoodi wVARA and is no longer running. On a [full local stack](/docs/vara-eth/setup/local-node), the WVARA contract is deployed together with your Router and you control the supply. On Ethereum Mainnet, wVARA is obtained by bridging VARA — see [Getting wVARA](/docs/vara-eth/economics/getting-wvara).
 
 Once you have wVARA, fund your program via:
 

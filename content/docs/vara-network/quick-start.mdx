@@ -207,9 +207,13 @@ If everything has been executed successfully, your working directory should now 
 (Optimization include reducing the file size and improving performance)
 - `vara_app.idl` is the Interface Definition Language (IDL) file that describes the application's interface, defining the structure and methods callable on the `vara_app` program. It's essential for interacting with the application on the blockchain, specifying available functions and their inputs and outputs. This file is crucial for developers and clients to ensure they use the correct method signatures and data types when interacting with the deployed program.
 
-## Deploy your program to the Testnet
+## Deploy your program to Vara Mainnet
 
-Gear provides an application for developers (Gear Idea) that implements all of the possibilities of interaction with programs in Vara networks (mainnet and testnet), available at [idea.gear-tech.io](https://idea.gear-tech.io).
+Gear provides an application for developers (Gear Idea) that implements all of the possibilities of interaction with programs on Vara Network, available at [idea.gear-tech.io](https://idea.gear-tech.io).
+
+<Callout type="info" title="Build directly on Mainnet">
+    Building a dApp used to mean an extra step - spin up on a testnet, then move everything to mainnet. That step is gone. Gear Idea hands every developer **100 free VARA per wallet, once**, so you can deploy, test and cover your first transactions directly on mainnet. Real network, real conditions, nothing to pay to start.
+</Callout>
 
 ### Create account
 
@@ -231,7 +235,7 @@ Gear provides an application for developers (Gear Idea) that implements all of t
 
     ![Allow access](/images/assets/getting-started/polkadot-access.png)
 
-6. Make sure you are connected to the `Vara Network Testnet`. The network name is at the bottom left corner of the page.
+6. Make sure you are connected to the `Vara Network Mainnet`. The network name is at the bottom left corner of the page.
 
     ![Network name](/images/assets/getting-started/idea-network.png)
 
@@ -243,11 +247,11 @@ Gear provides an application for developers (Gear Idea) that implements all of t
 
     ![Connect account](/images/assets/getting-started/connect-account.png)
 
-9. In accordance with the Actor model, programs are uploaded to a network via messages. Vara node charges a gas fee during message processing. Your account balance needs to have enough funds to upload a program to the `TestNet`. Click the following button to get the test balance:
+9. In accordance with the Actor model, programs are uploaded to a network via messages. Vara node charges a gas fee during message processing. Your account balance needs to have enough funds to upload a program to Vara Mainnet. If your wallet is new, claim the one-time developer grant of **100 VARA** - click the following button:
 
     ![Get balance](/images/assets/getting-started/get-balance.png)
 
-    A notification about successful balance replenishment will appear after passing captcha at the bottom of the window. You can also see the current account balance next to the account name in the upper right corner.
+    A notification about successful balance replenishment will appear after passing captcha at the bottom of the window. You can also see the current account balance next to the account name in the upper right corner. The grant is available once per wallet and is enough to deploy a program and cover your first transactions.
 
     ![Transfer balance](/images/assets/getting-started/got-balance.png)
 

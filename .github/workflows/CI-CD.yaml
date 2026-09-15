@@ -6,17 +6,13 @@ on:
     paths-ignore:
       - '.github/**'
       - '**.md'
-    tags: ["v*"]
   workflow_dispatch:
     inputs:
       env:
         type: choice
         description: Target environment
         required: false
-        options:
-          - dev
-          - stg
-          - prod
+        options: [prod]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -32,12 +28,10 @@ jobs:
   deploy:
     uses: gear-ops/actions/.github/workflows/build-deploy.yaml@main
     with:
-      argocd_server: ${{ vars.ARGOCD_SERVER }}
-      vault_server: ${{ vars.VAULT_SERVER }}
       app: vara-wiki
       env: ${{ inputs.env }}
-      dockerfile: Dockerfile
-      context: .
+      components: |
+        - name: main
     secrets:
-      WORKLOADS_REPO_TOKEN: ${{ secrets.WORKLOADS_REPO_TOKEN }}
-      ARGOCD_TOKEN:         ${{ secrets.ARGOCD_TOKEN }}
+      CHARTS_REPO_TOKEN: ${{ secrets.CHARTS_REPO_TOKEN }}
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}

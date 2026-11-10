@@ -4,7 +4,7 @@ title: Built-in Actors
 
 ## Overview
 
-The Built-in Actors framework is an extensible system that provides a registry of built-in actors available in the Vara node runtime. Built-in Actors are programs (but not a Wasm programs) implemented as a runtime [pallet](https://github.com/gear-tech/gear/tree/master/pallets/gear-builtin) capable of handling messages from other actors (programs) and process them in applications built on top of blockchain logic (such as staking, governance, computationally intensive calculations and more). This framework allows for the integration of custom logic, including access to the node's operating system and native execution.
+The Built-in Actors framework is an extensible system that provides a registry of built-in actors available in the Vara node runtime. Built-in Actors are programs (but not a Wasm programs) implemented as a runtime [pallet](https://github.com/gear-tech/gear/tree/master/vara/pallets/gear-builtin) capable of handling messages from other actors (programs) and process them in applications built on top of blockchain logic (such as staking, governance, computationally intensive calculations and more). This framework allows for the integration of custom logic, including access to the node's operating system and native execution.
 
 Built-in Actors may be added, removed, updated (including address change) by the Gear Protocol's development team and appear on Vara during runtime upgrades. If a new runtime interface added with a Built-in Actor, upgrading the node client is essential to import blocks and maintain onchain functionality.
 

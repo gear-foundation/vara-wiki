@@ -2,7 +2,7 @@
 title: Reply deposit
 ---
 
-When a program or user sends a reply to a message, it should provide gas for the reply handling. The user replies using [`gear.sendReply`](https://docs.gear.rs/pallet_gear/pallet/struct.Pallet.html#method.send_reply) extrinsic. The program uses the [`msg::reply`](https://docs.rs/gstd/latest/gstd/msg/fn.reply.html) or [`msg::reply_with_gas`](https://docs.rs/gstd/latest/gstd/msg/fn.reply_with_gas.html) function.
+When a program or user sends a reply to a message, it should provide gas for the reply handling. The user replies using [`gear.sendReply`](https://github.com/gear-tech/gear/blob/master/vara/pallets/gear/src/lib.rs) extrinsic. The program uses the [`msg::reply`](https://docs.rs/gstd/latest/gstd/msg/fn.reply.html) or [`msg::reply_with_gas`](https://docs.rs/gstd/latest/gstd/msg/fn.reply_with_gas.html) function.
 
 Sometimes, it is more convenient to provide gas for the reply handling in advance. For example, if the program sends a message to another program and waits for a reply, it can provide gas for the reply handling in advance. In this case, the program doesn't need to provide gas for the reply handling when it sends a reply.
 

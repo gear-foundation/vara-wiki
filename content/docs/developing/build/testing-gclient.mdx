@@ -35,7 +35,7 @@ tokio = { version = "1", features = ["full"] }
 
 The best way is to download the latest node binary for your operating system from [https://get.gear.rs](https://get.gear.rs). Then unpack the package and run the node. Here and below, the node is assumed to be running in developer mode.
 
-<Tabs items={['Linux x86-64', 'macOS ARM', 'macOS x86-64', 'Windows x86-64']}>
+<Tabs items={['Linux x86-64', 'macOS ARM', 'macOS x86-64']}>
 <Tab value="Linux x86-64" default>
 
 Terminal:
@@ -98,26 +98,6 @@ gear 1.1.1-33ee05d5aab
 
 </Tab>
 
-<Tab value="Windows x86-64">
-
-Terminal:
-
-```bash
-curl -O https://get.gear.rs/gear-v1.1.1-x86_64-pc-windows-msvc.zip
-```
-
-or
-
-**Windows x86-64**: [gear-v1.1.1-x86_64-pc-windows-msvc.zip](https://get.gear.rs/gear-v1.1.1-x86_64-pc-windows-msvc.zip)
-
-Unzip the downloaded package then you can try to run the node:
-
-```
-❯ gear.exe --version
-gear 1.1.1-33ee05d5aab
-```
-
-</Tab>
 </Tabs>
 
 Open the second terminal window and run tests using `cargo` as described in the [previous section](/docs/developing/build/testing#building-a-program-in-test-mode).
@@ -208,4 +188,4 @@ It is recommended to mark tests with `gclient` with the `#[ignore]` attribute to
 
 ## More Details About `gclient`
 
-Please refer to the [`gclient` docs](https://docs.gear.rs/gclient/) for more information about its capabilities and use cases.
+Please refer to the [`gclient` docs](https://docs.rs/gclient) for more information about its capabilities and use cases.

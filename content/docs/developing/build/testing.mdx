@@ -17,9 +17,9 @@ Even when code units work correctly, it is crucial to test if several library pa
 
 There are at least two ways to test and debug Vara programs.
 
-The first is off-chain testing using the low-level [`gtest`](https://docs.gear.rs/gtest/) crate. This approach is recommended for unit and integration tests.
+The first is off-chain testing using the low-level [`gtest`](https://docs.rs/gtest) crate. This approach is recommended for unit and integration tests.
 
-The second is on-chain testing with the higher-level [`gclient`](https://docs.gear.rs/gclient/) crate, which is well-suited for end-to-end testing.
+The second is on-chain testing with the higher-level [`gclient`](https://docs.rs/gclient) crate, which is well-suited for end-to-end testing.
 
 Although `gclient` is oriented towards end-to-end testing, tests can be written as unit or integration tests in Rust. It is recommended to use an integration-like approach with separate test files in the `tests` directory when utilizing the `gclient` crate.
 

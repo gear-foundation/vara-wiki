@@ -28,7 +28,7 @@ Check out the [Vara Validators Dashboard](https://validators.vara.network/) that
 
 Download the latest stable release of the `gear` node from the builds repo and unpack (choose the binary according to your host operating system):
 
-<Tabs items={['Linux x86-64', 'macOS ARM', 'macOS x86-64']}>
+<Tabs items={['Linux x86-64', 'macOS ARM']}>
 <Tab value="Linux x86-64" default>
 
 Terminal:
@@ -60,26 +60,6 @@ curl https://get.gear.rs/gear-v1.9.2-aarch64-apple-darwin.tar.xz | tar xJ
 or
 
 **macOS ARM**: [gear-v1.9.2-aarch64-apple-darwin.tar.xz](https://get.gear.rs/gear-v1.9.2-aarch64-apple-darwin.tar.xz)
-
-Run the node:
-
-```
-❯ ./gear --version
-gear 1.9.2-5ef221109b8
-```
-
-</Tab>
-<Tab value="macOS x86-64">
-
-Terminal:
-
-```bash
-curl https://get.gear.rs/gear-v1.9.2-x86_64-apple-darwin.tar.xz | tar xJ
-```
-
-or
-
-**macOS Intel x64**: [gear-v1.9.2-x86_64-apple-darwin.tar.xz](https://get.gear.rs/gear-v1.9.2-x86_64-apple-darwin.tar.xz)
 
 Run the node:
 
@@ -244,25 +224,3 @@ sudo systemctl start vara-node.service
 ```
 
 👏👏👏 Congratulations! You’ve successfully set up your validator node. 👏👏👏 If you encounter challenges or need help — reach out in the [Validators Chat](https://discord.com/channels/891063355526217738/1014177678473035777)!
-
-## Using Snapshots to Speed Up Node Sync
-
-When initializing your Vara validator node, syncing from the genesis block can be slow — especially on machines with limited I/O or bandwidth. To accelerate the setup, Vara provides regularly updated **[snapshots](https://snapshots.vara.network)** of the blockchain state.
-
-Snapshots allow your node to start from a recent block instead of syncing the entire history, reducing setup time from hours to minutes.
-
-### 📦 Steps to Use a Snapshot
-
-1. **Stop the node** (if already running).
-2. **Download and extract the latest snapshot**:
-```bash
-curl -o - -L https://snapshots.vara-network.io/vara-mainnet-latest.tar.lz4
-  | lz4 -c -d -
-  | tar -x -C /home/ubuntu/gear-data/chains/vara_network/db
-```
-3. **Restart your node**:
-```bash
-gear --chain vara --base-path /home/ubuntu/gear-data/ --database rocksdb --pruning 256
-```
-
-📌 Note: Always use snapshots from the official Vara source to ensure trust and integrity: https://snapshots.vara.network.

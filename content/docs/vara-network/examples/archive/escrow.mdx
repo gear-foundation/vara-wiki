@@ -44,7 +44,7 @@ yarn start
 
 ## Introduction
 
-This article explains at a superficial level the purpose and logic of this program. The source code of the program example is available on [GitHub](https://github.com/gear-foundation/dapps/tree/master/contracts/escrow).
+This article explains at a superficial level the purpose and logic of this program. The source code of the program example is available on [GitHub](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/escrow).
 
 ## Logic
 
@@ -215,7 +215,7 @@ extern fn state() {
     msg::reply::<EscrowState>(escrow.into(), 0).expect("Failed to share state");
 }
 ```
-To display only necessary certain values from the state, you need to write a separate crate. In this crate, specify functions that will return the desired values from the `Escrow` state. For example - [gear-foundation/dapps-escrow/state](https://github.com/gear-foundation/dapps/tree/master/contracts/escrow/state):
+To display only necessary certain values from the state, you need to write a separate crate. In this crate, specify functions that will return the desired values from the `Escrow` state. For example - [gear-foundation/dapps-escrow/state](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/escrow/state):
 
 ```rust title="escrow/state/src/lib.rs"
 #[gmeta::metawasm]

@@ -8,7 +8,7 @@ title: ZK-Battleship Game
 
 To address this issue and preserve the confidentiality of players' data, the new version of the game integrates **Zero-Knowledge Proofs (zk-SNARKs)**. With this technology, players' boards are stored locally, and no information about ship positions is transmitted to the network, ensuring both fairness and security in gameplay.
 
-The game example uses the [**EZ-Transactions package**](/docs/developing/api/tooling/gasless-txs) that simplifies blockchain interactions by enabling gasless and signless transactions. Anyone can use it to integrate into their dApp projects. For more details, visit the [GitHub page](https://github.com/gear-foundation/dapps/tree/vt-update-ez-transactions/frontend/packages/ez-transactions).
+The game example uses the [**EZ-Transactions package**](/docs/vara-network/api/tooling/gasless-txs) that simplifies blockchain interactions by enabling gasless and signless transactions. Anyone can use it to integrate into their dApp projects. For more details, visit the [GitHub page](https://github.com/gear-foundation/dapps/tree/master/frontend/packages/ez-transactions).
 
 ### What Are Zero-Knowledge Proofs?
 
@@ -34,7 +34,7 @@ These guarantees ensure a fair and strategic gameplay experience while maintaini
 
 ### Circom and Zero-Knowledge Proofs
 
-To implement these guarantees, let 's turn to [Circom](https://iden3.github.io/circom/), a domain-specific language for creating Zero-Knowledge circuits. Circom allows us to generate zk-SNARKs, enabling us to create proofs that verify the above conditions without revealing any information about the board's configuration or the game state.
+To implement these guarantees, let 's turn to [Circom](https://github.com/iden3/circom), a domain-specific language for creating Zero-Knowledge circuits. Circom allows us to generate zk-SNARKs, enabling us to create proofs that verify the above conditions without revealing any information about the board's configuration or the game state.
 
 Using Circom, it is possible to create a system in which:
 - Each player's board is verified to be valid at the start of the game.
@@ -288,7 +288,7 @@ The full code discussed above can be found on [GitHub](https://github.com/gear-f
 In zk-SNARKs the proof generation and verification process is essential for maintaining privacy and integrity in decentralized systems.
 
 #### **Proof Generation**
-The process of generating a zk-SNARK proof involves compiling a circuit, calculating a witness, and then using a proving key to create the proof. For a detailed explanation of witness generation, you can refer to the steps [here](https://docs.circom.io/getting-started/computing-the-witness/#what-is-a-witness), and for the proof generation process, see this [link](https://docs.circom.io/getting-started/proving-circuits/).
+The process of generating a zk-SNARK proof involves compiling a circuit, calculating a witness, and then using a proving key to create the proof. For a detailed explanation of witness generation, you can refer to the steps [here](https://github.com/iden3/circom/blob/master/mkdocs/docs/getting-started/computing-the-witness.md), and for the proof generation process, see this [link](https://github.com/iden3/circom/blob/master/mkdocs/docs/getting-started/proving-circuits.md).
 
 #### **Verification Key Generation**
 A verification key is generated during the setup phase, which corresponds to the specific circuit and proving key. This verification key is then provided to the program during its initialization, enabling the program to verify zk-SNARK proofs submitted by users.

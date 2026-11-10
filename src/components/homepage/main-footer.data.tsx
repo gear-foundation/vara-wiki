@@ -103,10 +103,6 @@ export const FOOTER_NAVIGATION = [
         title: "Grants",
         link: `${EXTERNAL_LINKS.varaNetwork}/grants`,
       },
-      {
-        title: "Varathon",
-        link: EXTERNAL_LINKS.varathon,
-      },
     ],
   },
   {
@@ -135,7 +131,7 @@ export const FOOTER_NAVIGATION = [
       },
       {
         title: "Vara Art",
-        link: `${EXTERNAL_LINKS.varaNetwork}/varaArt`,
+        link: `${EXTERNAL_LINKS.varaNetwork}/vara-art`,
       },
     ],
   },
@@ -149,7 +145,7 @@ export const FOOTER_NAVIGATION = [
     list: [
       {
         title: "Staking",
-        link: `${EXTERNAL_LINKS.wikiVara}/docs/staking/`,
+        link: `${EXTERNAL_LINKS.wikiVara}/docs/vara-network/staking`,
       },
       {
         title: "Vara NFT",
@@ -157,11 +153,11 @@ export const FOOTER_NAVIGATION = [
       },
       {
         title: "Press Kit",
-        link: `${EXTERNAL_LINKS.varaNetwork}/pressKit`,
+        link: `${EXTERNAL_LINKS.varaNetwork}/press-kit`,
       },
       {
         title: "Anti-Scam",
-        link: `${EXTERNAL_LINKS.varaNetwork}/antiScam`,
+        link: `${EXTERNAL_LINKS.varaNetwork}/anti-scam-check`,
       },
     ],
   },

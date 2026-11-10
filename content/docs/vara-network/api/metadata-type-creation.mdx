@@ -70,7 +70,7 @@ metadata.createType(4, { value: 'value' });
 
 ## Type creation
 
-More information about the basic types and methods of work can be found in the main documentation of Polkadot [here](https://polkadot.js.org/docs/developing/api/start/types.basics)
+More information about the basic types and methods of work can be found in the main documentation of Polkadot [here](https://polkadot.js.org/docs/api/start/types.basics)
 
 If for some reason you need to create a type "manually" to encode/decode any payload:
 
@@ -78,7 +78,7 @@ If for some reason you need to create a type "manually" to encode/decode any pay
 import { CreateType } from '@gear-js/api';
 
 // If "TypeName" already registered.
-// Learn more https://polkadot.js.org/docs/developing/api/start/types.create#choosing-how-to-create
+// Learn more https://polkadot.js.org/docs/api/start/types.create#choosing-how-to-create
 const result = CreateType.create('TypeName', somePayload);
 
 // Otherwise need to add metadata containing TypeName and all required types

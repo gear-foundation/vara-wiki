@@ -69,7 +69,7 @@ Keypair Info: [PAIR_HEADER, SECRET_KEY, DIVIDER, PUBLIC_KEY]
 ```
 
 3. Encrypt the `passphrase` with [scrypt][https://en.wikipedia.org/wiki/Scrypt] to get a password for the secret box. 
-4. Pack the `keypair-info` in [NaCl Secretbox][https://en.wikipedia.org/wiki/NaCl_(software)] with the passwored from `3.`
+4. Pack the `keypair-info` in [NaCl Secretbox](https://en.wikipedia.org/wiki/NaCl_(software)) with the passwored from `3.`
 
 After all, the encrypted keypair will be like:
 

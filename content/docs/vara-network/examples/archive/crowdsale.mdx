@@ -180,7 +180,7 @@ extern fn state() {
         .expect("Failed to encode or reply with `State` from `state()`");
 }
 ```
-To display only specific values from the state, write a separate crate. In this crate, specify functions that will return the desired values from the `State` state. For example, see [gear-foundation/dapps/crowdsale/state](https://github.com/gear-foundation/dapps/tree/master/contracts/crowdsale/state):
+To display only specific values from the state, write a separate crate. In this crate, specify functions that will return the desired values from the `State` state. For example, see [gear-foundation/dapps/crowdsale/state](https://github.com/gear-foundation/dapps/tree/a357635b61e27c52f46908885fecb048dc8424e5/contracts/crowdsale/state):
 
 ```rust title="crowdsale/state/src/lib.rs"
 #[gmeta::metawasm]

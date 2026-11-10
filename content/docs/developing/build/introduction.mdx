@@ -79,15 +79,15 @@ More advanced examples can be found in the Gear Foundation organization on GitHu
 
 ### 2. Test the program.
 
-The Vara developer community recommends using the [`gtest`](https://docs.gear.rs/gtest/) crate for testing Vara programs as it enables program unit tests to be written and run in the local environment.
+The Vara developer community recommends using the [`gtest`](https://docs.rs/gtest) crate for testing Vara programs as it enables program unit tests to be written and run in the local environment.
 
-The more advanced way to test the program is to use the [`gclient`](https://docs.gear.rs/gclient/) crate that allows you to run the program in the blockchain network. It is useful when you need to test the program in a real environment.
+The more advanced way to test the program is to use the [`gclient`](https://docs.rs/gclient) crate that allows you to run the program in the blockchain network. It is useful when you need to test the program in a real environment.
 
 You can find more details about testing in the [Program Testing](/docs/developing/build/testing) section.
 
 ### 3. Compile the program into Wasm.
 
-The Vara developer community recommends using the [`gear-wasm-builder`](https://docs.gear.rs/gear_wasm_builder/) crate in a custom build script `build.rs`.
+The Vara developer community recommends using the [`gear-wasm-builder`](https://docs.rs/gear-wasm-builder) crate in a custom build script `build.rs`.
 
 Add it to the `[build-dependencies]` section in the `Cargo.toml` file:
 
@@ -112,7 +112,7 @@ Program deployment is a process of storing the program's Wasm code on the blockc
 
 If initialization fails (for example, the program panics in the `init()` function), the program is not deployed and the user gets an error.
 
-{/* Also, it is important to underline that someone should pay rent for keeping the program in the blockchain after a free period that is equal to 5 million blocks (it is about 2 months for networks with 1 block per second production). It is possible to add funds for rent using the [`pay_program_rent`](https://docs.gear.rs/pallet_gear/pallet/struct.Pallet.html#method.pay_program_rent) extrinsic (by the user) or with the [`gstd::exec::pay_program_rent`](https://docs.gear.rs/gstd/exec/fn.pay_program_rent.html) API function (by the program). If the rent is not paid, the program state changes to pause, its persistent memory is removed from the storage and the program can't be executed. The program can be resumed by uploading its memory pages to the blockchain and paying the rent. */}
+{/* Also, it is important to underline that someone should pay rent for keeping the program in the blockchain after a free period that is equal to 5 million blocks (it is about 2 months for networks with 1 block per second production). It is possible to add funds for rent using the [`pay_program_rent`](https://github.com/gear-tech/gear/blob/master/vara/pallets/gear/src/lib.rs) extrinsic (by the user) or with the [`gstd::exec::pay_program_rent`](https://docs.gear.rs/gstd/exec/fn.pay_program_rent.html) API function (by the program). If the rent is not paid, the program state changes to pause, its persistent memory is removed from the storage and the program can't be executed. The program can be resumed by uploading its memory pages to the blockchain and paying the rent. */}
 
 More details about the program deployment can be found in the [Upload Program](/docs/developing/build/deploy) section.
 
@@ -143,9 +143,9 @@ extern "C" fn state() {
 }
 ```
 
-This function is stored in the blockchain in the same Wasm blob with `handle()` and `init()` functions. But unlike them, it is not executed using extrinsic and doesn't affect the blockchain state. It can be executed for free by any node with a fully synchronized blockchain state. There is a dedicated [`read_state`](https://docs.gear.rs/pallet_gear_rpc/trait.GearApiServer.html#tymethod.read_state) RPC call for this.
+This function is stored in the blockchain in the same Wasm blob with `handle()` and `init()` functions. But unlike them, it is not executed using extrinsic and doesn't affect the blockchain state. It can be executed for free by any node with a fully synchronized blockchain state. There is a dedicated [`read_state`](https://github.com/gear-tech/gear/blob/master/vara/pallets/gear/rpc/src/lib.rs) RPC call for this.
 
-The data returned by the `state()` function can be converted to any convenient representation by using a state-conversion program. This is a separate program compiled into Wasm and dedicated to being executed on the off-chain runner. It should contain a set of meta-functions that accept the data returned by the `state()` function and return the data in a convenient format. There is a dedicated [`read_state_using_wasm`](https://docs.gear.rs/pallet_gear_rpc/trait.GearApiServer.html#tymethod.read_state_using_wasm) RPC call for reading the program state using the state-conversion program.
+The data returned by the `state()` function can be converted to any convenient representation by using a state-conversion program. This is a separate program compiled into Wasm and dedicated to being executed on the off-chain runner. It should contain a set of meta-functions that accept the data returned by the `state()` function and return the data in a convenient format. There is a dedicated [`read_state_using_wasm`](https://github.com/gear-tech/gear/blob/master/vara/pallets/gear/rpc/src/lib.rs) RPC call for reading the program state using the state-conversion program.
 
 More details about state functions can be found in the [State Functions](/docs/developing/build/gstd/state) section.
 
@@ -179,7 +179,7 @@ More details about asynchronous programming can be found in the [Asynchronous Pr
 
 Both users and programs are actors in terms of the Gear programming model. Therefore, any actor can create a new program and deploy it to the blockchain.
 
-The only prerequisite is that the code of the program should be stored in the blockchain. This can be done by using the [`upload_code`](https://docs.gear.rs/pallet_gear/pallet/struct.Pallet.html#method.upload_code) extrinsic that returns an identifier of the uploaded code. The code can be uploaded only once, then it can be used for creating multiple programs.
+The only prerequisite is that the code of the program should be stored in the blockchain. This can be done by using the [`upload_code`](https://github.com/gear-tech/gear/blob/master/vara/pallets/gear/src/lib.rs) extrinsic that returns an identifier of the uploaded code. The code can be uploaded only once, then it can be used for creating multiple programs.
 
 There are several helper functions for creating programs from programs in the [`gstd::prog`](https://docs.rs/gstd/latest/gstd/prog/index.html) module.
 

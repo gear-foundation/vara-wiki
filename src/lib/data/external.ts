@@ -16,7 +16,7 @@ export const EXTERNAL_LINKS = {
   whitePaper: "https://whitepaper.gear.foundation",
   gearFoundation: "https://gear.foundation",
   gearTech: "https://gear-tech.io",
-  varaSubscan: "https://vara.subscan.io",
+  varaExplorer: "https://explorer.vara.network",
   telemetry: "https://telemetry.rs",
   validatorsDashboard: "https://validators.vara.network",
   varaEducationJoinForm: "",

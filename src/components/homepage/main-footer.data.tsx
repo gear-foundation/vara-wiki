@@ -182,8 +182,8 @@ export const FOOTER_NAVIGATION = [
         link: EXTERNAL_LINKS.telemetry,
       },
       {
-        title: "Vara explorer (Subscan)",
-        link: EXTERNAL_LINKS.varaSubscan,
+        title: "Vara Explorer",
+        link: EXTERNAL_LINKS.varaExplorer,
       },
     ],
   },

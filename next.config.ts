@@ -6,6 +6,7 @@ const withMDX = createMDX();
 const config: NextConfig = {
   output: "standalone",
   reactStrictMode: true,
+  images: { unoptimized: true },
   async rewrites() {
     return [
       {

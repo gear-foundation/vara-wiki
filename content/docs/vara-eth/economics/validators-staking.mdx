@@ -138,7 +138,7 @@ Validators use [FROST](https://eprint.iacr.org/2020/852) (Flexible Round-Optimiz
 
 Pre-confirmations are backed by the economic security of the validator set. To forge a false pre-confirmation, an attacker would need to control the threshold of validators and risk their combined stake being slashed.
 
-The [BLS12-381 Built-in Actor](/docs/developing/build/builtinactors/bia-bls) on Vara Network provides native BLS cryptographic operations used for efficient signature aggregation in the bridge's ZK proofs.
+The [BLS12-381 Built-in Actor](/docs/developing/build/builtinactors/bia-bls) on Vara Network provides native BLS cryptographic operations. The Vara ↔ Ethereum bridge uses them to verify Ethereum sync committee signatures on Vara.
 
 ## Validator Economics
 

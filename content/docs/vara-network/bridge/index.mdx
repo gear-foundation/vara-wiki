@@ -8,9 +8,14 @@ custom_title: Vara Bridge
 - **Bridge:** [https://bridge.vara.network/](https://bridge.vara.network/)
 </Callout>
 
-**Vara Bridge** is a trustless, ZK-based cross-chain bridge designed to securely transfer tokens and data between Ethereum and the Vara Network. By leveraging best practices in cryptographic security (such as Plonky2, Merkle Trees, and Gnark), the bridge validates transactions without revealing sensitive information. As a result, the Vara Bridge minimizes risks of manipulation or fraud while delivering efficient cross-chain transfers.
+**Vara Bridge** is a trustless, light-client-based cross-chain bridge that transfers tokens and data between Ethereum and the Vara Network. Each chain verifies the other chain's finality on-chain:
 
-In short, the bridge lets you effortlessly transfer `tokens`, `NFTs`, and `data`, enhancing their liquidity, usability, and accessibility across blockchain ecosystems.
+- **Vara → Ethereum:** an Ethereum smart contract follows Vara finality through [BEEFY](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/client/consensus/beefy/README.md), the bridge-oriented finality protocol run by Vara validators.
+- **Ethereum → Vara:** a program on Vara follows Ethereum finality through the Beacon Chain sync committee.
+
+No trusted intermediary holds keys to user funds or signs off transfers. Relayers only carry data, and every message is checked against the finality proofs of its source chain.
+
+In short, the bridge lets you transfer `tokens` and arbitrary `data` between the two networks, improving their liquidity, usability, and accessibility across blockchain ecosystems.
 
 ## What Does the Vara Bridge Mean for the Vara Ecosystem and Its Projects?
 
@@ -26,17 +31,17 @@ Easily transfer your assets between Ethereum and Vara, expanding trading opportu
 
 <u>**Enhanced Utility**</u>
 
-Bridging ensures your digital assets are no longer locked to one blockchain. Tokens and NFTs can seamlessly move and be utilized across various decentralized applications, significantly increasing their functionality and value.
+Bridging ensures your digital assets are no longer locked to one blockchain. Tokens can move and be used across decentralized applications on both networks, increasing their functionality and value.
 
 <u>**Developer Empowerment**</u>
 
-Developers can build powerful, cost-effective dApps by combining Ethereum’s extensive ecosystem with Vara’s efficient execution environment.
+Developers can build powerful, cost-effective dApps by combining Ethereum’s extensive ecosystem with Vara’s efficient execution environment. Besides token transfers, the bridge delivers arbitrary messages, so a program on Vara can call a contract on Ethereum and react to Ethereum events.
 
-<Callout type="idea" title="Cross-Chain Gaming Strategy">
-    A game developer can mint NFTs on **Ethereum** to leverage its massive liquidity, then bridge them to the **Vara Network** to enable:
+<Callout type="idea" title="Cross-Chain Application Strategy">
+    An application can keep its assets on **Ethereum** to use its liquidity, and run its logic on the **Vara Network** to get:
 
-    * **Speed:** Near-instant in-game transactions.
-    * **Cost:** Significantly lower gas fees for player interactions.
+    * **Speed:** Near-instant in-app transactions.
+    * **Cost:** Significantly lower fees for user interactions.
 </Callout>
 
 <u>*In short, the Vara-Ethereum Bridge maximizes the versatility and value of digital assets, creating new possibilities across blockchains.*</u>
@@ -52,15 +57,20 @@ The Vara-Ethereum Bridge plays a critical role for **[Gear.exe](https://eth.vara
 </Callout>
 
 
-## Is it Secure?
+## How Is It Secured?
 
-Yes. The Vara-Ethereum Bridge employs advanced Zero-Knowledge Proof (ZK-proof) technology, ensuring your transactions and data transfers remain confidential and secure. Internally, the bridge utilizes cryptographic proofs, validator consensus, and robust governance mechanisms to guarantee safety and prevent duplication or unauthorized access. The bridge is designed to be secure by default — providing a safe and straightforward experience for all users, regardless of technical knowledge.
+The bridge does not rely on a multisig or a committee of bridge operators. Its security comes from the consensus of the two chains it connects:
+
+- **Vara finality on Ethereum.** Vara validators sign BEEFY commitments. A light client contract on Ethereum checks these signatures and tracks every validator set change, so Ethereum only accepts messages that Vara has finalized.
+- **Ethereum finality on Vara.** A light client program on Vara verifies Ethereum blocks finalized by the Beacon Chain sync committee, so Vara only accepts events that Ethereum has finalized.
+- **Replay protection.** Every message carries a unique nonce and can be processed only once.
+- **Governance and emergency controls.** Upgrades, parameters and pausing are controlled by Vara on-chain governance through dedicated tracks.
 
 <Callout type="idea" title="Deep Dive: Vara-Ethereum Bridge">
     Curious about the underlying mechanics and security? Explore these resources:
 
     * **Technical Details:** Read our [comprehensive architecture overview](/docs/vara-network/bridge/bridge_technical).
-    * **Security & Code:** Review the bridge security mechanisms in the [GitHub repository](https://github.com/gear-tech/gear-bridges).
+    * **Addresses:** Find the deployed contracts and programs in the [Developer Hub](/docs/vara-network/bridge/developer_hub).
 </Callout>
 
 ## What’s next?

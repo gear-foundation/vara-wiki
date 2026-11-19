@@ -28,9 +28,17 @@ pub enum Response {
     EthMessageQueued {
         nonce: U256,     // Message nonce.
         hash: H256,      // Message hash.
-    
+    }
 }
 ```
+
+<Callout type="warn" title="Transport fee and payload size">
+    The bridge pallet charges a **transport fee** for every queued message. The fee is set by governance and is taken from the value attached to the request; the rest of the value is returned. A request with less value than the fee is rejected. Read the current amount from the `gearEthBridge.transportFee` storage item.
+
+    The payload of a single message is limited to **16,384 bytes**.
+</Callout>
+
+Queued messages are delivered to Ethereum by the [Vara ↔ Ethereum Bridge](/docs/vara-network/bridge/bridge_technical): Vara validators commit to the message queue through BEEFY, and the `MessageQueue` contract on Ethereum processes each message after verifying it against that commitment.
 
 Usage
 

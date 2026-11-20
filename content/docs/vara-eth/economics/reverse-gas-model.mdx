@@ -92,11 +92,7 @@ Programs that don't maintain their Executable Balance simply stop processing mes
 
 ### Funding
 
-```typescript
-// Fund via ethers.js
-const mirror = new ethers.Contract(mirrorAddress, abi, signer);
-await mirror.executableBalanceTopUp(parseUnits("10", 18));
-```
+Follow [Funding Executable Balance](/docs/vara-eth/interact/funding-executable-balance) to select the Router's wVARA, convert it to base units, and top up the Mirror.
 
 ### Monitoring
 

@@ -40,22 +40,18 @@ This separation is the **Reverse Gas Model** — users don't need wVARA to inter
 
 wVARA is a standard ERC-20 token deployed on Ethereum. You can hold it in any Ethereum wallet, transfer it, trade it on DEXes, and use it in DeFi protocols.
 
-**Contract address (Hoodi testnet)**: Check [Contract Addresses](/docs/vara-eth/reference/contract-addresses) for the latest.
+See [Contract Addresses](/docs/vara-eth/reference/contract-addresses) for the wVARA token configured by the Router on each network.
 
-**Contract address (Ethereum Mainnet)**: [`0xe9E095fc36bA6bfc7086f12C7B18BD2513AF4Ae0`](https://etherscan.io/address/0xe9E095fc36bA6bfc7086f12C7B18BD2513AF4Ae0)
+### Vara.eth wVARA vs. Bridge WVARA
 
-### Supply and Bridging
-
-wVARA is minted when VARA is bridged from the Vara Network to Ethereum, and burned when bridged back. The total supply of wVARA on Ethereum corresponds to the amount of VARA locked in the [bridge](/docs/vara-network/bridge).
-
-For technical details on the bridge mechanism, see the [Bridge Technical Overview](/docs/vara-network/bridge/bridge_technical).
+The [Vara Network BEEFY bridge](/docs/vara-network/bridge/developer_hub#token-contracts) mints and burns its own WVARA. It shares the ticker but not the contract address. Use the Router's token for executable balance; equal tickers do not make the tokens interchangeable.
 
 ### Decimals
 
-wVARA uses 18 decimals, consistent with most ERC-20 tokens:
+The Ethereum Mainnet Router's wVARA uses **12 decimals**. Read `decimals()` from the Router's token when converting amounts for another deployment.
 
 ```
-1 wVARA = 1_000_000_000_000_000_000 (1e18) base units
+1 wVARA = 1_000_000_000_000 (1e12) base units
 ```
 
 ## Where wVARA Flows
@@ -75,7 +71,6 @@ Users / Developers
 Additional flows:
 - **Top-up flow** — Accounts approve + top up program executable balance via Mirror
 - **Staking** — Validators and vaults use wVARA in Symbiotic-backed security
-- **Bridge/liquidity** — wVARA can be bridged and traded as ERC-20 on Ethereum
 
 ## Balance Types
 
@@ -118,8 +113,4 @@ The campaign faucet is no longer running. On a [full local stack](/docs/vara-eth
 
 ### Mainnet
 
-wVARA is available via:
-- Bridging VARA from [Vara Network](/docs/vara-network) via the [bridge](/docs/vara-network/bridge/bridge_guide)
-- Earning as a validator
-
-See [Getting wVARA](/docs/vara-eth/economics/getting-wvara) for detailed instructions.
+See [Getting wVARA](/docs/vara-eth/economics/getting-wvara) for how to verify the mainnet token and avoid acquiring the bridge's different WVARA.

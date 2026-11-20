@@ -19,13 +19,13 @@ import { ethMainnet, varaMainnet } from '@/addresses/bridge-addresses.js';
 ## Vara Bridge Deployments
 
 <Callout type="info" title="Mainnet only">
-    Vara Mainnet is the only public network. The bridge testnet deployment has been decommissioned along with the Vara testnet - build and integrate directly against the production addresses below.
+    These are mainnet deployments. The former Vara bridge testnet is no longer available. A listed contract is not a guarantee that a transfer or claim is currently available; check the [Bridge Guide](/docs/vara-network/bridge/bridge_guide) for how to check your route. Develop and test before using mainnet funds.
 </Callout>
 
 <Callout type="warn" title="Ethereum contracts were redeployed">
     The Ethereum side of the bridge now verifies Vara finality with a BEEFY light client. The contracts were redeployed for this change, including **MessageQueue**, **ERC20Manager**, **Bridging Payment**, **WVARA** and the governance contracts.
 
-    Addresses of the previous deployment are no longer part of the bridge. If your integration stores bridge addresses, update them to the values below. The programs on Vara keep their addresses.
+    Use the addresses below for integrations with the BEEFY deployment. They do not migrate balances, allowances, or in-flight transfers. For a transfer initiated before the cutover, retain its original transaction and use the contracts that handled it to identify the claim or recovery path. Do not resend or substitute the new addresses.
 </Callout>
 
 <div className="network-section mainnet">
@@ -47,8 +47,10 @@ import { ethMainnet, varaMainnet } from '@/addresses/bridge-addresses.js';
 | **USDC**  | <a href={`https://etherscan.io/address/${ethMainnet.usdc}`} target="\_blank">{ethMainnet.usdc}</a>   |
 | **USDT**  | <a href={`https://etherscan.io/address/${ethMainnet.usdt}`} target="\_blank">{ethMainnet.usdt}</a>   |
 | **WETH**  | <a href={`https://etherscan.io/address/${ethMainnet.WETH}`} target="\_blank">{ethMainnet.WETH}</a>   |
-| **WVARA** | <a href={`https://etherscan.io/address/${ethMainnet.wvara}`} target="\_blank">{ethMainnet.wvara}</a> |
+| **BEEFY bridge WVARA** | <a href={`https://etherscan.io/address/${ethMainnet.wvara}`} target="\_blank">{ethMainnet.wvara}</a> |
 | **WBTC**  | <a href={`https://etherscan.io/address/${ethMainnet.wbtc}`} target="\_blank">{ethMainnet.wbtc}</a>   |
+
+BEEFY bridge WVARA is not the token used by the [Vara.eth Router](/docs/vara-eth/reference/contract-addresses#ethereum-mainnet).
 
 #### ERC20 Manager
 

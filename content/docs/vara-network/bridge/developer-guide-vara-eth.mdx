@@ -2,236 +2,64 @@
 title: Vara → Ethereum App Guide
 ---
 
-Cross-chain communication can seem complex, but at its core, it’s about securely moving messages and value between independent blockchains. To make this process clear and approachable, a simple Ping-Pong application is used as the most illustrative example, showing step by step how secure cross-chain messaging works on top of the **Vara ↔ Ethereum Bridge**.
-
-<Callout type="note" title="The Ping-Pong Pattern">
-    The **ping-pong pattern** is a classic distributed systems example used to demonstrate reliable message delivery:
-
-    * **Ping:** A simple message sent from the source chain.
-    * **Pong:** A response received back from the target chain.
-
-    This pattern confirms that the **Vara-Ethereum Bridge** transport layer is operating correctly in both directions.
-</Callout>
-
-This guide focuses on the flow from Vara to Ethereum. In this direction Ethereum verifies Vara finality with a BEEFY light client. The protocol handles the heavy lifting — validator signatures, Merkle proofs, relaying, and validation — allowing developers to concentrate on the application logic. The reverse direction is covered in the [Ethereum → Vara App Guide](/docs/vara-network/bridge/developer-guide-eth-vara).
+This guide follows one application ping from Vara to Ethereum. `BeefyClient` authenticates Vara finality. `MessageQueue` verifies the ping's inclusion in a registered queue root and dispatches it. Your application still decides which source actor and payload it accepts. A pong sent back to Vara is a separate message; see the [Ethereum → Vara App Guide](/docs/vara-network/bridge/developer-guide-eth-vara).
 
 ## High-Level Architecture
 
-At a high level, the cross-chain ping-pong app consists of three main parts, each focused on its own responsibility while relying on the bridge’s secure protocol layer:
+1. A Vara program queues a ping addressed to its Ethereum receiver.
+2. A relayer submits an inclusion proof for the original message after the selected queue root has matured.
+3. The Ethereum receiver authenticates the caller and source actor, then records the ping.
 
-1. **On Vara:** a Gear Program in Rust acts as the Ping sender. It packages a simple payload and sends it using the built-in bridge API, specifying the destination contract on Ethereum.
-   [See Vara Program Code](https://github.com/gear-foundation/cross-ping/tree/master/packages/vara-eth-pinger-vara)
-2. **In the middle:** a permissionless relayer listens for events and — once the Merkle root for the message is submitted to Ethereum — relays the message for final delivery.
-   [See Relayer Code](https://github.com/gear-foundation/cross-ping/tree/master/packages/vara-eth-relayer-node)
-3. **On Ethereum:** a specialized MessageQueue contract verifies the root and proof. If valid, it forwards the message to your destination contract.  
-   [See Ping Receiver Code](https://github.com/gear-foundation/cross-ping/tree/master/packages/vara-eth-receiver-eth)
+Use the deployment identities from the [Developer Hub](/docs/vara-network/bridge/developer_hub). The examples cover application code; proof generation and submission require a relayer compatible with the selected deployment. Do not assume an SDK's `wait: true` guarantees root maturity or successful execution.
 
-## What You Don’t Implement
+## Queue a Ping on Vara
 
-<Callout type="idea" title="Abstracted Infrastructure">
-    As a developer, you do **not need to implement** the transport layers yourself. The bridge infrastructure handles these complex operations automatically:
+- Configure the Ethereum receiver address in your Vara program. For the receiver below, use the [built-in actor example](/docs/developing/build/builtinactors/bia-bridge#queue-a-message-from-a-vara-program) with the raw 32 bytes of a unique, nonzero ping ID as `payload`. A single ABI-encoded `bytes32` is exactly those bytes; do not SCALE-encode the ID as a vector inside `payload`.
+- Read the current `gearEthBridge.transportFee` in Vara base units. Pass it to the program and attach that value to the `SendEthMessage` request to the [Bridge Built-in Actor](/docs/developing/build/builtinactors/bia-bridge), separately from message gas and the reply deposit. Handle fee changes and insufficient-value errors instead of hardcoding a zero fee.
+- After a successful queue reply, retain the original Vara block, message hash, and **full `U256` nonce**. In JavaScript, use `bigint`, not `number`. A queue reply confirms enqueueing, not delivery.
 
-    * **Calculations:** Merkle root and proof generation.
-    * **Security:** Verification of Vara finality (BEEFY commitments) on Ethereum.
-    * **Sync:** Cross-chain state synchronization.
+## Relay the Original Message
 
-    This allows you to focus purely on your application logic while the protocol manages the underlying **Vara-Ethereum** communication.
-</Callout>
+1. From finalized Vara history, find the original queued message, then obtain its inclusion proof against a queue snapshot registered by the configured Ethereum `MessageQueue`.
+2. Confirm that the root for the **selected Vara block number** has matured on Ethereum. For a user message, `PROCESS_USER_MESSAGE_DELAY` is currently 300 seconds from that root's registration. An identical root hash registered for a different block does not share its timestamp.
+3. Submit the original message and proof to `MessageQueue` on Ethereum. If submission is pending or its outcome is unknown, reconcile the original transaction before retrying. Do not send a new ping to replace an unresolved one.
 
-Your responsibility is **only your app’s custom logic**: how to format the message and how to process it on arrival.
+## Authenticate the Ping on Ethereum
 
-If you want a deep dive into the protocol’s internals — including finality verification, validator set management, and message processing — please see the official technical overview: 
-[**Vara ↔ Ethereum Bridge Technical Overview**](/docs/vara-network/bridge/bridge_technical)
-
-The bridge’s protocol ensures that Ethereum can trust which messages were sent from Vara, so you never need to worry about the details of proof construction or on-chain validation.  
-Everything you need for secure message delivery is already built in.
-
----
-
-## Vara → Ethereum Cross-Chain App’s Implementation Details
-
-Let’s break down the flow and key implementation details of our `CrossPing` app on Vara, which is responsible for initiating the cross-chain ping.
-
-[See Vara Program Source](https://github.com/gear-foundation/cross-ping/tree/master/packages/vara-eth-pinger-vara)
-
-### Application Flow (Vara)
-
-1. **Initialize the destination:** The program is initialized with the address (H160) of the Ethereum contract that will receive the ping.
-2. **Send a ping:** When triggered, it prepares a payload (just the sender’s `ActorId`) and constructs a bridge request with it.
-3. **Send the message via the built-in bridge:** It uses a built-in actor (Gear-Ethereum Bridge) to submit the message using `send_bytes_with_gas_for_reply`, which handles gas and bridge fee logic.
-4. **Wait for bridge response:** The bridge responds with a nonce and a message hash, confirming message inclusion.
-5. **Emit event for relayer:** The program emits a `PingSent` event with all details. This is what the relayer listens for.
-
----
-
-### Key Components and Interfaces
-
-- **Built-in Bridge Actor ID:**
-
-```rust
-const BRIDGE_ACTOR_ID: [u8; 32] = [ /* ... see full source ... */ ];
-```
-
-- **Destination Contract Address:**  
-Set at initialization via `new(destination: H160)`.
-
-- **Bridge Message Format:**
-
-```rust
-BridgeRequest::SendEthMessage { destination, payload }
-```
-
-- **Gas & Fee Constants:**
-
-```rust
-const GAS_TO_SEND_REQUEST: u64 = 200_000_000_000;
-const FEE_BRIDGE: u128 = 0;
-const GAS_FOR_REPLY_DEPOSIT: u64 = 200_000_000_000;
-```
-
-<Callout type="warn" title="Transport fee and payload size">
-    The bridge pallet charges a **transport fee** for every outbound message. The fee is set by governance and is taken from the value attached to the request, so `FEE_BRIDGE` has to cover it — a request with insufficient value is rejected. Read the current amount from the `gearEthBridge.transportFee` storage item before you send.
-
-    The payload of a single message is limited to **16,384 bytes**.
-</Callout>
-
-- **Event Emission:**  
-Emits:
-
-```rust
-Event::PingSent(PingSent {
-  nonce: Some(nonce.as_u64()),
-  message_hash: hash,
-})
-```
-
----
-
-### Example: Sending a Ping from Vara
-
-```rust
-pub async fn send_ping(&mut self) -> Result<(), Error> {
-    let state = unsafe { STATE.as_ref().expect("State not initialized") };
-    let destination = state.destination.ok_or(Error::DestinationNotInitialized)?;
-    let sender = exec::program_id();
-    let payload = sender.as_ref().to_vec();
-    let bridge_actor_id = ActorId::from(BRIDGE_ACTOR_ID);
-
-    let request = BridgeRequest::SendEthMessage { destination, payload }.encode();
-
-    let reply_bytes = msg::send_bytes_with_gas_for_reply(
-        bridge_actor_id,
-        request,
-        GAS_TO_SEND_REQUEST,
-        FEE_BRIDGE,
-        GAS_FOR_REPLY_DEPOSIT,
-    )
-    .map_err(|_| Error::BridgeSendFailed)?
-    .await
-    .map_err(|_| Error::BridgeReplyFailed)?;
-
-    let reply = BridgeResponse::decode(&mut &reply_bytes[..])
-        .map_err(|_| Error::InvalidBridgeResponse)?;
-
-    if let BridgeResponse::EthMessageQueued { nonce, hash } = reply {
-        self.emit_event(Event::PingSent(PingSent {
-            nonce: Some(nonce.as_u64()),
-            message_hash: hash,
-        }))?;
-    }
-
-    Ok(())
-}
-```
-
----
-
-## Relayer
-
-The relayer is a Node.js service that connects both to Vara and Ethereum, listens for events, and relays messages once the Merkle root is confirmed on Ethereum.
-
-[See Relayer Code](https://github.com/gear-foundation/cross-ping/tree/master/packages/vara-eth-relayer-node)
-
-### How the Relayer Works
-
-1. **Connects to Vara and Ethereum:**
-
-```ts
-const gearApi = await connectVara();
-```
-
-2. **Listens for PingSent events:**
-
-```ts
-await listenPingSent(async ({ nonce, blockNumber, messageHash }) => {
-  console.log(`[Relay] PingSent: nonce=${nonce}, block=${blockNumber}, hash=${messageHash}`);
-  // ...
-});
-```
-
-3. **Relays the message with built-in wait mechanism:**
-
-The `relayVaraToEth` function of `@gear-js/bridge` accepts a `wait: true` flag that internally waits for the Merkle root to appear on Ethereum before relaying. Take `MESSAGE_QUEUE_PROXY_ADDRESS` from the [Developer Hub](/docs/vara-network/bridge/developer_hub).
-
-A message cannot be processed right after its Merkle root appears: `MessageQueue` enforces a maturity delay of 5 minutes for regular messages.
-
-```ts
-const result = await relayVaraToEth({
-  nonce,
-  blockNumber,
-  ethereumPublicClient,
-  ethereumWalletClient,
-  ethereumAccount: account,
-  gearApi,
-  messageQueueAddress: MESSAGE_QUEUE_PROXY_ADDRESS,
-  wait: true,
-  statusCb: (status, details) => {
-    console.log(`[Relay] [Status]`, status, details);
-  }
-});
-```
-
----
-
-## Ethereum Side: Ping Receiver Contract
-
-A minimal contract that accepts messages via the bridge and emits `PongEmitted`.
+The queue calls `handleMessage(bytes32 source, bytes calldata payload)` on the destination contract. Set `messageQueue` to the configured **proxy** address and `varaSource` to the full 32-byte actor ID of your Vara program.
 
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
-interface IMessageHandler {
-    function handleMessage(bytes32 source, bytes calldata payload) external;
-}
+contract VaraPingReceiver {
+    address public immutable messageQueue;
+    bytes32 public immutable varaSource;
+    mapping(bytes32 => bool) public received;
 
-contract PingReceiver is IMessageHandler {
-    event PongEmitted(bytes32 sender);
+    event PingReceived(bytes32 indexed pingId);
 
-    function handleMessage(bytes32 sender, bytes calldata) external override {
-        emit PongEmitted(sender);
+    constructor(address queue, bytes32 source) {
+        require(queue != address(0) && source != bytes32(0), "invalid configuration");
+        messageQueue = queue;
+        varaSource = source;
+    }
+
+    function handleMessage(bytes32 source, bytes calldata payload) external {
+        require(msg.sender == messageQueue, "not the queue");
+        require(source == varaSource, "wrong Vara source");
+        require(payload.length == 32, "invalid payload length");
+
+        bytes32 pingId = abi.decode(payload, (bytes32));
+        require(pingId != bytes32(0) && !received[pingId], "invalid or repeated ping");
+        received[pingId] = true;
+        emit PingReceived(pingId);
     }
 }
 ```
 
-### Summary
-
-- Your contract must implement the `IMessageHandler` interface.
-- The `handleMessage(sender, payload)` function is called by the MessageQueue.
-- You can do anything you want with the payload inside this method.
-
----
+The queue prevents replay of a bridge nonce. An application-level ID also prevents applying the same logical action twice if the source sends it under two different nonces.
 
 ## End-to-End Verification
 
-After sending a ping:
-
-1. **Check MessageQueue contract** on Ethereum for message processing events.
-2. **Check your PingReceiver contract** for the `PongEmitted` event.
-3. The relayer logs the full tx hash after successful delivery:
-
-```text
-[Relay] ✅ Success: txHash=0xabc123...
-```
-
-If the logs and events appear correctly on Etherscan (or your block explorer), everything worked as expected.
+Check the original successful, finalized Ethereum transaction. Match the queue's `MessageProcessed` event to the original message and the receiver's event or state to the expected `pingId`. Root publication or a processed nonce alone does not prove the intended application effect. Test that direct calls, messages from another Vara actor, and duplicate application IDs do not change receiver state.

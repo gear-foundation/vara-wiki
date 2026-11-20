@@ -13,16 +13,21 @@ Every Vara.eth program needs wVARA in its **Executable Balance** to pay for comp
 
 The `executableBalanceTopUp` function on the Mirror contract is the primary way to fund a program. Anyone can call it.
 
+Use the token from your Router's `wrappedVara()` getter, not the Vara Network bridge's WVARA. Read that token's `decimals()` to convert the amount; the Ethereum Mainnet Router's wVARA has 12 decimals.
+
 ```typescript
-import { ethers, parseUnits } from 'ethers';
+import { Contract, parseUnits } from 'ethers';
 
-// 1. Approve program (Mirror address) to spend wVARA
-const wvara = new ethers.Contract(wvaraAddress, erc20Abi, signer);
-await wvara.approve(mirrorAddress, parseUnits('100', 18));
+const router = new Contract(routerAddress, ['function wrappedVara() view returns (address)'], signer);
+const wvara = new Contract(await router.wrappedVara(), [
+  'function decimals() view returns (uint8)',
+  'function approve(address spender, uint256 amount) returns (bool)',
+], signer);
+const amount = parseUnits('100', await wvara.decimals());
+await (await wvara.approve(mirrorAddress, amount)).wait();
 
-// 2. Top up the program's Executable Balance
-const mirror = new ethers.Contract(mirrorAddress, mirrorAbi, signer);
-await mirror.executableBalanceTopUp(parseUnits('100', 18));
+const mirror = new Contract(mirrorAddress, mirrorAbi, signer);
+await (await mirror.executableBalanceTopUp(amount)).wait();
 ```
 
 <Callout type="note" title="Approval Required">
@@ -32,7 +37,7 @@ await mirror.executableBalanceTopUp(parseUnits('100', 18));
 ### CLI
 
 ```bash
-ethexe tx executable-balance-top-up "$PROGRAM_ID" 10000000000000000000 \
+ethexe tx executable-balance-top-up "$PROGRAM_ID" "$AMOUNT_BASE_UNITS" \
   --approve \
   --ethereum-rpc "$RPC" \
   --ethereum-router "$ROUTER" \
@@ -42,12 +47,12 @@ ethexe tx executable-balance-top-up "$PROGRAM_ID" 10000000000000000000 \
 **Parameters:**
 
 - `$PROGRAM_ID` — Mirror contract address
-- `10000000000000000000` — Amount in base units (10 wVARA in this example)
+- `$AMOUNT_BASE_UNITS` — Amount in the Router token's base units (`10000000000000` for 10 wVARA on Ethereum Mainnet)
 - `--approve` — Automatically approve wVARA spending before top-up
 
 ### Etherscan
 
-Navigate to the Mirror address on Etherscan. Under "Write as Proxy" (or "Write Contract"), find `executableBalanceTopUp` and enter the amount.
+Navigate to the Mirror address on Etherscan. Under "Write as Proxy" (or "Write Contract"), find `executableBalanceTopUp` and enter the amount in the Router token's base units.
 
 ## How Execution Is Charged
 

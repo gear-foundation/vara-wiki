@@ -10,11 +10,42 @@ This guide follows one application ping from Ethereum to Vara. The Vara light cl
 2. A relayer builds a proof of the receipt against finalized Ethereum history supported by the checkpoint light client on Vara.
 3. The Historical Proxy routes the proof to the verifier configured for the Ethereum slot. After verification, it forwards the authenticated receipt to the Vara application.
 
-Use the configured deployment identities from the [Developer Hub](/docs/vara-network/bridge/developer_hub). This guide describes the protocol and application checks, not an SDK quickstart. Pin your proof tooling to a version that supports the selected checkpoint, verifier, and receiver interface. Do not use a generic acknowledgement from the proxy as evidence of application success.
+Use the deployment identities from the [Developer Hub](/docs/vara-network/bridge/developer_hub). The example covers application code; proof tooling must support the selected checkpoint, verifier, and receiver interface. A proxy acknowledgement is not proof of application success.
 
 ## Emit and Identify the Ping on Ethereum
 
-Give the event a stable ABI, for example `PingFromEthereum(bytes32 indexed pingId, bytes payload)`. Use an application ID that uniquely identifies the action. Record the Ethereum chain, emitter address, transaction hash, and the expected event. If one receipt can contain several matching logs, define how each is identified and processed; a transaction hash alone does not select an event.
+This example emits `MessageRequested`, an application event, not a bridge-wide event ABI. Deploy it with the authorized Ethereum sender and the full 32-byte ID of your Vara program. Configure the Vara receiver to expect this emitter address, sender, and event ABI.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.28;
+
+contract EthereumPingSender {
+    address public immutable sender;
+    bytes32 public immutable destination;
+
+    event MessageRequested(
+        bytes32 indexed applicationId,
+        address indexed sender,
+        bytes32 indexed destination,
+        bytes payload
+    );
+
+    constructor(address authorizedSender, bytes32 varaDestination) {
+        require(authorizedSender != address(0) && varaDestination != bytes32(0), "invalid configuration");
+        sender = authorizedSender;
+        destination = varaDestination;
+    }
+
+    function sendMessage(bytes32 applicationId, bytes calldata payload) external {
+        require(msg.sender == sender, "wrong sender");
+        require(applicationId != bytes32(0) && payload.length <= 1024, "invalid ping");
+        emit MessageRequested(applicationId, msg.sender, destination, payload);
+    }
+}
+```
+
+The 1,024-byte limit belongs to the ping application, not the receipt bridge. Use a unique application ID, and record the Ethereum chain, emitter address, transaction hash, and expected event. A transaction hash identifies the receipt, not an individual log.
 
 ## Relay the Original Receipt
 
@@ -24,10 +55,16 @@ Give the event a stable ABI, for example `PingFromEthereum(bytes32 indexed pingI
 
 ## Authenticate the Ping on Vara
 
-Expose a receipt handler such as `SubmitReceipt`, using the argument types and receipt encoding required by the deployed verifier. Before applying the ping:
+Configure the relayer to forward to your receiver's Sails service and method, for example `Ping` and `SubmitReceipt`. After the slot-specific verifier accepts the proof, the Historical Proxy prefixes the receiver's route to the SCALE-encoded arguments below. The service name, method name, and return type are application-defined.
+
+```text
+(slot: u64, transaction_index: u64, receipt_rlp: vec u8)
+```
+
+Match the receipt encoding used by the configured verifier; do not assume all deployments forward the same RLP framing. Before applying the ping:
 
 1. Require the runtime message source to be the configured Historical Proxy actor. Calling an exported handler directly must not authenticate a receipt.
-2. Decode the authenticated receipt and require the expected Ethereum emitter address, event signature topic, and event ABI. Validate the full application payload. For a single-ping handler, reject a receipt without exactly one matching event.
+2. Decode the receipt, require a successful Ethereum transaction, and match the configured emitter and `MessageRequested` signature. Validate the decoded ABI, the authorized Ethereum sender, this program's actor ID as `destination`, the nonzero application ID, and the payload. Reject a receipt without exactly one matching event.
 3. Reject replay using the verified receipt position (slot and transaction index) and the accepted application ID. If the handler supports several events per receipt, include the receipt-local log position when tracking consumption.
 4. Record the accepted ID and payload as the application effect and return an explicit success result.
 

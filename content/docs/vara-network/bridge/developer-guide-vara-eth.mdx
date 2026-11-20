@@ -10,11 +10,11 @@ This guide follows one application ping from Vara to Ethereum. `BeefyClient` aut
 2. A relayer submits an inclusion proof for the original message after the selected queue root has matured.
 3. The Ethereum receiver authenticates the caller and source actor, then records the ping.
 
-Use the configured deployment identities from the [Developer Hub](/docs/vara-network/bridge/developer_hub). This guide describes the protocol and application checks, not an SDK quickstart. Use a version of `@gear-js/bridge` whose proof format and wait behavior you have verified against that deployment; do not assume `wait: true` implies maturity or successful execution.
+Use the deployment identities from the [Developer Hub](/docs/vara-network/bridge/developer_hub). The examples cover application code; proof generation and submission require a relayer compatible with the selected deployment. Do not assume an SDK's `wait: true` guarantees root maturity or successful execution.
 
 ## Queue a Ping on Vara
 
-- Configure the Ethereum receiver address in your Vara program. Define a payload format shared by the sender and receiver, for example an ABI-encoded nonzero `bytes32 pingId` unique to the application.
+- Configure the Ethereum receiver address in your Vara program. For the receiver below, use the [built-in actor example](/docs/developing/build/builtinactors/bia-bridge#queue-a-message-from-a-vara-program) with the raw 32 bytes of a unique, nonzero ping ID as `payload`. A single ABI-encoded `bytes32` is exactly those bytes; do not SCALE-encode the ID as a vector inside `payload`.
 - Read the current `gearEthBridge.transportFee` in Vara base units. Pass it to the program and attach that value to the `SendEthMessage` request to the [Bridge Built-in Actor](/docs/developing/build/builtinactors/bia-bridge), separately from message gas and the reply deposit. Handle fee changes and insufficient-value errors instead of hardcoding a zero fee.
 - After a successful queue reply, retain the original Vara block, message hash, and **full `U256` nonce**. In JavaScript, use `bigint`, not `number`. A queue reply confirms enqueueing, not delivery.
 
@@ -26,11 +26,37 @@ Use the configured deployment identities from the [Developer Hub](/docs/vara-net
 
 ## Authenticate the Ping on Ethereum
 
-Implement `handleMessage(bytes32 source, bytes calldata payload)` on the destination contract. Before recording any application effect:
+The queue calls `handleMessage(bytes32 source, bytes calldata payload)` on the destination contract. Set `messageQueue` to the configured **proxy** address and `varaSource` to the full 32-byte actor ID of your Vara program.
 
-1. Require `msg.sender` to equal the configured `MessageQueue` proxy address, not its implementation address.
-2. Require `source` to equal the configured Vara application actor ID. Do not use an actor ID embedded in the payload as proof of the sender.
-3. Decode and validate the payload, reject a previously handled `pingId`, then record it and emit an application event with that ID.
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.28;
+
+contract VaraPingReceiver {
+    address public immutable messageQueue;
+    bytes32 public immutable varaSource;
+    mapping(bytes32 => bool) public received;
+
+    event PingReceived(bytes32 indexed pingId);
+
+    constructor(address queue, bytes32 source) {
+        require(queue != address(0) && source != bytes32(0), "invalid configuration");
+        messageQueue = queue;
+        varaSource = source;
+    }
+
+    function handleMessage(bytes32 source, bytes calldata payload) external {
+        require(msg.sender == messageQueue, "not the queue");
+        require(source == varaSource, "wrong Vara source");
+        require(payload.length == 32, "invalid payload length");
+
+        bytes32 pingId = abi.decode(payload, (bytes32));
+        require(pingId != bytes32(0) && !received[pingId], "invalid or repeated ping");
+        received[pingId] = true;
+        emit PingReceived(pingId);
+    }
+}
+```
 
 The queue prevents replay of a bridge nonce. An application-level ID also prevents applying the same logical action twice if the source sends it under two different nonces.
 

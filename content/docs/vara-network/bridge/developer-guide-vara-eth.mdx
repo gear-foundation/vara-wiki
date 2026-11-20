@@ -13,7 +13,7 @@ Cross-chain communication can seem complex, but at its core, it’s about secure
     This pattern confirms that the **Vara-Ethereum Bridge** transport layer is operating correctly in both directions.
 </Callout>
 
-This guide focuses on the flow from Vara to Ethereum using the bridge’s built-in ZK-based mechanism. The protocol handles the heavy lifting — cryptographic proofs, relaying, and validation — allowing developers to concentrate on the application logic. Future articles will explore the reverse direction (Ethereum → Vara) and additional cross-chain patterns.
+This guide focuses on the flow from Vara to Ethereum. In this direction Ethereum verifies Vara finality with a BEEFY light client. The protocol handles the heavy lifting — validator signatures, Merkle proofs, relaying, and validation — allowing developers to concentrate on the application logic. The reverse direction is covered in the [Ethereum → Vara App Guide](/docs/vara-network/bridge/developer-guide-eth-vara).
 
 ## High-Level Architecture
 
@@ -32,7 +32,7 @@ At a high level, the cross-chain ping-pong app consists of three main parts, eac
     As a developer, you do **not need to implement** the transport layers yourself. The bridge infrastructure handles these complex operations automatically:
 
     * **Calculations:** Merkle root and proof generation.
-    * **Security:** ZK-inclusion proofs.
+    * **Security:** Verification of Vara finality (BEEFY commitments) on Ethereum.
     * **Sync:** Cross-chain state synchronization.
 
     This allows you to focus purely on your application logic while the protocol manages the underlying **Vara-Ethereum** communication.
@@ -40,7 +40,7 @@ At a high level, the cross-chain ping-pong app consists of three main parts, eac
 
 Your responsibility is **only your app’s custom logic**: how to format the message and how to process it on arrival.
 
-If you want a deep dive into the protocol’s internals — including proof generation, validator set management, and message processing — please see the official technical overview: 
+If you want a deep dive into the protocol’s internals — including finality verification, validator set management, and message processing — please see the official technical overview: 
 [**Vara ↔ Ethereum Bridge Technical Overview**](/docs/vara-network/bridge/bridge_technical)
 
 The bridge’s protocol ensures that Ethereum can trust which messages were sent from Vara, so you never need to worry about the details of proof construction or on-chain validation.  
@@ -88,6 +88,12 @@ const GAS_TO_SEND_REQUEST: u64 = 200_000_000_000;
 const FEE_BRIDGE: u128 = 0;
 const GAS_FOR_REPLY_DEPOSIT: u64 = 200_000_000_000;
 ```
+
+<Callout type="warn" title="Transport fee and payload size">
+    The bridge pallet charges a **transport fee** for every outbound message. The fee is set by governance and is taken from the value attached to the request, so `FEE_BRIDGE` has to cover it — a request with insufficient value is rejected. Read the current amount from the `gearEthBridge.transportFee` storage item before you send.
+
+    The payload of a single message is limited to **16,384 bytes**.
+</Callout>
 
 - **Event Emission:**  
 Emits:
@@ -165,7 +171,9 @@ await listenPingSent(async ({ nonce, blockNumber, messageHash }) => {
 
 3. **Relays the message with built-in wait mechanism:**
 
-In the latest version (`@gear-js/bridge@0.1.x`), the `relayVaraToEth` function accepts a `wait: true` flag that internally waits for the Merkle root to appear on Ethereum before relaying.
+The `relayVaraToEth` function of `@gear-js/bridge` accepts a `wait: true` flag that internally waits for the Merkle root to appear on Ethereum before relaying. Take `MESSAGE_QUEUE_PROXY_ADDRESS` from the [Developer Hub](/docs/vara-network/bridge/developer_hub).
+
+A message cannot be processed right after its Merkle root appears: `MessageQueue` enforces a maturity delay of 5 minutes for regular messages.
 
 ```ts
 const result = await relayVaraToEth({

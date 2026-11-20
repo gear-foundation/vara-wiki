@@ -6,7 +6,7 @@ title: Ethereum → Vara App Guide
 
 This article describes the flow for building a cross-chain application from **Ethereum to Vara**. The guide demonstrates how to design an event-based “ping-pong” dApp, where the message originates on Ethereum and is securely delivered and processed on Vara.
 
-Unlike the reverse direction (Vara → Ethereum), where ZK-proofs are used to guarantee trustless delivery, the **Ethereum → Vara** route is based on a **Light Client** mechanism. Here, there are no ZK-proofs on the Ethereum side. Instead, trust is achieved through on-chain light client validation of Ethereum’s consensus — specifically, through the **beacon chain** and its finalized checkpoints.
+Both directions of the bridge are based on light clients. In the reverse direction (Vara → Ethereum) an Ethereum contract follows Vara finality through BEEFY. The **Ethereum → Vara** route uses a light client of Ethereum that runs on Vara: trust is achieved through on-chain validation of Ethereum’s consensus — specifically, through the **beacon chain** and its finalized checkpoints.
 
 In this design, **event logs** on Ethereum serve as the source of truth. Applications emit events as part of contract execution. These events are included in Ethereum's canonical chain history (the beacon chain), and can be cryptographically proven by anyone — but only after finality is reached on Ethereum.
 
@@ -14,7 +14,7 @@ A permissionless relayer observes the beacon chain, builds receipt proofs for th
 
 This mechanism is fundamentally **event-based** and asynchronous. Application developers are not required to build the bridge or proof logic themselves — only to emit and handle events, while the trustless bridge and relayers manage the cross-chain transport.
 
-For simplification, developers can now use the ready-made [**GearJS Bridge library**](https://github.com/gear-tech/gear-bridges/tree/main/js/bridge-js), which performs most of the heavy lifting: proof generation, slot synchronization, and submission to Vara. This allows application developers to focus purely on emitting events on Ethereum and writing the receiving logic on Vara.
+For simplification, developers can now use the ready-made **GearJS Bridge library** (`@gear-js/bridge`), which performs most of the heavy lifting: proof generation, slot synchronization, and submission to Vara. This allows application developers to focus purely on emitting events on Ethereum and writing the receiving logic on Vara.
 
 ---
 

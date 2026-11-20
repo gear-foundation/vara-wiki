@@ -12,7 +12,7 @@ import { ethMainnet, varaMainnet } from '@/addresses/bridge-addresses.js';
 
 **Use this section to:**
 - Explore and verify bridge-related contracts
-- Begin building integrations with the bridge (e.g. relayers, token managers, custom assets)
+- Begin building integrations with the bridge (e.g. relayers, message handlers, cross-chain applications)
 
 ---
 
@@ -22,16 +22,23 @@ import { ethMainnet, varaMainnet } from '@/addresses/bridge-addresses.js';
     Vara Mainnet is the only public network. The bridge testnet deployment has been decommissioned along with the Vara testnet - build and integrate directly against the production addresses below.
 </Callout>
 
+<Callout type="warn" title="Ethereum contracts were redeployed">
+    The Ethereum side of the bridge now verifies Vara finality with a BEEFY light client. The contracts were redeployed for this change, including **MessageQueue**, **ERC20Manager**, **Bridging Payment**, **WVARA** and the governance contracts.
+
+    Addresses of the previous deployment are no longer part of the bridge. If your integration stores bridge addresses, update them to the values below. The programs on Vara keep their addresses.
+</Callout>
+
 <div className="network-section mainnet">
 ### Ethereum Mainnet
 
 #### Core Components
 
-| Component            | Address                                                                                                                  |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| **Verifier**         | <a href={`https://etherscan.io/address/${ethMainnet.verifier}`} target="\_blank">{ethMainnet.verifier}</a>               |
-| **MessageQueue**     | <a href={`https://etherscan.io/address/${ethMainnet.messageQueue}`} target="\_blank">{ethMainnet.messageQueue}</a>       |
-| **Bridging Payment** | <a href={`https://etherscan.io/address/${ethMainnet.bridgingPayment}`} target="\_blank">{ethMainnet.bridgingPayment}</a> |
+| Component                 | Address                                                                                                                  |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **BeefyClient**           | <a href={`https://etherscan.io/address/${ethMainnet.beefyClient}`} target="\_blank">{ethMainnet.beefyClient}</a>         |
+| **VaraQueueRootVerifier** | <a href={`https://etherscan.io/address/${ethMainnet.verifier}`} target="\_blank">{ethMainnet.verifier}</a>               |
+| **MessageQueue**          | <a href={`https://etherscan.io/address/${ethMainnet.messageQueue}`} target="\_blank">{ethMainnet.messageQueue}</a>       |
+| **Bridging Payment**      | <a href={`https://etherscan.io/address/${ethMainnet.bridgingPayment}`} target="\_blank">{ethMainnet.bridgingPayment}</a> |
 
 #### Token Contracts
 
@@ -68,6 +75,8 @@ import { ethMainnet, varaMainnet } from '@/addresses/bridge-addresses.js';
 | **historical-proxy**        | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.historicalProxy}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.historicalProxy}</a>             |
 | **vft-manager**             | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.vftManager}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.vftManager}</a>                       |
 | **Bridging Payment**        | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.bridgingPayment}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.bridgingPayment}</a>             |
+
+The outbound message queue lives in the `gear_eth_bridge` pallet. Programs reach it through the [Bridge Built-in Actor](/docs/developing/build/builtinactors/bia-bridge).
 
 #### Token Contracts
 

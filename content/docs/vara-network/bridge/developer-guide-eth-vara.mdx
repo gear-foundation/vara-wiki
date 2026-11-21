@@ -130,6 +130,8 @@ async function handleEvent(txHash: `0x${string}`) {
 }
 ```
 
+Take `HISTORICAL_PROXY_ID` from the [Developer Hub](/docs/vara-network/bridge/developer_hub). Do not hard-code `CHECKPOINT_LIGHT_CLIENT`: the light client is replaced from time to time, so read its current address through the historical proxy as the Developer Hub describes.
+
 That’s all: **listen to the Ethereum event → forward tx hash → the library handles proofs & finality**.  
 Full code is available in the [relayer package](https://github.com/gear-foundation/cross-ping/tree/master/packages/eth-vara-relayer-node).
 

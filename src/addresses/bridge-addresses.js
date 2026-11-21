@@ -16,8 +16,6 @@ export const ethMainnet = {
 
 // Vara (Mainnet) contract addresses
 export const varaMainnet = {
-  checkpointLightClient:
-    "0xf0a411ed5b8c28194d60781306de2ef131ec7df28658f7a857fc95fd86db7e8b",
   historicalProxy:
     "0x0d94bc213584835a98a49227d5f40bcecc18019f252835138ea364cac9690fb1",
   vftManager:

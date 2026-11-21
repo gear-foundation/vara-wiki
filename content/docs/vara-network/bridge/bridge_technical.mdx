@@ -212,6 +212,15 @@ Through proposals the bridge allows:
     * **Safeguards:** Governance messages wait longer than regular ones before they can be executed on Ethereum, and the `MessageQueue` contract has emergency controls that stop message processing while an issue is investigated.
 </Callout>
 
+### Team-Operated Roles
+
+Not every action goes through a referendum. Two roles on Ethereum are held by keys that the team operates:
+
+- **Emergency observers** can temporarily stop message processing in the `MessageQueue` contract while an issue is investigated.
+- **Recovery multisig.** The upgradeable Ethereum contracts (`MessageQueue`, `ERC20Manager` and WVARA) can also be upgraded by a multisig through a timelock. This is a recovery path for the case when a governance message cannot be delivered through the bridge itself.
+
+These roles are trust assumptions on top of the two light clients.
+
 <Callout type="idea" title="What Does This Mean for Users?">
     Governance makes the bridge resilient and **future-proof**:
 

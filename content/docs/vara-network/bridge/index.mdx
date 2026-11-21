@@ -64,7 +64,7 @@ Messages are not approved by a multisig or a committee of bridge operators. Each
 - **Vara finality on Ethereum.** Vara validators sign BEEFY commitments. A light client contract on Ethereum checks these signatures and tracks every validator set change, so Ethereum only accepts messages that Vara has finalized.
 - **Ethereum finality on Vara.** A light client program on Vara verifies Ethereum blocks finalized by the Beacon Chain sync committee, so Vara only accepts events that Ethereum has finalized.
 - **Replay protection.** Every message carries a unique nonce and can be processed only once.
-- **Governance and emergency controls.** Parameters, pausing and regular upgrades go through Vara on-chain governance on dedicated tracks. Team-operated keys also exist for emergency response and recovery; the [technical overview](/docs/vara-network/bridge/bridge_technical#team-operated-roles) describes them.
+- **Governance and emergency controls.** Parameters, pausing and regular upgrades go through Vara on-chain governance on dedicated tracks.
 
 <Callout type="idea" title="Deep Dive: Vara-Ethereum Bridge">
     Curious about the underlying mechanics and security? Explore these resources:

@@ -33,7 +33,7 @@ Relayers — permissionless actors that only transport data — deliver these co
    - Belongs to an accepted queue root.
    - Has not already been processed.
 
-If both conditions are met, the message is marked as processed and delivered to its destination contract (for example, `ERC20Manager`, which mints or releases tokens).
+Those checks authenticate an unprocessed message; they do not guarantee delivery. The queue must also allow processing and accept the destination. If the destination call reverts, the entire transaction reverts, including the processed nonce update. A successful processing transaction emits `MessageProcessed`; check the application event or state to confirm the intended effect.
 
 <Callout type="note" title="Maturity Delay">
     The delay starts when the selected block's queue root is registered on Ethereum, not when the user sends on Vara. The mainnet queue uses **5 minutes** for user and emergency pause messages and **1 hour** for governance administration messages.

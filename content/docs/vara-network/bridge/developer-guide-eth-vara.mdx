@@ -2,7 +2,7 @@
 title: Ethereum → Vara App Guide
 ---
 
-This guide follows one application ping from Ethereum to Vara. The Vara light client authenticates Ethereum finality; the receipt proof authenticates the execution log. Your receiving program decides which emitter, event, and payload it accepts. To send a reply back, follow the [Vara → Ethereum App Guide](/docs/vara-network/bridge/developer-guide-vara-eth).
+This guide follows a one-way application ping from Ethereum to Vara. The Vara light client authenticates Ethereum finality; the receipt proof authenticates the execution log. Your receiving program decides which emitter, event, and payload it accepts. The [Vara → Ethereum App Guide](/docs/vara-network/bridge/developer-guide-vara-eth) uses a separate example; it is not a reply path for this ping.
 
 ## High-Level Architecture
 
@@ -10,11 +10,13 @@ This guide follows one application ping from Ethereum to Vara. The Vara light cl
 2. A relayer builds a proof of the receipt against finalized Ethereum history supported by the checkpoint light client on Vara.
 3. The Historical Proxy routes the proof to the verifier configured for the Ethereum slot. After verification, it forwards the authenticated receipt to the Vara application.
 
-Use the deployment identities from the [Developer Hub](/docs/vara-network/bridge/developer_hub). The example covers application code; proof tooling must support the selected checkpoint, verifier, and receiver interface. A proxy acknowledgement is not proof of application success.
+The example uses a Historical Proxy endpoint that forwards the **raw EIP-2718 receipt trie value**: an RLP list for a legacy receipt, or the type byte followed by the RLP payload for a typed receipt. Use a matching verifier and proof tool on your test deployment. The retained mainnet token path RLP-wraps typed receipts and is not the profile used by this example. Do not use a decoder fallback to accept both formats.
 
 ## Emit and Identify the Ping on Ethereum
 
 This example emits `MessageRequested`, an application event, not a bridge-wide event ABI. Deploy it with the authorized Ethereum sender and the full 32-byte ID of your Vara program. Configure the Vara receiver to expect this emitter address, sender, and event ABI.
+
+The constructors need both addresses. Before deploying `EthereumPingSender`, calculate the Vara actor ID with `generateProgramId(wasm, salt)` from `@gear-js/api`, using the receiver Wasm you will deploy and a fresh salt. Then deploy the receiver with that same Wasm and salt and pass the Ethereum contract address as its `emitter`. Confirm the receiver's initialization succeeded with the intended configuration before sending the ping.
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -55,19 +57,158 @@ The 1,024-byte limit belongs to the ping application, not the receipt bridge. Us
 
 ## Authenticate the Ping on Vara
 
-Configure the relayer to forward to your receiver's Sails service and method, for example `Ping` and `SubmitReceipt`. After the slot-specific verifier accepts the proof, the Historical Proxy prefixes the receiver's route to the SCALE-encoded arguments below. The service name, method name, and return type are application-defined.
+Call `HistoricalProxy.Redirect` with the receiver's actor ID as `client` and the SCALE-encoded pair of strings `("Ping", "SubmitReceipt")` as `client_route`. The proxy prefixes that route to the verified arguments in this order: `(slot: u64, transaction_index: u64, receipt_rlp: Vec<u8>)`. The program returns `Result<H256, ReceiptError>` after its route prefix. Decode that result from the proxy's consumer reply; a successful redirect alone does not prove the ping was accepted.
 
-```text
-(slot: u64, transaction_index: u64, receipt_rlp: vec u8)
+The example uses Sails' string-prefixed SCALE routes. Create a Rust library crate with the following `Cargo.toml` and `src/lib.rs`. In `build.rs`, use `fn main() { sails_rs::build_wasm(); }`. Install the `wasm32v1-none` target for `nightly-2026-02-10`, then run `cargo +nightly-2026-02-10 build --release` and use the generated `.opt.wasm` for deployment.
+
+```toml
+[package]
+name = "vara-ping-receiver"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sails-rs = { git = "https://github.com/gear-tech/sails.git", rev = "3cd30d98a22ad92f0c3ac3a1bf0c2fb360fb75c9" }
+gstd = { version = "=1.10.0", features = ["nightly"] }
+alloy-consensus = { version = "=2.5.0", default-features = false }
+alloy-eips = { version = "=2.5.0", default-features = false }
+alloy-sol-types = { version = "=1.7.3", default-features = false }
+
+[build-dependencies]
+sails-rs = { git = "https://github.com/gear-tech/sails.git", rev = "3cd30d98a22ad92f0c3ac3a1bf0c2fb360fb75c9", features = ["wasm-builder"] }
 ```
 
-Match the receipt encoding used by the configured verifier; do not assume all deployments forward the same RLP framing. Before applying the ping:
+```rust
+#![no_std]
 
-1. Require the runtime message source to be the configured Historical Proxy actor. Calling an exported handler directly must not authenticate a receipt.
-2. Decode the receipt, require a successful Ethereum transaction, and match the configured emitter and `MessageRequested` signature. Validate the decoded ABI, the authorized Ethereum sender, this program's actor ID as `destination`, the nonzero application ID, and the payload. Reject a receipt without exactly one matching event.
-3. Reject replay using the verified receipt position (slot and transaction index) and the accepted application ID. If the handler supports several events per receipt, include the receipt-local log position when tracking consumption.
-4. Record the accepted ID and payload as the application effect and return an explicit success result.
+use alloy_consensus::ReceiptEnvelope;
+use alloy_eips::eip2718::Decodable2718;
+use alloy_sol_types::{sol, SolEvent};
+use core::cell::RefCell;
+use sails_rs::{
+    collections::{BTreeMap, BTreeSet},
+    prelude::*,
+};
+
+sol! {
+    event MessageRequested(
+        bytes32 indexed applicationId,
+        address indexed sender,
+        bytes32 indexed destination,
+        bytes payload
+    );
+}
+
+#[derive(Encode, Decode, TypeInfo)]
+#[codec(crate = sails_rs::scale_codec)]
+#[scale_info(crate = sails_rs::scale_info)]
+pub enum ReceiptError {
+    WrongProxy,
+    InvalidReceipt,
+    InvalidPing,
+    AlreadyAccepted,
+}
+
+struct State {
+    proxy: ActorId,
+    emitter: H160,
+    sender: H160,
+    positions: BTreeSet<(u64, u64)>,
+    pings: BTreeMap<H256, Vec<u8>>,
+}
+
+pub struct Ping<'a>(&'a RefCell<State>);
+
+#[service]
+impl<'a> Ping<'a> {
+    #[export]
+    pub fn submit_receipt(
+        &mut self,
+        slot: u64,
+        transaction_index: u64,
+        receipt_rlp: Vec<u8>,
+    ) -> Result<H256, ReceiptError> {
+        assert_eq!(Syscall::message_value(), 0, "do not attach value");
+        let mut state = self.0.borrow_mut();
+        if Syscall::message_source() != state.proxy {
+            return Err(ReceiptError::WrongProxy);
+        }
+        let position = (slot, transaction_index);
+        if state.positions.contains(&position) {
+            return Err(ReceiptError::AlreadyAccepted);
+        }
+        let receipt = ReceiptEnvelope::decode_2718_exact(&receipt_rlp)
+            .map_err(|_| ReceiptError::InvalidReceipt)?;
+        if receipt.as_receipt().and_then(|r| r.status.as_eip658()) != Some(true) {
+            return Err(ReceiptError::InvalidReceipt);
+        }
+
+        let mut logs = receipt.logs().iter().filter(|log| {
+            log.address.as_slice() == &state.emitter.0[..]
+                && log.topics().first() == Some(&MessageRequested::SIGNATURE_HASH)
+        });
+        let log = logs.next().ok_or(ReceiptError::InvalidPing)?;
+        if logs.next().is_some() {
+            return Err(ReceiptError::InvalidPing);
+        }
+        let event = MessageRequested::decode_log_data_validate(&log.data)
+            .map_err(|_| ReceiptError::InvalidPing)?;
+        let ping_id = H256::from(event.applicationId.0);
+        let len = event.payload.len();
+        if event.sender.as_slice() != &state.sender.0[..]
+            || ActorId::from(event.destination.0) != Syscall::program_id()
+            || ping_id.is_zero()
+            || len > 1024
+        {
+            return Err(ReceiptError::InvalidPing);
+        }
+
+        // One dynamic bytes argument: require its canonical ABI offset, length and padding.
+        let data = log.data.data.as_ref();
+        if log.topics().len() != 4
+            || log.topics()[2][..12].iter().any(|&b| b != 0)
+            || data.len() != 64 + len.div_ceil(32) * 32
+            || data[..31].iter().any(|&b| b != 0)
+            || data[31] != 32
+            || data[64 + len..].iter().any(|&b| b != 0)
+        {
+            return Err(ReceiptError::InvalidPing);
+        }
+        if state.pings.contains_key(&ping_id) {
+            return Err(ReceiptError::AlreadyAccepted);
+        }
+        state.pings.insert(ping_id, event.payload.to_vec());
+        state.positions.insert(position);
+        Ok(ping_id)
+    }
+
+    #[export]
+    pub fn received(&self, ping_id: H256) -> Option<Vec<u8>> {
+        self.0.borrow().pings.get(&ping_id).cloned()
+    }
+}
+
+pub struct Receiver(RefCell<State>);
+
+#[program]
+impl Receiver {
+    pub fn new(proxy: ActorId, emitter: H160, sender: H160) -> Self {
+        assert!(!proxy.is_zero() && !emitter.is_zero() && !sender.is_zero());
+        Self(RefCell::new(State {
+            proxy,
+            emitter,
+            sender,
+            positions: BTreeSet::new(),
+            pings: BTreeMap::new(),
+        }))
+    }
+
+    pub fn ping(&self) -> Ping<'_> {
+        Ping(&self.0)
+    }
+}
+```
 
 ## Verification
 
-Check that the original submission finalized on Vara and that the receiver stored the expected ping ID and payload. A finalized checkpoint makes proof verification possible; it is not delivery. Test that direct calls, wrong emitters or event signatures, malformed payloads, and duplicate pings do not change receiver state.
+Check that the original submission finalized on Vara, that the consumer reply was `Ok(ping_id)`, and that `Ping.Received(ping_id)` returns the expected payload. A finalized checkpoint makes proof verification possible; it is not delivery. Test that direct calls, wrong emitters or event signatures, malformed payloads, and duplicate pings do not change receiver state.

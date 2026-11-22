@@ -2,7 +2,7 @@
 title: Vara → Ethereum App Guide
 ---
 
-This guide follows one application ping from Vara to Ethereum. `BeefyClient` authenticates Vara finality. `MessageQueue` verifies the ping's inclusion in a registered queue root and dispatches it. Your application still decides which source actor and payload it accepts. A pong sent back to Vara is a separate message; see the [Ethereum → Vara App Guide](/docs/vara-network/bridge/developer-guide-eth-vara).
+This guide follows a one-way application ping from Vara to Ethereum. `BeefyClient` authenticates Vara finality. `MessageQueue` verifies the ping's inclusion in a registered queue root and dispatches it. Your application still decides which source actor and payload it accepts. The [Ethereum → Vara App Guide](/docs/vara-network/bridge/developer-guide-eth-vara) uses a separate example; the two are not a ping/pong pair.
 
 ## High-Level Architecture
 

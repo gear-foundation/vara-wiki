@@ -15,10 +15,22 @@ The `executableBalanceTopUp` function on the Mirror contract is the primary way 
 
 Use the token from your Router's `wrappedVara()` getter, not the Vara Network bridge's WVARA. Read that token's `decimals()` to convert the amount; the Ethereum Mainnet Router's wVARA has 12 decimals.
 
-```typescript
-import { Contract, parseUnits } from 'ethers';
+This example targets Ethereum Mainnet. Set `routerAddress` from the [Vara.eth deployment table](/docs/vara-eth/reference/contract-addresses#ethereum-mainnet), `mirrorAddress` to the program you intend to fund, and `signer` to your connected wallet. For another deployment, change the chain ID and Router together.
 
-const router = new Contract(routerAddress, ['function wrappedVara() view returns (address)'], signer);
+```typescript
+import { Contract, parseUnits, ZeroHash } from 'ethers';
+
+const network = await signer.provider?.getNetwork();
+if (network?.chainId !== 1n) throw new Error('Connect to Ethereum Mainnet');
+
+const router = new Contract(routerAddress, [
+  'function programCodeId(address program) view returns (bytes32)',
+  'function wrappedVara() view returns (address)',
+], signer);
+if (await router.programCodeId(mirrorAddress) === ZeroHash) {
+  throw new Error('Mirror is not registered with this Router');
+}
+
 const wvara = new Contract(await router.wrappedVara(), [
   'function decimals() view returns (uint8)',
   'function approve(address spender, uint256 amount) returns (bool)',
@@ -26,7 +38,9 @@ const wvara = new Contract(await router.wrappedVara(), [
 const amount = parseUnits('100', await wvara.decimals());
 await (await wvara.approve(mirrorAddress, amount)).wait();
 
-const mirror = new Contract(mirrorAddress, mirrorAbi, signer);
+const mirror = new Contract(mirrorAddress, [
+  'function executableBalanceTopUp(uint128 value)',
+], signer);
 await (await mirror.executableBalanceTopUp(amount)).wait();
 ```
 
@@ -48,11 +62,13 @@ ethexe tx executable-balance-top-up "$PROGRAM_ID" "$AMOUNT_BASE_UNITS" \
 
 - `$PROGRAM_ID` — Mirror contract address
 - `$AMOUNT_BASE_UNITS` — Amount in the Router token's base units (`10000000000000` for 10 wVARA on Ethereum Mainnet)
-- `--approve` — Automatically approve wVARA spending before top-up
+- `--approve` — Check that the selected Router recognizes the Mirror, then approve wVARA spending before the top-up. Verify that `$RPC` and `$ROUTER` point to the intended deployment before running the command.
 
 ### Etherscan
 
-Navigate to the Mirror address on Etherscan. Under "Write as Proxy" (or "Write Contract"), find `executableBalanceTopUp` and enter the amount in the Router token's base units.
+1. Open the [Router for your network](/docs/vara-eth/reference/contract-addresses) in its block explorer and connect your wallet to that same network. In "Read as Proxy" (or "Read Contract"), call `programCodeId` with the Mirror address. Do not approve if the result is zero.
+2. Read `wrappedVara()` on that Router. On the returned token contract, call `approve` with the verified Mirror as `spender` and the exact amount in base units.
+3. On that Mirror, open "Write as Proxy" (or "Write Contract") and call `executableBalanceTopUp` with the same amount.
 
 ## How Execution Is Charged
 

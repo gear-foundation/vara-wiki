@@ -1,15 +1,5 @@
-# Stage 1: Install dependencies
-FROM node:lts-alpine AS deps
-WORKDIR /app
-
-# Copy dependency files
-COPY package.json package-lock.json ./
-
-# Install dependencies with clean install
-RUN npm ci --only=production --force
-
-# Stage 2: Build application
-FROM node:lts-alpine AS builder
+# Stage 1: Build application
+FROM node:24.22.3-trixie-slim@sha256:af02d57b57719b9657a45199a79264a9437940cd55b3c7b3fc99615654f124a0 AS builder
 WORKDIR /app
 
 # Copy dependency files for build
@@ -27,27 +17,21 @@ RUN npx fumadocs-mdx
 # Build the application with standalone output
 RUN NODE_OPTIONS="--localstorage-file=/tmp/localstorage" npm run build
 
-# Stage 3: Production runtime
-FROM node:lts-alpine AS runner
+# Stage 2: Production runtime
+FROM gcr.io/distroless/nodejs24-debian13:nonroot@sha256:6abfcb367ebc291572c774c1592a986be2ab26a2486f73093401327495a5962a AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Create non-root user for security
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
-
 # Copy standalone build from builder
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-
-# Switch to non-root user
-USER nextjs
+COPY --from=builder --chown=65532:65532 /app/.next/standalone ./
+COPY --from=builder --chown=65532:65532 /app/.next/static ./.next/static
+COPY --from=builder --chown=65532:65532 /app/public ./public
 
 EXPOSE 3000
 
 ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
 # Start the Next.js server
-CMD ["node", "server.js"]
+CMD ["server.js"]

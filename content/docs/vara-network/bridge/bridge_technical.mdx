@@ -27,7 +27,7 @@ Vara validators run BEEFY on top of regular block finality. The MMR leaf added a
 
 Relayers — permissionless actors that only transport data — deliver these commitments to Ethereum:
 
-1. A relayer submits a BEEFY commitment to `BeefyClient`. The client checks sampled ECDSA validator signatures against the tracked authority set and stores the accepted MMR root. Authority handovers are authenticated through the previously committed next set.
+1. A relayer submits a BEEFY commitment to `BeefyClient`. With the current 41-authority mainnet set, the client requires valid ECDSA signatures from more than two thirds of the set (28 signatures) before storing the accepted MMR root. Authority handovers are authenticated through the previously committed next set.
 2. A relayer registers a queue root for a Vara block in `MessageQueue`. `VaraQueueRootVerifier` checks that the queue snapshot is included in an accepted MMR root and is bound to this Ethereum chain and queue.
 3. After the root matures, a relayer submits the original message and its inclusion proof to `MessageQueue`. The contract checks that the message:
    - Belongs to an accepted queue root.
@@ -64,7 +64,7 @@ This example describes the protocol for an enabled VARA route, not which routes 
 
 In the reverse direction, `ERC20Manager` burns bridge WVARA and emits `BridgingRequested`. Ethereum finality is authenticated on Vara, then the receipt proof is sent through the Historical Proxy to the VFT Manager.
 
-Wrapped-token release, conversion, and payment or claiming of native VARA are distinct outcomes. Verify the actual destination effect; a receipt being accepted or wrapped funds being released does not establish native payout.
+Check that the intended asset arrived in the destination wallet. If you expected native VARA, check its native balance and any pending claim. An accepted receipt or a wrapped-token credit does not show that native VARA arrived.
 
 For Ethereum-origin ERC-20s, `ERC20Manager` locks the original tokens and the VFT Manager mints wrapped tokens on Vara. The reverse direction burns the wrapped tokens and releases the originals. An ETH route can involve Ethereum-side wrapping or unwrapping; WETH in the contract registry is an ERC-20, not native ETH.
 

@@ -6,6 +6,16 @@ title: Bridge Guideline
 
 Use the official [bridge interface](https://bridge.vara.network/) to check which assets and directions currently accept new transfers. Availability for new transfers is separate from the ability to claim an existing transfer. The [Developer Hub](/docs/vara-network/bridge/developer_hub) lists deployed contracts, not live route status.
 
+| On Vara | On Ethereum |
+| --- | --- |
+| VARA | BEEFY bridge WVARA |
+| WETH | ETH (the bridge uses WETH on-chain) |
+| WUSDT | USDT |
+| WUSDC | USDC |
+| WBTC | WBTC |
+
+These are the bridge's asset pairs, not a list of open routes. Check the interface before initiating a transfer.
+
 <Callout type="warn" title="Check the token address">
     Match the chain and token contract to the [Developer Hub](/docs/vara-network/bridge/developer_hub). In particular, BEEFY bridge WVARA and the Vara.eth Router's wVARA are different ERC-20 tokens with the same ticker.
 </Callout>
@@ -54,7 +64,7 @@ Use the official [bridge interface](https://bridge.vara.network/) to check which
 
 ### Step 5: Track Your Transaction
 
-Use **Transactions** to track the original transfer. Delivery waits for source finality, proof availability, and destination execution; in the Vara → Ethereum direction it also waits for the queue root to mature. Check the destination transaction and the recipient's balance before treating a transfer as complete. For native VARA, a wrapped-token release or conversion is not proof that the recipient received or claimed native VARA.
+Use **Transactions** to track the original transfer. Allow **tens of minutes to a few hours** as a planning estimate, not a deadline. Delivery waits for source finality, proof availability, and destination execution; Vara → Ethereum also waits for the queue root to mature. Pauses or proof delays can take longer. Check that the intended asset arrived in the destination wallet. If you expected native VARA, check the native balance and any pending claim, not just a wrapped-token credit.
 
 For transfers initiated before the Ethereum contract cutover, retain the original source transaction hash and reconcile it against the original deployment. Do not resend the transfer or switch contract addresses to try to claim it.
 

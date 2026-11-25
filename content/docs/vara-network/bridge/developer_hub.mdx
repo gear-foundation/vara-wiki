@@ -19,7 +19,7 @@ import { ethMainnet, varaMainnet } from '@/addresses/bridge-addresses.js';
 ## Vara Bridge Deployments
 
 <Callout type="info" title="Mainnet only">
-    These are mainnet deployments. The former Vara bridge testnet is no longer available. A listed contract is not a guarantee that a transfer or claim is currently available; check the [Bridge Guide](/docs/vara-network/bridge/bridge_guide) for how to check your route. Develop and test before using mainnet funds.
+    These are mainnet deployments. The former Vara bridge testnet is no longer available. Test on a local Gear development node (`gear --dev`) and a local Ethereum node such as Anvil before using mainnet funds. Testing proof delivery also requires a bridge deployment on those nodes. A listed contract does not mean a transfer or claim is currently available; see the [Bridge Guide](/docs/vara-network/bridge/bridge_guide) to check your route.
 </Callout>
 
 <Callout type="warn" title="Ethereum contracts were redeployed">
@@ -39,6 +39,8 @@ import { ethMainnet, varaMainnet } from '@/addresses/bridge-addresses.js';
 | **VaraQueueRootVerifier** | <a href={`https://etherscan.io/address/${ethMainnet.verifier}`} target="\_blank">{ethMainnet.verifier}</a>               |
 | **MessageQueue**          | <a href={`https://etherscan.io/address/${ethMainnet.messageQueue}`} target="\_blank">{ethMainnet.messageQueue}</a>       |
 | **Bridging Payment**      | <a href={`https://etherscan.io/address/${ethMainnet.bridgingPayment}`} target="\_blank">{ethMainnet.bridgingPayment}</a> |
+
+The queue can change verifiers. Read `MessageQueue.verifier()` and then `beefyClient()` on that verifier at the same finalized Ethereum block to confirm the current pair.
 
 #### Token Contracts
 

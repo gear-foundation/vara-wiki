@@ -10,7 +10,7 @@ This guide follows a one-way application ping from Vara to Ethereum. `BeefyClien
 2. A relayer submits an inclusion proof for the original message after the selected queue root has matured.
 3. The Ethereum receiver authenticates the caller and source actor, then records the ping.
 
-Use the deployment identities from the [Developer Hub](/docs/vara-network/bridge/developer_hub). The examples cover application code; proof generation and submission require a relayer compatible with the selected deployment. Do not assume an SDK's `wait: true` guarantees root maturity or successful execution.
+Use the deployment identities from the [Developer Hub](/docs/vara-network/bridge/developer_hub). Publishing a Vara queue root to Ethereum is separate from proving and executing an application message. These steps start with an already registered root; they do not publish a BEEFY commitment.
 
 ## Queue a Ping on Vara
 
@@ -20,9 +20,11 @@ Use the deployment identities from the [Developer Hub](/docs/vara-network/bridge
 
 ## Relay the Original Message
 
-1. From finalized Vara history, find the original queued message, then obtain its inclusion proof against a queue snapshot registered by the configured Ethereum `MessageQueue`.
-2. Confirm that the root for the **selected Vara block number** has matured on Ethereum. For a user message, `PROCESS_USER_MESSAGE_DELAY` is currently 300 seconds from that root's registration. An identical root hash registered for a different block does not share its timestamp.
-3. Submit the original message and proof to `MessageQueue` on Ethereum. If submission is pending or its outcome is unknown, reconcile the original transaction before retrying. Do not send a new ping to replace an unresolved one.
+1. Find the message in finalized Vara history. Select a registered queue snapshot that includes it. Use an archive Vara endpoint and [`@gear-js/api`](https://www.npmjs.com/package/@gear-js/api) to call `api.ethBridge.merkleProof(messageHash, snapshotBlockHash)`, using the selected snapshot's Vara block hash, not necessarily the block that enqueued the ping. Use the original message hash from the queue reply and compare the returned `root` to `MessageQueue.getMerkleRoot(snapshotBlockNumber)`.
+2. Confirm that the root for the **selected Vara block number** has matured on Ethereum. For a user message, read `PROCESS_USER_MESSAGE_DELAY` (currently 300 seconds) and `getMerkleRootTimestampForBlock(snapshotBlockNumber)`. Do not infer maturity from the same root hash registered at a different block.
+3. With [viem](https://viem.sh/docs/contract/simulateContract), simulate `MessageQueue.processMessage(snapshotBlockNumber, number_of_leaves, leaf_index, message, proof)` against the configured proxy before sending the transaction. Pass the original `(nonce, source, destination, payload)` as `message`; take `number_of_leaves`, `leaf_index`, and `proof` from the Vara RPC result. If submission is pending or its outcome is unknown, reconcile the original transaction before retrying. Do not send a new ping to replace an unresolved one.
+
+The published [`@gear-js/bridge@0.2.0`](https://www.npmjs.com/package/@gear-js/bridge/v/0.2.0) exports `relayVaraToEth`, but it uses legacy GRANDPA authority-set checks when selecting a later root, and its `wait` option waits for registration, not maturity. Use the explicit snapshot steps above for BEEFY-backed roots.
 
 ## Authenticate the Ping on Ethereum
 

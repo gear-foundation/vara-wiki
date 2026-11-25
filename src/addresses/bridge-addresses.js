@@ -1,7 +1,7 @@
 // Ethereum (Mainnet) contract addresses
 export const ethMainnet = {
-  beefyClient: "0x0d8B53E6F7CF0E9e2334F19FC7b530137357E3b0",
-  verifier: "0xf1ab01cc8a711f0b8031998779E1EA51e384A240",
+  beefyClient: "0xe6D4EaB62E9B00f9B8b10E4Bd48BE7C31060737E",
+  verifier: "0x6204c3964Fb586e6d9C6F44bbC7FF35Bd9edc261",
   messageQueue: "0xaE4211017688cB681cb04796a47a528509bd29EC",
   bridgingPayment: "0xC4A11797BeFB5EA6198ac6F17eBBd1d3CE9bdE95",
   usdc: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",

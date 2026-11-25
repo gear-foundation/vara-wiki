@@ -9,22 +9,17 @@ description: How to acquire wVARA tokens for funding programs and participating 
 
 The Vara.eth faucet distributed Hoodi wVARA and ETH during the TestNet campaign. That campaign is complete and the faucet is no longer running — the WVARA contract itself is still deployed on Hoodi, see [Contract Addresses](/docs/vara-eth/reference/contract-addresses).
 
-To experiment today, run a [full local stack](/docs/vara-eth/setup/local-node) — it deploys its own WVARA contract, so no faucet is needed.
-
 ## Mainnet
 
 ### Verify the Token Before Acquiring It
 
 Use the ERC-20 returned by the [Mainnet Router's `wrappedVara()` getter](https://etherscan.io/address/0x9C13FE9242dfe2ba2Cd446480A9308279aA74cb6#readProxyContract). The current [Vara Network bridge](/docs/vara-network/bridge/developer_hub#token-contracts) issues a different ERC-20 with the same ticker. Bridging VARA there does not fund a Vara.eth executable balance.
 
-### Validator Rewards
+On Ethereum Mainnet, you can receive the Router's wVARA from an existing holder. There is no public faucet or documented public purchase or bridge route for this token. The current mainnet deployment does not distribute validator rewards on-chain.
 
-Validators earn wVARA for:
-- Executing programs and committing batches
-- Participating in the FROST signing protocol
-- Maintaining uptime and correct execution
+## Local Development
 
-See [Validators & Staking](/docs/vara-eth/economics/validators-staking) for details.
+Use [Gear's local Vara.eth network script](https://github.com/gear-tech/gear/blob/master/ethexe/scripts/start-local-network.sh) to develop without acquiring mainnet wVARA. The local network deploys its own token.
 
 ## Token Address
 

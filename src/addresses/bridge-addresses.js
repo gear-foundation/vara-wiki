@@ -17,7 +17,7 @@ export const ethMainnet = {
 // Vara (Mainnet) contract addresses
 export const varaMainnet = {
   historicalProxy:
-    "0x0d94bc213584835a98a49227d5f40bcecc18019f252835138ea364cac9690fb1",
+    "0x99762d5f8b416baca9b27cb77a448866755c6b9e9e40743378cce4e833221e1c",
   vftManager:
     "0x440e8faddaef7e9cc7230564fd062cd807d4a957d2dfe61da8638ee633d72f7f",
   bridgingPayment:

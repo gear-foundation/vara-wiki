@@ -79,9 +79,17 @@ BEEFY bridge WVARA is not the token used by the [Vara.eth Router](/docs/vara-eth
 | **vft-manager**             | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.vftManager}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.vftManager}</a>                       |
 | **Bridging Payment**        | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.bridgingPayment}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.bridgingPayment}</a>             |
 
-The Ethereum light client on Vara (`checkpoint-light-client`) is not listed here because its address changes whenever the client is replaced. Read the current address on-chain: call `EndpointFor(slot)` on **historical-proxy** to get the active event-verification program, then call `CheckpointLightClientAddress` on that program.
-
 The outbound message queue lives in the `gear_eth_bridge` pallet. Programs reach it through the [Bridge Built-in Actor](/docs/developing/build/builtinactors/bia-bridge).
+
+#### Find the inbound receipt route
+
+Use the Ethereum **Beacon slot of the original receipt**, not its execution block number or the latest slot. At the same finalized Vara block:
+
+1. Query `VftManager.HistoricalProxyAddress` on the VFT Manager to find its configured Historical Proxy.
+2. Query `HistoricalProxy.EndpointFor(receiptSlot)` on that proxy to find the event verifier for the receipt.
+3. Query `EthereumEventClient.CheckpointLightClientAddress` on that verifier to find its checkpoint light client.
+
+Vara referendum #105 changed the VFT Manager's receipt route without replacing the manager. The listed proxy starts at Beacon slot **15,722,720**, inclusive, and returns `NoEndpointForSlot` for earlier slots. Finding an endpoint does not confirm that the light client has accepted the checkpoint needed for the proof. For an older bridge transfer, [track the original Ethereum transaction](/docs/vara-network/bridge/bridge_guide#step-5-track-your-transaction). Do not resend it or switch to the previous proxy as a fallback.
 
 #### Token Contracts
 

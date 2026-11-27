@@ -8,12 +8,12 @@ custom_title: Vara Bridge
 - **Bridge:** [https://bridge.vara.network/](https://bridge.vara.network/)
 </Callout>
 
-**Vara Bridge** is a trustless, light-client-based cross-chain bridge that transfers tokens and data between Ethereum and the Vara Network. Each chain verifies the other chain's finality on-chain:
+**Vara Bridge** is a light-client-based bridge for tokens and application messages between Ethereum and the Vara Network. Each direction authenticates the source chain's finality on-chain:
 
 - **Vara → Ethereum:** an Ethereum smart contract follows Vara finality through [BEEFY](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/client/consensus/beefy/README.md), the bridge-oriented finality protocol run by Vara validators.
-- **Ethereum → Vara:** a program on Vara follows Ethereum finality through the Beacon Chain sync committee.
+- **Ethereum → Vara:** a program on Vara authenticates Ethereum's finalized checkpoints via the Beacon light-client protocol.
 
-No trusted intermediary holds keys to user funds or signs off transfers. Relayers only carry data, and every message is checked against the finality proofs of its source chain.
+Relayers do not authorize individual transfers. The destination checks the source evidence on-chain. Privileged roles can still pause or upgrade bridge components.
 
 In short, the bridge lets you transfer `tokens` and arbitrary `data` between the two networks, improving their liquidity, usability, and accessibility across blockchain ecosystems.
 
@@ -25,7 +25,7 @@ The bridge unlocks significant opportunities for the entire Vara ecosystem, bene
 
 Easily transfer your assets between Ethereum and Vara, expanding trading opportunities and enhancing asset liquidity across multiple platforms.
 
-- Direct access to popular Ethereum DEXs (Balancer, Uniswap, HyperLiquid, etc.).
+- Bridged assets can be used on Ethereum DEXs such as Balancer or Uniswap where a trading pool exists.
 - Potential listings on centralized exchanges supporting Ethereum-based assets.
 - Broader exposure to Ethereum’s comprehensive DeFi infrastructure.
 
@@ -46,25 +46,18 @@ Developers can build powerful, cost-effective dApps by combining Ethereum’s ex
 
 <u>*In short, the Vara-Ethereum Bridge maximizes the versatility and value of digital assets, creating new possibilities across blockchains.*</u>
 
-## Special Case: <u>Gear.exe</u>
+## Vara Bridge and Vara.eth
 
-The Vara-Ethereum Bridge plays a critical role for **[Gear.exe](https://eth.vara.network)** — an advanced coprocessor technology significantly enhancing Ethereum’s computational capabilities. Gear.exe uses the native VARA token deployed on Ethereum for execution fees and network security, making the seamless bridging of VARA tokens essential.
-
-<Callout type="idea" title="Dive into Gear.exe">
-    Want to master the technology behind the Vara Ethereum layer?
-
-    Explore all architectural details and features in the [Gear.exe Whitepaper](https://eth.vara.network/whitepaper).
-</Callout>
+The Vara Network bridge's WVARA and the [Vara.eth Router's wVARA](/docs/vara-eth/reference/contract-addresses#ethereum-mainnet) have different Ethereum contract addresses. Bridge WVARA is not the token for Vara.eth program execution balances.
 
 
 ## How Is It Secured?
 
-Messages are not approved by a multisig or a committee of bridge operators. Each chain accepts a message only when the consensus of the other chain confirms it:
+Message verification relies on the two chains' consensus proofs rather than approval by a relayer or a bridge operator committee:
 
-- **Vara finality on Ethereum.** Vara validators sign BEEFY commitments. A light client contract on Ethereum checks these signatures and tracks every validator set change, so Ethereum only accepts messages that Vara has finalized.
-- **Ethereum finality on Vara.** A light client program on Vara verifies Ethereum blocks finalized by the Beacon Chain sync committee, so Vara only accepts events that Ethereum has finalized.
-- **Replay protection.** Every message carries a unique nonce and can be processed only once.
-- **Governance and emergency controls.** Parameters, pausing and regular upgrades go through Vara on-chain governance on dedicated tracks.
+- **Vara finality on Ethereum.** `BeefyClient` verifies BEEFY commitments and tracks authority changes. The queue checks the original message against an authenticated queue snapshot and prevents nonce replay.
+- **Ethereum finality on Vara.** The checkpoint light client verifies sync-committee attestations and finality branches. A separate receipt proof authenticates the execution log.
+- **Governance and emergency controls.** Pause, upgrade, and configuration powers are separate from proof verification. See the [governance overview](/docs/vara-network/bridge/bridge_technical#governance-layer).
 
 <Callout type="idea" title="Deep Dive: Vara-Ethereum Bridge">
     Curious about the underlying mechanics and security? Explore these resources:

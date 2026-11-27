@@ -215,11 +215,6 @@ Both are derived deterministically from `(codeId, salt)`.
 
 ## Execution Cost Model
 
-Programs don't pay per-message. Instead, each program has an **Executable Balance** in wVARA:
-
-1. Every program gets a small **free compute threshold** per message
-2. Beyond the threshold, execution time is metered at a `wvaraPerSecond` rate
-3. If the Executable Balance runs out, messages remain queued until the program is topped up
-4. The consumed balance is distributed to validators as rewards
+The sender pays ETH for the Ethereum transaction. The runtime charges the program’s wVARA Executable Balance for gas burned during ordinary execution. A message can run out of gas and return an error if the program’s balance is too low. Check its reply before retrying after a top-up.
 
 → [Reverse Gas Model](/docs/vara-eth/economics/reverse-gas-model)

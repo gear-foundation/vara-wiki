@@ -19,13 +19,13 @@ import { ethMainnet, varaMainnet } from '@/addresses/bridge-addresses.js';
 ## Vara Bridge Deployments
 
 <Callout type="info" title="Mainnet only">
-    Vara Mainnet is the only public network. The bridge testnet deployment has been decommissioned along with the Vara testnet - build and integrate directly against the production addresses below.
+    These are mainnet deployments. The former Vara bridge testnet is no longer available. Test on a local Gear development node (`gear --dev`) and a local Ethereum node such as Anvil before using mainnet funds. Testing proof delivery also requires a bridge deployment on those nodes. A listed contract does not mean a transfer or claim is currently available; see the [Bridge Guide](/docs/vara-network/bridge/bridge_guide) to check your route.
 </Callout>
 
 <Callout type="warn" title="Ethereum contracts were redeployed">
     The Ethereum side of the bridge now verifies Vara finality with a BEEFY light client. The contracts were redeployed for this change, including **MessageQueue**, **ERC20Manager**, **Bridging Payment**, **WVARA** and the governance contracts.
 
-    Addresses of the previous deployment are no longer part of the bridge. If your integration stores bridge addresses, update them to the values below. The programs on Vara keep their addresses.
+    Use the addresses below for integrations with the BEEFY deployment. They do not migrate balances, allowances, or in-flight transfers. For a transfer initiated before the cutover, retain its original transaction and use the contracts that handled it to identify the claim or recovery path. Do not resend or substitute the new addresses.
 </Callout>
 
 <div className="network-section mainnet">
@@ -40,6 +40,8 @@ import { ethMainnet, varaMainnet } from '@/addresses/bridge-addresses.js';
 | **MessageQueue**          | <a href={`https://etherscan.io/address/${ethMainnet.messageQueue}`} target="\_blank">{ethMainnet.messageQueue}</a>       |
 | **Bridging Payment**      | <a href={`https://etherscan.io/address/${ethMainnet.bridgingPayment}`} target="\_blank">{ethMainnet.bridgingPayment}</a> |
 
+The queue can change verifiers. Read `MessageQueue.verifier()` and then `beefyClient()` on that verifier at the same finalized Ethereum block to confirm the current pair.
+
 #### Token Contracts
 
 | Token     | Address                                                                                              |
@@ -47,8 +49,10 @@ import { ethMainnet, varaMainnet } from '@/addresses/bridge-addresses.js';
 | **USDC**  | <a href={`https://etherscan.io/address/${ethMainnet.usdc}`} target="\_blank">{ethMainnet.usdc}</a>   |
 | **USDT**  | <a href={`https://etherscan.io/address/${ethMainnet.usdt}`} target="\_blank">{ethMainnet.usdt}</a>   |
 | **WETH**  | <a href={`https://etherscan.io/address/${ethMainnet.WETH}`} target="\_blank">{ethMainnet.WETH}</a>   |
-| **WVARA** | <a href={`https://etherscan.io/address/${ethMainnet.wvara}`} target="\_blank">{ethMainnet.wvara}</a> |
+| **BEEFY bridge WVARA** | <a href={`https://etherscan.io/address/${ethMainnet.wvara}`} target="\_blank">{ethMainnet.wvara}</a> |
 | **WBTC**  | <a href={`https://etherscan.io/address/${ethMainnet.wbtc}`} target="\_blank">{ethMainnet.wbtc}</a>   |
+
+BEEFY bridge WVARA is not the token used by the [Vara.eth Router](/docs/vara-eth/reference/contract-addresses#ethereum-mainnet).
 
 #### ERC20 Manager
 
@@ -75,9 +79,17 @@ import { ethMainnet, varaMainnet } from '@/addresses/bridge-addresses.js';
 | **vft-manager**             | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.vftManager}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.vftManager}</a>                       |
 | **Bridging Payment**        | <a href={`https://idea.gear-tech.io/programs/${varaMainnet.bridgingPayment}?node=wss%3A%2F%2Frpc.vara.network`} target="\_blank">{varaMainnet.bridgingPayment}</a>             |
 
-The Ethereum light client on Vara (`checkpoint-light-client`) is not listed here because its address changes whenever the client is replaced. Read the current address on-chain: call `EndpointFor(slot)` on **historical-proxy** to get the active event-verification program, then call `CheckpointLightClientAddress` on that program.
-
 The outbound message queue lives in the `gear_eth_bridge` pallet. Programs reach it through the [Bridge Built-in Actor](/docs/developing/build/builtinactors/bia-bridge).
+
+#### Find the inbound receipt route
+
+Use the Ethereum **Beacon slot of the original receipt**, not its execution block number or the latest slot. At the same finalized Vara block:
+
+1. Query `VftManager.HistoricalProxyAddress` on the VFT Manager to find its configured Historical Proxy.
+2. Query `HistoricalProxy.EndpointFor(receiptSlot)` on that proxy to find the event verifier for the receipt.
+3. Query `EthereumEventClient.CheckpointLightClientAddress` on that verifier to find its checkpoint light client.
+
+Vara referendum #105 changed the VFT Manager's receipt route without replacing the manager. The listed proxy starts at Beacon slot **15,722,720**, inclusive, and returns `NoEndpointForSlot` for earlier slots. Finding an endpoint does not confirm that the light client has accepted the checkpoint needed for the proof. For an older bridge transfer, [track the original Ethereum transaction](/docs/vara-network/bridge/bridge_guide#step-5-track-your-transaction). Do not resend it or switch to the previous proxy as a fallback.
 
 #### Token Contracts
 

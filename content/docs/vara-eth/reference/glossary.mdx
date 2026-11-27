@@ -31,7 +31,7 @@ An Ethereum standard for lightweight proxy contracts. Each Mirror is an EIP-1167
 
 ### Executable Balance
 
-A program's wVARA balance managed by the Router, used to pay for message execution. Automatically consumed during processing at the `wvaraPerSecond` rate. If zero, messages queue but aren't executed. Can be funded by anyone. See [Funding Executable Balance](/docs/vara-eth/interact/funding-executable-balance).
+A program’s execution budget in wVARA. Anyone can top it up through the Mirror. The runtime charges it for the gas burned during ordinary execution. An underfunded message can return an error. See [Funding Executable Balance](/docs/vara-eth/interact/funding-executable-balance).
 
 ### Executor
 
@@ -63,7 +63,7 @@ An address specified by a program when it exits. Upon program termination, remai
 
 ### Liquid Restaking
 
-The ability to stake tokens in multiple protocols simultaneously, improving capital efficiency. Vara.eth uses [Symbiotic](https://docs.symbiotic.fi/) for liquid restaking, where validators stake wVARA through vaults that can participate in multiple networks.
+Using stake to secure multiple protocols. Vara.eth has a Symbiotic middleware implementation. The Ethereum mainnet Router uses proof-of-authority middleware. See [Validators & Staking](/docs/vara-eth/economics/validators-staking).
 
 ### Message
 
@@ -71,7 +71,7 @@ The fundamental communication primitive in Vara.eth. Messages carry a payload (e
 
 ### Middleware
 
-An Ethereum smart contract ([IMiddleware.sol](https://github.com/gear-tech/gear/blob/master/ethexe/contracts/src/IMiddleware.sol)) that manages validator operations through Symbiotic. Handles operator registration, stake vault management, election of validators for each era, rewards distribution, and slashing execution. Sits between the Router and the Symbiotic ecosystem.
+An Ethereum contract that provides the validator set to the Vara.eth Router. The implementation selected by the Router determines how validators are chosen and which staking and rewards functions are available. See [Validators & Staking](/docs/vara-eth/economics/validators-staking).
 
 ### MirrorProxy (Small)
 
@@ -123,7 +123,7 @@ A cryptographic commitment (hash) to a program's complete state. Stored on-chain
 
 ### Validator (Executor)
 
-A node in the Vara.eth P2P network that executes programs, signs pre-confirmations, and commits batches to Ethereum. Validators stake wVARA and earn execution fees. See [Validators & Staking](/docs/vara-eth/economics/validators-staking).
+A node that executes Vara.eth programs and participates in consensus. Mainnet validators belong to the set configured in the PoA middleware. See [Validators & Staking](/docs/vara-eth/economics/validators-staking).
 
 ### WASM (WebAssembly)
 
@@ -131,8 +131,8 @@ A portable binary instruction format. Vara.eth programs compile from Rust to WAS
 
 ### wVARA (Wrapped VARA)
 
-An ERC-20 token on Ethereum representing VARA from the [Vara Network](/docs/vara-network). Used to fund program execution (Executable Balance), transfer value within programs, and stake as a validator. See [wVARA Overview](/docs/vara-eth/economics/wvara-overview).
+The ERC-20 returned by a Vara.eth Router’s `wrappedVara()` getter. Holders use it to fund programs’ Executable Balances. See [wVARA Overview](/docs/vara-eth/economics/wvara-overview).
 
 ### wvaraPerSecond
 
-A network parameter that determines the rate at which Executable Balance is consumed during message execution. Set by governance. Higher values mean higher execution costs.
+A field in the Router’s computation settings, denominated in wVARA base units per second of computation. For how the runtime debits a program’s balance, see [Execution Pricing](/docs/vara-eth/economics/reverse-gas-model#execution-pricing).

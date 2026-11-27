@@ -13,16 +13,35 @@ Every Vara.eth program needs wVARA in its **Executable Balance** to pay for comp
 
 The `executableBalanceTopUp` function on the Mirror contract is the primary way to fund a program. Anyone can call it.
 
+Use the token from your Router's `wrappedVara()` getter, not the Vara Network bridge's WVARA. Read that token's `decimals()` to convert the amount; the Ethereum Mainnet Router's wVARA has 12 decimals.
+
+This example targets Ethereum Mainnet. Set `routerAddress` from the [Vara.eth deployment table](/docs/vara-eth/reference/contract-addresses#ethereum-mainnet), `mirrorAddress` to the program you intend to fund, and `signer` to your connected wallet. For another deployment, change the chain ID and Router together.
+
 ```typescript
-import { ethers, parseUnits } from 'ethers';
+import { Contract, parseUnits, ZeroHash } from 'ethers';
 
-// 1. Approve program (Mirror address) to spend wVARA
-const wvara = new ethers.Contract(wvaraAddress, erc20Abi, signer);
-await wvara.approve(mirrorAddress, parseUnits('100', 18));
+const network = await signer.provider?.getNetwork();
+if (network?.chainId !== 1n) throw new Error('Connect to Ethereum Mainnet');
 
-// 2. Top up the program's Executable Balance
-const mirror = new ethers.Contract(mirrorAddress, mirrorAbi, signer);
-await mirror.executableBalanceTopUp(parseUnits('100', 18));
+const router = new Contract(routerAddress, [
+  'function programCodeId(address program) view returns (bytes32)',
+  'function wrappedVara() view returns (address)',
+], signer);
+if (await router.programCodeId(mirrorAddress) === ZeroHash) {
+  throw new Error('Mirror is not registered with this Router');
+}
+
+const wvara = new Contract(await router.wrappedVara(), [
+  'function decimals() view returns (uint8)',
+  'function approve(address spender, uint256 amount) returns (bool)',
+], signer);
+const amount = parseUnits('100', await wvara.decimals());
+await (await wvara.approve(mirrorAddress, amount)).wait();
+
+const mirror = new Contract(mirrorAddress, [
+  'function executableBalanceTopUp(uint128 value)',
+], signer);
+await (await mirror.executableBalanceTopUp(amount)).wait();
 ```
 
 <Callout type="note" title="Approval Required">
@@ -32,7 +51,7 @@ await mirror.executableBalanceTopUp(parseUnits('100', 18));
 ### CLI
 
 ```bash
-ethexe tx executable-balance-top-up "$PROGRAM_ID" 10000000000000000000 \
+ethexe tx executable-balance-top-up "$PROGRAM_ID" "$AMOUNT_BASE_UNITS" \
   --approve \
   --ethereum-rpc "$RPC" \
   --ethereum-router "$ROUTER" \
@@ -42,21 +61,18 @@ ethexe tx executable-balance-top-up "$PROGRAM_ID" 10000000000000000000 \
 **Parameters:**
 
 - `$PROGRAM_ID` — Mirror contract address
-- `10000000000000000000` — Amount in base units (10 wVARA in this example)
-- `--approve` — Automatically approve wVARA spending before top-up
+- `$AMOUNT_BASE_UNITS` — Amount in the Router token's base units (`10000000000000` for 10 wVARA on Ethereum Mainnet)
+- `--approve` — Check that the selected Router recognizes the Mirror, then approve wVARA spending before the top-up. Verify that `$RPC` and `$ROUTER` point to the intended deployment before running the command.
 
 ### Etherscan
 
-Navigate to the Mirror address on Etherscan. Under "Write as Proxy" (or "Write Contract"), find `executableBalanceTopUp` and enter the amount.
+1. Open the [Router for your network](/docs/vara-eth/reference/contract-addresses) in its block explorer and connect your wallet to that same network. In "Read as Proxy" (or "Read Contract"), call `programCodeId` with the Mirror address. Do not approve if the result is zero.
+2. Read `wrappedVara()` on that Router. On the returned token contract, call `approve` with the verified Mirror as `spender` and the exact amount in base units.
+3. On that Mirror, open "Write as Proxy" (or "Write Contract") and call `executableBalanceTopUp` with the same amount.
 
 ## How Execution Is Charged
 
-1. Each message gets a small **free compute threshold** — simple operations may cost nothing
-2. Beyond the threshold, CPU time is metered at a configurable `wvaraPerSecond` rate
-3. The consumed amount is deducted from the Executable Balance
-4. Consumed wVARA is distributed to validators as rewards
-
-→ [Validators & Staking](/docs/vara-eth/economics/validators-staking)
+The runtime converts the gas burned during ordinary execution to wVARA base units and deducts that amount from the program’s Executable Balance. The sender pays the Ethereum transaction fee in ETH. For the billing rule and its exception, see [Reverse Gas Model](/docs/vara-eth/economics/reverse-gas-model#execution-pricing).
 
 ## Funding Models
 
@@ -72,15 +88,9 @@ Different funding strategies suit different applications:
 
 ## What Happens When Balance Runs Out
 
-1. New messages are **queued but not executed**
-2. The program's state remains frozen at the last committed state
-3. No events are emitted for queued messages
-4. Once balance is replenished, queued messages resume processing in order
+When the Mirror accepts a message on Ethereum, it emits `MessageQueueingRequested` and the sender pays L1 gas. Execution on Vara.eth can still run out of gas, consume part of the program’s balance, and return an error. [Mirror event](https://github.com/gear-tech/gear/blob/v1.10.0/ethexe/contracts/src/Mirror.sol#L215-L230) · [Insufficient-balance example](https://github.com/gear-tech/gear/blob/v1.10.0/ethexe/processor/src/tests.rs#L1442-L1494)
 
-<Callout type="warning" title="User Experience Impact">
-  Users who send messages to an unfunded program still pay L1 gas, but their messages won't execute. Design your
-  frontend to check Executable Balance and warn users before they transact.
-</Callout>
+A top-up funds subsequent execution. Check the reply and the program state for the original message ID before deciding whether to retry. Resubmitting a message whose outcome is unknown can repeat the application action.
 
 ## Monitoring Balance
 

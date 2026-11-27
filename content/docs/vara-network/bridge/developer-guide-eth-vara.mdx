@@ -2,182 +2,219 @@
 title: Ethereum → Vara App Guide
 ---
 
-## Introduction
+This guide follows a one-way application ping from Ethereum to Vara. The Vara light client authenticates Ethereum finality; the receipt proof authenticates the execution log. Your receiving program decides which emitter, event, and payload it accepts. The [Vara → Ethereum App Guide](/docs/vara-network/bridge/developer-guide-vara-eth) uses a separate example; it is not a reply path for this ping.
 
-This article describes the flow for building a cross-chain application from **Ethereum to Vara**. The guide demonstrates how to design an event-based “ping-pong” dApp, where the message originates on Ethereum and is securely delivered and processed on Vara.
-
-Both directions of the bridge are based on light clients. In the reverse direction (Vara → Ethereum) an Ethereum contract follows Vara finality through BEEFY. The **Ethereum → Vara** route uses a light client of Ethereum that runs on Vara: trust is achieved through on-chain validation of Ethereum’s consensus — specifically, through the **beacon chain** and its finalized checkpoints.
-
-In this design, **event logs** on Ethereum serve as the source of truth. Applications emit events as part of contract execution. These events are included in Ethereum's canonical chain history (the beacon chain), and can be cryptographically proven by anyone — but only after finality is reached on Ethereum.
-
-A permissionless relayer observes the beacon chain, builds receipt proofs for the relevant events, and submits them to Vara. On Vara, a light client validates that the proof corresponds to an actually finalized event on Ethereum, and only then is the custom Vara program triggered.
-
-This mechanism is fundamentally **event-based** and asynchronous. Application developers are not required to build the bridge or proof logic themselves — only to emit and handle events, while the trustless bridge and relayers manage the cross-chain transport.
-
-For simplification, developers can now use the ready-made **GearJS Bridge library** (`@gear-js/bridge`), which performs most of the heavy lifting: proof generation, slot synchronization, and submission to Vara. This allows application developers to focus purely on emitting events on Ethereum and writing the receiving logic on Vara.
-
----
+**Local development only.** Run the application contracts on a local Ethereum node such as [Anvil](https://getfoundry.sh/anvil/overview) and a [local Gear development node](/docs/vara-network/node/dev-net). To test delivery end to end, you also need a local checkpoint light client, Historical Proxy, and an event verifier that forwards raw receipts. The public bridge testnet is no longer available. A local EVM node by itself does not produce the Beacon history needed for this proof.
 
 ## High-Level Architecture
 
-[Complete source code on GitHub](https://github.com/gear-foundation/cross-ping/tree/master/packages)
+1. An Ethereum application contract emits the ping event in a successful transaction.
+2. A relayer builds a proof of the receipt against finalized Ethereum history supported by the checkpoint light client on Vara.
+3. The Historical Proxy routes the proof to the verifier configured for the Ethereum slot. After verification, it forwards the authenticated receipt to the Vara application.
 
-The Ethereum → Vara cross-chain application consists of three core components:
+The local example uses the **raw EIP-2718 receipt trie value**: an RLP list for a legacy receipt, or the type byte followed by the RLP payload for a typed receipt. The [active mainnet route](/docs/vara-network/bridge/developer_hub#find-the-inbound-receipt-route) also expects raw receipts. The previous mainnet verifier used an extra RLP byte-string wrapper for typed receipts. Select proof and receipt encoding by the verifier for the original Beacon slot; do not try the other format or an old proxy as a fallback.
 
-1. **Ethereum Smart Contract (Ping Emitter)**  
-   Minimal contract `EthPinger` with `ping()` that emits `PingFromEthereum(address indexed from)`.
-   Location: [`eth-vara-pinger-eth/`](https://github.com/gear-foundation/cross-ping/tree/master/packages/eth-vara-pinger-eth)
+## Emit and Identify the Ping on Ethereum
 
-2. **Relayer Service (Off-chain)**  
-   - Connects to Ethereum and Vara.  
-   - Subscribes to `PingFromEthereum` (Ethereum).  
-   - For each event: calls `relayEthToVara({ transactionHash, ... })`.  
-   - Optionally sets `wait: true` to block until the required checkpoint is finalized.
-   Location: [`eth-vara-relayer-node/`](https://github.com/gear-foundation/cross-ping/tree/master/packages/eth-vara-relayer-node)
+This example emits `MessageRequested`, an application event, not a bridge-wide event ABI. Deploy it with the authorized Ethereum sender and the full 32-byte ID of your Vara program. Configure the Vara receiver to expect this emitter address, sender, and event ABI.
 
-3. **Vara Program (Receiver)**
-   - **Checkpoint Light Client** — tracks finalized Ethereum checkpoints.  
-   - **Historical Proxy** — validates proofs and forwards messages.  
-   - **Ping Receiver** — your program exposing `SubmitReceipt(slot, transaction_index, receipt_rlp)`.
-   Location: [`eth-vara-receiver-vara/`](https://github.com/gear-foundation/cross-ping/tree/master/packages/eth-vara-receiver-vara)
-
----
-
-## Implementation Details
-
-### Ethereum Side
-
-A minimal contract that emits the event:
+The constructors need both addresses. Before deploying `EthereumPingSender`, calculate the Vara actor ID with `generateProgramId(wasm, salt)` from `@gear-js/api`, using the receiver Wasm you will deploy and a fresh salt. Then deploy the receiver with that same Wasm and salt and pass the Ethereum contract address as its `emitter`. Confirm the receiver's initialization succeeded with the intended configuration before sending the ping.
 
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.28;
 
-contract EthPinger {
-    event PingFromEthereum(address indexed from);
+contract EthereumPingSender {
+    address public immutable sender;
+    bytes32 public immutable destination;
 
-    function ping() external {
-        emit PingFromEthereum(msg.sender);
+    event MessageRequested(
+        bytes32 indexed applicationId,
+        address indexed sender,
+        bytes32 indexed destination,
+        bytes payload
+    );
+
+    constructor(address authorizedSender, bytes32 varaDestination) {
+        require(authorizedSender != address(0) && varaDestination != bytes32(0), "invalid configuration");
+        sender = authorizedSender;
+        destination = varaDestination;
+    }
+
+    function sendMessage(bytes32 applicationId, bytes calldata payload) external {
+        require(msg.sender == sender, "wrong sender");
+        require(applicationId != bytes32(0) && payload.length <= 1024, "invalid ping");
+        emit MessageRequested(applicationId, msg.sender, destination, payload);
     }
 }
 ```
 
-### Relayer Side (using the library)
+The 1,024-byte limit belongs to the ping application, not the receipt bridge. Use a unique application ID, and record the Ethereum chain, emitter address, transaction hash, and expected event. A transaction hash identifies the receipt, not an individual log.
 
-The relayer’s job can be summarized in **four steps**: connect to Ethereum, connect to Vara, listen for events, and relay them using the library.
+## Relay the Original Receipt
 
-#### Create Ethereum clients (HTTP + WS)
+1. Wait for Ethereum finality and for the matching checkpoint evidence to be accepted on Vara. An Ethereum transaction being mined does not meet either condition.
+2. Fetch all receipts in the source block through [Ethereum execution JSON-RPC](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_gettransactionreceipt) and encode them as they appear in the receipt trie: an RLP list for legacy receipts and the type byte followed by the RLP payload for typed receipts. Use [`@ethereumjs/trie`](https://www.npmjs.com/package/@ethereumjs/trie) to build the trie with RLP-encoded transaction indices as keys. Fetch the source Beacon block and the headers linking it to the accepted checkpoint with the [Beacon API](https://ethereum.github.io/beacon-APIs/). Encode the proof using the selected verifier's IDL and submit it with [Sails JS](https://www.npmjs.com/package/sails-js) to `HistoricalProxy.Redirect`.
+3. Track the original Vara transaction and the receiver's finalized reply. If the result is unknown, reconcile the original submission rather than resending the source ping.
 
-```ts
-// via viem
-export const ethereumPublicClient = createPublicClient({ ... });
-export const ethereumWalletClient = createWalletClient({ ... });
+Do not use `relayEthToVara` from the published [`@gear-js/bridge@0.2.0`](https://www.npmjs.com/package/@gear-js/bridge/v/0.2.0) for this example or the active mainnet route. It wraps typed receipts for the previous verifier instead of passing the raw trie value.
 
-// via ethers (for WS subscriptions)
-const ethWs = new ethers.WebSocketProvider(ETHEREUM_WS_RPC_URL);
-listenPingFromEthereum(ethWs, (from, event) => {
-  const txHash = event.transactionHash;
-  handleEvent(txHash);
-});
+For a **raw-receipt local verifier that uses the same Electra layout**, use the [public proof composer source](https://github.com/gear-tech/gear-bridges/blob/1ff1bdd83dac26f602afe6d463713111802d25f3/js/bridge-js/src/eth-to-vara/proof-composer.ts) as a starting point: return the raw trie value as `receiptRlp` instead of wrapping it in RLP. If the local deployment uses a different layout, follow its verifier IDL. This example does not ship a local proof runner.
+
+## Authenticate the Ping on Vara
+
+Call `HistoricalProxy.Redirect` with the receiver's actor ID as `client` and the SCALE-encoded pair of strings `("Ping", "SubmitReceipt")` as `client_route`. The proxy prefixes that route to the verified arguments in this order: `(slot: u64, transaction_index: u64, receipt_rlp: Vec<u8>)`. The program returns `Result<H256, ReceiptError>` after its route prefix. Decode that result from the proxy's consumer reply; a successful redirect alone does not prove the ping was accepted.
+
+The example uses Sails' string-prefixed SCALE routes. Create a Rust library crate with the following `Cargo.toml` and `src/lib.rs`. In `build.rs`, use `fn main() { sails_rs::build_wasm(); }`. Install the `wasm32v1-none` target for `nightly-2026-02-10`, then run `cargo +nightly-2026-02-10 build --release` and use the generated `.opt.wasm` for deployment.
+
+```toml
+[package]
+name = "vara-ping-receiver"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sails-rs = { git = "https://github.com/gear-tech/sails.git", rev = "3cd30d98a22ad92f0c3ac3a1bf0c2fb360fb75c9" }
+gstd = { version = "=1.10.0", features = ["nightly"] }
+alloy-consensus = { version = "=2.5.0", default-features = false }
+alloy-eips = { version = "=2.5.0", default-features = false }
+alloy-sol-types = { version = "=1.7.3", default-features = false }
+
+[build-dependencies]
+sails-rs = { git = "https://github.com/gear-tech/sails.git", rev = "3cd30d98a22ad92f0c3ac3a1bf0c2fb360fb75c9", features = ["wasm-builder"] }
 ```
-
-#### Connect to Vara and initialize Sails + bridge events
-
-```ts
-varaProvider = await GearApi.create({ providerAddress: VARA_RPC_URL });
-sails = new Sails(parser);
-sails.parseIdl(CROSS_PING_IDL);
-sails.setApi(varaProvider);
-sails.setProgramId(CROSS_PING_PROGRAM_ID);
-
-listenPingSent((e) => {
-  console.log("Ping confirmed on Vara:", e);
-});
-```
-
-#### Subscribe to Ethereum event
-
-```ts
-const contract = new ethers.Contract(ETH_CONTRACT_ADDRESS, ETH_PINGER_ABI, provider);
-contract.on("PingFromEthereum", (_, payload) => {
-  const txHash = payload.log.transactionHash;
-  handleEvent(txHash);
-});
-```
-
-#### Relay to Vara via GearJS Bridge
-
-```ts
-import { relayEthToVara } from "@gear-js/bridge";
-
-async function handleEvent(txHash: `0x${string}`) {
-  const { ok, error } = await relayEthToVara({
-    transactionHash: txHash,
-    beaconRpcUrl: BEACON_API_URL,
-    ethereumPublicClient,
-    gearApi: varaProvider!,
-    checkpointClientId: CHECKPOINT_LIGHT_CLIENT,
-    historicalProxyId:  HISTORICAL_PROXY_ID,
-    clientId:           PING_RECEIVER_PROGRAM_ID,
-    clientServiceName: "PingReceiver",
-    clientMethodName:  "SubmitReceipt",
-    signer,
-    wait: true,
-  });
-
-  if (error) console.error("Proxy error:", error);
-  else        console.log("Relayed OK:", ok);
-}
-```
-
-Take `HISTORICAL_PROXY_ID` from the [Developer Hub](/docs/vara-network/bridge/developer_hub). Do not hard-code `CHECKPOINT_LIGHT_CLIENT`: the light client is replaced from time to time, so read its current address through the historical proxy as the Developer Hub describes.
-
-That’s all: **listen to the Ethereum event → forward tx hash → the library handles proofs & finality**.  
-Full code is available in the [relayer package](https://github.com/gear-foundation/cross-ping/tree/master/packages/eth-vara-relayer-node).
-
-### Vara Side
-
-Your program exposes a service method that the Historical Proxy will call **after** validation.  
-**The method must be exported** so it’s invokable externally.
-
-A minimal implementation that emits an internal event on receipt:
 
 ```rust
 #![no_std]
-use sails_rs::prelude::*;
 
-#[sails_rs::event]
-#[sails_rs::sails_type]
-pub enum Event {
-    ReceiptSubmitted(u64, u32),
+use alloy_consensus::ReceiptEnvelope;
+use alloy_eips::eip2718::Decodable2718;
+use alloy_sol_types::{sol, SolEvent};
+use core::cell::RefCell;
+use sails_rs::{
+    collections::{BTreeMap, BTreeSet},
+    prelude::*,
+};
+
+sol! {
+    event MessageRequested(
+        bytes32 indexed applicationId,
+        address indexed sender,
+        bytes32 indexed destination,
+        bytes payload
+    );
 }
 
-pub struct PingReceiverService;
+#[derive(Encode, Decode, TypeInfo)]
+#[codec(crate = sails_rs::scale_codec)]
+#[scale_info(crate = sails_rs::scale_info)]
+pub enum ReceiptError {
+    WrongProxy,
+    InvalidReceipt,
+    InvalidPing,
+    AlreadyAccepted,
+}
 
-#[service(events = Event)]
-impl PingReceiverService {
+struct State {
+    proxy: ActorId,
+    emitter: H160,
+    sender: H160,
+    positions: BTreeSet<(u64, u64)>,
+    pings: BTreeMap<H256, Vec<u8>>,
+}
+
+pub struct Ping<'a>(&'a RefCell<State>);
+
+#[service]
+impl<'a> Ping<'a> {
     #[export]
     pub fn submit_receipt(
         &mut self,
         slot: u64,
-        transaction_index: u32,
-        _receipt_rlp: Vec<u8>,
-    ) -> Result<(), String> {
-        self.emit_event(Event::ReceiptSubmitted(slot, transaction_index))
-            .map_err(|_| "Failed to emit event".to_string())?;
-        Ok(())
+        transaction_index: u64,
+        receipt_rlp: Vec<u8>,
+    ) -> Result<H256, ReceiptError> {
+        assert_eq!(Syscall::message_value(), 0, "do not attach value");
+        let mut state = self.0.borrow_mut();
+        if Syscall::message_source() != state.proxy {
+            return Err(ReceiptError::WrongProxy);
+        }
+        let position = (slot, transaction_index);
+        if state.positions.contains(&position) {
+            return Err(ReceiptError::AlreadyAccepted);
+        }
+        let receipt = ReceiptEnvelope::decode_2718_exact(&receipt_rlp)
+            .map_err(|_| ReceiptError::InvalidReceipt)?;
+        if receipt.as_receipt().and_then(|r| r.status.as_eip658()) != Some(true) {
+            return Err(ReceiptError::InvalidReceipt);
+        }
+
+        let mut logs = receipt.logs().iter().filter(|log| {
+            log.address.as_slice() == &state.emitter.0[..]
+                && log.topics().first() == Some(&MessageRequested::SIGNATURE_HASH)
+        });
+        let log = logs.next().ok_or(ReceiptError::InvalidPing)?;
+        if logs.next().is_some() {
+            return Err(ReceiptError::InvalidPing);
+        }
+        let event = MessageRequested::decode_log_data_validate(&log.data)
+            .map_err(|_| ReceiptError::InvalidPing)?;
+        let ping_id = H256::from(event.applicationId.0);
+        let len = event.payload.len();
+        if event.sender.as_slice() != &state.sender.0[..]
+            || ActorId::from(event.destination.0) != Syscall::program_id()
+            || ping_id.is_zero()
+            || len > 1024
+        {
+            return Err(ReceiptError::InvalidPing);
+        }
+
+        // One dynamic bytes argument: require its canonical ABI offset, length and padding.
+        let data = log.data.data.as_ref();
+        if log.topics().len() != 4
+            || log.topics()[2][..12].iter().any(|&b| b != 0)
+            || data.len() != 64 + len.div_ceil(32) * 32
+            || data[..31].iter().any(|&b| b != 0)
+            || data[31] != 32
+            || data[64 + len..].iter().any(|&b| b != 0)
+        {
+            return Err(ReceiptError::InvalidPing);
+        }
+        if state.pings.contains_key(&ping_id) {
+            return Err(ReceiptError::AlreadyAccepted);
+        }
+        state.pings.insert(ping_id, event.payload.to_vec());
+        state.positions.insert(position);
+        Ok(ping_id)
+    }
+
+    #[export]
+    pub fn received(&self, ping_id: H256) -> Option<Vec<u8>> {
+        self.0.borrow().pings.get(&ping_id).cloned()
+    }
+}
+
+pub struct Receiver(RefCell<State>);
+
+#[program]
+impl Receiver {
+    pub fn new(proxy: ActorId, emitter: H160, sender: H160) -> Self {
+        assert!(!proxy.is_zero() && !emitter.is_zero() && !sender.is_zero());
+        Self(RefCell::new(State {
+            proxy,
+            emitter,
+            sender,
+            positions: BTreeSet::new(),
+            pings: BTreeMap::new(),
+        }))
+    }
+
+    pub fn ping(&self) -> Ping<'_> {
+        Ping(&self.0)
     }
 }
 ```
 
-Program location:
-- [`eth-vara-receiver-vara/`](https://github.com/gear-foundation/cross-ping/tree/master/packages/eth-vara-receiver-vara)
-
-**Names must match** what you pass from the relayer:
-- `clientServiceName = "PingReceiver"`
-- `clientMethodName  = "SubmitReceipt"`
-
 ## Verification
 
-Slot synchronization with the Light Client takes around 15–20 minutes (after the Ethereum event is finalized).
-Once the slot is finalized, a message from HistoricalProxy is delivered to the application program on Vara.
+Check that the original submission finalized on Vara, that the consumer reply was `Ok(ping_id)`, and that `Ping.Received(ping_id)` returns the expected payload. A finalized checkpoint makes proof verification possible; it is not delivery. Test that direct calls, wrong emitters or event signatures, malformed payloads, and duplicate pings do not change receiver state.

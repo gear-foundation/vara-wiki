@@ -10,67 +10,51 @@ title: Bridge
 
 ## Interface
 
-The actor exposes a unified request interface via messages.
-
-```rust
-pub enum Request {
-    SendEthMessage {
-        destination: H160, // destination on Ethereum
-        payload: Vec<u8>,
-    }
-}
-```
-
-The expected response type on a successful message queuing is:
-
-```rust
-pub enum Response {
-    EthMessageQueued {
-        nonce: U256,     // Message nonce.
-        hash: H256,      // Message hash.
-    }
-}
-```
+Use the SCALE types from [`gbuiltin-eth-bridge`](https://docs.rs/gbuiltin-eth-bridge/1.10.0/gbuiltin_eth_bridge/), at the version matching the targeted runtime. The request is `Request::SendEthMessage { destination, payload }`. A successful `Response::EthMessageQueued` gives you the original block number, message hash, full `U256` nonce, and queue ID. Keep these values for relay and reconciliation; they confirm enqueueing, not delivery.
 
 <Callout type="warn" title="Transport fee and payload size">
-    The bridge pallet charges a **transport fee** for every queued message. The fee is set by governance and is taken from the value attached to the request; the rest of the value is returned. A request with less value than the fee is rejected. Read the current amount from the `gearEthBridge.transportFee` storage item.
+    Ordinary outbound requests must attach at least the current transport fee in Vara base units. The fee is set by governance and read from `gearEthBridge.transportFee`. Any excess attached value is returned on success. Gas and the reply deposit are separate from this value.
 
     The payload of a single message is limited to **16,384 bytes**.
 </Callout>
 
-Queued messages are delivered to Ethereum by the [Vara ↔ Ethereum Bridge](/docs/vara-network/bridge/bridge_technical): Vara validators commit to the message queue through BEEFY, and the `MessageQueue` contract on Ethereum processes each message after verifying it against that commitment.
+## Queue a Message from a Vara Program
 
-Usage
+Call this helper from an async Gear message handler. Pass the actor ID above, the Ethereum destination as `H160`, and the raw application payload. This example uses `gbuiltin-eth-bridge`, `gstd`, and `gprimitives` at `1.10.0`, and `parity-scale-codec` at `3.7.5`.
 
 ```rust
+extern crate alloc;
+
+use alloc::vec::Vec;
 use gbuiltin_eth_bridge::{Request, Response};
+use gprimitives::H160;
+use gstd::{ActorId, msg};
+use parity_scale_codec::{DecodeAll, Encode};
 
-const BRIDGE_ACTOR_ID: [u8; 32] = [
-    0xf2, 0x81, 0x6c, 0xed, 0x0b, 0x15, 0x74, 0x95,
-    0x95, 0x39, 0x2d, 0x3a, 0x18, 0xb5, 0xa2, 0x36,
-    0x3d, 0x6f, 0xef, 0xe5, 0xb3, 0xb6, 0x15, 0x37,
-    0x39, 0xf2, 0x18, 0x15, 0x1b, 0x7a, 0xcd, 0xbf
-];
-
-let request = Request::SendEthMessage {
-    destination,
-    payload,
-}.encode();
-
-let reply_bytes = msg::send_bytes_with_gas_for_reply(
-    bridge_actor_id,
-    request,
-    GAS_TO_SEND_REQUEST,
-    FEE_BRIDGE,
-    GAS_FOR_REPLY_DEPOSIT,
-)
-.await?;
-
-let reply = Response::decode(&mut &reply_bytes[..])?;
-match reply {
-    Response::EthMessageQueued { nonce, hash } => {
-        // Handle the response...
-    }
+pub async fn queue_message(
+    builtin: ActorId,
+    destination: H160,
+    payload: Vec<u8>,
+    transport_fee: u128,
+    gas_limit: u64,
+    reply_deposit: u64,
+) -> Result<Response, &'static str> {
+    let request = Request::SendEthMessage { destination, payload }.encode();
+    let pending = msg::send_bytes_with_gas_for_reply(
+        builtin,
+        request,
+        gas_limit,
+        transport_fee,
+        reply_deposit,
+    )
+    .map_err(|_| "could not start bridge request")?;
+    let bytes = pending.await.map_err(|_| "bridge reply failed")?;
+    Response::decode_all(&mut bytes.as_slice()).map_err(|_| "invalid bridge reply")
 }
-
 ```
+
+Reconcile the original request against finalized Vara history before retrying an uncertain outcome. Setting up the reply can fail after the message has been sent, and a missing or undecodable reply does not prove that nothing was queued.
+
+Queued messages are delivered to Ethereum by the [Vara ↔ Ethereum Bridge](/docs/vara-network/bridge/bridge_technical): Vara validators commit to the message queue through BEEFY, and the `MessageQueue` contract on Ethereum processes each message after verifying it against that commitment.
+
+For the complete queue-to-delivery flow, see the [Vara → Ethereum App Guide](/docs/vara-network/bridge/developer-guide-vara-eth).

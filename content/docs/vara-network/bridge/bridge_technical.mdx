@@ -8,12 +8,12 @@ title: Technical Overview
 
 The Vara ↔ Ethereum Bridge is built on **on-chain light clients**. Each network runs a light client of the other one and accepts a cross-chain message only when it can be proven against the finalized state of the source chain. The design prioritizes <u>security, verifiability, and trustless execution</u> while staying compatible with existing Ethereum infrastructure.
 
-- **Vara → Ethereum** uses `BEEFY`, the bridge-oriented finality protocol of Substrate-based chains. Vara validators sign compact commitments to a `Merkle Mountain Range (MMR)` built over Vara blocks. A light client contract on Ethereum verifies these signatures and follows validator set changes.
-- **Ethereum → Vara** uses Ethereum’s `Beacon Chain` and its `Sync Committee`. A light client program on Vara verifies finalized Ethereum block headers and the events they contain.
+- **Vara → Ethereum** uses BEEFY. Vara validators sign commitments to a Merkle Mountain Range (MMR) over Vara blocks. An Ethereum light client checks the commitments against tracked Vara authority sets and authenticates authority changes.
+- **Ethereum → Vara** uses the Beacon Chain light-client protocol. A Vara program authenticates Ethereum finalized checkpoints; separate execution receipt proofs authenticate event logs.
 
 `Merkle Trees` keep the data that travels across chains small: the bridge moves only roots and proofs, and every individual message is checked against a root that the destination chain already trusts. On Vara, the bridge logic is powered by the **Gear runtime** and a set of specialized programs and pallets that coordinate the message queue and the Ethereum light client.
 
-This stack lets the bridge operate without trusted intermediaries — every commitment, message, and block header is cryptographically verified on-chain.
+Relayers submit evidence; they do not authorize transfers. The bridge also has privileged upgrade and pause controls, described under [Governance Layer](#governance-layer).
 
 ## Conceptual Flow: How the Bridge Works
 
@@ -23,31 +23,29 @@ From a user’s point of view, bridging tokens or data between Vara and Ethereum
 
 The process begins on Vara. When a user or a program performs an action that generates a message to Ethereum — such as bridging VARA tokens — the message is placed into the outbound queue of the `gear_eth_bridge` pallet. The pallet maintains a Merkle root of this queue.
 
-Vara validators run BEEFY on top of the regular block finality. In every block, the runtime adds a leaf to the MMR that commits to the current state of the bridge queue and to the next validator set. Validators then sign **BEEFY commitments** — short statements that contain the MMR root for a finalized block.
+Vara validators run BEEFY on top of regular block finality. The MMR leaf added at Vara block `B + 1` commits to the bridge queue snapshot from block `B` and carries a commitment to the next validator set. A signed BEEFY commitment authenticates the MMR root, not an individual bridge message.
 
 Relayers — permissionless actors that only transport data — deliver these commitments to Ethereum:
 
-1. A relayer submits a BEEFY commitment together with validator signatures to the `BeefyClient` contract. The contract checks that the commitment is backed by the current validator set and stores the new MMR root. When the validator set changes, the client hands over to the next set that the previous one committed to.
-2. A relayer submits the Merkle root of the Vara message queue to the `MessageQueue` contract. The `VaraQueueRootVerifier` contract proves that this root is part of an MMR root accepted by `BeefyClient`. A commitment and a queue root can be delivered in a single transaction.
-3. After a short maturity delay, any individual message can be submitted to `MessageQueue` with a Merkle proof of inclusion. The contract checks that the message:
+1. A relayer submits a BEEFY commitment to `BeefyClient`. With the current 41-authority mainnet set, the client requires valid ECDSA signatures from more than two thirds of the set (28 signatures) before storing the accepted MMR root. Authority handovers are authenticated through the previously committed next set.
+2. A relayer registers a queue root for a Vara block in `MessageQueue`. `VaraQueueRootVerifier` checks that the queue snapshot is included in an accepted MMR root and is bound to this Ethereum chain and queue.
+3. After the root matures, a relayer submits the original message and its inclusion proof to `MessageQueue`. The contract checks that the message:
    - Belongs to an accepted queue root.
    - Has not already been processed.
 
-If both conditions are met, the message is marked as processed and delivered to its destination contract (for example, `ERC20Manager`, which mints or releases tokens).
+Those checks authenticate an unprocessed message; they do not guarantee delivery. The queue must also allow processing and accept the destination. If the destination call reverts, the entire transaction reverts, including the processed nonce update. A successful processing transaction emits `MessageProcessed`; check the application event or state to confirm the intended effect.
 
 <Callout type="note" title="Maturity Delay">
-    A queue root has to wait before its messages can be processed: **5 minutes** for regular and emergency pause messages, and **1 hour** for governance administration messages. The delay gives the network time to react before a message takes effect.
+    The delay starts when the selected block's queue root is registered on Ethereum, not when the user sends on Vara. The mainnet queue uses **5 minutes** for user and emergency pause messages and **1 hour** for governance administration messages.
 </Callout>
 
 ### From Ethereum to Vara
 
 In the reverse direction, the bridge relies on Ethereum’s native finality mechanism and event logs.
 
-Relayers continuously monitor Ethereum’s **Beacon Chain and Sync Committee** — a rotating group of Ethereum validators that sign finalized block headers. Once a block is finalized, a relayer submits the block header and the associated sync committee signatures to Vara.
+A relayer submits an [Ethereum light-client update](https://ethereum.github.io/consensus-specs/specs/altair/light-client/sync-protocol/) to the checkpoint light client on Vara. The sync committee signs the **attested header**. The light client verifies that signature and a separate finality branch proving the finalized checkpoint against the attested state.
 
-On the Vara side, a `checkpoint light client` program verifies that the submitted block was indeed finalized, using the aggregated BLS signatures of the `sync committee`.
-
-Once Vara accepts the block as finalized, any relevant event emitted on Ethereum (e.g., a `BridgingRequested` event from the `ERC20Manager` contract) can be proven via a Merkle proof. These proofs are consumed on the Vara side by the VFT Manager program, which performs the appropriate on-chain logic, such as minting wrapped tokens or releasing VARA.
+A relayer separately proves inclusion of the execution receipt containing the relevant log, for example an `ERC20Manager` `BridgingRequested` event. The Historical Proxy routes the proof to the verifier configured for the Ethereum slot. After verification, the authenticated receipt is forwarded to the consumer. For token transfers, the VFT Manager checks the relevant log and applies the configured token operation.
 
 <Callout type="note" title="What is VFT Manager?">
     In simple terms, the **VFT Manager** acts as an intermediary between the bridge and the token contract:
@@ -57,25 +55,18 @@ Once Vara accepts the block as finalized, any relevant event emitted on Ethereum
 </Callout>
 
 ### Example Transaction Flow
-Let’s walk through an end-to-end example:
 
-1. A user wants to move VARA to Ethereum.
-2. They lock 100 VARA via the VFT Manager on the Vara side.
-3. This action generates a message, stored in the outbound queue of `gear_eth_bridge`.
-4. The block is finalized, and Vara validators sign a BEEFY commitment that covers it.
-5. A relayer submits the commitment to `BeefyClient` and the queue Merkle root to `MessageQueue` on Ethereum.
-6. After the maturity delay, the message is submitted — typically by a relayer — along with a Merkle proof.
-7. The `ERC20Manager` contract mints 100 wVARA to the user's address.
+This example describes the protocol for an enabled VARA route, not which routes are currently accepting transfers.
 
-The reverse flow (burn wVARA on Ethereum → release VARA on Vara) uses the Ethereum light client on Vara:
+1. A Vara transfer locks VARA and queues an outbound message.
+2. BEEFY authenticates the MMR root that covers the queue snapshot. A relayer registers the queue root on Ethereum.
+3. After maturity, an inclusion proof lets `MessageQueue` deliver the message to `ERC20Manager`, which mints the **BEEFY bridge WVARA**.
 
-1. The user requests bridging in the `ERC20Manager` contract on Ethereum. The contract burns the wVARA and emits a `BridgingRequested` event.
-2. The event is recorded in a block finalized by Ethereum’s Beacon Chain.
-3. A relayer submits the finalized header and signatures to Vara’s light client.
-4. A relayer submits a proof of the event; Vara verifies it and passes it to the VFT Manager.
-5. VARA is released to the user’s account on Vara.
+In the reverse direction, `ERC20Manager` burns bridge WVARA and emits `BridgingRequested`. Ethereum finality is authenticated on Vara, then the receipt proof is sent through the Historical Proxy to the VFT Manager.
 
-For tokens that are native to Ethereum (USDT, USDC, WETH, WBTC) the roles are mirrored: `ERC20Manager` locks the tokens on Ethereum and the VFT Manager mints their wrapped versions on Vara; on the way back the wrapped tokens are burned on Vara and the originals are released on Ethereum.
+Check that the intended asset arrived in the destination wallet. If you expected native VARA, check its native balance and any pending claim. An accepted receipt or a wrapped-token credit does not show that native VARA arrived.
+
+For Ethereum-origin ERC-20s, `ERC20Manager` locks the original tokens and the VFT Manager mints wrapped tokens on Vara. The reverse direction burns the wrapped tokens and releases the originals. An ETH route can involve Ethereum-side wrapping or unwrapping; WETH in the contract registry is an ERC-20, not native ETH.
 
 This dual-model architecture — a BEEFY light client in one direction and a Beacon Chain light client in the other — means that each chain verifies the other chain’s consensus directly.
 
@@ -96,23 +87,20 @@ The runtime also includes the standard `BEEFY` and `MMR` pallets. They make vali
 
 Other important modules are programs:
 
-`Checkpoint Light Client` — A minimal Ethereum Beacon Chain client that stores finalized block headers and Sync Committee sets. It:
-
-- Accepts newly finalized headers and stores them after verification.
-- Enables trustless validation of Ethereum-side data.
+`Checkpoint Light Client` — Verifies Ethereum Beacon finality updates and keeps the latest full finalized header, the current and next sync committees, and a bounded history of checkpoint slots and block roots. The event verifier uses those roots to authenticate historical proofs.
 
 `Ethereum Event Client` — This program processes Ethereum-side events by:
 
 - Cross-checking data with the Checkpoint Light Client
-- Verifying Merkle Patricia proofs that confirm a transaction is part of a block
-- Decoding transaction receipts and events
+- Verifying Merkle Patricia proofs that bind an execution receipt to the block's receipts root
+- Returning the authenticated receipt for the receiving program to interpret
 
 `Historical Proxy` — A routing layer between users and multiple versions of the Ethereum Event Client. It chooses the correct version of the event client to handle a given request based on Ethereum’s slot number.
 
 <Callout type="info" title="Why is Historical Proxy needed?">
     Ethereum evolves over time, and its data structures or client versions may change.
 
-    The **Historical Proxy** ensures seamless compatibility by **automatically selecting the correct client version** based on the specific block’s slot, allowing the bridge to process historical data without errors.
+    The **Historical Proxy** selects the verifier configured for the Ethereum block's slot. Verification requires supported historical data and a valid proof; a missing or unsupported verifier does not fall back to unverified delivery.
 </Callout>
 
 ### Ethereum Side Components
@@ -131,36 +119,28 @@ Ethereum hosts the contracts that verify Vara finality and deliver messages. Eac
 
 `GovernanceAdmin` and `GovernancePauser` — Represent Vara governance on Ethereum. Messages sent by the corresponding governance origins on Vara are executed by these contracts.
 
-All current addresses are listed in the [Developer Hub](/docs/vara-network/bridge/developer_hub).
+The [Developer Hub](/docs/vara-network/bridge/developer_hub) lists the core addresses and explains how to find the verifier and checkpoint client for a receipt’s Beacon slot.
 
 ## Relayers
 
 Relayers play a crucial role in the bridge’s cross-chain communication model. These are independent, permissionless actors that deliver commitments, block headers, messages, and proofs between Ethereum and Vara.
 
-Relayers do not validate or interpret the data they carry. Instead, they act as messengers that:
+Relayers collect and prepare data for on-chain verification. In particular, they:
 
 - Submit BEEFY commitments and queue Merkle roots from Vara to Ethereum
 - Submit finalized Ethereum headers and event proofs to Vara
 - Deliver individual messages with their Merkle proofs
 
-Because the bridge is **permissionless**, anyone can run a relayer — no special access is required. A relayer cannot forge a message: everything it submits is verified on-chain against validator signatures.
+Submitting a valid proof does not require special relayer approval. On-chain verification, rather than a relayer's signature, determines whether a proof is accepted. This does not override pause controls or application rules.
 
 Relayers also keep the light clients up to date. `BeefyClient` has to see every validator set change, so commitments are submitted regularly even when there are no messages to deliver.
 
 <Callout type="idea" title="Bridging Payment Mechanisms">
-    To ensure liveness, the system supports optional bridging payment contracts on both sides:
-
-    * **Automatic:** Users pay a fee during message initiation, and a relayer delivers the transfer to the destination.
-    * **Manual:** Users can complete the delivery themselves without paying the relay fee.
-
-    This dual approach provides flexibility while maintaining **relayer incentives** for a smooth user experience.
+    Where offered, automatic delivery uses an optional relay fee. For a manual claim, the claimant pays destination gas instead. Neither option removes source gas or the Vara outbound transport fee.
 </Callout>
 
 <Callout type="idea" title="What happens if relayers go offline?">
-    Because all bridging data is stored **on-chain** (using Merkle Trees), the system is inherently resilient:
-
-    * **Persistence:** No message is lost during downtime.
-    * **Recovery:** Any new or returning relayer can retrieve the proofs and resume delivery.
+    Another relayer can resume delivery if the necessary finalized history and proof data are available, the light clients can be brought up to date, and the destination can execute the message. A stored root does not itself supply an inclusion proof or guarantee recovery.
 </Callout>
 
 ## Smart Contract Layer: Token Logic & Extensibility
@@ -183,7 +163,7 @@ The asset contracts are independent and modular.
 
 ### Developer Extensibility
 
-The transport layer is not limited to tokens. Any program on Vara can send a message to any contract on Ethereum, and any program on Vara can consume proofs of Ethereum events. Developers can:
+The transport layer is not limited to tokens. A Vara program can queue a message for an Ethereum contract that implements `IMessageHandler`. A Vara program can also consume authenticated Ethereum receipts through the Historical Proxy. In both directions the application must independently check the caller and the expected source.
 
 - Build their own message handlers and cross-chain applications
 - Use the bridge as a generic messaging layer between a Vara program and an Ethereum contract
@@ -196,7 +176,9 @@ Adding a new token to the official token bridge is subject to governance — the
 
 The governance system keeps the bridge secure, upgradeable, and adaptable to ecosystem needs.
 
-The bridge is controlled by **Vara OpenGov**. Two dedicated [governance tracks](/docs/vara-network/governance) exist for it: **Bridge Admin** for administration and upgrades, and **Bridge Pauser** for emergency pausing. An approved referendum sends a governance message through the bridge itself, and the `GovernanceAdmin` or `GovernancePauser` contract executes it on Ethereum.
+Vara OpenGov has [Bridge Admin and Bridge Pauser tracks](/docs/vara-network/governance). Approved governance messages can be delivered to the corresponding Ethereum governance contracts. Anyone can deliver a valid proof. Pausing a component or upgrading a proxy requires the corresponding privileged role.
+
+Ethereum mainnet also has an independent upgrade path. At [finalized block 26,506,530](https://etherscan.io/block/26506530), the [recovery timelock](https://etherscan.io/address/0x0Fb9EA7ee28F7FfbCaC28e5959f672F6e95F5356#readContract) owned the ProxyAdmins for `MessageQueue`, `ERC20Manager`, and bridge WVARA. The [recovery Safe](https://etherscan.io/address/0x72a920fAD4Fb995C5ce240C00212406458bA3130#readProxyContract) required two of its three owners to authorize an operation. It could schedule or cancel a timelock operation and execute it after a minimum delay of one hour. This path can upgrade any of the three proxies independently of a Vara governance message.
 
 Through proposals the bridge allows:
 
@@ -209,14 +191,7 @@ Through proposals the bridge allows:
     The bridge’s governance is integrated with its transport layer:
 
     * **Mechanism:** Administrative messages sent through governance are recognized by both the smart contracts and the pallet.
-    * **Safeguards:** Governance messages wait longer than regular ones before they can be executed on Ethereum, and the `MessageQueue` contract has emergency controls that stop message processing while an issue is investigated.
-</Callout>
-
-<Callout type="idea" title="What Does This Mean for Users?">
-    Governance makes the bridge resilient and **future-proof**:
-
-    * **Community-Driven:** Any member can propose improvements or architectural updates.
-    * **On-chain Execution:** Once a proposal is approved, the change is delivered and executed through the bridge, with no manual key holder in between.
+    * **Safeguards:** Governance administration messages have a longer delay than regular and emergency pause messages. The `MessageQueue` also has emergency controls that can stop processing.
 </Callout>
 
 ---
@@ -225,6 +200,6 @@ Through proposals the bridge allows:
 
 - [BEEFY – protocol description in Polkadot SDK](https://github.com/paritytech/polkadot-sdk/blob/master/substrate/client/consensus/beefy/README.md)
 - [Snowbridge – BEEFY light client verification](https://docs.snowbridge.network/architecture/verification/polkadot)
-- [Ethereum Beacon Chain – Consensus Specification](https://github.com/ethereum/consensus-specs/tree/master/specs/bellatrix)
+- [Ethereum Beacon Chain – Light-client Sync Protocol](https://ethereum.github.io/consensus-specs/specs/altair/light-client/sync-protocol/)
 - [Merkle Trees Explained](https://ethereum.org/en/developers/docs/data-structures-and-encoding/patricia-merkle-trie/)
 - [Substrate OpenGov – Governance Pallet](https://docs.polkadot.com/polkadot-protocol/onchain-governance/overview/)

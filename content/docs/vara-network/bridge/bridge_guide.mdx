@@ -4,16 +4,20 @@ browser_title: Bridge Vara ↔ Ethereum Easily
 title: Bridge Guideline
 ---
 
-The official bridge interface is available at [**bridge.vara.network**](https://bridge.vara.network/). It supports transfers of the following assets between Vara and Ethereum:
+Use the official [bridge interface](https://bridge.vara.network/) to check which assets and directions currently accept new transfers. Availability for new transfers is separate from the ability to claim an existing transfer. The [Developer Hub](/docs/vara-network/bridge/developer_hub) lists deployed contracts, not live route status.
 
-- **VARA (Vara Native) ↔ wVARA** (on Ethereum)
-- **ETH (Ethereum Native) ↔ wETH** (on Vara)
-- **USDT (on Ethereum) ↔ wUSDT** (on Vara)
-- **USDC (on Ethereum) ↔ wUSDC** (on Vara)
-- **wBTC (on Ethereum) ↔ wBTC** (on Vara)
+| On Vara | On Ethereum |
+| --- | --- |
+| VARA | BEEFY bridge WVARA |
+| WETH | ETH (the bridge uses WETH on-chain) |
+| WUSDT | USDT |
+| WUSDC | USDC |
+| WBTC | WBTC |
+
+These are the bridge's asset pairs, not a list of open routes. Check the interface before initiating a transfer.
 
 <Callout type="warn" title="Check the token address">
-    The bridge works only with the token contracts listed in the [Developer Hub](/docs/vara-network/bridge/developer_hub). The interface shows the contract address next to each asset — compare it before you confirm a transfer.
+    Match the chain and token contract to the [Developer Hub](/docs/vara-network/bridge/developer_hub). In particular, BEEFY bridge WVARA and the Vara.eth Router's wVARA are different ERC-20 tokens with the same ticker.
 </Callout>
 
 ---
@@ -30,7 +34,7 @@ The official bridge interface is available at [**bridge.vara.network**](https://
 
 ### Step 1: Select Asset & Amount
 
-- Pick the direction and the asset you want to transfer (**VARA**, **ETH**, **USDT**, **USDC** or **wBTC**).
+- Select an available direction and asset in the bridge interface.
 - Specify the **exact amount** you want to bridge.
 
 ---
@@ -44,10 +48,8 @@ The official bridge interface is available at [**bridge.vara.network**](https://
 
 ### Step 3: Choose the Claim Type
 
-- **Automatic** (recommended) — you pay the fee shown in the interface, and a relayer delivers the assets directly to the destination wallet.
-- **Manual claim** — you complete the delivery on the target network yourself and pay its network fee.
-
-The expected fee is shown before you confirm.
+- **Automatic delivery**, where offered — pay the quoted relay fee to have a relayer submit delivery. Paying the fee is not confirmation of delivery.
+- **Manual claim**, where offered — submit the claim on the destination network and pay its gas fee. Open the original transfer in **Transactions** and use its claim action once available. If no claim action is available, keep the original transaction hash; do not start a replacement transfer.
 
 ---
 
@@ -62,15 +64,12 @@ The expected fee is shown before you confirm.
 
 ### Step 5: Track Your Transaction
 
-The **Transactions** tab lets you check the status of current and past transfers without leaving the interface.
+Use **Transactions** to track the original transfer. Allow **tens of minutes to a few hours** as a planning estimate, not a deadline. Delivery waits for source finality, proof availability, and destination execution; Vara → Ethereum also waits for the queue root to mature. Pauses or proof delays can take longer. Check that the intended asset arrived in the destination wallet. If you expected native VARA, check the native balance and any pending claim, not just a wrapped-token credit.
 
-A transfer is not instant. It has to wait for finality on the source network and for the bridge to accept the proof on the target network, so it usually takes from **tens of minutes to a few hours**. Do not send the same transfer again while it is in progress.
+For transfers initiated before the Ethereum contract cutover, retain the original source transaction hash and reconcile it against the original deployment. Do not resend the transfer or switch contract addresses to try to claim it.
 
 <Callout type="idea" title="Who Pays the Transfer Fees?">
-    The gas token required always depends on the **source network**:
-
-    *   **Vara → Ethereum**: You only need **VARA** tokens. *(No ETH is required for the initial transfer.)*
-    *   **Ethereum → Vara**: You need **ETH**, **regardless** of the asset you are bridging (VARA, ETH, or stablecoins).
-
-    *Tip: Always keep a small amount of the native gas token in your source wallet to avoid transaction failures.*
+    * **Source gas:** Pay in VARA when sending from Vara, or ETH when sending from Ethereum.
+    * **Outbound transport fee:** Vara charges a separate protocol fee to queue the outbound message. It still applies when you intend to self-relay.
+    * **Delivery:** Pay a separate relay fee for automatic delivery where offered, or pay gas in the destination chain's native token when claiming yourself (ETH on Ethereum, VARA on Vara).
 </Callout>

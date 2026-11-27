@@ -13,7 +13,7 @@ On Ethereum, every user must hold ETH and pay gas for every action — even simp
 
 Vara.eth flips the model:
 
-**Users pay** only the base Ethereum transaction fee (in ETH) to submit a message to the Mirror contract.
+**Users pay** the Ethereum transaction fee (in ETH) to submit a message to the Mirror contract.
 
 **Programs pay** for their own execution from a pre-funded balance (in wVARA).
 
@@ -22,9 +22,7 @@ Traditional:    User ──pays ETH gas──▶ Smart Contract execution
 Vara.eth:       User ──pays ETH (L1 tx only)──▶ Mirror ──program pays wVARA──▶ Execution
 ```
 
-Developers fund their program's balance once, then users interact for free. If the balance runs low, the program pauses until replenished — no funds are lost.
-
-This enables gasless experiences: users click, sign with MetaMask, and the program covers compute. No token management, no gas estimation, no multi-step approval flows.
+Developers can fund the program so users only need ETH for the L1 transaction. An underfunded program can return an error after burning gas. Check the original message’s reply before deciding whether to retry after a top-up.
 
 → [Reverse Gas Model](/docs/vara-eth/economics/reverse-gas-model) | [Funding Your Program](/docs/vara-eth/interact/funding-executable-balance)
 

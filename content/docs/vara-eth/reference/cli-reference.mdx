@@ -121,7 +121,7 @@ ethexe tx send-message "$MIRROR_ADDRESS" "0x..." 0 \
 Top up a program's [Executable Balance](/docs/vara-eth/interact/funding-executable-balance) (wVARA).
 
 ```bash
-ethexe tx executable-balance-top-up "$MIRROR_ADDRESS" 10000000000000000000 \
+ethexe tx executable-balance-top-up "$MIRROR_ADDRESS" "$AMOUNT_BASE_UNITS" \
   --approve \
   --ethereum-rpc "$RPC" \
   --ethereum-router "$ROUTER" \
@@ -130,7 +130,7 @@ ethexe tx executable-balance-top-up "$MIRROR_ADDRESS" 10000000000000000000 \
 
 **Positional Arguments:**
 - `<mirror>` — Mirror contract address
-- `<value>` — wVARA amount (in base units)
+- `<value>` — Set `AMOUNT_BASE_UNITS` to the amount you intend to spend, using the decimals of the token returned by the selected Router’s `wrappedVara()`. On Ethereum mainnet, 10 wVARA is `10000000000000` base units (12 decimals).
 
 **Options:**
 - `--approve` / `-a` — Automatically approve wVARA spending

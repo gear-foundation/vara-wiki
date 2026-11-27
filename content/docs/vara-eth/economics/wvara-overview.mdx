@@ -5,17 +5,11 @@ description: Understanding the wVARA token and its role in the Vara.eth ecosyste
 
 # wVARA Overview
 
-wVARA is the utility token that powers the Vara.eth execution economy. It funds program execution and secures validator incentives.
+Vara.eth programs pay for execution in wVARA. The Ethereum Router’s `wrappedVara()` getter identifies the ERC-20 for its deployment.
 
 ## What is wVARA?
 
-wVARA (wrapped VARA) is an ERC-20 token on Ethereum that represents VARA from the [Vara Network](/docs/vara-network). It serves three primary functions:
-
-1. **Execution fuel** — Programs pay for computation using wVARA from their Executable Balance
-2. **Validator incentives** — Validators earn wVARA for executing programs and committing batches
-3. **Staking collateral** — Operators and vaults use wVARA in the validator economy
-
-For more on VARA tokenomics, see the [Vara Network Tokenomics](/docs/vara-network/tokenomics) page.
+On Ethereum mainnet, holders can use wVARA to fund a program’s Executable Balance. The current proof-of-authority middleware uses a configured validator set. Public staking and on-chain validator payouts are unavailable in this deployment. See [Validators & Staking](/docs/vara-eth/economics/validators-staking).
 
 ## wVARA vs ETH
 
@@ -38,7 +32,7 @@ This separation is the **Reverse Gas Model** — users don't need wVARA to inter
 
 ### ERC-20 on Ethereum
 
-wVARA is a standard ERC-20 token deployed on Ethereum. You can hold it in any Ethereum wallet, transfer it, trade it on DEXes, and use it in DeFi protocols.
+wVARA is a standard ERC-20 token deployed on Ethereum. Holders can transfer it to another Ethereum address.
 
 See [Contract Addresses](/docs/vara-eth/reference/contract-addresses) for the wVARA token configured by the Router on each network.
 
@@ -56,21 +50,7 @@ The Ethereum Mainnet Router's wVARA uses **12 decimals**. Read `decimals()` from
 
 ## Where wVARA Flows
 
-```
-Users / Developers
-       |
-  Fund programs (executableBalanceTopUp)
-       |
-  Executable Balance (Router-managed)
-       |
-  Consumed per message execution
-       |
-  Distributed to Validators
-```
-
-Additional flows:
-- **Top-up flow** — Accounts approve + top up program executable balance via Mirror
-- **Staking** — Validators and vaults use wVARA in Symbiotic-backed security
+A holder approves the program’s Mirror to spend the intended amount, then calls `executableBalanceTopUp(value)`. The Mirror transfers the approved tokens to the Router and emits a top-up request. The runtime credits the program’s Executable Balance when it processes that request.
 
 ## Balance Types
 
@@ -78,10 +58,10 @@ Each program has **two key balances** you should monitor:
 
 ### Executable Balance (wVARA)
 
-Managed by the Router. Automatically consumed to pay for message execution. Think of it as a prepaid gas tank — when it runs dry, messages queue up but aren't processed.
+The runtime tracks this balance for each program and charges it for message execution. An underfunded message can fail.
 
 - Funded via `executableBalanceTopUp(value)` on the Mirror (with prior ERC-20 approve)
-- Consumed at the `wvaraPerSecond` rate during execution
+- Charged according to the gas burned during execution
 - Cannot be withdrawn by the program
 - Can be funded by anyone (developer, users, sponsors)
 - Transferred to inheritor on program exit

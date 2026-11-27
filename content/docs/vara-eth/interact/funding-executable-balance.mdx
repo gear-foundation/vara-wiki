@@ -72,12 +72,7 @@ ethexe tx executable-balance-top-up "$PROGRAM_ID" "$AMOUNT_BASE_UNITS" \
 
 ## How Execution Is Charged
 
-1. Each message gets a small **free compute threshold** — simple operations may cost nothing
-2. Beyond the threshold, CPU time is metered at a configurable `wvaraPerSecond` rate
-3. The consumed amount is deducted from the Executable Balance
-4. Consumed wVARA is distributed to validators as rewards
-
-→ [Validators & Staking](/docs/vara-eth/economics/validators-staking)
+The runtime converts the gas burned during ordinary execution to wVARA base units and deducts that amount from the program’s Executable Balance. The sender pays the Ethereum transaction fee in ETH. For the billing rule and its exception, see [Reverse Gas Model](/docs/vara-eth/economics/reverse-gas-model#execution-pricing).
 
 ## Funding Models
 
@@ -93,15 +88,9 @@ Different funding strategies suit different applications:
 
 ## What Happens When Balance Runs Out
 
-1. New messages are **queued but not executed**
-2. The program's state remains frozen at the last committed state
-3. No events are emitted for queued messages
-4. Once balance is replenished, queued messages resume processing in order
+When the Mirror accepts a message on Ethereum, it emits `MessageQueueingRequested` and the sender pays L1 gas. Execution on Vara.eth can still run out of gas, consume part of the program’s balance, and return an error. [Mirror event](https://github.com/gear-tech/gear/blob/v1.10.0/ethexe/contracts/src/Mirror.sol#L215-L230) · [Insufficient-balance example](https://github.com/gear-tech/gear/blob/v1.10.0/ethexe/processor/src/tests.rs#L1442-L1494)
 
-<Callout type="warning" title="User Experience Impact">
-  Users who send messages to an unfunded program still pay L1 gas, but their messages won't execute. Design your
-  frontend to check Executable Balance and warn users before they transact.
-</Callout>
+A top-up funds subsequent execution. Check the reply and the program state for the original message ID before deciding whether to retry. Resubmitting a message whose outcome is unknown can repeat the application action.
 
 ## Monitoring Balance
 

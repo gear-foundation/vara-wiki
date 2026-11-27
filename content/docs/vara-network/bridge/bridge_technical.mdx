@@ -87,10 +87,7 @@ The runtime also includes the standard `BEEFY` and `MMR` pallets. They make vali
 
 Other important modules are programs:
 
-`Checkpoint Light Client` — A minimal Ethereum Beacon Chain client that stores finalized block headers and Sync Committee sets. It:
-
-- Accepts newly finalized headers and stores them after verification.
-- Enables trustless validation of Ethereum-side data.
+`Checkpoint Light Client` — Verifies Ethereum Beacon finality updates and keeps the latest full finalized header, the current and next sync committees, and a bounded history of checkpoint slots and block roots. The event verifier uses those roots to authenticate historical proofs.
 
 `Ethereum Event Client` — This program processes Ethereum-side events by:
 
@@ -122,7 +119,7 @@ Ethereum hosts the contracts that verify Vara finality and deliver messages. Eac
 
 `GovernanceAdmin` and `GovernancePauser` — Represent Vara governance on Ethereum. Messages sent by the corresponding governance origins on Vara are executed by these contracts.
 
-All current addresses are listed in the [Developer Hub](/docs/vara-network/bridge/developer_hub).
+The [Developer Hub](/docs/vara-network/bridge/developer_hub) lists the core addresses and explains how to find the verifier and checkpoint client for a receipt’s Beacon slot.
 
 ## Relayers
 
@@ -179,7 +176,9 @@ Adding a new token to the official token bridge is subject to governance — the
 
 The governance system keeps the bridge secure, upgradeable, and adaptable to ecosystem needs.
 
-Vara OpenGov has [Bridge Admin and Bridge Pauser tracks](/docs/vara-network/governance). Approved governance messages can be delivered to the corresponding Ethereum governance contracts. Pause and upgrade roles remain privileged; permissionless proof delivery is separate from those powers.
+Vara OpenGov has [Bridge Admin and Bridge Pauser tracks](/docs/vara-network/governance). Approved governance messages can be delivered to the corresponding Ethereum governance contracts. Anyone can deliver a valid proof. Pausing a component or upgrading a proxy requires the corresponding privileged role.
+
+Ethereum mainnet also has an independent upgrade path. At [finalized block 26,506,530](https://etherscan.io/block/26506530), the [recovery timelock](https://etherscan.io/address/0x0Fb9EA7ee28F7FfbCaC28e5959f672F6e95F5356#readContract) owned the ProxyAdmins for `MessageQueue`, `ERC20Manager`, and bridge WVARA. The [recovery Safe](https://etherscan.io/address/0x72a920fAD4Fb995C5ce240C00212406458bA3130#readProxyContract) required two of its three owners to authorize an operation. It could schedule or cancel a timelock operation and execute it after a minimum delay of one hour. This path can upgrade any of the three proxies independently of a Vara governance message.
 
 Through proposals the bridge allows:
 
